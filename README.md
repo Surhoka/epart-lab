@@ -11,8 +11,8 @@ Template Blogger berbasis SPA dengan fitur:
 🛠 Dibangun untuk efisiensi dan interaktivitas maksimal tanpa framework tambahan.
 
 📦 CDN siap pakai:
-- `style.min.css`: styling promo & modal estimasi
-- `spa-engine.min.js`: seluruh engine interaktif
+- `epart_minified.css`: styling promo & modal estimasi
+- `epart_minified.min.js`: seluruh engine interaktif
 
 📡 Siap dipanggil di template Blogger via:
 ```html
