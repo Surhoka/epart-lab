@@ -16,5 +16,5 @@ Template Blogger berbasis SPA dengan fitur:
 
 📡 Siap dipanggil di template Blogger via:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/surhoka/epart-lab/epart_minified.css.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/surhoka/epart-lab/epart_minified.css">
 <script src="https://cdn.jsdelivr.net/gh/surhoka/epart-lab/epart_minified.js"></script>
