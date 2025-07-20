@@ -1359,7 +1359,8 @@ function rehydrateLazyImages() {
 function setupInternalLinkListeners() {
     document.querySelectorAll('a').forEach(link => {
         // Hanya tangani link internal yang tidak memiliki data-no-spa dan tidak memiliki onclick handler
-        if (link.href.startsWith(window.BLOGGER_BASE_URL) && !link.dataset.noSpa && !link.onclick) { // Use BLOGGER_BASE_URL here
+        // serta tidak memiliki target="_blank"
+        if (link.href.startsWith(window.BLOGGER_BASE_URL) && !link.dataset.noSpa && !link.onclick && link.getAttribute('target') !== "_blank") { // Add target="_blank" check here
             // Hapus listener sebelumnya untuk mencegah duplikasi
             link.removeEventListener('click', handleInternalLinkClick);
             link.addEventListener('click', handleInternalLinkClick);
@@ -1374,11 +1375,13 @@ function handleInternalLinkClick(e) {
         return;
     }
     // Cek jika link adalah internal, bukan anchor, mailto, atau tel
+    // dan tidak memiliki target="_blank" atau data-no-spa
     if (e.target.tagName === 'A' &&
         e.target.href.startsWith(window.BLOGGER_BASE_URL) && // Use BLOGGER_BASE_URL here
         !e.target.href.includes('#') &&
         !e.target.href.startsWith('mailto:') &&
-        !e.target.href.startsWith('tel:')
+        !e.target.href.startsWith('tel:') &&
+        (e.target.getAttribute('target') !== "_blank" && !e.target.dataset.noSpa) // Add this condition
     ) {
         e.preventDefault(); // Mencegah navigasi default
         const url = e.target.getAttribute('href');
