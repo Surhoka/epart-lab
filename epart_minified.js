@@ -264,29 +264,49 @@ function populateVehicleCategoryDropdown() {
 async function loadContentForUrl(url, pushState = true) {
     console.log(`Loading content for URL: ${url}`);
     try {
+        const isHomePage = url === '/' || url === window.location.origin + '/';
+        const isStaticPage = url.startsWith('/p/'); // Identifikasi halaman statis
+
+        let targetContentWrapper = null;
+        let fetchedContentElement = null;
+
+        // Pastikan posts-wrapper dan static-page-content-wrapper ada
         const postsWrapper = mainContentSection.querySelector('.posts-wrapper');
-        if (!postsWrapper) {
-            console.error("Error: .posts-wrapper not found in main-content-section.");
-            // Tampilkan pesan error di main-content-section jika posts-wrapper tidak ditemukan
+        const staticPageWrapper = mainContentSection.querySelector('#static-page-content-wrapper');
+
+        // Tentukan wrapper mana yang akan ditargetkan dan tampilkan loading spinner
+        if (isHomePage) {
+            targetContentWrapper = postsWrapper;
+            if (staticPageWrapper) staticPageWrapper.innerHTML = ''; // Kosongkan wrapper halaman statis
+        } else if (isStaticPage) {
+            targetContentWrapper = staticPageWrapper;
+            if (postsWrapper) postsWrapper.innerHTML = ''; // Kosongkan wrapper postingan
+        } else { // Ini adalah postingan blog (item) atau halaman label
+            targetContentWrapper = postsWrapper;
+            if (staticPageWrapper) staticPageWrapper.innerHTML = ''; // Kosongkan wrapper halaman statis
+        }
+
+        if (!targetContentWrapper) {
+            console.error("Error: No target content wrapper found in main-content-section. This might indicate a missing .posts-wrapper or #static-page-content-wrapper.");
             mainContentSection.innerHTML = `
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                     <strong class="font-bold">Error!</strong>
-                    <span class="block sm:inline">Struktur konten utama tidak ditemukan.</span>
+                    <span class="block sm:inline">Struktur konten utama tidak ditemukan atau tidak valid.</span>
                 </div>
-              `;
+            `;
             return;
         }
 
-        // Tampilkan loading spinner
-        postsWrapper.innerHTML = `
+        // Tampilkan loading spinner di wrapper yang sesuai
+        targetContentWrapper.innerHTML = `
             <div class="text-center py-8 text-gray-600">
                 <i class="fas fa-spinner fa-spin text-2xl mb-4"></i>
                 <p>Memuat konten...</p>
             </div>
-          `;
+        `;
+
 
         // Atur visibilitas promo gallery
-        const isHomePage = url === '/' || url === window.location.origin + '/';
         if (promoGallerySection) {
             if (isHomePage) {
                 promoGallerySection.style.display = 'grid'; // Tampilkan promo gallery di homepage
@@ -302,12 +322,7 @@ async function loadContentForUrl(url, pushState = true) {
         if (contentCache[url]) {
             fetchedHtmlContent = contentCache[url];
             console.log(`✅ Using cached content for: ${url}`);
-            // Hapus dari cache setelah digunakan jika ingin meminimalkan memori,
-            // atau biarkan jika ingin memaksimalkan kecepatan untuk navigasi bolak-balik.
-            // Untuk kasus ini, kita biarkan di cache.
-            // delete contentCache[url];
         } else {
-            // Lakukan fetch jika tidak ada di cache
             const absoluteUrl = new URL(url, window.location.origin).href;
             const response = await fetch(absoluteUrl);
             if (!response.ok) {
@@ -320,29 +335,43 @@ async function loadContentForUrl(url, pushState = true) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(fetchedHtmlContent, 'text/html');
 
-        // Jika homepage, kosongkan postsWrapper dan set judul default
+        // Ekstrak dan masukkan konten berdasarkan jenis halaman
         if (isHomePage) {
-            postsWrapper.innerHTML = '';
+            targetContentWrapper.innerHTML = ''; // Kosongkan untuk beranda
             newPageTitle = '<data:blog.title/>'; // Gunakan judul blog default dari Blogger
-        } else {
-            // Ambil konten postingan dari dokumen yang baru dimuat
-            const newPostsWrapper = doc.querySelector('#main-content-section .posts-wrapper');
-            if (newPostsWrapper) {
-                // Pindahkan node anak dari newPostsWrapper ke postsWrapper
+        } else if (isStaticPage) {
+            fetchedContentElement = doc.querySelector('#static-page-content-wrapper'); // Cari konten halaman statis
+            if (fetchedContentElement) {
                 const fragment = document.createDocumentFragment();
-                while (newPostsWrapper.firstChild) {
-                    fragment.appendChild(newPostsWrapper.firstChild);
+                while (fetchedContentElement.firstChild) {
+                    fragment.appendChild(fetchedContentElement.firstChild);
                 }
-                postsWrapper.innerHTML = ""; // Kosongkan dulu
-                postsWrapper.appendChild(fragment);
+                targetContentWrapper.innerHTML = ""; // Kosongkan spinner loading
+                targetContentWrapper.appendChild(fragment);
             } else {
-                postsWrapper.innerHTML = `
-                      <div class="bg-blue-50 border border-blue-200 rounded p-3 text-blue-600 text-sm">
-                          Konten tidak tersedia atau tidak dapat dimuat.
-                      </div>
-                  `;
+                targetContentWrapper.innerHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-blue-600 text-sm">
+                        Konten halaman statis tidak ditemukan atau tidak dapat dimuat. Pastikan ada widget PageList di template Blogger Anda.
+                    </div>
+                `;
             }
-            // Ambil judul halaman baru
+            newPageTitle = doc.querySelector('title')?.textContent || newPageTitle;
+        } else { // Ini adalah postingan blog (item) atau halaman label
+            fetchedContentElement = doc.querySelector('#main-content-section .posts-wrapper'); // Cari wrapper postingan
+            if (fetchedContentElement) {
+                const fragment = document.createDocumentFragment();
+                while (fetchedContentElement.firstChild) {
+                    fragment.appendChild(fetchedContentElement.firstChild);
+                }
+                targetContentWrapper.innerHTML = ""; // Kosongkan spinner loading
+                targetContentWrapper.appendChild(fragment);
+            } else {
+                targetContentWrapper.innerHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-blue-600 text-sm">
+                        Konten postingan tidak tersedia atau tidak dapat dimuat.
+                    </div>
+                `;
+            }
             newPageTitle = doc.querySelector('title')?.textContent || newPageTitle;
         }
 
@@ -372,25 +401,14 @@ async function loadContentForUrl(url, pushState = true) {
     } catch (error) {
         console.error('Error loading content:', error);
         if (mainContentSection) {
-            const postsWrapper = mainContentSection.querySelector('.posts-wrapper');
-            if (postsWrapper) {
-                postsWrapper.innerHTML = `
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Error!</strong>
-                        <span class="block sm:inline">Gagal memuat konten: ${error.message}.</span>
-                        <span class="block sm:inline">Coba muat ulang halaman.</span>
-                    </div>
-                  `;
-            } else {
-                // Fallback jika postsWrapper juga tidak ada (sangat tidak mungkin)
-                mainContentSection.innerHTML = `
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Error!</strong>
-                        <span class="block sm:inline">Gagal memuat konten: ${error.message}.</span>
-                        <span class="block sm:inline">Coba muat ulang halaman.</span>
-                    </div>
-                  `;
-            }
+            // Tampilkan error di bagian konten utama
+            mainContentSection.innerHTML = `
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Error!</strong>
+                    <span class="block sm:inline">Gagal memuat konten: ${error.message}.</span>
+                    <span class="block sm:inline">Coba muat ulang halaman.</span>
+                </div>
+            `;
         }
     }
 }
@@ -1302,8 +1320,8 @@ function rehydrateLazyImages() {
                 img.classList.remove('lazyload-img');
                 console.log(`✅ Gambar dimuat manual: ${dataSrc}`);
             }
-        }
-    });
+        });
+    }
 }
 
 
