@@ -32,6 +32,12 @@ function showMessageBox(message) {
 const contentCache = {};
 
 async function preloadContent(url) {
+    // Tambahkan pengecekan ini untuk mencegah preloading halaman statis Blogger
+    if (url === '/p/' || url.startsWith('/p/')) {
+        console.log(`🚫 Skipping preload for static Blogger page: ${url}`);
+        return;
+    }
+
     if (contentCache[url] || contentCache[url] === null) {
         return; // Sudah di-cache atau sedang dalam proses preloading
     }
