@@ -1,5 +1,7 @@
-// Pastikan semua fungsi dan variabel global yang dibutuhkan oleh Blogger atau HTML lain didefinisikan di sini
-// atau diakses melalui `window.` jika memang dimaksudkan untuk global.
+// Define a global variable for Blogger's base URL.
+// This will be set from the Blogger template HTML using <data:blog.url/>
+// Default to current origin, will be overridden by Blogger
+window.BLOGGER_BASE_URL = window.location.origin; 
 
 // Fungsi utilitas untuk menambahkan kelas dengan aman
 function safeAddClass(element, ...classNames) {
@@ -32,23 +34,25 @@ function showMessageBox(message) {
 const contentCache = {};
 
 async function preloadContent(url) {
-    if (contentCache[url] || contentCache[url] === null) {
-        return; // Sudah di-cache atau sedang dalam proses preloading
+    // Ensure the URL is relative to the Blogger blog's base URL
+    const finalUrl = new URL(url, window.BLOGGER_BASE_URL).href;
+
+    if (contentCache[finalUrl] || contentCache[finalUrl] === null) {
+        return;
     }
-    contentCache[url] = null; // Tandai sedang di-preload
+    contentCache[finalUrl] = null;
     try {
-        const absoluteUrl = new URL(url, window.location.origin).href;
-        console.log(`🚀 Preloading content for: ${absoluteUrl}`);
-        const response = await fetch(absoluteUrl);
+        console.log(`🚀 Preloading content for: ${finalUrl}`);
+        const response = await fetch(finalUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const html = await response.text();
-        contentCache[url] = html; // Simpan konten di cache
-        console.log(`✅ Preloaded: ${absoluteUrl}`);
+        contentCache[finalUrl] = html;
+        console.log(`✅ Preloaded: ${finalUrl}`);
     } catch (error) {
-        console.error(`❌ Failed to preload ${url}:`, error);
-        delete contentCache[url]; // Hapus dari cache jika gagal
+        console.error(`❌ Failed to preload ${finalUrl}:`, error);
+        delete contentCache[finalUrl];
     }
 }
 
@@ -253,7 +257,10 @@ function populateVehicleCategoryDropdown() {
 
 // Fungsi utama untuk memuat konten via AJAX (SPA)
 async function loadContentForUrl(url, pushState = true) {
-    console.log(`Loading content for URL: ${url}`);
+    // Ensure the URL is relative to the Blogger blog's base URL
+    const finalUrl = new URL(url, window.BLOGGER_BASE_URL).href;
+
+    console.log(`Loading content for URL: ${finalUrl}`);
     try {
         const postsWrapper = mainContentSection.querySelector('.posts-wrapper');
         if (!postsWrapper) {
@@ -277,7 +284,7 @@ async function loadContentForUrl(url, pushState = true) {
           `;
 
         // Atur visibilitas promo gallery
-        const isHomePage = url === '/' || url === window.location.origin + '/';
+        const isHomePage = (url === '/' || url === window.BLOGGER_BASE_URL || url === new URL('/', window.BLOGGER_BASE_URL).href);
         if (promoGallerySection) {
             if (isHomePage) {
                 promoGallerySection.style.display = 'grid'; // Tampilkan promo gallery di homepage
@@ -290,22 +297,21 @@ async function loadContentForUrl(url, pushState = true) {
         let fetchedHtmlContent = null;
 
         // Cek cache sebelum fetch
-        if (contentCache[url]) {
-            fetchedHtmlContent = contentCache[url];
-            console.log(`✅ Using cached content for: ${url}`);
+        if (contentCache[finalUrl]) { // Use finalUrl for cache key
+            fetchedHtmlContent = contentCache[finalUrl];
+            console.log(`✅ Using cached content for: ${finalUrl}`);
             // Hapus dari cache setelah digunakan jika ingin meminimalkan memori,
             // atau biarkan jika ingin memaksimalkan kecepatan untuk navigasi bolak-balik.
             // Untuk kasus ini, kita biarkan di cache.
-            // delete contentCache[url];
+            // delete contentCache[finalUrl];
         } else {
             // Lakukan fetch jika tidak ada di cache
-            const absoluteUrl = new URL(url, window.location.origin).href;
-            const response = await fetch(absoluteUrl);
+            const response = await fetch(finalUrl); // Use finalUrl for fetch
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} from ${absoluteUrl}`);
+                throw new Error(`HTTP error! status: ${response.status} from ${finalUrl}`); // Error message also uses finalUrl
             }
             fetchedHtmlContent = await response.text();
-            console.log(`⬇️ Fetched fresh content for: ${url}`);
+            console.log(`⬇️ Fetched fresh content for: ${finalUrl}`);
         }
 
         const parser = new DOMParser();
@@ -358,7 +364,7 @@ async function loadContentForUrl(url, pushState = true) {
         // Refresh SPA content (lazy loading, link listeners)
         refreshSPAContent();
 
-        console.log(`Content loaded for ${url}. Page title updated to: ${document.title}`);
+        console.log(`Content loaded for ${finalUrl}. Page title updated to: ${document.title}`);
 
     } catch (error) {
         console.error('Error loading content:', error);
@@ -402,7 +408,8 @@ if (vehicleCategorySelect) {
 window.addEventListener('popstate', function(event) {
     console.log('Popstate event triggered. State:', event.state);
     // Muat konten untuk URL saat ini dari history (tanpa pushState baru)
-    loadContentForUrl(document.location.href, false);
+    // Use window.location.pathname + window.location.search here as it reflects the browser's current URL
+    loadContentForUrl(window.location.pathname + window.location.search, false);
 });
 
 
@@ -728,7 +735,7 @@ if (openEstimasiModalBtn) {
                     if (estimasiItems[idx].qty <= 0) {
                         const namaItem = estimasiItems[idx].deskripsi;
                         estimasiItems.splice(idx, 1);
-                        showMessageBox(`Item '${namaItem}' telah dihapus dari estimasi.`);
+                        showMessageBox(`Item '${namaItem}' telah dihapus dari keranjang.`);
                     } else {
                         showMessageBox(`Qty untuk '${estimasiItems[idx].deskripsi}' dikurangi jadi ${estimasiItems[idx].qty}x`);
                     }
@@ -991,7 +998,7 @@ if (openEstimasiModalBtn) {
 async function ambilSemuaEstimasi() {
     console.log("Starting estimation data fetch from Blogger...");
     // Mengambil postingan dengan label 'estimasi'
-    const url = "/feeds/posts/default/-/estimasi?alt=json&max-results=50"; // Sesuaikan max-results jika perlu
+    const url = new URL("/feeds/posts/default/-/estimasi?alt=json&max-results=50", window.BLOGGER_BASE_URL).href; // Use BLOGGER_BASE_URL
     let estimasiGabungan = [];
 
     try {
@@ -1302,7 +1309,7 @@ function rehydrateLazyImages() {
 function setupInternalLinkListeners() {
     document.querySelectorAll('a').forEach(link => {
         // Hanya tangani link internal yang tidak memiliki data-no-spa dan tidak memiliki onclick handler
-        if (link.href.startsWith(window.location.origin) && !link.dataset.noSpa && !link.onclick) {
+        if (link.href.startsWith(window.BLOGGER_BASE_URL) && !link.dataset.noSpa && !link.onclick) { // Use BLOGGER_BASE_URL here
             // Hapus listener sebelumnya untuk mencegah duplikasi
             link.removeEventListener('click', handleInternalLinkClick);
             link.addEventListener('click', handleInternalLinkClick);
@@ -1318,14 +1325,16 @@ function handleInternalLinkClick(e) {
     }
     // Cek jika link adalah internal, bukan anchor, mailto, atau tel
     if (e.target.tagName === 'A' &&
-        e.target.href.startsWith(window.location.origin) &&
+        e.target.href.startsWith(window.BLOGGER_BASE_URL) && // Use BLOGGER_BASE_URL here
         !e.target.href.includes('#') &&
         !e.target.href.startsWith('mailto:') &&
         !e.target.href.startsWith('tel:')
     ) {
         e.preventDefault(); // Mencegah navigasi default
         const url = e.target.getAttribute('href');
-        window.loadContentForUrl(url); // Muat konten dengan fungsi SPA
+        // If the URL is absolute from Blogger's base, make it relative for pushState consistency
+        const relativeUrl = url.startsWith(window.BLOGGER_BASE_URL) ? url.substring(window.BLOGGER_BASE_URL.length) : url;
+        window.loadContentForUrl(relativeUrl); // Muat konten dengan fungsi SPA
     }
 }
 
@@ -1346,8 +1355,10 @@ document.addEventListener('DOMContentLoaded', function() {
     populateVehicleCategoryDropdown();
 
     // Muat konten awal halaman (termasuk homepage)
-    const currentPath = window.location.pathname + window.location.search;
-    loadContentForUrl(currentPath, false) // Jangan pushState untuk pemuatan awal
+    // Gunakan window.location.pathname + window.location.search untuk jalur awal,
+    // tetapi loadContentForUrl akan menggunakan BLOGGER_BASE_URL secara internal.
+    const initialPath = window.location.pathname + window.location.search;
+    loadContentForUrl(initialPath, false) // Jangan pushState untuk pemuatan awal
         .then(() => {
             refreshSPAContent(); // Setelah konten awal dimuat, refresh SPA
         });
