@@ -353,7 +353,11 @@ async function loadContentForUrl(url, pushState = true) {
         } else {
             // Ambil konten postingan dari dokumen yang baru dimuat
             const newPostsWrapper = doc.querySelector('#main-content-section .posts-wrapper');
+            // Coba juga cari elemen dengan kelas 'blog-posts' sebagai fallback jika '.posts-wrapper' tidak ada
+            const fallbackPostsWrapper = doc.querySelector('.blog-posts');
+
             if (newPostsWrapper) {
+                console.log("Found .posts-wrapper in fetched content.");
                 // Pindahkan node anak dari newPostsWrapper ke postsWrapper
                 const fragment = document.createDocumentFragment();
                 while (newPostsWrapper.firstChild) {
@@ -361,12 +365,23 @@ async function loadContentForUrl(url, pushState = true) {
                 }
                 postsWrapper.innerHTML = ""; // Kosongkan dulu
                 postsWrapper.appendChild(fragment);
-            } else {
+            } else if (fallbackPostsWrapper) {
+                console.log("Found .blog-posts (fallback) in fetched content.");
+                // Jika .posts-wrapper tidak ada, coba gunakan .blog-posts
+                const fragment = document.createDocumentFragment();
+                while (fallbackPostsWrapper.firstChild) {
+                    fragment.appendChild(fallbackPostsWrapper.firstChild);
+                }
+                postsWrapper.innerHTML = ""; // Kosongkan dulu
+                postsWrapper.appendChild(fragment);
+            }
+            else {
                 postsWrapper.innerHTML = `
                       <div class="bg-blue-50 border border-blue-200 rounded p-3 text-blue-600 text-sm">
                           Konten tidak tersedia atau tidak dapat dimuat.
                       </div>
                   `;
+                console.warn("Neither .posts-wrapper nor .blog-posts found in fetched content for non-homepage URL:", finalUrl);
             }
             // Ambil judul halaman baru
             newPageTitle = doc.querySelector('title')?.textContent || newPageTitle;
