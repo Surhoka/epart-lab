@@ -33,7 +33,21 @@ function showMessageBox(message) {
 // Cache konten untuk SPA
 const contentCache = {};
 
+// Function to check if running in Canvas preview environment
+function isCanvasPreview() {
+    // Check if the current hostname includes the Canvas preview domain pattern
+    return window.location.hostname.includes('scf.usercontent.goog') || 
+           (window.location.ancestorOrigins && Array.from(window.location.ancestorOrigins).some(origin => origin.includes('scf.usercontent.goog')));
+}
+
+
 async function preloadContent(url) {
+    // If running in Canvas preview, skip actual fetch and log a warning
+    if (isCanvasPreview()) {
+        console.warn("⚠️ Running in Canvas preview. Skipping content preloading for SPA functionality.");
+        return; // Do not attempt to fetch in Canvas
+    }
+
     // Ensure the URL is relative to the Blogger blog's base URL
     const finalUrl = new URL(url, window.BLOGGER_BASE_URL).href;
 
@@ -257,6 +271,21 @@ function populateVehicleCategoryDropdown() {
 
 // Fungsi utama untuk memuat konten via AJAX (SPA)
 async function loadContentForUrl(url, pushState = true) {
+    // If running in Canvas preview, skip actual fetch and display a message
+    if (isCanvasPreview()) {
+        console.warn("⚠️ Running in Canvas preview. SPA content loading is limited. Displaying static content.");
+        const postsWrapper = mainContentSection.querySelector('.posts-wrapper');
+        if (postsWrapper) {
+            postsWrapper.innerHTML = `
+                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Informasi:</strong>
+                    <span class="block sm:inline">Fungsionalitas SPA (Single Page Application) tidak berfungsi penuh di lingkungan pratinjau Canvas. Silakan uji di blog Blogger Anda yang sebenarnya.</span>
+                </div>
+            `;
+        }
+        return; // Do not attempt to fetch in Canvas
+    }
+
     // Ensure the URL is relative to the Blogger blog's base URL
     const finalUrl = new URL(url, window.BLOGGER_BASE_URL).href;
 
@@ -996,6 +1025,12 @@ if (openEstimasiModalBtn) {
 
 // Fungsi untuk mengambil data estimasi dari postingan Blogger
 async function ambilSemuaEstimasi() {
+    // If running in Canvas preview, skip actual fetch and return empty array
+    if (isCanvasPreview()) {
+        console.warn("⚠️ Running in Canvas preview. Skipping estimation data fetch from Blogger.");
+        return [];
+    }
+
     console.log("Starting estimation data fetch from Blogger...");
     // Mengambil postingan dengan label 'estimasi'
     const url = new URL("/feeds/posts/default/-/estimasi?alt=json&max-results=50", window.BLOGGER_BASE_URL).href; // Use BLOGGER_BASE_URL
