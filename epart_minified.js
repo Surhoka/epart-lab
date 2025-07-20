@@ -1,7 +1,5 @@
-// Define a global variable for Blogger's base URL.
-// This will be set from the Blogger template HTML using <data:blog.url/>
-// Default to current origin, will be overridden by Blogger
-window.BLOGGER_BASE_URL = window.location.origin; 
+// Pastikan semua fungsi dan variabel global yang dibutuhkan oleh Blogger atau HTML lain didefinisikan di sini
+// atau diakses melalui `window.` jika memang dimaksudkan untuk global.
 
 // Fungsi utilitas untuk menambahkan kelas dengan aman
 function safeAddClass(element, ...classNames) {
@@ -33,40 +31,24 @@ function showMessageBox(message) {
 // Cache konten untuk SPA
 const contentCache = {};
 
-// Function to check if running in Canvas preview environment
-function isCanvasPreview() {
-    // Check if the current hostname includes the Canvas preview domain pattern
-    return window.location.hostname.includes('scf.usercontent.goog') || 
-           (window.location.ancestorOrigins && Array.from(window.location.ancestorOrigins).some(origin => origin.includes('scf.usercontent.goog')));
-}
-
-
 async function preloadContent(url) {
-    // If running in Canvas preview, skip actual fetch and log a warning
-    if (isCanvasPreview()) {
-        console.warn("⚠️ Running in Canvas preview. Skipping content preloading for SPA functionality.");
-        return; // Do not attempt to fetch in Canvas
+    if (contentCache[url] || contentCache[url] === null) {
+        return; // Sudah di-cache atau sedang dalam proses preloading
     }
-
-    // Ensure the URL is relative to the Blogger blog's base URL
-    const finalUrl = new URL(url, window.BLOGGER_BASE_URL).href;
-
-    if (contentCache[finalUrl] || contentCache[finalUrl] === null) {
-        return;
-    }
-    contentCache[finalUrl] = null;
+    contentCache[url] = null; // Tandai sedang di-preload
     try {
-        console.log(`🚀 Preloading content for: ${finalUrl}`);
-        const response = await fetch(finalUrl);
+        const absoluteUrl = new URL(url, window.location.origin).href;
+        console.log(`🚀 Preloading content for: ${absoluteUrl}`);
+        const response = await fetch(absoluteUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const html = await response.text();
-        contentCache[finalUrl] = html;
-        console.log(`✅ Preloaded: ${finalUrl}`);
+        contentCache[url] = html; // Simpan konten di cache
+        console.log(`✅ Preloaded: ${absoluteUrl}`);
     } catch (error) {
-        console.error(`❌ Failed to preload ${finalUrl}:`, error);
-        delete contentCache[finalUrl];
+        console.error(`❌ Failed to preload ${url}:`, error);
+        delete contentCache[url]; // Hapus dari cache jika gagal
     }
 }
 
@@ -271,25 +253,7 @@ function populateVehicleCategoryDropdown() {
 
 // Fungsi utama untuk memuat konten via AJAX (SPA)
 async function loadContentForUrl(url, pushState = true) {
-    // If running in Canvas preview, skip actual fetch and display a message
-    if (isCanvasPreview()) {
-        console.warn("⚠️ Running in Canvas preview. SPA content loading is limited. Displaying static content.");
-        const postsWrapper = mainContentSection.querySelector('.posts-wrapper');
-        if (postsWrapper) {
-            postsWrapper.innerHTML = `
-                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Informasi:</strong>
-                    <span class="block sm:inline">Fungsionalitas SPA (Single Page Application) tidak berfungsi penuh di lingkungan pratinjau Canvas. Silakan uji di blog Blogger Anda yang sebenarnya.</span>
-                </div>
-            `;
-        }
-        return; // Do not attempt to fetch in Canvas
-    }
-
-    // Ensure the URL is relative to the Blogger blog's base URL
-    const finalUrl = new URL(url, window.BLOGGER_BASE_URL).href;
-
-    console.log(`Loading content for URL: ${finalUrl}`);
+    console.log(`Loading content for URL: ${url}`);
     try {
         const postsWrapper = mainContentSection.querySelector('.posts-wrapper');
         if (!postsWrapper) {
@@ -313,7 +277,7 @@ async function loadContentForUrl(url, pushState = true) {
           `;
 
         // Atur visibilitas promo gallery
-        const isHomePage = (url === '/' || url === window.BLOGGER_BASE_URL || url === new URL('/', window.BLOGGER_BASE_URL).href);
+        const isHomePage = url === '/' || url === window.location.origin + '/';
         if (promoGallerySection) {
             if (isHomePage) {
                 promoGallerySection.style.display = 'grid'; // Tampilkan promo gallery di homepage
@@ -326,21 +290,22 @@ async function loadContentForUrl(url, pushState = true) {
         let fetchedHtmlContent = null;
 
         // Cek cache sebelum fetch
-        if (contentCache[finalUrl]) { // Use finalUrl for cache key
-            fetchedHtmlContent = contentCache[finalUrl];
-            console.log(`✅ Using cached content for: ${finalUrl}`);
+        if (contentCache[url]) {
+            fetchedHtmlContent = contentCache[url];
+            console.log(`✅ Using cached content for: ${url}`);
             // Hapus dari cache setelah digunakan jika ingin meminimalkan memori,
             // atau biarkan jika ingin memaksimalkan kecepatan untuk navigasi bolak-balik.
             // Untuk kasus ini, kita biarkan di cache.
-            // delete contentCache[finalUrl];
+            // delete contentCache[url];
         } else {
             // Lakukan fetch jika tidak ada di cache
-            const response = await fetch(finalUrl); // Use finalUrl for fetch
+            const absoluteUrl = new URL(url, window.location.origin).href;
+            const response = await fetch(absoluteUrl);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} from ${finalUrl}`); // Error message also uses finalUrl
+                throw new Error(`HTTP error! status: ${response.status} from ${absoluteUrl}`);
             }
             fetchedHtmlContent = await response.text();
-            console.log(`⬇️ Fetched fresh content for: ${finalUrl}`);
+            console.log(`⬇️ Fetched fresh content for: ${url}`);
         }
 
         const parser = new DOMParser();
@@ -353,11 +318,7 @@ async function loadContentForUrl(url, pushState = true) {
         } else {
             // Ambil konten postingan dari dokumen yang baru dimuat
             const newPostsWrapper = doc.querySelector('#main-content-section .posts-wrapper');
-            // Coba juga cari elemen dengan kelas 'blog-posts' sebagai fallback jika '.posts-wrapper' tidak ada
-            const fallbackPostsWrapper = doc.querySelector('.blog-posts');
-
             if (newPostsWrapper) {
-                console.log("Found .posts-wrapper in fetched content.");
                 // Pindahkan node anak dari newPostsWrapper ke postsWrapper
                 const fragment = document.createDocumentFragment();
                 while (newPostsWrapper.firstChild) {
@@ -365,23 +326,12 @@ async function loadContentForUrl(url, pushState = true) {
                 }
                 postsWrapper.innerHTML = ""; // Kosongkan dulu
                 postsWrapper.appendChild(fragment);
-            } else if (fallbackPostsWrapper) {
-                console.log("Found .blog-posts (fallback) in fetched content.");
-                // Jika .posts-wrapper tidak ada, coba gunakan .blog-posts
-                const fragment = document.createDocumentFragment();
-                while (fallbackPostsWrapper.firstChild) {
-                    fragment.appendChild(fallbackPostsWrapper.firstChild);
-                }
-                postsWrapper.innerHTML = ""; // Kosongkan dulu
-                postsWrapper.appendChild(fragment);
-            }
-            else {
+            } else {
                 postsWrapper.innerHTML = `
                       <div class="bg-blue-50 border border-blue-200 rounded p-3 text-blue-600 text-sm">
                           Konten tidak tersedia atau tidak dapat dimuat.
                       </div>
                   `;
-                console.warn("Neither .posts-wrapper nor .blog-posts found in fetched content for non-homepage URL:", finalUrl);
             }
             // Ambil judul halaman baru
             newPageTitle = doc.querySelector('title')?.textContent || newPageTitle;
@@ -408,7 +358,7 @@ async function loadContentForUrl(url, pushState = true) {
         // Refresh SPA content (lazy loading, link listeners)
         refreshSPAContent();
 
-        console.log(`Content loaded for ${finalUrl}. Page title updated to: ${document.title}`);
+        console.log(`Content loaded for ${url}. Page title updated to: ${document.title}`);
 
     } catch (error) {
         console.error('Error loading content:', error);
@@ -452,8 +402,7 @@ if (vehicleCategorySelect) {
 window.addEventListener('popstate', function(event) {
     console.log('Popstate event triggered. State:', event.state);
     // Muat konten untuk URL saat ini dari history (tanpa pushState baru)
-    // Use window.location.pathname + window.location.search here as it reflects the browser's current URL
-    loadContentForUrl(window.location.pathname + window.location.search, false);
+    loadContentForUrl(document.location.href, false);
 });
 
 
@@ -779,7 +728,7 @@ if (openEstimasiModalBtn) {
                     if (estimasiItems[idx].qty <= 0) {
                         const namaItem = estimasiItems[idx].deskripsi;
                         estimasiItems.splice(idx, 1);
-                        showMessageBox(`Item '${namaItem}' telah dihapus dari keranjang.`);
+                        showMessageBox(`Item '${namaItem}' telah dihapus dari estimasi.`);
                     } else {
                         showMessageBox(`Qty untuk '${estimasiItems[idx].deskripsi}' dikurangi jadi ${estimasiItems[idx].qty}x`);
                     }
@@ -1040,15 +989,9 @@ if (openEstimasiModalBtn) {
 
 // Fungsi untuk mengambil data estimasi dari postingan Blogger
 async function ambilSemuaEstimasi() {
-    // If running in Canvas preview, skip actual fetch and return empty array
-    if (isCanvasPreview()) {
-        console.warn("⚠️ Running in Canvas preview. Skipping estimation data fetch from Blogger.");
-        return [];
-    }
-
     console.log("Starting estimation data fetch from Blogger...");
     // Mengambil postingan dengan label 'estimasi'
-    const url = new URL("/feeds/posts/default/-/estimasi?alt=json&max-results=50", window.BLOGGER_BASE_URL).href; // Use BLOGGER_BASE_URL
+    const url = "/feeds/posts/default/-/estimasi?alt=json&max-results=50"; // Sesuaikan max-results jika perlu
     let estimasiGabungan = [];
 
     try {
@@ -1359,7 +1302,7 @@ function rehydrateLazyImages() {
 function setupInternalLinkListeners() {
     document.querySelectorAll('a').forEach(link => {
         // Hanya tangani link internal yang tidak memiliki data-no-spa dan tidak memiliki onclick handler
-        if (link.href.startsWith(window.BLOGGER_BASE_URL) && !link.dataset.noSpa && !link.onclick) { // Use BLOGGER_BASE_URL here
+        if (link.href.startsWith(window.location.origin) && !link.dataset.noSpa && !link.onclick) {
             // Hapus listener sebelumnya untuk mencegah duplikasi
             link.removeEventListener('click', handleInternalLinkClick);
             link.addEventListener('click', handleInternalLinkClick);
@@ -1375,16 +1318,14 @@ function handleInternalLinkClick(e) {
     }
     // Cek jika link adalah internal, bukan anchor, mailto, atau tel
     if (e.target.tagName === 'A' &&
-        e.target.href.startsWith(window.BLOGGER_BASE_URL) && // Use BLOGGER_BASE_URL here
+        e.target.href.startsWith(window.location.origin) &&
         !e.target.href.includes('#') &&
         !e.target.href.startsWith('mailto:') &&
         !e.target.href.startsWith('tel:')
     ) {
         e.preventDefault(); // Mencegah navigasi default
         const url = e.target.getAttribute('href');
-        // If the URL is absolute from Blogger's base, make it relative for pushState consistency
-        const relativeUrl = url.startsWith(window.BLOGGER_BASE_URL) ? url.substring(window.BLOGGER_BASE_URL.length) : url;
-        window.loadContentForUrl(relativeUrl); // Muat konten dengan fungsi SPA
+        window.loadContentForUrl(url); // Muat konten dengan fungsi SPA
     }
 }
 
@@ -1405,10 +1346,8 @@ document.addEventListener('DOMContentLoaded', function() {
     populateVehicleCategoryDropdown();
 
     // Muat konten awal halaman (termasuk homepage)
-    // Gunakan window.location.pathname + window.location.search untuk jalur awal,
-    // tetapi loadContentForUrl akan menggunakan BLOGGER_BASE_URL secara internal.
-    const initialPath = window.location.pathname + window.location.search;
-    loadContentForUrl(initialPath, false) // Jangan pushState untuk pemuatan awal
+    const currentPath = window.location.pathname + window.location.search;
+    loadContentForUrl(currentPath, false) // Jangan pushState untuk pemuatan awal
         .then(() => {
             refreshSPAContent(); // Setelah konten awal dimuat, refresh SPA
         });
