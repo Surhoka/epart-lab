@@ -1316,6 +1316,12 @@ function handleInternalLinkClick(e) {
     if (e.target.closest('.dropdown-toggle')) {
         return;
     }
+    // Tambahkan kondisi ini untuk mengabaikan link dengan data-no-spa="true"
+    if (e.target.dataset.noSpa === 'true') {
+        console.log(`Link with data-no-spa found. Allowing default browser navigation for: ${e.target.href}`);
+        return; // Biarkan browser menangani navigasi secara default (reload halaman)
+    }
+
     // Cek jika link adalah internal, bukan anchor, mailto, atau tel
     if (e.target.tagName === 'A' &&
         e.target.href.startsWith(window.location.origin) &&
@@ -1347,10 +1353,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Muat konten awal halaman (termasuk homepage)
     const currentPath = window.location.pathname + window.location.search;
-    loadContentForUrl(currentPath, false) // Jangan pushState untuk pemuatan awal
-        .then(() => {
-            refreshSPAContent(); // Setelah konten awal dimuat, refresh SPA
-        });
+
+    // Tambahkan pengecekan ini:
+    // Jika halaman saat ini adalah halaman statis atau halaman yang tidak dimaksudkan untuk SPA,
+    // jangan panggil loadContentForUrl. Biarkan browser menangani pemuatan normal.
+    // Anda mungkin perlu menyesuaikan '/p/' dengan path lain yang relevan.
+    if (currentPath === '/p/' || currentPath.startsWith('/p/')) { // Contoh: /p/about.html
+        console.log(`Initial page is a static page (${currentPath}). Skipping SPA content load.`);
+        refreshSPAContent(); // Tetap refresh SPA content untuk lazy loading dll.
+    } else {
+        loadContentForUrl(currentPath, false) // Jangan pushState untuk pemuatan awal
+            .then(() => {
+                refreshSPAContent(); // Setelah konten awal dimuat, refresh SPA
+            });
+    }
 });
 
 // Expose fungsi ke window agar dapat diakses dari HTML atau script lain jika diperlukan
