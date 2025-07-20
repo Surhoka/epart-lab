@@ -1320,8 +1320,8 @@ function rehydrateLazyImages() {
                 img.classList.remove('lazyload-img');
                 console.log(`✅ Gambar dimuat manual: ${dataSrc}`);
             }
-        });
-    }
+        }
+    });
 }
 
 
