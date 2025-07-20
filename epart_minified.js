@@ -74,8 +74,10 @@ function createNestedMenu(items, startIndex, currentLevel) {
             anchor.textContent = cleanName;
             safeAddClass(anchor, 'main-menu-item');
 
-            // Preload konten saat mouse hover
-            anchor.addEventListener('mouseenter', () => preloadContent(item.target));
+            // Preload konten saat mouse hover, hanya jika tidak ditandai sebagai no-spa
+            if (!item.dataNoSpa) {
+                anchor.addEventListener('mouseenter', () => preloadContent(item.target));
+            }
 
             const nextItem = items[i + 1];
             const nextLevel = nextItem && (nextItem.name.trim().match(/^_+/) || [''])[0].length;
@@ -170,6 +172,7 @@ const initialLinks = Array.from(mainMenuNav.children).map(li => {
     return {
         name: anchor ? anchor.getAttribute('data-original-name') || anchor.textContent.trim() : '',
         target: anchor ? anchor.href : '#',
+        dataNoSpa: anchor ? anchor.dataset.noSpa === 'true' : false, // Capture data-no-spa
         element: li // Simpan referensi ke elemen li asli
     };
 }).filter(link => link.name); // Filter link yang mungkin kosong
