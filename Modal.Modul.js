@@ -12,7 +12,7 @@ if (openEstimasiModalBtn) {
 
     // Elemen modal bersarang
     const openKirimEstimasiModalBtn = document.getElementById('openKirimEstimasiModalBtn');
-    const kirimEstimasiModal = document.getElementById('kirimEstimasiModal');
+    const kirimEstimasiModal = document.getElementById('kirimEstimasiModal'); // Baris ini telah diperbaiki
     const closeKirimEstimasiModalBtn = document.getElementById('closeKirimEstimasiModal');
     const estimasiForm = document.getElementById('estimasiForm');
 
@@ -117,10 +117,14 @@ if (openEstimasiModalBtn) {
 
         // Event listener untuk tombol Download PDF
         downloadPdfBtn.addEventListener('click', function() {
+            // Memanggil fungsi generatePdf dari PDF-scripts.js
             if (typeof window.generatePdf === 'function') {
                 window.generatePdf();
             } else {
-                console.error("Fungsi generatePdf tidak ditemukan di window. Pastikan table-scripts.js dimuat.");
+                console.error("Fungsi generatePdf tidak ditemukan di window. Pastikan PDF-scripts.js dimuat.");
+                if (typeof window.showMessageBox === 'function') {
+                    window.showMessageBox('Fungsi PDF tidak tersedia. Coba muat ulang halaman.');
+                }
             }
         });
 
