@@ -9,13 +9,22 @@
  * Fungsi ini akan mencari elemen 'app-content' setiap kali dipanggil,
  * memastikan elemen sudah ada di DOM saat fungsi ini dieksekusi.
  * @param {string} htmlString - String HTML yang akan diinjeksi.
+ * @param {number} [retryCount=0] - Jumlah percobaan ulang (internal).
  */
-function injectContent(htmlString) {
+function injectContent(htmlString, retryCount = 0) {
     const appContent = document.getElementById('app-content');
     if (appContent) {
         appContent.innerHTML = htmlString;
     } else {
-        console.error("Inject.Modul.js: Elemen dengan id 'app-content' tidak ditemukan atau belum siap untuk injeksi konten. Konten tidak dapat diinjeksi.");
+        // Jika elemen tidak ditemukan, coba lagi setelah sedikit penundaan
+        if (retryCount < 5) { // Coba hingga 5 kali
+            console.warn(`Inject.Modul.js: Elemen 'app-content' belum siap, mencoba lagi (${retryCount + 1}/5)...`);
+            setTimeout(() => {
+                injectContent(htmlString, retryCount + 1);
+            }, 50); // Coba lagi setelah 50ms
+        } else {
+            console.error("Inject.Modul.js: Elemen dengan id 'app-content' tidak ditemukan setelah beberapa kali percobaan. Konten tidak dapat diinjeksi.");
+        }
     }
 }
 
