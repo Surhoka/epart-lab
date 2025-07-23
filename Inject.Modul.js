@@ -15,15 +15,20 @@ function injectContent(htmlString, retryCount = 0) {
     const appContent = document.getElementById('app-content');
     if (appContent) {
         appContent.innerHTML = htmlString;
+        // Hanya log sukses pada percobaan yang berhasil (jika ada retry)
+        if (retryCount > 0) {
+            console.log(`Inject.Modul.js: Konten berhasil diinjeksi setelah ${retryCount} percobaan.`);
+        }
     } else {
         // Jika elemen tidak ditemukan, coba lagi setelah sedikit penundaan
-        if (retryCount < 5) { // Coba hingga 5 kali
-            console.warn(`Inject.Modul.js: Elemen 'app-content' belum siap, mencoba lagi (${retryCount + 1}/5)...`);
+        if (retryCount < 10) { // Coba hingga 10 kali
+            console.warn(`Inject.Modul.js: Elemen 'app-content' belum siap, mencoba lagi (${retryCount + 1}/10)...`);
             setTimeout(() => {
                 injectContent(htmlString, retryCount + 1);
-            }, 50); // Coba lagi setelah 50ms
+            }, 100); // Coba lagi setelah 100ms
         } else {
-            console.error("Inject.Modul.js: Elemen dengan id 'app-content' tidak ditemukan setelah beberapa kali percobaan. Konten tidak dapat diinjeksi.");
+            // Hanya log error final setelah semua percobaan gagal
+            console.error("Inject.Modul.js: Elemen dengan id 'app-content' tidak ditemukan setelah beberapa kali percobaan. Konten tidak dapat diinjeksi. Stack:", new Error().stack);
         }
     }
 }
