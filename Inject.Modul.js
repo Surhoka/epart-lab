@@ -1,17 +1,16 @@
-// KONTEN BARU DAN KOREKSI UNTUK Inject.Modul.js
+// KONTEN YANG DIKOREKSI UNTUK Inject.Modul.js
 
 // Hapus baris ini jika ada di bagian paling atas file Anda:
 // const appContent = document.getElementById('app-content');
-// Hapus juga blok if (!appContent) { ... } di bagian atas file Anda.
+// Hapus juga blok if (!appContent) { ... } yang mungkin ada di bagian atas file Anda.
 
 /**
  * Menginjeksi konten HTML ke dalam elemen app-content.
- * Fungsi ini akan mencari elemen 'app-content' setiap kali dipanggil.
+ * Fungsi ini akan mencari elemen 'app-content' setiap kali dipanggil,
+ * memastikan elemen sudah ada di DOM saat fungsi ini dieksekusi.
  * @param {string} htmlString - String HTML yang akan diinjeksi.
  */
 function injectContent(htmlString) {
-    // PENTING: Pengambilan elemen 'app-content' dilakukan di sini,
-    // memastikan elemen sudah ada di DOM saat fungsi ini dieksekusi.
     const appContent = document.getElementById('app-content');
     if (appContent) {
         appContent.innerHTML = htmlString;
