@@ -1,8 +1,8 @@
 // KONTEN YANG DIKOREKSI UNTUK Inject.Modul.js
 
-// Hapus baris ini jika ada di bagian paling atas file Anda:
-// const appContent = document.getElementById('app-content');
-// Hapus juga blok if (!appContent) { ... } yang mungkin ada di bagian atas file Anda.
+// PENTING: Pastikan tidak ada baris seperti 'const appContent = document.getElementById('app-content');'
+// atau blok 'if (!appContent) { ... }' di bagian paling atas file ini.
+// Semua pengambilan elemen 'app-content' harus terjadi di dalam fungsi 'injectContent'.
 
 /**
  * Menginjeksi konten HTML ke dalam elemen app-content.
