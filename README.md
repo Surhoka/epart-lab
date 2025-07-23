@@ -11,10 +11,8 @@ Template Blogger berbasis SPA dengan fitur:
 🛠 Dibangun untuk efisiensi dan interaktivitas maksimal tanpa framework tambahan.
 
 📦 CDN siap pakai:
-- `epart_minified.css`: styling promo & modal estimasi
-- `epart_minified.min.js`: seluruh engine interaktif
+
 
 📡 Siap dipanggil di template Blogger via:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/surhoka/epart-lab/epart_minified.css">
-<script src="https://cdn.jsdelivr.net/gh/surhoka/epart-lab/epart_minified.js"></script>
+
