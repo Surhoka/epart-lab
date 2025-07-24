@@ -1,0 +1,147 @@
+// sidebar-search.js
+
+// Pastikan window.postMap sudah diinisialisasi secara global atau dimuat dari localStorage
+// Ini diperlukan untuk fungsi resolveFigLink
+window.postMap = window.postMap || {};
+
+// Asumsi showMessageBox tersedia secara global dari estimation-modal.js
+// Jika tidak, Anda perlu mendefinisikannya di sini atau memastikan urutan pemuatan skrip yang benar.
+if (typeof window.showMessageBox !== 'function') {
+    console.warn("Fungsi 'showMessageBox' tidak ditemukan. Pastikan estimation-modal.js dimuat dengan benar.");
+    window.showMessageBox = function(message) { console.log("Toast (fallback):", message); };
+}
+
+/**
+ * Mengubah slug agar menghilangkan semua spasi, bukan menggantinya dengan tanda hubung
+ * dan mencari URL postingan yang sesuai di window.postMap.
+ * @param {Object} item - Objek item dengan properti judul_artikel.
+ * @returns {string} URL postingan yang ditemukan atau URL fallback.
+ */
+function resolveFigLink(item) {
+    const slug = item.judul_artikel?.toLowerCase().trim().replace(/\s+/g, '');
+    if (window.postMap?.[slug]) return window.postMap[slug];
+    
+    // Fallback default struktur: menghilangkan '/p/' dan menggunakan slug tanpa spasi/tanda hubung
+    const currentYear = new Date().getFullYear();
+    const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Get current month (01-12)
+    return `/${currentYear}/${currentMonth}/${slug}.html`; 
+}
+
+/**
+ * Mengubah teks menjadi Title Case.
+ * @param {string} text - Teks yang akan diubah.
+ * @returns {string} Teks dalam Title Case.
+ */
+function titleCase(text) {
+    if (!text) return '';
+    return text.toLowerCase().split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+/**
+ * Merender hasil pencarian FIG ke dalam HTML.
+ * @param {Object} item - Objek item hasil pencarian.
+ * @returns {string} String HTML yang dirender.
+ */
+function renderFigResult(item) {
+    const link = resolveFigLink(item);
+    const deskripsi = titleCase(item.deskripsi?.trim() || ''); // Terapkan titleCase di sini
+    let html = `
+        <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
+            <h3 class="font-semibold text-blue-700">
+                <a href="${link}" class="hover:underline spa-link"> <!-- Tambahkan kelas spa-link -->
+                    ${item.judul_artikel || 'Judul tidak tersedia'}
+                </a>
+            </h3>
+            <p><strong>Kode Part:</strong><span class="bg-gray-100 px-2 py-0.5 rounded font-mono">${item.kodepart || 'N/A'}</span></p>`;
+    
+    // Tambahkan deskripsi hanya jika tidak kosong
+    if (deskripsi) {
+        html += `<p><strong>Deskripsi:</strong> ${deskripsi}</p>`;
+    }
+
+    html += `</div>`;
+    return html;
+}
+
+/**
+ * Fungsi utama untuk menjalankan pencarian FIG dari sidebar.
+ * @param {string} query - Kata kunci pencarian.
+ */
+window.jalankanPencarianFigSidebar = function (query) {
+    const hasilContainer = document.getElementById("searchOnlyContent");
+    if (!hasilContainer) {
+        console.warn("❌ Kontainer #searchOnlyContent tidak ditemukan.");
+        return;
+    }
+
+    hasilContainer.classList.remove("hidden");
+
+    if (!query) {
+        hasilContainer.innerHTML = `<p class="text-gray-600 text-center">Masukkan kata kunci pada kolom pencarian untuk mencari kode part.</p>`;
+        return;
+    }
+
+    hasilContainer.innerHTML = `
+        <div class="text-sm text-gray-600 text-center mb-3">⏳ Mencari <strong>${query}</strong>...</div>`;
+
+    // ✅ ID Spreadsheet
+    const sheetURL = "https://opensheet.elk.sh/1AlEA83WkT1UyXnnbPBxbXgPhdNUiCP_yarCIk_RhN5o/PartMaster"; 
+
+    fetch(sheetURL)
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 400) {
+                    throw new Error(`Gagal ambil Sheet: ${res.status}. Pastikan Google Sheet Anda diatur untuk "Anyone with the link can view" dan ID Spreadsheet serta nama Sheet sudah benar.`);
+                } else {
+                    throw new Error(`Gagal ambil Sheet: ${res.status}`);
+                }
+            }
+            return res.json();
+        })
+        .then(data => {
+            const hasil = data.filter(row => {
+                const q = query.toUpperCase();
+                const kp = row.kodepart?.toUpperCase() || "";
+                const ja = row.judul_artikel?.toUpperCase() || "";
+                const ds = row.deskripsi?.toUpperCase() || "";
+                return kp.includes(q) || ja.includes(q) || ds.includes(q);
+            });
+
+            if (hasil.length === 0) {
+                hasilContainer.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded p-3 text-red-600 text-sm">
+                        ❌ Tidak ditemukan hasil untuk <strong>${query}</strong>
+                    </div>`;
+            } else {
+                hasilContainer.innerHTML = `<div class="space-y-4">
+                    ${hasil.map(renderFigResult).join('')}
+                </div>`;
+            }
+            // Pasang kembali listener SPA setelah konten baru dirender
+            if (typeof window.attachSpaLinkListeners === 'function') {
+                window.attachSpaLinkListeners();
+            }
+        })
+        .catch(err => {
+            console.error("⚠️ Fetch gagal:", err);
+            hasilContainer.innerHTML = `
+                <div class="bg-red-100 border border-400 text-red-700 px-3 py-2 rounded">
+                    ⚠️ Gagal memuat data Sheet. (${err.message})
+                </div>`;
+        });
+};
+
+// Pasang listener form pencarian di sidebar saat DOM siap
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebarForm = document.getElementById('sidebarSearchForm');
+    const sidebarInput = document.getElementById('sidebarSearchInput');
+    if (sidebarForm && sidebarInput) {
+        sidebarForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = sidebarInput?.value?.trim()?.toUpperCase();
+            if (query) window.jalankanPencarianFigSidebar(query);
+        });
+    }
+});
