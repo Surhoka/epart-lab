@@ -1,4 +1,8 @@
+console.log("DEBUG: sidebar.search.js mulai dimuat."); // Log paling awal
+
 window.onload = function() {
+  console.log("DEBUG: window.onload event terpicu."); // Log saat window.onload
+
   // Fungsi utilitas untuk menambahkan kelas CSS dengan aman
   function safeAddClass(element, ...classNames) {
       if (element && element.classList) {
@@ -62,18 +66,22 @@ window.onload = function() {
   // Fungsi untuk mengisi postMap dari JSON Feed Blogger
   function populatePostMap() {
       return new Promise(async (resolve) => {
-          console.log("Memulai fungsi populatePostMap dari JSON Feed Blogger...");
+          console.log("DEBUG: Memulai fungsi populatePostMap dari JSON Feed Blogger...");
           const blogUrl = window.location.origin; // Mengambil domain blog saat ini
           const feedUrl = `${blogUrl}/feeds/posts/default?alt=json&max-results=999`; // Mengambil hingga 999 postingan
+          console.log("DEBUG: URL JSON Feed yang dicoba:", feedUrl); 
 
           try {
               const response = await fetch(feedUrl);
+              console.log("DEBUG: Respons fetch diterima. Status:", response.status, response.statusText); 
               if (!response.ok) {
-                  throw new Error(`Gagal mengambil JSON feed: ${response.status}`);
+                  throw new Error(`Gagal mengambil JSON feed: ${response.status} ${response.statusText}`);
               }
               const data = await response.json();
+              console.log("DEBUG: Data JSON feed diterima:", data); 
 
               if (data?.feed?.entry) {
+                  console.log("DEBUG: Ditemukan entri di JSON feed. Memproses...");
                   data.feed.entry.forEach(entry => {
                       const title = entry.title?.$t?.trim();
                       let url = '';
@@ -115,12 +123,12 @@ window.onload = function() {
                           console.warn(`⚠️ Melewati entri feed karena judul atau URL hilang: Title="${title}", URL="${url}"`);
                       }
                   });
-                  console.log("Konten window.postMap akhir setelah mengisi dari JSON Feed Blogger:");
+                  console.log("DEBUG: Konten window.postMap akhir setelah mengisi dari JSON Feed Blogger:");
                   console.table(window.postMap); 
                   localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); 
                   console.log("✅ postMap disimpan ke localStorage.");
               } else {
-                  console.warn("❌ JSON feed Blogger tidak memiliki entri postingan.");
+                  console.warn("❌ JSON feed Blogger tidak memiliki entri postingan atau strukturnya tidak terduga.");
               }
               resolve(); 
 
