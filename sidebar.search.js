@@ -142,7 +142,6 @@ window.jalankanPencarianFigSidebar = function (query) {
                     ${hasil.map(renderFigResult).join('')}
                 </div>`;
             }
-            // Karena sekarang tautan membuka di tab baru, tidak perlu memanggil attachSpaLinkListeners
         })
         .catch(err => {
             console.error("⚠️ Fetch gagal:", err);
