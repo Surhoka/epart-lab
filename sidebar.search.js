@@ -18,6 +18,8 @@ if (typeof window.showMessageBox !== 'function') {
  * @returns {string} Slug yang dinormalisasi.
  */
 function normalizeSlug(text) {
+    // Pastikan normalizeSlug hanya mengizinkan huruf dan angka,
+    // menghapus semua karakter lain termasuk garis miring, sesuai perilaku Blogger.
     return text?.toLowerCase().trim().replace(/[^a-z0-9]/g, '') || '';
 }
 
@@ -30,7 +32,7 @@ function normalizeSlug(text) {
 function resolveFigLink(item) {
     const rawTitle = item.judul_artikel?.trim() || '';
     
-    // PERBAIKAN: Gunakan fungsi normalizeSlug yang sama untuk mencocokkan perilaku Blogger
+    // Gunakan fungsi normalizeSlug yang sama untuk mencocokkan perilaku Blogger
     const slugFromSpreadsheet = normalizeSlug(rawTitle);
     
     let resolvedLink = '';
@@ -48,10 +50,10 @@ function resolveFigLink(item) {
         monthToUse = postInfo.month;
         console.log(`[resolveFigLink Debug] Found match in postMap for slug "${slugFromSpreadsheet}". Resolved URL: ${resolvedLink}`);
     } else {
-        // Fallback: Jika tidak ditemukan di postMap, gunakan tahun dan bulan saat ini
-        const today = new Date();
-        yearToUse = today.getFullYear();
-        monthToUse = (today.getMonth() + 1).toString().padStart(2, '0');
+        // Fallback: Jika tidak ditemukan di postMap, gunakan tahun 2025 dan bulan 06 (Juni)
+        // Sesuai permintaan Anda untuk menggunakan /2025/06/
+        yearToUse = 2025; // Hardcode tahun 2025
+        monthToUse = '06'; // Hardcode bulan 06 (Juni)
         resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
         console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${slugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
     }
