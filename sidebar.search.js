@@ -66,10 +66,14 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log("Memulai fungsi populatePostMap...");
           if (postMappingContainer) {
               // Log innerHTML untuk melihat apakah Blogger merender tautan
-              console.log("Konten #postMappingHidden:", postMappingContainer.innerHTML);
+              console.log("Konten #postMappingHidden saat populatePostMap dimulai:", postMappingContainer.innerHTML);
 
               const links = postMappingContainer.querySelectorAll('a');
               console.log(`Ditemukan ${links.length} <a> tag di #postMappingHidden.`);
+
+              if (links.length === 0) {
+                  console.warn("⚠️ #postMappingHidden ditemukan, tetapi tidak ada tautan di dalamnya. Mungkin belum dirender sepenuhnya atau widget kosong.");
+              }
 
               links.forEach(link => {
                   const title = link?.textContent?.trim();
@@ -420,5 +424,5 @@ document.addEventListener('DOMContentLoaded', function() {
               loadPageContent(window.location.href, false); // Jangan dorong status lagi
           });
       });
-  }, 100); // Penundaan 100ms
+  }, 500); // Penundaan ditingkatkan menjadi 500ms
 });
