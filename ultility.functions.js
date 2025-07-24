@@ -23,11 +23,33 @@ window.populatePostMap = async function() {
     links.forEach(link => {
         const title = link.textContent.trim();
         const url = link.href;
-        // PERBAIKAN PENTING: Normalisasi judul menjadi slug dengan MENGHILANGKAN spasi, bukan mengganti dengan tanda hubung.
-        // Ini sesuai dengan perilaku default Blogger untuk permalink seperti "addressenginefig102a".
-        const slug = title.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, ''); // Hapus semua spasi dan karakter non-alphanumeric
-        window.postMap[slug] = url;
-        console.log(`[populatePostMap] Title: "${title}" -> Generated Slug: "${slug}" -> Actual URL: "${url}"`); // LOGGING TAMBAHAN
+
+        // Ekstrak slug dari URL Blogger yang sebenarnya
+        // Contoh URL: https://partsuzuki-motor.blogspot.com/2025/06/addressenginefig102a.html
+        // Regex untuk mengambil bagian slug setelah tahun/bulan dan sebelum .html
+        const urlMatch = url.match(/\/(\d{4})\/(\d{2})\/([a-z0-9]+)\.html$/);
+        let slugFromUrl = '';
+        let yearFromUrl = '';
+        let monthFromUrl = '';
+
+        if (urlMatch && urlMatch[3]) {
+            yearFromUrl = urlMatch[1];
+            monthFromUrl = urlMatch[2];
+            slugFromUrl = urlMatch[3]; // Ini adalah slug yang sebenarnya dari URL Blogger
+        } else {
+            // Fallback: jika regex gagal, coba buat slug dari judul (kurang akurat)
+            slugFromUrl = title.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+            console.warn(`[populatePostMap] Gagal mengekstrak slug dari URL: "${url}". Menggunakan slug dari judul: "${slugFromUrl}"`);
+        }
+        
+        // Gunakan slug dari URL sebagai kunci di postMap
+        // Simpan objek yang berisi URL lengkap, tahun, dan bulan
+        window.postMap[slugFromUrl] = {
+            url: url,
+            year: yearFromUrl,
+            month: monthFromUrl
+        };
+        console.log(`[populatePostMap] Title: "${title}" -> Extracted Slug: "${slugFromUrl}" (Year: ${yearFromUrl}, Month: ${monthFromUrl}) -> Actual URL: "${url}"`); // LOGGING TAMBAHAN
     });
     console.log("PostMap berhasil diisi:", window.postMap);
 };
