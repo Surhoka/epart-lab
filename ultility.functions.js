@@ -24,10 +24,10 @@ window.populatePostMap = async function() {
         const title = link.textContent.trim();
         const url = link.href;
 
-        // Ekstrak slug dari URL Blogger yang sebenarnya
+        // Ekstrak slug, tahun, dan bulan dari URL Blogger yang sebenarnya
         // Contoh URL: https://partsuzuki-motor.blogspot.com/2025/06/addressenginefig102a.html
-        // Regex untuk mengambil bagian slug setelah tahun/bulan dan sebelum .html
-        const urlMatch = url.match(/\/(\d{4})\/(\d{2})\/([a-z0-9]+)\.html$/);
+        // Regex yang lebih fleksibel untuk menangani permalink kustom atau standar Blogger
+        const urlMatch = url.match(/\/(\d{4})\/(\d{2})\/(.+?)\.html$/); // Menangkap apapun setelah bulan dan sebelum .html
         let slugFromUrl = '';
         let yearFromUrl = '';
         let monthFromUrl = '';
@@ -35,21 +35,23 @@ window.populatePostMap = async function() {
         if (urlMatch && urlMatch[3]) {
             yearFromUrl = urlMatch[1];
             monthFromUrl = urlMatch[2];
-            slugFromUrl = urlMatch[3]; // Ini adalah slug yang sebenarnya dari URL Blogger
+            // Slug yang diekstrak mungkin masih mengandung tanda hubung atau slash jika itu permalink kustom
+            // Kita akan menormalisasi ini agar sesuai dengan format yang kita inginkan untuk kunci map
+            slugFromUrl = urlMatch[3].replace(/[^a-z0-9]/g, ''); // Hapus semua karakter non-alphanumeric dari slug yang diekstrak
         } else {
             // Fallback: jika regex gagal, coba buat slug dari judul (kurang akurat)
             slugFromUrl = title.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-            console.warn(`[populatePostMap] Gagal mengekstrak slug dari URL: "${url}". Menggunakan slug dari judul: "${slugFromUrl}"`);
+            console.warn(`[populatePostMap Debug] Gagal mengekstrak slug dari URL: "${url}". Menggunakan slug dari judul: "${slugFromUrl}"`);
         }
         
-        // Gunakan slug dari URL sebagai kunci di postMap
+        // Gunakan slug yang sudah dinormalisasi sebagai kunci di postMap
         // Simpan objek yang berisi URL lengkap, tahun, dan bulan
         window.postMap[slugFromUrl] = {
             url: url,
             year: yearFromUrl,
             month: monthFromUrl
         };
-        console.log(`[populatePostMap] Title: "${title}" -> Extracted Slug: "${slugFromUrl}" (Year: ${yearFromUrl}, Month: ${monthFromUrl}) -> Actual URL: "${url}"`); // LOGGING TAMBAHAN
+        console.log(`[populatePostMap Debug] Title from Blogger: "${title}" -> Extracted & Normalized Slug: "${slugFromUrl}" (Year: ${yearFromUrl}, Month: ${monthFromUrl}) -> Actual URL: "${url}"`);
     });
     console.log("PostMap berhasil diisi:", window.postMap);
 };
