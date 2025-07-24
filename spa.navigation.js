@@ -15,6 +15,12 @@ function safeAddClass(element, ...classNames) {
 const spaLoadingIndicator = document.getElementById('spa-loading-indicator');
 const mainContentSection = document.getElementById('main-content-section');
 
+// Asumsi showMessageBox tersedia secara global dari estimation-modal.js
+if (typeof window.showMessageBox !== 'function') {
+    console.warn("Fungsi 'showMessageBox' tidak ditemukan. Pastikan estimation-modal.js dimuat dengan benar.");
+    window.showMessageBox = function(message) { console.log("Toast (fallback):", message); };
+}
+
 /**
  * Menampilkan indikator loading.
  */
@@ -80,19 +86,30 @@ async function loadPageContent(url, pushState = true) {
             window.scrollTo(0, 0);
 
             // Pasang kembali event listener untuk konten yang baru dimuat
-            // Ini penting untuk elemen interaktif di dalam area konten utama
             attachSpaLinkListeners(); // Pasang kembali untuk tautan baru
 
             // Panggil kembali fungsi untuk mengisi dropdown kategori kendaraan
-            // (Asumsi fungsi ini ada dan dapat diakses secara global atau diimpor)
             if (typeof populateVehicleCategoryDropdown === 'function') {
                 populateVehicleCategoryDropdown();
             }
 
-            // Jalankan kembali populasi peta postingan jika ada postingan baru yang dimuat
-            // (Asumsi fungsi ini ada dan dapat diakses secara global atau diimpor)
+            // Jalankan kembali populasi peta postingan
+            // PENTING: Jalankan ini dan tunggu sampai selesai karena jalankanPencarianFigSidebar bergantung padanya
             if (typeof populatePostMap === 'function') {
-                populatePostMap();
+                await populatePostMap(); // Tunggu hingga postMap diperbarui
+            }
+
+            // Setelah postMap diperbarui, panggil fungsi pencarian sidebar untuk menyegarkan hasilnya
+            // atau mengembalikan ke keadaan awal (misalnya, menampilkan pesan "Masukkan kata kunci...")
+            if (typeof window.jalankanPencarianFigSidebar === 'function') {
+                const sidebarInput = document.getElementById('sidebarSearchInput');
+                // Jika ada query di input pencarian, jalankan pencarian ulang
+                // Jika tidak, tampilkan pesan default atau kosongkan hasil
+                if (sidebarInput && sidebarInput.value.trim() !== '') {
+                    window.jalankanPencarianFigSidebar(sidebarInput.value.trim().toUpperCase());
+                } else {
+                    window.jalankanPencarianFigSidebar(''); // Kosongkan atau reset hasil pencarian
+                }
             }
 
             console.log(`SPA: Konten dimuat untuk ${url}`);
@@ -101,7 +118,7 @@ async function loadPageContent(url, pushState = true) {
         }
     } catch (error) {
         console.error('SPA: Gagal memuat konten halaman:', error);
-        // showMessageBox(`Gagal memuat halaman: ${error.message}.`); // Asumsi showMessageBox ada
+        window.showMessageBox(`Gagal memuat halaman: ${error.message}.`);
     } finally {
         hideLoading();
     }
@@ -152,8 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tangani tombol kembali/maju browser
     window.addEventListener('popstate', (e) => {
-        // Muat konten untuk state yang baru saja di-pop
-        // URL sudah diperbarui oleh browser untuk popstate
         loadPageContent(window.location.href, false); // Jangan mendorong state lagi
     });
 });
