@@ -1,45 +1,45 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Utility function to safely add CSS classes
+  // Fungsi utilitas untuk menambahkan kelas CSS dengan aman
   function safeAddClass(element, ...classNames) {
       if (element && element.classList) {
           element.classList.add(...classNames);
       }
   }
 
-  // Custom toast elements
+  // Elemen toast kustom
   const customToast = document.getElementById('customToast');
   const toastMessage = document.getElementById('toastMessage');
-  let toastTimeout; // Variable to hold the timeout ID
+  let toastTimeout; // Variabel untuk menyimpan ID timeout
 
-  // Function to show custom toast
+  // Fungsi untuk menampilkan toast kustom
   function showMessageBox(message) {
       if (customToast && toastMessage) {
-          // Clear any existing timeout to prevent multiple toasts overlapping
+          // Hapus timeout yang ada untuk mencegah tumpang tindih toast
           clearTimeout(toastTimeout);
           
           toastMessage.textContent = message;
-          customToast.style.display = 'block'; // Make it visible
-          customToast.classList.add('show'); // Add 'show' class for transition
+          customToast.style.display = 'block'; // Jadikan terlihat
+          customToast.classList.add('show'); // Tambahkan kelas 'show' untuk transisi
 
-          // Hide the toast automatically after 3 seconds
+          // Sembunyikan toast secara otomatis setelah 3 detik
           toastTimeout = setTimeout(() => {
-              customToast.classList.remove('show'); // Remove 'show' class for transition out
-              // After transition, set display to none to remove it from layout
+              customToast.classList.remove('show'); // Hapus kelas 'show' untuk transisi keluar
+              // Setelah transisi, atur display ke none untuk menghapusnya dari layout
               setTimeout(() => {
                   customToast.style.display = 'none';
-              }, 400); // Match this with the CSS transition duration
-          }, 3000); // 3 seconds
+              }, 400); // Sesuaikan dengan durasi transisi CSS
+          }, 3000); // 3 detik
       }
   }
 
   /**
-   * Recursively creates a nested menu structure from a flat list of links.
-   * Links starting with underscores are treated as sub-items.
-   * Example: "Parent", "_Child1", "__Grandchild", "_Child2"
-   * @param {Array<Object>} items - Array of link objects {name: string, target: string}
-   * @param {number} startIndex - Index to start processing in the items array.
-   * @param {number} currentLevel - Current nesting level (0 for top-level, 1 for sub-menu, etc.)
-   * @returns {{ul: HTMLElement, nextIndex: number}} The constructed UL element and the next index to process.
+   * Secara rekursif membuat struktur menu bersarang dari daftar tautan datar.
+   * Tautan yang dimulai dengan garis bawah diperlakukan sebagai sub-item.
+   * Contoh: "Parent", "_Child1", "__Grandchild", "_Child2"
+   * @param {Array<Object>} items - Array objek tautan {name: string, target: string}
+   * @param {number} startIndex - Indeks untuk mulai memproses dalam array item.
+   * @param {number} currentLevel - Tingkat bersarang saat ini (0 untuk tingkat atas, 1 untuk sub-menu, dll.)
+   * @returns {{ul: HTMLElement, nextIndex: number}} Elemen UL yang dibangun dan indeks berikutnya untuk diproses.
    */
   function createNestedMenu(items, startIndex, currentLevel) {
       const currentLevelUl = document.createElement('ul');
@@ -47,11 +47,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
       while (i < items.length) {
           const item = items[i];
-          const itemName = item.name.trim(); // Trim whitespace here
+          const itemName = item.name.trim(); // Hapus spasi di sini
           const leadingUnderscores = (itemName.match(/^_+/) || [''])[0].length;
           const cleanName = itemName.replace(/^_+/, '');
 
-          console.log(`📌 [createMenu] Level: ${currentLevel}, Item: "${cleanName}", Underscores: ${leadingUnderscores}`); // Log item details
+          console.log(`📌 [createMenu] Level: ${currentLevel}, Item: "${cleanName}", Underscores: ${leadingUnderscores}`); // Log detail item
 
           if (leadingUnderscores === currentLevel) {
               const li = document.createElement('li');
@@ -65,12 +65,12 @@ document.addEventListener('DOMContentLoaded', function() {
                   ...(isTopLevel ? ['w-full', 'md:w-auto'] : ['w-full'])
               );
 
-              const anchor = document.createElement('a'); // Changed 'a' to 'anchor' for consistency
+              const anchor = document.createElement('a');
               anchor.href = item.target;
               anchor.textContent = cleanName;
               safeAddClass(anchor, 'main-menu-item');
 
-              // Check if there are children after this item
+              // Periksa apakah ada anak setelah item ini
               const nextItem = items[i + 1];
               const nextLevel =
                   nextItem && (nextItem.name.trim().match(/^_+/) || [''])[0].length;
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   arrow.appendChild(path);
                   anchor.appendChild(arrow);
 
-                  li.appendChild(anchor); // Append anchor to li
+                  li.appendChild(anchor); // Tambahkan anchor ke li
 
                   const nested = createNestedMenu(items, i + 1, currentLevel + 1);
                   const subUl = nested.ul;
@@ -100,25 +100,24 @@ document.addEventListener('DOMContentLoaded', function() {
                   safeAddClass(subUl, currentLevel === 0 ? 'dropdown-menu' : 'dropdown-submenu');
                   li.appendChild(subUl);
 
-                  // Add click event listener for both desktop and mobile
+                  // Tambahkan event listener klik untuk desktop dan mobile
                   anchor.addEventListener('click', (e) => {
-                      e.preventDefault(); // Always prevent default navigation for dropdown toggles
+                      e.preventDefault(); // Selalu cegah navigasi default untuk toggle dropdown
                       li.classList.toggle('show-dropdown');
-                      // Removed: arrow.classList.toggle('rotated'); // This line is no longer needed
                   });
 
-                  i = nested.nextIndex - 1; // -1 because it will be ++ at the end
+                  i = nested.nextIndex - 1; // -1 karena akan di++ di akhir
               } else {
-                  li.appendChild(anchor); // Append anchor to li
+                  li.appendChild(anchor); // Tambahkan anchor ke li
               }
 
               currentLevelUl.appendChild(li);
               i++;
           } else if (leadingUnderscores < currentLevel) {
-              console.log(`↩ [createMenu] Returning from level ${currentLevel} to ${leadingUnderscores}.`); // Log when returning
-              break; // Go back to the previous parent
+              console.log(`↩ [createMenu] Kembali dari level ${currentLevel} ke ${leadingUnderscores}.`); // Log saat kembali
+              break; // Kembali ke induk sebelumnya
           } else {
-              console.warn(`✳ Menu "${itemName}" skips a level. Skipping.`);
+              console.warn(`✳ Menu "${itemName}" melewati satu level. Melewati.`);
               i++;
           }
       }
@@ -128,12 +127,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const buildTree = (links) => {
     const tree = [];
-    const parents = []; // Stores references to parent nodes at each depth
+    const parents = []; // Menyimpan referensi ke node induk di setiap kedalaman
 
     links.forEach(raw => {
-        // Calculate depth based on the number of underscores
-        const depth = (raw.name.trim().match(/^_+/) || [''])[0].length; // Trim here too
-        const name = raw.name.replace(/^_*/, ''); // Remove underscores from the name
+        // Hitung kedalaman berdasarkan jumlah garis bawah
+        const depth = (raw.name.trim().match(/^_+/) || [''])[0].length; // Hapus spasi di sini juga
+        const name = raw.name.replace(/^_*/, ''); // Hapus garis bawah dari nama
 
         const node = {
             name: name,
@@ -142,91 +141,87 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         if (depth === 0) {
-            // This is a top-level menu item
+            // Ini adalah item menu tingkat atas
             tree.push(node);
-            parents[0] = node; // Set as parent for depth 0
+            parents[0] = node; // Atur sebagai induk untuk kedalaman 0
         } else {
-            // This is a sub-item
-            const parent = parents[depth - 1]; // Get parent from the previous depth
+            // Ini adalah sub-item
+            const parent = parents[depth - 1]; // Dapatkan induk dari kedalaman sebelumnya
             if (parent) {
                 parent.children.push(node);
-                parents[depth] = node; // Set as parent for the current depth
+                parents[depth] = node; // Atur sebagai induk untuk kedalaman saat ini
             } else {
-                console.warn(`⚠️ Item "${name}" (depth ${depth}) has no corresponding parent.`);
+                console.warn(`⚠️ Item "${name}" (kedalaman ${depth}) tidak memiliki induk yang sesuai.`);
             }
         }
     });
     return tree;
   };
 
-  // Changed mobileMenuButton to mobileMenuButtonInNav because its ID changed
+  // Mengubah mobileMenuButton menjadi mobileMenuButtonInNav karena ID-nya berubah
   const mobileMenuButtonInNav = document.getElementById('mobile-menu-button-in-nav');
   const mainMenuNav = document.getElementById('main-menu-nav');
 
-  // Get initial links directly from the UL element #main-menu-nav
-  // Ensure data-original-name is correctly retrieved
+  // Dapatkan tautan awal langsung dari elemen UL #main-menu-nav
+  // Pastikan data-original-name diambil dengan benar
   const initialLinks = Array.from(mainMenuNav.children).map(li => {
       const anchor = li.querySelector('a');
       return {
           name: anchor ? anchor.getAttribute('data-original-name') || anchor.textContent.trim() : '',
           target: anchor ? anchor.href : '#',
-          element: li // Store reference to the original li
+          element: li // Simpan referensi ke li asli
       };
-  }).filter(link => link.name); // Filter out potentially empty links
+  }).filter(link => link.name); // Saring tautan yang berpotensi kosong
 
-  console.log('Initial Links from b:loop (main-menu-nav):', initialLinks);
+  console.log('Tautan Awal dari b:loop (main-menu-nav):', initialLinks);
 
-  // Remove existing menu items from mainMenuNav before rebuilding
-  // This is important because Blogger already renders flat items here.
+  // Hapus item menu yang ada dari mainMenuNav sebelum membangun kembali
+  // Ini penting karena Blogger sudah merender item datar di sini.
   while (mainMenuNav.firstChild) {
       mainMenuNav.removeChild(mainMenuNav.firstChild);
   }
   
   if (initialLinks.length) {
-    // No need to explicitly call buildTree here if createNestedMenu already handles it
-    // const tree = buildTree(initialLinks); // This is only for structure visualization, not used for rendering
+    // Tidak perlu memanggil buildTree secara eksplisit di sini jika createNestedMenu sudah menanganinya
+    // const tree = buildTree(initialLinks); // Ini hanya untuk visualisasi struktur, tidak digunakan untuk rendering
 
-    // Render the main menu (desktop and mobile)
+    // Render menu utama (desktop dan mobile)
     const finalMenuUlContent = createNestedMenu(initialLinks, 0, 0).ul;
     while (finalMenuUlContent.firstChild) {
         mainMenuNav.appendChild(finalMenuUlContent.firstChild);
     }
-    console.log('Main menu rendered (desktop and mobile structure).');
+    console.log('Menu utama dirender (struktur desktop dan mobile).');
   } else {
-    console.log('No initial links found to render menus. Please check your Blogger LinkList widget settings.');
+    console.log('Tidak ada tautan awal yang ditemukan untuk merender menu. Harap periksa pengaturan widget LinkList Blogger Anda.');
   }
 
-  // Mobile menu (hamburger) button functionality
+  // Fungsionalitas tombol menu mobile (hamburger)
   if (mobileMenuButtonInNav && mainMenuNav) {
       mobileMenuButtonInNav.addEventListener('click', function() {
-          mainMenuNav.classList.toggle('show'); // Toggle 'show' class on mainMenuNav
+          mainMenuNav.classList.toggle('show'); // Toggle kelas 'show' pada mainMenuNav
       });
   }
 
-  // Close dropdown if clicked outside
+  // Tutup dropdown jika diklik di luar
   document.addEventListener('click', function(e) {
-      // Close mobile main menu if open
+      // Tutup menu utama mobile jika terbuka
       if (mainMenuNav && mainMenuNav.classList.contains('show') && !mainMenuNav.contains(e.target) && e.target !== mobileMenuButtonInNav) {
           mainMenuNav.classList.remove('show');
       }
 
-      // Close nested dropdowns/submenus if clicked outside the parent li
-      document.querySelectorAll('.group.show-dropdown').forEach(liWithDropdown => { // Target li with 'show-dropdown'
+      // Tutup dropdown/submenu bersarang jika diklik di luar li induk
+      document.querySelectorAll('.group.show-dropdown').forEach(liWithDropdown => { // Target li dengan 'show-dropdown'
           const dropdownMenu = liWithDropdown.querySelector('.dropdown-menu, .dropdown-submenu');
-          const dropdownToggle = liWithDropdown.querySelector('.dropdown-toggle');
           
-          if (dropdownMenu && !liWithDropdown.contains(e.target)) { // Check if click is outside the li
+          if (dropdownMenu && !liWithDropdown.contains(e.target)) { // Periksa apakah klik di luar li
               liWithDropdown.classList.remove('show-dropdown');
-              if (dropdownToggle) {
-                  // Removed: dropdownToggle.querySelector('.dropdown-arrow')?.classList.remove('rotated');
-              }
           }
       });
   });
 
-  // --- Function for "Select Vehicle Category" dropdown ---
+  // --- Fungsi untuk dropdown "Pilih Kategori Kendaraan" ---
   const vehicleCategorySelect = document.getElementById('vehicleCategorySelect');
-  // Get reference to the UL inside LinkList2 to get data
+  // Dapatkan referensi ke UL di dalam LinkList2 untuk mendapatkan data
   const linkList2Data = document.querySelector('#LinkList2 .widget-content ul');
 
   function populateVehicleCategoryDropdown() {
@@ -239,60 +234,60 @@ document.addEventListener('DOMContentLoaded', function() {
               const categoryUrl = link.href;
               if (categoryName) {
                   const option = document.createElement('option');
-                  option.value = categoryUrl; // Use URL as value
+                  option.value = categoryUrl; // Gunakan URL sebagai nilai
                   option.textContent = categoryName;
                   vehicleCategorySelect.appendChild(option);
               }
           });
       } else {
-          console.warn('WARNING: LinkList2 data element or vehicleCategorySelect dropdown not found to populate vehicle categories.');
+          console.warn('PERINGATAN: Elemen data LinkList2 atau dropdown vehicleCategorySelect tidak ditemukan untuk mengisi kategori kendaraan.');
       }
   }
 
-  // Event listener to navigate to URL when an option is selected
+  // Event listener untuk menavigasi ke URL saat opsi dipilih
   if (vehicleCategorySelect) {
       vehicleCategorySelect.addEventListener('change', function() {
           const selectedUrl = this.value;
           if (selectedUrl) {
-              // Use SPA navigation for category selection
+              // Gunakan navigasi SPA untuk pemilihan kategori
               loadPageContent(selectedUrl);
           }
       });
   }
 
-  // Call function to populate dropdown when DOM is loaded
+  // Panggil fungsi untuk mengisi dropdown saat DOM dimuat
   populateVehicleCategoryDropdown();
 
-  // --- Estimation Modal Functionality with LocalStorage ---
+  // --- Fungsionalitas Modal Estimasi dengan LocalStorage ---
   const openEstimasiModalBtn = document.getElementById('openEstimasiModal');
   
-  // Only proceed with modal initialization if the button exists on the page
-  if (openEstimasiModalBtn) { // PERBAIKAN: Tambahkan pengecekan di sini
+  // Lanjutkan inisialisasi modal hanya jika tombol ada di halaman
+  if (openEstimasiModalBtn) {
       const estimasiModal = document.getElementById('estimasiModal');
       const closeEstimasiModalBtn = document.getElementById('closeEstimasiModal');
       const estimasiTableBody = document.getElementById('estimasiTableBody');
-      const estimasiModalContent = document.getElementById('estimasiModalContent'); // Modal content element
-      const headerTableWrapper = document.querySelector('.header-table-wrapper'); // New: Header table wrapper
-      const bodyTableWrapper = document.querySelector('.body-table-wrapper'); // New: Body table wrapper
-      const downloadPdfBtn = document.getElementById('downloadPdfBtn'); // New: Download PDF button
+      const estimasiModalContent = document.getElementById('estimasiModalContent'); // Elemen konten modal
+      const headerTableWrapper = document.querySelector('.header-table-wrapper'); // Baru: Wrapper tabel header
+      const bodyTableWrapper = document.querySelector('.body-table-wrapper'); // Baru: Wrapper tabel body
+      const downloadPdfBtn = document.getElementById('downloadPdfBtn'); // Baru: Tombol Download PDF
 
-      // New part input row elements (now global within this scope)
+      // Elemen baris input part baru (sekarang global dalam cakupan ini)
       let newPartKodePartInput;
       let newPartDeskripsiInput;
       let newPartQtyInput;
       let newPartHargaInput;
       let addPartBtn;
 
-      // Nested modal elements
+      // Elemen modal bersarang
       const openKirimEstimasiModalBtn = document.getElementById('openKirimEstimasiModalBtn');
       const kirimEstimasiModal = document.getElementById('kirimEstimasiModal');
       const closeKirimEstimasiModalBtn = document.getElementById('closeKirimEstimasiModal');
-      const estimasiForm = document.getElementById('estimasiForm'); // The form is now inside the nested modal
+      const estimasiForm = document.getElementById('estimasiForm'); // Form sekarang ada di dalam modal bersarang
 
-      // Estimation data will be stored here
+      // Data estimasi akan disimpan di sini
       let estimasiItems = [];
 
-      // Function to load data from localStorage
+      // Fungsi untuk memuat data dari localStorage
       function loadEstimasiFromLocalStorage() {
           const storedData = localStorage.getItem('estimasiData');
           if (storedData) {
@@ -300,25 +295,24 @@ document.addEventListener('DOMContentLoaded', function() {
                   estimasiItems = JSON.parse(storedData);
               }
               catch (e) {
-                  console.error("Error parsing estimasi data from localStorage:", e);
-                  estimasiItems = []; // Reset if there's a parsing error
+                  console.error("Kesalahan saat mengurai data estimasi dari localStorage:", e);
+                  estimasiItems = []; // Reset jika ada kesalahan penguraian
               }
           } else {
-              // If no data in localStorage, initialize as an empty array.
-              // Dummy data has been removed as per user request.
-              // estimasiItems = []; // This line is not needed if we always initialize as empty or load from storage
+              // Jika tidak ada data di localStorage, inisialisasi sebagai array kosong.
+              // Data dummy telah dihapus sesuai permintaan pengguna.
           }
       }
 
-      // Function to save data to localStorage
+      // Fungsi untuk menyimpan data ke localStorage
       function saveEstimasiToLocalStorage() {
           localStorage.setItem('estimasiData', JSON.stringify(estimasiItems));
       }
 
       /**
-       * Adds a new item to the estimation list or updates the quantity of an existing item.
-       * @param {Object} newItem - The item to add or update.
-       * @param {boolean} [isIncrement=true] - If true, increments quantity. If false, decrements.
+       * Menambahkan item baru ke daftar estimasi atau memperbarui kuantitas item yang sudah ada.
+       * @param {Object} newItem - Item yang akan ditambahkan atau diperbarui.
+       * @param {boolean} [isIncrement=true] - Jika true, menambah kuantitas. Jika false, mengurangi.
        */
       function addEstimasiItem(newItem, isIncrement = true) {
           if (!newItem || !newItem.kodePart || !newItem.deskripsi || !newItem.qty || !newItem.harga) {
@@ -331,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const qtyBaru = newItem.qty;
           const hargaBaru = newItem.harga;
 
-          // Adjusted to also check description for existing items
+          // Disesuaikan untuk juga memeriksa deskripsi untuk item yang sudah ada
           const existingIndex = estimasiItems.findIndex(item =>
               item.kodePart.trim().toUpperCase() === kodeBaru &&
               item.deskripsi.trim() === deskripsiBaru
@@ -340,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (existingIndex !== -1) {
               if (isIncrement) {
                   estimasiItems[existingIndex].qty += qtyBaru;
-                  // Show toast feedback
+                  // Tampilkan umpan balik toast
                   showMessageBox(`Qty untuk part '${deskripsiBaru}' ditambahkan jadi ${estimasiItems[existingIndex].qty}x`);
               } else {
                   estimasiItems[existingIndex].qty -= qtyBaru;
@@ -351,17 +345,17 @@ document.addEventListener('DOMContentLoaded', function() {
                       showMessageBox(`Qty untuk part '${deskripsiBaru}' dikurangi jadi ${estimasiItems[existingIndex].qty}x`);
                   }
               }
-          } else if (isIncrement) { // Only add new item if it's an increment operation
+          } else if (isIncrement) { // Hanya tambahkan item baru jika itu adalah operasi penambahan
               estimasiItems.push({
                   kodePart: kodeBaru,
                   deskripsi: deskripsiBaru,
                   qty: qtyBaru,
                   harga: hargaBaru
               });
-              // Show toast feedback
+              // Tampilkan umpan balik toast
               showMessageBox(`Part '${deskripsiBaru}' (${kodeBaru}) ditambahkan ke keranjang dengan ${qtyBaru}x`);
           } else {
-              // If trying to decrement a non-existent item, do nothing or show a message
+              // Jika mencoba mengurangi item yang tidak ada, jangan lakukan apa-apa atau tampilkan pesan
               showMessageBox(`Part '${deskripsiBaru}' (${kodeBaru}) tidak ditemukan di keranjang.`);
           }
 
@@ -369,20 +363,20 @@ document.addEventListener('DOMContentLoaded', function() {
           renderEstimasiTable();
       }
 
-      // Function to re-render the table and update badges
+      // Fungsi untuk merender ulang tabel dan memperbarui badge
       function renderEstimasiTable() {
         const estimasiTableBody = document.getElementById('estimasiTableBody');
         if (!estimasiTableBody) return;
 
         estimasiTableBody.innerHTML = '';
         let totalBelanja = 0;
-        let totalQuantity = 0; // Initialize total quantity
+        let totalQuantity = 0; // Inisialisasi total kuantitas
 
-        // Render existing items
+        // Render item yang ada
         estimasiItems.forEach((item, index) => {
             const jumlah = item.qty * item.harga;
             totalBelanja += jumlah;
-            totalQuantity += item.qty; // Accumulate total quantity
+            totalQuantity += item.qty; // Akumulasi total kuantitas
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -411,13 +405,13 @@ document.addEventListener('DOMContentLoaded', function() {
             estimasiTableBody.appendChild(row);
         });
 
-        // Add the new part input row
+        // Tambahkan baris input part baru
         const newPartRow = document.createElement('tr');
-        newPartRow.classList.add('estimasi-input-row'); // Add class for styling
+        newPartRow.classList.add('estimasi-input-row'); // Tambahkan kelas untuk styling
         newPartRow.innerHTML = `
             <td class="text-center text-gray-400">#</td>
             <td><input type="text" id="newPartKodePart" placeholder="Kode Part" /></td>
-            <td><input type="text" id="newPartDeskripsi" placeholder="Deskripsi" readonly /></td> <!-- Added readonly here -->
+            <td><input type="text" id="newPartDeskripsi" placeholder="Deskripsi" readonly /></td> <!-- Ditambahkan readonly di sini -->
             <td><input type="number" id="newPartQty" placeholder="Qty" value="1" min="1" /></td>
             <td><input type="text" id="newPartHarga" placeholder="Harga" /></td>
             <td class="text-center text-gray-400">Auto</td>
@@ -429,20 +423,20 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         estimasiTableBody.appendChild(newPartRow);
 
-        // Re-assign global references to new input elements after they are rendered
+        // Tetapkan kembali referensi global ke elemen input baru setelah dirender
         newPartKodePartInput = document.getElementById('newPartKodePart');
         newPartDeskripsiInput = document.getElementById('newPartDeskripsi');
         newPartQtyInput = document.getElementById('newPartQty');
         newPartHargaInput = document.getElementById('newPartHarga');
         addPartBtn = document.getElementById('addPartBtn');
 
-        // Re-attach event listeners for the new part input row
+        // Lampirkan kembali event listener untuk baris input part baru
         if (addPartBtn) {
-            addPartBtn.onclick = function() { // Use onclick to easily re-assign
+            addPartBtn.onclick = function() { // Gunakan onclick untuk penugasan ulang yang mudah
                 const kodePart = newPartKodePartInput.value.trim();
                 const deskripsi = newPartDeskripsiInput.value.trim();
                 const qty = parseInt(newPartQtyInput.value, 10);
-                const hargaStr = newPartHargaInput.value.replace(/[^0-9]/g, ''); // Remove non-numeric
+                const hargaStr = newPartHargaInput.value.replace(/[^0-9]/g, ''); // Hapus non-numerik
                 const harga = parseInt(hargaStr, 10);
 
                 if (kodePart && deskripsi && !isNaN(qty) && qty > 0 && !isNaN(harga) && harga >= 0) {
@@ -452,8 +446,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         qty: qty,
                         harga: harga
                     };
-                    addEstimasiItem(newItem, true); // Add as new item
-                    // Clear input fields after adding
+                    addEstimasiItem(newItem, true); // Tambahkan sebagai item baru
+                    // Bersihkan kolom input setelah menambahkan
                     newPartKodePartInput.value = '';
                     newPartDeskripsiInput.value = '';
                     newPartQtyInput.value = '1';
@@ -464,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
-        // Add event listener for newPartKodePartInput to fetch data
+        // Tambahkan event listener untuk newPartKodePartInput untuk mengambil data
         if (newPartKodePartInput) {
             newPartKodePartInput.addEventListener('change', async function() {
                 const kodePart = this.value.trim().toUpperCase();
@@ -473,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     try {
                         const res = await fetch(sheetURL);
                         if (!res.ok) {
-                            throw new Error(`Failed to fetch sheet: ${res.status}`);
+                            throw new Error(`Gagal mengambil sheet: ${res.status}`);
                         }
                         const data = await res.json();
                         const foundPart = data.find(row => row.kodepart?.toUpperCase() === kodePart);
@@ -488,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             showMessageBox(`Kode Part '${kodePart}' tidak ditemukan.`);
                         }
                     } catch (error) {
-                        console.error("Error fetching part data:", error);
+                        console.error("Kesalahan saat mengambil data part:", error);
                         showMessageBox(`Gagal mencari kode part: ${error.message}`);
                     }
                 } else {
@@ -510,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             };
         }
-        // End of new part input row event listeners
+        // Akhir dari event listener baris input part baru
 
         const totalRow = document.createElement('tr');
         totalRow.innerHTML = `
@@ -520,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         estimasiTableBody.appendChild(totalRow);
 
-        // Listener untuk qty input (existing items)
+        // Listener untuk input qty (item yang ada)
         document.querySelectorAll('.qty-input-table').forEach(input => {
             input.addEventListener('change', e => {
                 const newQty = parseInt(e.target.value, 10);
@@ -529,51 +523,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!isNaN(newQty) && newQty > 0 && idx >= 0 && idx < estimasiItems.length) {
                     estimasiItems[idx].qty = newQty;
                     saveEstimasiToLocalStorage();
-                    renderEstimasiTable(); // Re-render to update totals and other rows
+                    renderEstimasiTable(); // Render ulang untuk memperbarui total dan baris lainnya
                     showMessageBox(`Qty untuk '${estimasiItems[idx].deskripsi}' diperbarui jadi ${newQty}x`);
                 } else {
-                    // If newQty is 0 or less, treat it as a delete
+                    // Jika newQty 0 atau kurang, perlakukan sebagai penghapusan
                     if (newQty <= 0 && idx >= 0 && idx < estimasiItems.length) {
                         const namaItem = estimasiItems[idx].deskripsi;
                         estimasiItems.splice(idx, 1);
                         showMessageBox(`Part '${namaItem}' telah dihapus dari estimasi.`);
                     } else {
                         showMessageBox(`Qty tidak valid. Masukkan angka lebih dari 0.`);
-                        // Revert input value to previous valid quantity
+                        // Kembalikan nilai input ke kuantitas valid sebelumnya
                         e.target.value = estimasiItems[idx].qty;
                     }
                 }
             });
         });
 
-        // Listener for price input (existing items)
+        // Listener untuk input harga (item yang ada)
         document.querySelectorAll('.price-input-table').forEach(input => {
             input.addEventListener('change', e => {
-                const newPriceString = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                const newPriceString = e.target.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numerik
                 const newPrice = parseInt(newPriceString, 10);
                 const idx = parseInt(e.target.dataset.index);
 
                 if (!isNaN(newPrice) && newPrice >= 0 && idx >= 0 && idx < estimasiItems.length) {
                     estimasiItems[idx].harga = newPrice;
                     saveEstimasiToLocalStorage();
-                    renderEstimasiTable(); // Re-render to update totals and other rows
+                    renderEstimasiTable(); // Render ulang untuk memperbarui total dan baris lainnya
                     showMessageBox(`Harga untuk '${estimasiItems[idx].deskripsi}' diperbarui jadi Rp ${newPrice.toLocaleString('id-ID')}`);
                 } else {
                     showMessageBox(`Harga tidak valid. Masukkan angka yang benar.`);
-                    // Revert input value to previous valid price
+                    // Kembalikan nilai input ke harga valid sebelumnya
                     e.target.value = `Rp ${estimasiItems[idx].harga.toLocaleString('id-ID')}`;
                 }
             });
         });
 
-        // Listener untuk tombol hapus (existing items)
+        // Listener untuk tombol hapus (item yang ada)
         document.querySelectorAll('.delete-item-btn').forEach(btn => {
             btn.addEventListener('click', e => {
-                let idx = parseInt(e.target.dataset.index); // Changed from const to let
-                if (isNaN(idx)) { // If click was on the icon, get parent button's dataset
+                let idx = parseInt(e.target.dataset.index);
+                if (isNaN(idx)) { // Jika klik pada ikon, dapatkan dataset tombol induk
                     const parentButton = e.target.closest('button');
                     if (parentButton) {
-                        idx = parseInt(parentButton.dataset.index); // Use parentButton.dataset.index
+                        idx = parseInt(parentButton.dataset.index); // Gunakan parentButton.dataset.index
                     }
                 }
 
@@ -587,10 +581,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Listener for plus button (now qty-btn-up) (existing items)
+        // Listener untuk tombol plus (sekarang qty-btn-up) (item yang ada)
         document.querySelectorAll('.qty-btn-up').forEach(btn => {
             btn.addEventListener('click', e => {
-                const idx = parseInt(e.target.dataset.index || e.target.closest('button').dataset.index); // Handle click on icon or button itself
+                const idx = parseInt(e.target.dataset.index || e.target.closest('button').dataset.index); // Tangani klik pada ikon atau tombol itu sendiri
                 if (idx >= 0 && idx < estimasiItems.length) {
                     estimasiItems[idx].qty++;
                     saveEstimasiToLocalStorage();
@@ -600,10 +594,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Listener for minus button (now qty-btn-down) (existing items)
+        // Listener untuk tombol minus (sekarang qty-btn-down) (item yang ada)
         document.querySelectorAll('.qty-btn-down').forEach(btn => {
             btn.addEventListener('click', e => {
-                const idx = parseInt(e.target.dataset.index || e.target.closest('button').dataset.index); // Handle click on icon or button itself
+                const idx = parseInt(e.target.dataset.index || e.target.closest('button').dataset.index); // Tangani klik pada ikon atau tombol itu sendiri
                 if (idx >= 0 && idx < estimasiItems.length) {
                     estimasiItems[idx].qty--;
                     if (estimasiItems[idx].qty <= 0) {
@@ -619,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Update the quantity badge
+        // Perbarui badge kuantitas
         const estimasiQtyBadge = document.getElementById('estimasiQtyBadge');
         if (estimasiQtyBadge) {
             estimasiQtyBadge.textContent = totalQuantity.toString();
@@ -630,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Update the price badge
+        // Perbarui badge harga
         const estimasiPriceBadge = document.getElementById('estimasiPriceBadge');
         if (estimasiPriceBadge) {
             estimasiPriceBadge.textContent = `Rp ${totalBelanja.toLocaleString('id-ID')}`;
@@ -642,23 +636,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // Function to delete an item from estimation (kept for consistency, though now handled by renderEstimasiTable's event listener for delete buttons)
+      // Fungsi untuk menghapus item dari estimasi (disimpan untuk konsistensi, meskipun sekarang ditangani oleh event listener tombol hapus di renderEstimasiTable)
       function deleteEstimasiItem(index) {
           if (index > -1 && index < estimasiItems.length) {
-              const deletedItem = estimasiItems.splice(index, 1); // Remove item from array
+              const deletedItem = estimasiItems.splice(index, 1); // Hapus item dari array
               showMessageBox(`Part '${deletedItem[0].deskripsi}' dihapus dari keranjang.`);
-              saveEstimasiToLocalStorage(); // Save changes to localStorage
-              renderEstimasiTable(); // Re-render table
+              saveEstimasiToLocalStorage(); // Simpan perubahan ke localStorage
+              renderEstimasiTable(); // Render ulang tabel
           }
       }
 
-      // Function to generate PDF
+      // Fungsi untuk membuat PDF
       function generatePdf() {
-          // Create a new jsPDF instance
+          // Buat instance jsPDF baru
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
 
-          // Define columns for the PDF table
+          // Definisikan kolom untuk tabel PDF
           const columns = [
               { header: 'No', dataKey: 'no' },
               { header: 'Kode Part', dataKey: 'kodePart' },
@@ -668,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
               { header: 'Jumlah (Rp)', dataKey: 'jumlah' }
           ];
 
-          // Prepare data for the PDF table
+          // Siapkan data untuk tabel PDF
           const data = estimasiItems.map((item, index) => {
               const jumlah = item.qty * item.harga;
               return {
@@ -681,19 +675,19 @@ document.addEventListener('DOMContentLoaded', function() {
               };
           });
 
-          // Calculate total
+          // Hitung total
           let totalBelanja = 0;
           estimasiItems.forEach(item => {
               totalBelanja += item.qty * item.harga;
           });
 
-          // Add title to the PDF
+          // Tambahkan judul ke PDF
           doc.setFontSize(18);
-          doc.text("Daftar Estimasi Sparepart", 105, 20, null, null, "center"); // Changed title here
+          doc.text("Daftar Estimasi Sparepart", 105, 20, null, null, "center"); // Mengubah judul di sini
 
-          // Add table to the PDF
+          // Tambahkan tabel ke PDF
           doc.autoTable({
-              startY: 30, // Start table below the title
+              startY: 30, // Mulai tabel di bawah judul
               head: [columns.map(col => col.header)],
               body: data.map(row => columns.map(col => row[col.dataKey])),
               theme: 'striped',
@@ -713,8 +707,8 @@ document.addEventListener('DOMContentLoaded', function() {
                   0: { halign: 'center', cellWidth: 10 }, // No
                   1: { halign: 'center', cellWidth: 25 }, // Kode Part
                   2: { halign: 'left', cellWidth: 60 },  // Deskripsi
-                  3: { halign: 'center', cellWidth: 15 }, // Qty (Adjusted from right to center)
-                  4: { halign: 'right', cellWidth: 25 }, // Harga (Increased from 25 to 30)
+                  3: { halign: 'center', cellWidth: 15 }, // Qty (Disesuaikan dari kanan ke tengah)
+                  4: { halign: 'right', cellWidth: 25 }, // Harga (Ditingkatkan dari 25 menjadi 30)
                   5: { halign: 'right', cellWidth: 30 }  // Jumlah
               },
               didDrawPage: function(data) {
@@ -725,72 +719,71 @@ document.addEventListener('DOMContentLoaded', function() {
               }
           });
 
-          // Add total row below the table
+          // Tambahkan baris total di bawah tabel
           const finalY = doc.autoTable.previous.finalY;
           doc.setFontSize(10);
           doc.text(`Total Belanja: Rp ${totalBelanja.toLocaleString('id-ID')}`, doc.internal.pageSize.width - doc.internal.pageSize.width / 4, finalY + 10, null, null, "right");
 
 
-          // Save the PDF
+          // Simpan PDF
           doc.save('estimasi_belanja.pdf');
           showMessageBox('Daftar estimasi Anda telah diunduh sebagai PDF!');
       }
 
-      // Ensure all modal elements are found before attaching event listeners
-      // PERBAIKAN: Hapus pengecekan openEstimasiModalBtn dari sini, karena sudah dilakukan di atas.
+      // Pastikan semua elemen modal ditemukan sebelum melampirkan event listener
       if (estimasiModal && closeEstimasiModalBtn && estimasiTableBody && estimasiModalContent && headerTableWrapper && bodyTableWrapper && downloadPdfBtn && openKirimEstimasiModalBtn && kirimEstimasiModal && closeKirimEstimasiModalBtn && estimasiForm) {
-          console.log('Modal elements found. Attaching event listeners.');
+          console.log('Elemen modal ditemukan. Melampirkan event listener.');
           
-          // Load data when the page is first loaded
+          // Muat data saat halaman pertama kali dimuat
           loadEstimasiFromLocalStorage();
-          renderEstimasiTable(); // Call this to populate badges initially as well
+          renderEstimasiTable(); // Panggil ini untuk mengisi badge juga pada awalnya
 
-          // Event listener to open main estimasi modal when "Estimasi" button is clicked
+          // Event listener untuk membuka modal estimasi utama saat tombol "Estimasi" diklik
           openEstimasiModalBtn.addEventListener('click', async function() {
-              console.log('Open button clicked. Modal classList BEFORE:', estimasiModal.classList.value);
-              estimasiModal.classList.remove('hidden'); // Remove 'hidden' class to display modal
-              // Add class to body to prevent background scrolling
+              console.log('Tombol buka diklik. classList Modal SEBELUM:', estimasiModal.classList.value);
+              estimasiModal.classList.remove('hidden'); // Hapus kelas 'hidden' untuk menampilkan modal
+              // Tambahkan kelas ke body untuk mencegah pengguliran latar belakang
               document.body.classList.add('modal-open');
-              console.log('Modal classList AFTER remove hidden:', estimasiModal.classList.value);
+              console.log('classList Modal SETELAH hapus hidden:', estimasiModal.classList.value);
 
-              // Calculate available height for the scrollable table body
-              // This must be called after the modal is displayed
+              // Hitung tinggi yang tersedia untuk body tabel yang dapat digulir
+              // Ini harus dipanggil setelah modal ditampilkan
               const modalContentHeight = estimasiModalContent.offsetHeight;
               const modalTitleHeight = estimasiModalContent.querySelector('h3').offsetHeight;
-              const buttonContainerHeight = estimasiModalContent.querySelector('.mt-4.flex.justify-end.gap-2').offsetHeight; // Adjusted selector for the download button container
-              const gap = 15; // Gap between elements in estimasiModalContent
+              const buttonContainerHeight = estimasiModalContent.querySelector('.mt-4.flex.justify-end.gap-2').offsetHeight; // Selektor yang disesuaikan untuk container tombol unduh
+              const gap = 15; // Jarak antar elemen di estimasiModalContent
 
-              // Recalculate headerTableHeight after modal is visible and rendered
-              // This is crucial for accurate height calculation
+              // Hitung ulang headerTableHeight setelah modal terlihat dan dirender
+              // Ini penting untuk perhitungan tinggi yang akurat
               const headerTableHeight = headerTableWrapper.offsetHeight;
-              // newPartInputRowHeight is no longer separate, it's part of the scrollable body
+              // newPartInputRowHeight tidak lagi terpisah, itu adalah bagian dari body yang dapat digulir
 
-              // Calculate total space taken by non-scrollable elements
-              const spaceTaken = modalTitleHeight + headerTableHeight + (3 * gap); // 3 gaps: title-table, table-body, body-table-button-container
+              // Hitung total ruang yang diambil oleh elemen yang tidak dapat digulir
+              const spaceTaken = modalTitleHeight + headerTableHeight + (3 * gap); // 3 jarak: judul-tabel, body-tabel, body-tabel-container-tombol
 
-              // Calculate available height for the bodyTableWrapper
+              // Hitung tinggi yang tersedia untuk bodyTableWrapper
               const availableHeightForBodyTable = modalContentHeight - spaceTaken;
               bodyTableWrapper.style.maxHeight = `${availableHeightForBodyTable}px`;
-              bodyTableWrapper.style.height = 'auto'; // Ensure height is flexible if content is smaller
+              bodyTableWrapper.style.height = 'auto'; // Pastikan tinggi fleksibel jika konten lebih kecil
 
-              // --- START: Dynamic column width synchronization ---
-              // This needs to be called AFTER the modal is visible and rendered
-              // to get accurate computed styles.
+              // --- MULAI: Sinkronisasi lebar kolom dinamis ---
+              // Ini perlu dipanggil SETELAH modal terlihat dan dirender
+              // untuk mendapatkan gaya komputasi yang akurat.
               const headerCols = headerTableWrapper.querySelectorAll('col');
               const bodyCols = bodyTableWrapper.querySelectorAll('col');
 
-              // Then, synchronize widths
+              // Kemudian, sinkronkan lebar
               headerCols.forEach((col, i) => {
                   const width = window.getComputedStyle(col).width;
                   if (bodyCols[i]) {
                       bodyCols[i].style.width = width;
-                      bodyCols[i].style.minWidth = width; // Add minWidth
-                      bodyCols[i].style.maxWidth = width; // Add maxWidth
+                      bodyCols[i].style.minWidth = width; // Tambahkan minWidth
+                      bodyCols[i].style.maxWidth = width; // Tambahkan maxWidth
                   }
               });
-              // --- END: Dynamic column width synchronization ---
+              // --- AKHIR: Sinkronisasi lebar kolom dinamis ---
 
-              // Call function to fetch estimation data from Blogger
+              // Panggil fungsi untuk mengambil data estimasi dari Blogger
               try {
                   const fetchedEstimasi = await ambilSemuaEstimasi();
                   if (fetchedEstimasi.length > 0) {
@@ -806,39 +799,39 @@ document.addEventListener('DOMContentLoaded', function() {
                       estimasiItems = combinedEstimasi;
                       saveEstimasiToLocalStorage();
                       renderEstimasiTable();
-                      console.log('Estimation data successfully merged and re-rendered from Blogger.');
+                      console.log('Data estimasi berhasil digabungkan dan dirender ulang dari Blogger.');
                   } else {
-                      console.log('No new estimation data from Blogger. Using existing local data.');
+                      console.log('Tidak ada data estimasi baru dari Blogger. Menggunakan data lokal yang ada.');
                       renderEstimasiTable();
                   }
               } catch (error) {
-                  console.error("Failed to fetch estimation data from Blogger:", error);
+                  console.error("Gagal mengambil data estimasi dari Blogger:", error);
                   renderEstimasiTable();
               }
           });
 
-          // Event listener to close main estimasi modal when close (X) button is clicked
+          // Event listener untuk menutup modal estimasi utama saat tombol tutup (X) diklik
           closeEstimasiModalBtn.addEventListener('click', function() {
-              console.log('Close main modal clicked. Modal classList BEFORE:', estimasiModal.classList.value);
+              console.log('Tombol tutup modal utama diklik. classList Modal SEBELUM:', estimasiModal.classList.value);
               estimasiModal.classList.add('hidden');
               document.body.classList.remove('modal-open');
-              console.log('Modal classList AFTER add hidden:', estimasiModal.classList.value);
+              console.log('classList Modal SETELAH tambah hidden:', estimasiModal.classList.value);
           });
 
-          // Event listener to close main estimasi modal if clicked outside modal content (on overlay)
+          // Event listener untuk menutup modal estimasi utama jika diklik di luar konten modal (pada overlay)
           estimasiModal.addEventListener('click', function(e) {
               if (e.target === estimasiModal) {
-                  console.log('Overlay clicked. Modal classList BEFORE:', estimasiModal.classList.value);
+                  console.log('Overlay diklik. classList Modal SEBELUM:', estimasiModal.classList.value);
                   estimasiModal.classList.add('hidden');
                   document.body.classList.remove('modal-open');
-                  console.log('Modal classList AFTER add hidden:', estimasiModal.classList.value);
+                  console.log('classList Modal SETELAH tambah hidden:', estimasiModal.classList.value);
               }
           });
 
-          // Event listener for the new Download PDF button
+          // Event listener untuk tombol Download PDF yang baru
           downloadPdfBtn.addEventListener('click', generatePdf);
 
-          // Event listener to open nested modal when "Kirim Estimasi" button is clicked
+          // Event listener untuk membuka modal bersarang saat tombol "Kirim Estimasi" diklik
           openKirimEstimasiModalBtn.addEventListener('click', function() {
               if (estimasiItems.length === 0) {
                   showMessageBox('Tidak ada item dalam estimasi untuk dikirim.');
@@ -847,64 +840,64 @@ document.addEventListener('DOMContentLoaded', function() {
               kirimEstimasiModal.classList.remove('hidden');
           });
 
-          // Event listener to close nested modal when close (X) button is clicked
+          // Event listener untuk menutup modal bersarang saat tombol tutup (X) diklik
           closeKirimEstimasiModalBtn.addEventListener('click', function() {
               kirimEstimasiModal.classList.add('hidden');
           });
 
-          // Event listener to close nested modal if clicked outside modal content (on overlay)
+          // Event listener untuk menutup modal bersarang jika diklik di luar konten modal (pada overlay)
           kirimEstimasiModal.addEventListener('click', function(e) {
               if (e.target === kirimEstimasiModal) {
                   kirimEstimasiModal.classList.add('hidden');
               }
           });
 
-          // Event listener for the form submission inside the nested modal
+          // Event listener untuk pengiriman formulir di dalam modal bersarang
           estimasiForm.addEventListener('submit', function(e) {
-              e.preventDefault(); // Prevent default form submission
+              e.preventDefault(); // Mencegah pengiriman formulir default
               const nama = document.getElementById('namaPengirim').value;
-              const noHandphone = document.getElementById('noHandphone').value; // Get phone number
+              const noHandphone = document.getElementById('noHandphone').value; // Dapatkan nomor telepon
               const email = document.getElementById('emailPengirim').value;
               
               showMessageBox(`Estimasi berhasil dikirim oleh ${nama} (${email}, ${noHandphone})!`);
               console.log('Estimasi dikirim:', { items: estimasiItems, nama: nama, noHandphone: noHandphone, email: email });
 
-              // Optionally clear the form and estimation items after submission
+              // Secara opsional bersihkan formulir dan item estimasi setelah pengiriman
               // estimasiItems = [];
               // saveEstimasiToLocalStorage();
               // renderEstimasiTable();
               // document.getElementById('namaPengirim').value = '';
-              // document.getElementById('noHandphone').value = ''; // Clear phone number
+              // document.getElementById('noHandphone').value = ''; // Bersihkan nomor telepon
               // document.getElementById('emailPengirim').value = '';
 
-              kirimEstimasiModal.classList.add('hidden'); // Close the nested modal after submission
-              estimasiModal.classList.add('hidden'); // Close the main modal after submission
-              document.body.classList.remove('modal-open'); // Re-enable scrolling
+              kirimEstimasiModal.classList.add('hidden'); // Tutup modal bersarang setelah pengiriman
+              estimasiModal.classList.add('hidden'); // Tutup modal utama setelah pengiriman
+              document.body.classList.remove('modal-open'); // Aktifkan kembali pengguliran
           });
       } else {
-          // This else block will now only be hit if openEstimasiModalBtn exists, but other modal elements don't.
-          // Which is highly unlikely if the HTML structure is correct.
-          console.warn('WARNING: Some modal elements are missing even though the open button exists. Check IDs and HTML structure.');
+          // Blok else ini sekarang hanya akan terpukul jika openEstimasiModalBtn ada, tetapi elemen modal lainnya tidak.
+          // Yang sangat tidak mungkin jika struktur HTML benar.
+          console.warn('PERINGATAN: Beberapa elemen modal hilang meskipun tombol buka ada. Periksa ID dan struktur HTML.');
       }
   } else {
-      console.log('INFO: Estimasi modal button not found. Modal functionality will not be initialized on this page.');
+      console.log('INFO: Tombol modal estimasi tidak ditemukan. Fungsionalitas modal tidak akan diinisialisasi di halaman ini.');
   }
 
   /**
-   * Fetches all estimation data from Blogger posts.
-   * Each post is expected to have a <script class="data-estimasi" type="application/json"> element
-   * containing a JSON array of estimation items.
-   * @returns {Promise<Array<Object>>} Combined array of all estimation items.
+   * Mengambil semua data estimasi dari postingan Blogger.
+   * Setiap postingan diharapkan memiliki elemen <script class="data-estimasi" type="application/json">
+   * yang berisi array JSON item estimasi.
+   * @returns {Promise<Array<Object>>} Array gabungan dari semua item estimasi.
    */
   async function ambilSemuaEstimasi() {
-      console.log("Starting estimation data fetch from Blogger...");
+      console.log("Memulai pengambilan data estimasi dari Blogger...");
       const url = "/feeds/posts/default/-/estimasi?alt=json&max-results=50";
       let estimasiGabungan = [];
 
       try {
           const res = await fetch(url);
           if (!res.ok) {
-              throw new Error(`HTTP error! status: ${res.status}`);
+              throw new Error(`Kesalahan HTTP! status: ${res.status}`);
           }
           const json = await res.json();
           const entries = json.feed.entry || [];
@@ -914,44 +907,44 @@ document.addEventListener('DOMContentLoaded', function() {
           for (const entry of entries) {
               const htmlContent = entry.content?.$t;
               if (htmlContent) {
-                  // Parse the HTML content of the entry into a new DOM document
+                  // Mengurai konten HTML dari entri ke dokumen DOM baru
                   const docFromHtml = parser.parseFromString(htmlContent, 'text/html');
-                  // Query the script node from the newly parsed document
+                  // Kueri node skrip dari dokumen yang baru diurai
                   const scriptNode = docFromHtml.querySelector("script.data-estimasi[type='application/json']");
                   if (scriptNode && scriptNode.textContent) {
                       try {
                           const data = JSON.parse(scriptNode.textContent);
                           if (Array.isArray(data)) {
                               estimasiGabungan.push(...data);
-                              console.log(`Successfully parsed data from post: ${entry.title?.$t}`);
+                              console.log(`Berhasil mengurai data dari postingan: ${entry.title?.$t}`);
                           } else {
-                              console.warn(`Estimation data in post "${entry.title?.$t}" is not an array. Skipping.`);
+                              console.warn(`Data estimasi di postingan "${entry.title?.$t}" bukan array. Melewati.`);
                           }
                       } catch (e) {
-                          console.warn(`Failed to parse JSON in post "${entry.title?.$t}":`, e);
+                          console.warn(`Gagal mengurai JSON di postingan "${entry.title?.$t}":`, e);
                       }
                   } else {
-                      console.log(`No script.data-estimasi found in post: ${entry.title?.$t}`);
+                      console.log(`Tidak ada script.data-estimasi ditemukan di postingan: ${entry.title?.$t}`);
                   }
               } else {
-                  console.log(`Empty HTML content for post: ${entry.title?.$t}`);
+                  console.log(`Konten HTML kosong untuk postingan: ${entry.title?.$t}`);
               }
           }
-          console.log(`Estimation data fetch complete. Total items: ${estimasiGabungan.length}`);
+          console.log(`Pengambilan data estimasi selesai. Total item: ${estimasiGabungan.length}`);
       }
       catch (error) {
-          console.error("Error fetching estimation data from Blogger:", error);
+          console.error("Kesalahan saat mengambil data estimasi dari Blogger:", error);
       }
       return estimasiGabungan;
   }
 
-  // Make relevant functions globally accessible
+  // Jadikan fungsi yang relevan dapat diakses secara global
   window.updateEstimasiBadges = renderEstimasiTable;
-  // Modified addEstimasiItem to accept isIncrement parameter
+  // addEstimasiItem yang dimodifikasi untuk menerima parameter isIncrement
   window.addEstimasiItem = function(item) {
-      addEstimasiItem(item, true); // Default to increment
+      addEstimasiItem(item, true); // Default ke penambahan
   };
-  // Removed window.decrementEstimasiItem as its functionality is now handled by qty input and delete button
+  // Menghapus window.decrementEstimasiItem karena fungsionalitasnya sekarang ditangani oleh input qty dan tombol hapus
   window.getEstimasiItems = function() {
       return [...estimasiItems];
   };
@@ -962,81 +955,81 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   // 1️⃣ Bagian pertama — Membuat mapping semua judul postingan
-  // Initialize window.postMap globally
+  // Inisialisasi window.postMap secara global
   window.postMap = {}; 
   
-  // ✅ Load mapping postMap dari localStorage jika tersedia
+  // ✅ Muat mapping postMap dari localStorage jika tersedia
   try {
       const cached = localStorage.getItem('cachedPostMap');
       if (cached) {
           window.postMap = JSON.parse(cached);
-          console.log("✅ Loaded postMap from localStorage:", window.postMap);
+          console.log("✅ postMap dimuat dari localStorage:", window.postMap);
       }
   } catch (e) {
-      console.error("❌ Error loading postMap from localStorage:", e);
+      console.error("❌ Kesalahan saat memuat postMap dari localStorage:", e);
       window.postMap = {};
   }
 
-  // Function to populate postMap
+  // Fungsi untuk mengisi postMap
   function populatePostMap() {
-      return new Promise(resolve => { // Return a Promise
+      return new Promise(resolve => { // Kembalikan Promise
           const postMappingContainer = document.getElementById('postMappingHidden'); 
-          console.log("Starting populatePostMap function...");
+          console.log("Memulai fungsi populatePostMap...");
           if (postMappingContainer) {
-              // Log the innerHTML to see if Blogger rendered the links
-              console.log("Content of #postMappingHidden:", postMappingContainer.innerHTML);
+              // Log innerHTML untuk melihat apakah Blogger merender tautan
+              console.log("Konten #postMappingHidden:", postMappingContainer.innerHTML);
 
               const links = postMappingContainer.querySelectorAll('a');
-              console.log(`Found ${links.length} <a> tags in #postMappingHidden.`);
+              console.log(`Ditemukan ${links.length} tag <a> di #postMappingHidden.`);
 
               links.forEach(link => {
                   const title = link?.textContent?.trim();
                   const url = link?.href;
                   if (title && url) {
-                      // Sanitize the title to create the key: lowercase, trim, remove all spaces
+                      // Bersihkan judul untuk membuat kunci: huruf kecil, trim, hapus semua spasi
                       const sanitizedTitle = title.toLowerCase().trim().replace(/\s+/g, ''); 
-                      window.postMap[sanitizedTitle] = url; // Use window.postMap
-                      // NEW DEBUGGING: Log each item added to postMap
-                      console.log(`✅ Mapped Post: Original Title from Blogger: "${title}" -> Sanitized Key: "${sanitizedTitle}" -> URL: "${url}"`);
+                      window.postMap[sanitizedTitle] = url; // Gunakan window.postMap
+                      // DEBUGGING BARU: Log setiap item yang ditambahkan ke postMap
+                      console.log(`✅ Postingan yang Dipetakan: Judul Asli dari Blogger: "${title}" -> Kunci yang Dibersihkan: "${sanitizedTitle}" -> URL: "${url}"`);
                   } else {
-                      console.warn(`⚠️ Skipping link due to missing title or URL: TextContent="${link?.textContent}", Href="${link?.href}"`);
+                      console.warn(`⚠️ Melewati tautan karena judul atau URL hilang: TextContent="${link?.textContent}", Href="${link?.href}"`);
                   }
               });
-              console.log("Final window.postMap content after populating from Blogger:");
-              console.table(window.postMap); // Log the entire map as a table
-              localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); // Save to localStorage
-              console.log("✅ Saved postMap to localStorage.");
-              resolve(); // Resolve the promise once populated
+              console.log("Konten window.postMap akhir setelah mengisi dari Blogger:");
+              console.table(window.postMap); // Log seluruh peta sebagai tabel
+              localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); // Simpan ke localStorage
+              console.log("✅ postMap disimpan ke localStorage.");
+              resolve(); // Selesaikan promise setelah diisi
           } else {
-              console.warn("❌ #postMappingHidden container not found. This widget should be present on the index page.");
-              // Fallback: If not on index page or PostMappingHidden widget not present,
-              // try to get post URLs from currently rendered .post articles
+              console.warn("❌ Kontainer #postMappingHidden tidak ditemukan. Widget ini harus ada di halaman indeks.");
+              // Fallback: Jika tidak di halaman indeks atau widget PostMappingHidden tidak ada,
+              // coba dapatkan URL postingan dari artikel .post yang saat ini dirender
               const posts = document.querySelectorAll('.post');
-              console.log(`Found ${posts.length} .post articles (fallback).`);
+              console.log(`Ditemukan ${posts.length} artikel .post (fallback).`);
               posts.forEach(post => {
                   const titleElement = post.querySelector('h1 a'); 
                   const title = titleElement?.textContent?.trim();
                   const url = titleElement?.href;
                   if (title && url) {
-                      // Sanitize the title to create the key: lowercase, trim, remove all spaces
+                      // Bersihkan judul untuk membuat kunci: huruf kecil, trim, hapus semua spasi
                       const sanitizedTitle = title.toLowerCase().trim().replace(/\s+/g, ''); 
-                      window.postMap[sanitizedTitle] = url; // Use window.postMap
-                      // NEW DEBUGGING: Log each item added to postMap
-                      console.log(`✅ Mapped Post (Fallback): Original Title from Blogger: "${title}" -> Sanitized Key: "${sanitizedTitle}" -> URL: "${url}"`);
+                      window.postMap[sanitizedTitle] = url; // Gunakan window.postMap
+                      // DEBUGGING BARU: Log setiap item yang ditambahkan ke postMap
+                      console.log(`✅ Postingan yang Dipetakan (Fallback): Judul Asli dari Blogger: "${title}" -> Kunci yang Dibersihkan: "${sanitizedTitle}" -> URL: "${url}"`);
                   } else {
-                      console.warn(`⚠️ Skipping fallback post due to missing title or URL: TitleElementText="${titleElement?.textContent}", Href="${titleElement?.href}"`);
+                      console.warn(`⚠️ Melewati postingan fallback karena judul atau URL hilang: TitleElementText="${titleElement?.textContent}", Href="${titleElement?.href}"`);
                   }
               });
-              console.log("Final window.postMap content after populating from visible .post elements (fallback):");
-              console.table(window.postMap); // Log the entire map as a table
-              localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); // Save to localStorage
-              console.log("✅ Saved postMap (fallback) to localStorage.");
-              resolve(); // Resolve the promise once populated
+              console.log("Konten window.postMap akhir setelah mengisi dari elemen .post yang terlihat (fallback):");
+              console.table(window.postMap); // Log seluruh peta sebagai tabel
+              localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); // Simpan ke localStorage
+              console.log("✅ postMap (fallback) disimpan ke localStorage.");
+              resolve(); // Selesaikan promise setelah diisi
           }
       });
   }
 
-  // Call populatePostMap when the DOM is ready, and then proceed with other initializations
+  // Panggil populatePostMap saat DOM siap, lalu lanjutkan dengan inisialisasi lainnya
   populatePostMap().then(() => {
       // 🧩 Fungsi resolusi otomatis URL postingan fig
       function resolveFigLink(item) {
@@ -1046,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Fallback default struktur: menghilangkan '/p/' dan menggunakan slug tanpa spasi/tanda hubung
         const currentYear = new Date().getFullYear();
-        const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Get current month (01-12)
+        const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Dapatkan bulan saat ini (01-12)
         return `/${currentYear}/${currentMonth}/${slug}.html`; 
       }
 
@@ -1061,17 +1054,17 @@ document.addEventListener('DOMContentLoaded', function() {
       // 🎨 Render hasil pencarian fig
       function renderFigResult(item) {
         const link = resolveFigLink(item);
-        const deskripsi = titleCase(item.deskripsi?.trim() || ''); // Apply titleCase here
+        const deskripsi = titleCase(item.deskripsi?.trim() || ''); // Terapkan titleCase di sini
         let html = `
           <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
             <h3 class="font-semibold text-blue-700">
-              <a href="${link}" class="hover:underline spa-link"> <!-- Added spa-link class -->
+              <a href="${link}" class="hover:underline spa-link"> <!-- Tambahkan kelas spa-link -->
                 ${item.judul_artikel || 'Judul tidak tersedia'}
               </a>
             </h3>
             <p><strong>Kode Part:</strong><span class="bg-gray-100 px-2 py-0.5 rounded font-mono">${item.kodepart || 'N/A'}</span></p>`;
         
-        // Add description only if it's not empty
+        // Tambahkan deskripsi hanya jika tidak kosong
         if (deskripsi) {
             html += `<p><strong>Deskripsi:</strong> ${deskripsi}</p>`;
         }
@@ -1131,11 +1124,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${hasil.map(renderFigResult).join('')}
               </div>`;
             }
-            // Re-attach SPA listeners after new content is rendered
+            // Lampirkan kembali listener SPA setelah konten baru dirender
             attachSpaLinkListeners();
           })
           .catch(err => {
-            console.error("⚠️ Fetch gagal:", err);
+            console.error("⚠️ Pengambilan gagal:", err);
             hasilContainer.innerHTML = `
               <div class="bg-red-100 border border-400 text-red-700 px-3 py-2 rounded">
                 ⚠️ Gagal memuat data Sheet. (${err.message})
@@ -1152,12 +1145,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (query) window.jalankanPencarianFigSidebar(query);
       });
 
-      // --- SPA Functionality ---
+      // --- Fungsionalitas SPA ---
       const mainContentSection = document.getElementById('main-content-section');
       const spaLoadingIndicator = document.getElementById('spa-loading-indicator');
+      const homepageGreeting = document.getElementById('homepage-greeting');
+      const promoGallerySection = document.getElementById('PromoGallery'); // Dapatkan referensi ke section promo gallery
 
       /**
-       * Shows the loading indicator.
+       * Menampilkan indikator loading.
        */
       function showLoading() {
           if (spaLoadingIndicator) {
@@ -1167,25 +1162,25 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       /**
-       * Hides the loading indicator.
+       * Menyembunyikan indikator loading.
        */
       function hideLoading() {
           if (spaLoadingIndicator) {
               spaLoadingIndicator.classList.add('complete');
               setTimeout(() => {
                   spaLoadingIndicator.classList.remove('show', 'complete');
-              }, 200); // Match with CSS transition
+              }, 200); // Sesuaikan dengan transisi CSS
           }
       }
 
       /**
-       * Loads page content via AJAX for SPA navigation.
-       * @param {string} url - The URL to load.
-       * @param {boolean} pushState - Whether to push the state to browser history.
+       * Memuat konten halaman melalui AJAX untuk navigasi SPA.
+       * @param {string} url - URL yang akan dimuat.
+       * @param {boolean} pushState - Apakah akan mendorong status ke riwayat browser.
        */
       async function loadPageContent(url, pushState = true) {
           if (!mainContentSection) {
-              console.error('Main content section not found for SPA.');
+              console.error('Bagian konten utama tidak ditemukan untuk SPA.');
               return;
           }
 
@@ -1194,77 +1189,89 @@ document.addEventListener('DOMContentLoaded', function() {
           try {
               const response = await fetch(url);
               if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
+                  throw new Error(`Kesalahan HTTP! status: ${response.status}`);
               }
               const html = await response.text();
 
-              // Parse the fetched HTML
+              // Mengurai HTML yang diambil
               const parser = new DOMParser();
               const doc = parser.parseFromString(html, 'text/html');
 
-              // Extract the new main content
+              // Ekstrak konten utama baru
               const newMainContent = doc.getElementById('main-content-section');
               if (newMainContent) {
-                  // Replace the current main content
+                  // Ganti konten utama saat ini
                   mainContentSection.innerHTML = newMainContent.innerHTML;
 
-                  // Update page title
+                  // Perbarui judul halaman
                   const newTitle = doc.querySelector('title')?.textContent || document.title;
                   document.title = newTitle;
 
-                  // Update URL in browser history
+                  // Perbarui URL di riwayat browser
                   if (pushState) {
                       history.pushState({ path: url }, newTitle, url);
                   }
 
-                  // Scroll to top
+                  // Gulir ke atas
                   window.scrollTo(0, 0);
 
-                  // Re-attach event listeners for newly loaded content
-                  // This is crucial for interactive elements within the main content area
-                  attachSpaLinkListeners(); // Re-attach for new links
-                  // Re-initialize any specific scripts for the main content if needed
-                  // For example, if there were specific scripts for Blog1 widget content,
-                  // you'd need a way to re-run them here. For now, assume main scripts are global.
+                  // --- MULAI: Logika untuk mengelola tampilan elemen berdasarkan jenis halaman ---
+                  // Deteksi apakah URL adalah halaman indeks. Sesuaikan dengan URL beranda Anda.
+                  const isIndexPage = url === window.location.origin + '/' || url === window.location.origin + '/index.html'; 
 
-                  // Re-initialize the vehicle category dropdown as its content might change
-                  populateVehicleCategoryDropdown();
+                  if (homepageGreeting) {
+                      if (isIndexPage) {
+                          homepageGreeting.style.display = 'block'; // Atau 'flex' jika itu adalah flex container
+                      } else {
+                          homepageGreeting.style.display = 'none';
+                      }
+                  }
 
-                  // Re-run the initial post map population in case new posts are loaded
-                  // This is important for search functionality to correctly resolve links
-                  populatePostMap();
+                  if (promoGallerySection) {
+                      if (isIndexPage) {
+                          promoGallerySection.style.display = 'grid'; // Atau 'block'/'flex' sesuai layout Anda
+                      } else {
+                          promoGallerySection.style.display = 'none';
+                      }
+                  }
+                  // --- AKHIR: Logika untuk mengelola tampilan elemen berdasarkan jenis halaman ---
 
-                  console.log(`SPA: Loaded content for ${url}`);
+                  // Lampirkan kembali event listener untuk konten yang baru dimuat
+                  attachSpaLinkListeners(); // Lampirkan kembali untuk tautan baru
+                  populateVehicleCategoryDropdown(); // Inisialisasi ulang dropdown kategori kendaraan karena kontennya mungkin berubah
+                  populatePostMap(); // Jalankan ulang populasi peta postingan awal jika postingan baru dimuat
+
+                  console.log(`SPA: Konten dimuat untuk ${url}`);
               } else {
-                  console.error(`SPA: Could not find #main-content-section in fetched content from ${url}`);
+                  console.error(`SPA: Tidak dapat menemukan #main-content-section di konten yang diambil dari ${url}`);
               }
           } catch (error) {
-              console.error('SPA: Failed to load page content:', error);
+              console.error('SPA: Gagal memuat konten halaman:', error);
               showMessageBox(`Gagal memuat halaman: ${error.message}.`);
-              // Optionally revert URL or show error page
+              // Secara opsional kembalikan URL atau tampilkan halaman kesalahan
           } finally {
               hideLoading();
           }
       }
 
       /**
-       * Attaches click listeners to all internal links for SPA navigation.
-       * This function should be called initially and after any new content is loaded.
+       * Melampirkan listener klik ke semua tautan internal untuk navigasi SPA.
+       * Fungsi ini harus dipanggil pada awalnya dan setelah konten baru dimuat.
        */
       function attachSpaLinkListeners() {
           document.querySelectorAll('a').forEach(link => {
-              // Remove existing listener to prevent duplicates
+              // Hapus listener yang ada untuk mencegah duplikat
               link.removeEventListener('click', handleSpaLinkClick);
               
-              // Only attach listener if it's an internal link and not a special link
+              // Hanya lampirkan listener jika itu adalah tautan internal dan bukan tautan khusus
               const href = link.getAttribute('href');
               if (href && 
-                  !href.startsWith('#') && // Anchor links
-                  !href.startsWith('mailto:') && // Email links
-                  !href.startsWith('tel:') && // Telephone links
-                  !link.target && // Not opening in a new tab
-                  !link.classList.contains('no-spa') && // Explicitly opt-out
-                  link.hostname === window.location.hostname // Same domain
+                  !href.startsWith('#') && // Tautan jangkar
+                  !href.startsWith('mailto:') && // Tautan email
+                  !href.startsWith('tel:') && // Tautan telepon
+                  !link.target && // Tidak membuka di tab baru
+                  !link.classList.contains('no-spa') && // Secara eksplisit memilih keluar
+                  link.hostname === window.location.hostname // Domain yang sama
               ) {
                   link.addEventListener('click', handleSpaLinkClick);
               }
@@ -1272,29 +1279,29 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       /**
-       * Event handler for SPA link clicks.
-       * @param {Event} e - The click event.
+       * Penanganan event untuk klik tautan SPA.
+       * @param {Event} e - Event klik.
        */
       function handleSpaLinkClick(e) {
           const link = e.currentTarget;
           const href = link.getAttribute('href');
 
-          // Prevent default navigation
+          // Mencegah navigasi default
           e.preventDefault();
 
-          // Load content using SPA logic
+          // Muat konten menggunakan logika SPA
           loadPageContent(href);
       }
 
-      // Initial attachment of SPA link listeners
+      // Lampiran awal listener tautan SPA
       attachSpaLinkListeners();
 
-      // Handle browser back/forward buttons
+      // Tangani tombol kembali/maju browser
       window.addEventListener('popstate', (e) => {
-          // Load content for the state that was just popped
-          // The URL is already updated by the browser for popstate
-          loadPageContent(window.location.href, false); // Don't push state again
+          // Muat konten untuk status yang baru saja muncul
+          // URL sudah diperbarui oleh browser untuk popstate
+          loadPageContent(window.location.href, false); // Jangan dorong status lagi
       });
 
-  }); // End of populatePostMap().then()
+  }); // Akhir dari populatePostMap().then()
 });
