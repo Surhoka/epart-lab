@@ -18,13 +18,24 @@ if (typeof window.showMessageBox !== 'function') {
  * @returns {string} URL postingan yang ditemukan atau URL fallback.
  */
 function resolveFigLink(item) {
-    const slug = item.judul_artikel?.toLowerCase().trim().replace(/\s+/g, '');
-    if (window.postMap?.[slug]) return window.postMap[slug];
+    // PERBAIKAN: Normalisasi slug dengan MENGHILANGKAN spasi, agar cocok dengan format Blogger.
+    // Contoh: "Address Engine Fig 102a" menjadi "addressenginefig102a"
+    const rawTitle = item.judul_artikel?.trim() || '';
+    const slug = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
     
-    // Fallback default struktur: menghilangkan '/p/' dan menggunakan slug tanpa spasi/tanda hubung
-    const currentYear = new Date().getFullYear();
-    const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Get current month (01-12)
-    return `/${currentYear}/${currentMonth}/${slug}.html`; 
+    let resolvedLink = '';
+    if (window.postMap?.[slug]) {
+        resolvedLink = window.postMap[slug];
+        console.log(`[resolveFigLink] Found match for spreadsheet title "${rawTitle}" (generated slug: "${slug}") in postMap. Resolved URL: ${resolvedLink}`); // LOGGING TAMBAHAN
+    } else {
+        // Fallback default struktur: ini mungkin masih diperlukan jika ada inkonsistensi
+        // atau jika postingan belum ada di postMap.
+        const currentYear = new Date().getFullYear();
+        const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Get current month (01-12)
+        resolvedLink = `/${currentYear}/${currentMonth}/${slug}.html`; 
+        console.warn(`[resolveFigLink] No exact match for spreadsheet title "${rawTitle}" (generated slug: "${slug}") in postMap. Using fallback URL: ${resolvedLink}`); // LOGGING TAMBAHAN
+    }
+    return resolvedLink;
 }
 
 /**
