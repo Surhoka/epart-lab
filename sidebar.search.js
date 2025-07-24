@@ -12,6 +12,16 @@ if (typeof window.showMessageBox !== 'function') {
 }
 
 /**
+ * Fungsi utilitas untuk menormalisasi teks menjadi slug yang cocok dengan Blogger.
+ * Menghapus semua spasi dan karakter non-alphanumeric, mengonversi ke huruf kecil.
+ * @param {string} text - Teks yang akan dinormalisasi.
+ * @returns {string} Slug yang dinormalisasi.
+ */
+function normalizeSlug(text) {
+    return text?.toLowerCase().trim().replace(/[^a-z0-9]/g, '') || '';
+}
+
+/**
  * Mengubah slug agar menghilangkan semua spasi, bukan menggantinya dengan tanda hubung
  * dan mencari URL postingan yang sesuai di window.postMap.
  * @param {Object} item - Objek item dengan properti judul_artikel.
@@ -20,39 +30,30 @@ if (typeof window.showMessageBox !== 'function') {
 function resolveFigLink(item) {
     const rawTitle = item.judul_artikel?.trim() || '';
     
-    // PERBAIKAN PENTING: Jika permalink Anda kustom seperti /2025/07/address/engine/fig.102a.html
-    // maka slug yang kita cari di postMap harus mencerminkan itu.
-    // Kita akan mencoba membuat slug yang lebih "mentah" dari judul spreadsheet
-    // dan membiarkan populatePostMap yang mengekstrak slug yang benar dari URL Blogger.
-    // Kemudian, resolveFigLink akan mencari slug yang diekstrak oleh populatePostMap.
-
-    // Untuk saat ini, kita akan tetap menormalisasi judul spreadsheet ke format tanpa spasi/karakter khusus
-    // dan mengandalkan populatePostMap untuk menyimpan URL yang benar.
-    const normalizedSlugFromSpreadsheet = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+    // PERBAIKAN: Gunakan fungsi normalizeSlug yang sama untuk mencocokkan perilaku Blogger
+    const slugFromSpreadsheet = normalizeSlug(rawTitle);
     
     let resolvedLink = '';
     let yearToUse = '';
     let monthToUse = '';
 
     console.log(`[resolveFigLink Debug] Input rawTitle from spreadsheet: "${rawTitle}"`);
-    console.log(`[resolveFigLink Debug] Normalized slug from spreadsheet for lookup: "${normalizedSlugFromSpreadsheet}"`);
+    console.log(`[resolveFigLink Debug] Generated slug from spreadsheet for lookup: "${slugFromSpreadsheet}"`);
 
     // Coba cari di window.postMap berdasarkan slug yang dinormalisasi
-    if (window.postMap?.[normalizedSlugFromSpreadsheet]) {
-        const postInfo = window.postMap[normalizedSlugFromSpreadsheet];
+    if (window.postMap?.[slugFromSpreadsheet]) {
+        const postInfo = window.postMap[slugFromSpreadsheet];
         resolvedLink = postInfo.url; // Gunakan URL lengkap yang sudah tersimpan dari Blogger
         yearToUse = postInfo.year;
         monthToUse = postInfo.month;
-        console.log(`[resolveFigLink Debug] Found match in postMap for slug "${normalizedSlugFromSpreadsheet}". Resolved URL: ${resolvedLink}`);
+        console.log(`[resolveFigLink Debug] Found match in postMap for slug "${slugFromSpreadsheet}". Resolved URL: ${resolvedLink}`);
     } else {
         // Fallback: Jika tidak ditemukan di postMap, gunakan tahun dan bulan saat ini
-        // dan slug yang dinormalisasi dari spreadsheet.
-        // Ini adalah skenario yang ingin kita hindari jika postMap sudah akurat.
         const today = new Date();
         yearToUse = today.getFullYear();
         monthToUse = (today.getMonth() + 1).toString().padStart(2, '0');
-        resolvedLink = `/${yearToUse}/${monthToUse}/${normalizedSlugFromSpreadsheet}.html`; 
-        console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${normalizedSlugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
+        resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
+        console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${slugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
     }
     return resolvedLink;
 }
@@ -80,7 +81,7 @@ function renderFigResult(item) {
     let html = `
         <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
             <h3 class="font-semibold text-blue-700">
-                <a href="${link}" target="_blank" class="hover:underline no-spa"> <!-- PERBAIKAN: Tambahkan target="_blank" dan kelas "no-spa" -->
+                <a href="${link}" target="_blank" class="hover:underline no-spa"> <!-- Target="_blank" untuk membuka di tab baru dan no-spa untuk mengabaikan SPA -->
                     ${item.judul_artikel || 'Judul tidak tersedia'}
                 </a>
             </h3>
