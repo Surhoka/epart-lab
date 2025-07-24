@@ -140,7 +140,7 @@ function attachSpaLinkListeners() {
             !href.startsWith('mailto:') && // Tautan email
             !href.startsWith('tel:') && // Tautan telepon
             !link.target && // Tidak membuka di tab baru
-            !link.classList.contains('no-spa') && // Secara eksplisit memilih keluar
+            !link.classList.contains('no-spa') && // PERBAIKAN: Pastikan ini diperiksa dengan benar
             link.hostname === window.location.hostname // Domain yang sama
         ) {
             link.addEventListener('click', handleSpaLinkClick);
