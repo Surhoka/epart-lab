@@ -72,7 +72,7 @@ function renderFigResult(item) {
     let html = `
         <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
             <h3 class="font-semibold text-blue-700">
-                <a href="${link}" class="hover:underline spa-link"> <!-- Tambahkan kelas spa-link -->
+                <a href="${link}" target="_blank" class="hover:underline"> <!-- PERBAIKAN: Tambahkan target="_blank" dan hapus spa-link -->
                     ${item.judul_artikel || 'Judul tidak tersedia'}
                 </a>
             </h3>
@@ -142,9 +142,10 @@ window.jalankanPencarianFigSidebar = function (query) {
                 </div>`;
             }
             // Pasang kembali listener SPA setelah konten baru dirender
-            if (typeof window.attachSpaLinkListeners === 'function') {
-                window.attachSpaLinkListeners();
-            }
+            // PERBAIKAN: Hapus baris ini karena tautan hasil pencarian tidak lagi ditangani SPA
+            // if (typeof window.attachSpaLinkListeners === 'function') {
+            //     window.attachSpaLinkListeners();
+            // }
         })
         .catch(err => {
             console.error("⚠️ Fetch gagal:", err);
