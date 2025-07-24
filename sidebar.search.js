@@ -27,13 +27,16 @@ function resolveFigLink(item) {
     let yearToUse = '';
     let monthToUse = '';
 
+    console.log(`[resolveFigLink] Processing spreadsheet title: "${rawTitle}"`);
+    console.log(`[resolveFigLink] Generated slug from spreadsheet: "${slugFromSpreadsheet}"`);
+
     // Coba cari di window.postMap berdasarkan slug yang dinormalisasi
     if (window.postMap?.[slugFromSpreadsheet]) {
         const postInfo = window.postMap[slugFromSpreadsheet];
         resolvedLink = postInfo.url;
         yearToUse = postInfo.year;
         monthToUse = postInfo.month;
-        console.log(`[resolveFigLink] Found match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Resolved URL: ${resolvedLink}`); // LOGGING TAMBAHAN
+        console.log(`[resolveFigLink] Found match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Resolved URL: ${resolvedLink}`);
     } else {
         // Fallback: Jika tidak ditemukan di postMap, gunakan tahun dan bulan saat ini
         // Ini adalah skenario yang ingin kita hindari jika postMap sudah akurat
@@ -41,7 +44,7 @@ function resolveFigLink(item) {
         yearToUse = today.getFullYear();
         monthToUse = (today.getMonth() + 1).toString().padStart(2, '0');
         resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
-        console.warn(`[resolveFigLink] No exact match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Using fallback URL: ${resolvedLink}`); // LOGGING TAMBAHAN
+        console.warn(`[resolveFigLink] No exact match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Using fallback URL: ${resolvedLink}`);
     }
     return resolvedLink;
 }
@@ -153,7 +156,17 @@ window.jalankanPencarianFigSidebar = function (query) {
 };
 
 // Pasang listener form pencarian di sidebar saat DOM siap
-document.addEventListener('DOMContentLoaded', function () {
+// Pastikan populatePostMap selesai sebelum ini berjalan
+document.addEventListener('DOMContentLoaded', async function () {
+    // Tunggu hingga populatePostMap selesai di utility.functions.js
+    // Ini penting untuk memastikan window.postMap terisi sebelum digunakan
+    if (typeof window.populatePostMap === 'function') {
+        await window.populatePostMap();
+        console.log("[sidebar-search.js] populatePostMap completed. Initializing sidebar search.");
+    } else {
+        console.warn("[sidebar-search.js] window.populatePostMap is not defined. Ensure utility.functions.js is loaded correctly and before this script.");
+    }
+
     const sidebarForm = document.getElementById('sidebarSearchForm');
     const sidebarInput = document.getElementById('sidebarSearchInput');
     if (sidebarForm && sidebarInput) {
