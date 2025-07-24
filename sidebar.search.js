@@ -1,4 +1,4 @@
-window.onload = function() { // Mengubah dari DOMContentLoaded menjadi window.onload
+window.onload = function() {
   // Fungsi utilitas untuk menambahkan kelas CSS dengan aman
   function safeAddClass(element, ...classNames) {
       if (element && element.classList) {
@@ -59,109 +59,81 @@ window.onload = function() { // Mengubah dari DOMContentLoaded menjadi window.on
                   .replace(/^-+|-+$/g, '');    // Menghapus tanda hubung di awal/akhir
   }
 
-  // Fungsi untuk mengisi postMap
+  // Fungsi untuk mengisi postMap dari JSON Feed Blogger
   function populatePostMap() {
-      return new Promise(resolve => { // Mengembalikan Promise
-          const postMappingContainer = document.getElementById('postMappingHidden'); 
-          console.log("Memulai fungsi populatePostMap...");
-          if (postMappingContainer) {
-              // Log innerHTML untuk melihat apakah Blogger merender tautan
-              console.log("Konten #postMappingHidden saat populatePostMap dimulai:", postMappingContainer.innerHTML);
+      return new Promise(async (resolve) => {
+          console.log("Memulai fungsi populatePostMap dari JSON Feed Blogger...");
+          const blogUrl = window.location.origin; // Mengambil domain blog saat ini
+          const feedUrl = `${blogUrl}/feeds/posts/default?alt=json&max-results=999`; // Mengambil hingga 999 postingan
 
-              const links = postMappingContainer.querySelectorAll('a');
-              console.log(`Ditemukan ${links.length} <a> tag di #postMappingHidden.`);
-
-              if (links.length === 0) {
-                  console.warn("⚠️ #postMappingHidden ditemukan, tetapi tidak ada tautan di dalamnya. Mungkin belum dirender sepenuhnya atau widget kosong.");
+          try {
+              const response = await fetch(feedUrl);
+              if (!response.ok) {
+                  throw new Error(`Gagal mengambil JSON feed: ${response.status}`);
               }
+              const data = await response.json();
 
-              links.forEach(link => {
-                  const title = link?.textContent?.trim();
-                  const url = link?.href;
-                  if (title && url) {
-                      let slug = '';
-                      try {
-                          const urlObj = new URL(url);
-                          const path = urlObj.pathname;
+              if (data?.feed?.entry) {
+                  data.feed.entry.forEach(entry => {
+                      const title = entry.title?.$t?.trim();
+                      let url = '';
+                      // Cari URL postingan dari rel="alternate"
+                      const link = entry.link?.find(l => l.rel === 'alternate' && l.type === 'text/html');
+                      if (link) {
+                          url = link.href;
+                      }
 
-                          // Untuk postingan standar: /YYYY/MM/post-slug.html
-                          const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(.+)\.html$/);
-                          if (postMatch && postMatch[3]) {
-                              slug = postMatch[3]; // Ini akan menangkap seluruh slug seperti "address-engine-fig.102a"
-                          } 
-                          // Untuk halaman statis: /p/page-slug.html
-                          else {
-                              const pageMatch = path.match(/^\/p\/(.+)\.html$/);
-                              if (pageMatch && pageMatch[1]) {
-                                  slug = pageMatch[1]; // Ini akan menangkap seluruh slug seperti "address-engine-fig.102a"
-                              } else {
-                                  // Fallback: sanitasi judul jika struktur URL tidak terduga
-                                  slug = createSlugFromTitle(title); // Menggunakan pembuatan slug yang baru untuk fallback
+                      if (title && url) {
+                          let slug = '';
+                          try {
+                              const urlObj = new URL(url);
+                              const path = urlObj.pathname;
+
+                              // Untuk postingan standar: /YYYY/MM/post-slug.html
+                              const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(.+)\.html$/);
+                              if (postMatch && postMatch[3]) {
+                                  slug = postMatch[3]; 
+                              } 
+                              // Untuk halaman statis: /p/page-slug.html
+                              else {
+                                  const pageMatch = path.match(/^\/p\/(.+)\.html$/);
+                                  if (pageMatch && pageMatch[1]) {
+                                      slug = pageMatch[1];
+                                  } else {
+                                      // Fallback: sanitasi judul jika struktur URL tidak terduga
+                                      slug = createSlugFromTitle(title); 
+                                  }
                               }
+                          } catch (e) {
+                              console.warn(`⚠️ Gagal mem-parse URL "${url}":`, e);
+                              slug = createSlugFromTitle(title); 
                           }
-                      } catch (e) {
-                          console.warn(`⚠️ Gagal mem-parse URL "${url}":`, e);
-                          slug = createSlugFromTitle(title); // Fallback ke slug berbasis judul
+                          
+                          window.postMap[slug] = url; // Menggunakan slug yang diekstrak sebagai kunci
+                          console.log(`✅ Post Terpetakan: Judul Asli: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
+                      } else {
+                          console.warn(`⚠️ Melewati entri feed karena judul atau URL hilang: Title="${title}", URL="${url}"`);
                       }
-                      
-                      window.postMap[slug] = url; // Menggunakan slug yang diekstrak sebagai kunci
-                      console.log(`✅ Post Terpetakan: Judul Asli: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
-                  } else {
-                      console.warn(`⚠️ Melewati tautan karena judul atau URL hilang: TextContent="${link?.textContent}", Href="${link?.href}"`);
-                  }
-              });
-              console.log("Konten window.postMap akhir setelah mengisi dari Blogger:");
-              console.table(window.postMap); // Log seluruh peta sebagai tabel
-              localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); // Simpan ke localStorage
-              console.log("✅ postMap disimpan ke localStorage.");
-              resolve(); // Selesaikan promise setelah diisi
-          } else {
-              console.warn("❌ Kontainer #postMappingHidden tidak ditemukan. Widget ini seharusnya ada di halaman indeks.");
-              // Fallback: Jika tidak di halaman indeks atau widget PostMappingHidden tidak ada,
-              // coba dapatkan URL postingan dari artikel .post yang sedang dirender
-              const posts = document.querySelectorAll('.post');
-              console.log(`Ditemukan ${posts.length} artikel .post (fallback).`);
-              posts.forEach(post => {
-                  const titleElement = post.querySelector('h1 a'); 
-                  const title = titleElement?.textContent?.trim();
-                  const url = titleElement?.href;
-                  if (title && url) {
-                      let slug = '';
-                      try {
-                          const urlObj = new URL(url);
-                          const path = urlObj.pathname;
-                          const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(.+)\.html$/);
-                          if (postMatch && postMatch[3]) {
-                              slug = postMatch[3];
-                          } else {
-                              const pageMatch = path.match(/^\/p\/(.+)\.html$/);
-                              if (pageMatch && pageMatch[1]) {
-                                  slug = pageMatch[1];
-                              } else {
-                                  slug = createSlugFromTitle(title);
-                              }
-                          }
-                      } catch (e) {
-                          console.warn(`⚠️ Gagal mem-parse URL (fallback) "${url}":`, e);
-                          slug = createSlugFromTitle(title);
-                      }
-                      window.postMap[slug] = url; // Menggunakan window.postMap
-                      console.log(`✅ Post Terpetakan (Fallback): Judul Asli dari Blogger: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
-                  } else {
-                      console.warn(`⚠️ Melewati postingan fallback karena judul atau URL hilang: TitleElementText="${titleElement?.textContent}", Href="${titleElement?.href}"`);
-                  }
-              });
-              console.log("Konten window.postMap akhir setelah mengisi dari elemen .post yang terlihat (fallback):");
-              console.table(window.postMap); // Log seluruh peta sebagai tabel
-              localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); // Simpan ke localStorage
-              console.log("✅ postMap (fallback) disimpan ke localStorage.");
-              resolve(); // Selesaikan promise setelah diisi
+                  });
+                  console.log("Konten window.postMap akhir setelah mengisi dari JSON Feed Blogger:");
+                  console.table(window.postMap); 
+                  localStorage.setItem('cachedPostMap', JSON.stringify(window.postMap)); 
+                  console.log("✅ postMap disimpan ke localStorage.");
+              } else {
+                  console.warn("❌ JSON feed Blogger tidak memiliki entri postingan.");
+              }
+              resolve(); 
+
+          } catch (err) {
+              console.error("❌ Gagal mengambil JSON feed Blogger:", err);
+              showMessageBox(`Gagal memuat data postingan: ${err.message}.`);
+              resolve(); // Tetap selesaikan promise meskipun ada kesalahan
           }
       });
   }
 
   // Panggil populatePostMap saat window.onload, lalu lanjutkan dengan inisialisasi lainnya
-  populatePostMap().then(() => { // Menghapus setTimeout karena window.onload sudah menunggu seluruh halaman
+  populatePostMap().then(() => { 
       // Fungsi resolusi otomatis URL postingan fig
       function resolveFigLink(item) {
         // Mengubah judul artikel dari Google Sheet menjadi slug yang konsisten
@@ -421,5 +393,5 @@ window.onload = function() { // Mengubah dari DOMContentLoaded menjadi window.on
       window.addEventListener('popstate', (e) => {
           loadPageContent(window.location.href, false); // Jangan dorong status lagi
       });
-  }); // Menghapus setTimeout
+  });
 };
