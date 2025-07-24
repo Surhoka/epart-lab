@@ -54,7 +54,9 @@ function resolveFigLink(item) {
         // Sesuai permintaan Anda untuk menggunakan /2025/06/
         yearToUse = 2025; // Hardcode tahun 2025
         monthToUse = '06'; // Hardcode bulan 06 (Juni)
-        resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
+        // Pastikan URL fallback adalah URL absolut jika domain tidak cocok
+        // Menggunakan window.location.origin untuk membuat URL absolut
+        resolvedLink = `${window.location.origin}/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
         console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${slugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
     }
     return resolvedLink;
@@ -80,10 +82,14 @@ function titleCase(text) {
 function renderFigResult(item) {
     const link = resolveFigLink(item);
     const deskripsi = titleCase(item.deskripsi?.trim() || ''); // Terapkan titleCase di sini
+    
+    // LOGGING BARU: Tampilkan URL yang dihasilkan di konsol
+    console.log(`[renderFigResult Debug] Generated link for "${item.judul_artikel}": "${link}"`);
+
     let html = `
         <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
             <h3 class="font-semibold text-blue-700">
-                <a href="${link}" target="_blank" class="hover:underline no-spa"> <!-- Target="_blank" untuk membuka di tab baru dan no-spa untuk mengabaikan SPA -->
+                <a href="${link}" target="_blank" class="hover:underline no-spa"> <!-- target="_blank" dan no-spa untuk memastikan buka tab baru dan abaikan SPA -->
                     ${item.judul_artikel || 'Judul tidak tersedia'}
                 </a>
             </h3>
