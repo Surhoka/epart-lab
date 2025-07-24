@@ -63,11 +63,23 @@ document.addEventListener('DOMContentLoaded', function() {
                   const title = link?.textContent?.trim();
                   const url = link?.href;
                   if (title && url) {
-                      // Sanitasi judul untuk membuat kunci: huruf kecil, trim, hapus semua spasi
-                      const sanitizedTitle = title.toLowerCase().trim().replace(/\s+/g, ''); 
-                      window.postMap[sanitizedTitle] = url; // Gunakan window.postMap
-                      // DEBUGGING BARU: Log setiap item yang ditambahkan ke postMap
-                      console.log(`✅ Post Terpetakan: Judul Asli dari Blogger: "${title}" -> Kunci Sanitasi: "${sanitizedTitle}" -> URL: "${url}"`);
+                      let slug = '';
+                      // Coba ekstrak slug dari URL postingan Blogger (misal: /YYYY/MM/post-slug.html)
+                      const postMatch = url.match(/\/(\d{4})\/(\d{2})\/([^\/]+)\.html$/);
+                      if (postMatch && postMatch[3]) {
+                          slug = postMatch[3]; // Ambil slug langsung dari URL Blogger
+                      } else {
+                          // Coba ekstrak slug dari URL halaman statis (misal: /p/page-slug.html)
+                          const pageMatch = url.match(/\/p\/([^\/]+)\.html$/);
+                          if (pageMatch && pageMatch[1]) {
+                              slug = pageMatch[1];
+                          } else {
+                              // Fallback: sanitasi judul jika pola URL tidak cocok
+                              slug = title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+                          }
+                      }
+                      window.postMap[slug] = url; // Gunakan slug yang diekstrak sebagai kunci
+                      console.log(`✅ Post Terpetakan: Judul Asli: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
                   } else {
                       console.warn(`⚠️ Melewati tautan karena judul atau URL hilang: TextContent="${link?.textContent}", Href="${link?.href}"`);
                   }
@@ -88,11 +100,20 @@ document.addEventListener('DOMContentLoaded', function() {
                   const title = titleElement?.textContent?.trim();
                   const url = titleElement?.href;
                   if (title && url) {
-                      // Sanitasi judul untuk membuat kunci: huruf kecil, trim, hapus semua spasi
-                      const sanitizedTitle = title.toLowerCase().trim().replace(/\s+/g, ''); 
-                      window.postMap[sanitizedTitle] = url; // Gunakan window.postMap
-                      // DEBUGGING BARU: Log setiap item yang ditambahkan ke postMap
-                      console.log(`✅ Post Terpetakan (Fallback): Judul Asli dari Blogger: "${title}" -> Kunci Sanitasi: "${sanitizedTitle}" -> URL: "${url}"`);
+                      let slug = '';
+                      const postMatch = url.match(/\/(\d{4})\/(\d{2})\/([^\/]+)\.html$/);
+                      if (postMatch && postMatch[3]) {
+                          slug = postMatch[3];
+                      } else {
+                          const pageMatch = url.match(/\/p\/([^\/]+)\.html$/);
+                          if (pageMatch && pageMatch[1]) {
+                              slug = pageMatch[1];
+                          } else {
+                              slug = title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+                          }
+                      }
+                      window.postMap[slug] = url; // Gunakan window.postMap
+                      console.log(`✅ Post Terpetakan (Fallback): Judul Asli dari Blogger: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
                   } else {
                       console.warn(`⚠️ Melewati postingan fallback karena judul atau URL hilang: TitleElementText="${titleElement?.textContent}", Href="${titleElement?.href}"`);
                   }
@@ -106,17 +127,28 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
 
+  // Fungsi untuk membuat slug yang konsisten dari judul artikel
+  function createSlugFromTitle(title) {
+      if (!title) return '';
+      return title.toLowerCase()
+                  .trim()
+                  .replace(/[^a-z0-9\s-]/g, '') // Hapus karakter non-alphanumeric kecuali spasi dan tanda hubung
+                  .replace(/\s+/g, '-')        // Ganti spasi dengan tanda hubung tunggal
+                  .replace(/-+/g, '-')         // Ganti beberapa tanda hubung dengan tanda hubung tunggal
+                  .replace(/^-+|-+$/g, '');    // Hapus tanda hubung di awal/akhir
+  }
+
   // Panggil populatePostMap saat DOM siap, lalu lanjutkan dengan inisialisasi lainnya
   // Menambahkan sedikit delay untuk memastikan semua widget Blogger telah dirender
   setTimeout(() => {
       populatePostMap().then(() => {
           // Fungsi resolusi otomatis URL postingan fig
           function resolveFigLink(item) {
-            // Mengubah slug agar menghilangkan semua spasi, bukan menggantinya dengan tanda hubung
-            const slug = item.judul_artikel?.toLowerCase().trim().replace(/\s+/g, '');
+            // Mengubah judul artikel dari Google Sheet menjadi slug yang konsisten
+            const slug = createSlugFromTitle(item.judul_artikel);
             if (window.postMap?.[slug]) return window.postMap[slug];
             
-            // Fallback default struktur: menghilangkan '/p/' dan menggunakan slug tanpa spasi/tanda hubung
+            // Fallback default struktur: jika tidak ditemukan di postMap, coba buat URL
             const currentYear = new Date().getFullYear();
             const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Dapatkan bulan saat ini (01-12)
             return `/${currentYear}/${currentMonth}/${slug}.html`; 
@@ -300,7 +332,11 @@ document.addEventListener('DOMContentLoaded', function() {
                       // Anda memerlukan cara untuk menjalankannya kembali di sini. Untuk saat ini, asumsikan skrip utama bersifat global.
 
                       // Inisialisasi ulang dropdown kategori kendaraan karena kontennya mungkin berubah
-                      populateVehicleCategoryDropdown();
+                      // Pastikan fungsi ini didefinisikan di suatu tempat jika digunakan
+                      if (typeof populateVehicleCategoryDropdown === 'function') {
+                          populateVehicleCategoryDropdown();
+                      }
+
 
                       // Jalankan kembali populasi peta postingan awal jika postingan baru dimuat
                       // Ini penting agar fungsionalitas pencarian dapat menyelesaikan tautan dengan benar
