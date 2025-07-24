@@ -23,8 +23,9 @@ window.populatePostMap = async function() {
     links.forEach(link => {
         const title = link.textContent.trim();
         const url = link.href;
-        // Normalisasi judul menjadi slug: lowercase, ganti spasi dengan hyphen, hapus karakter non-alphanumeric
-        const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        // PERBAIKAN PENTING: Normalisasi judul menjadi slug dengan MENGHILANGKAN spasi, bukan mengganti dengan tanda hubung.
+        // Ini sesuai dengan perilaku default Blogger untuk permalink.
+        const slug = title.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, ''); // Hapus semua spasi dan karakter non-alphanumeric
         window.postMap[slug] = url;
     });
     console.log("PostMap berhasil diisi:", window.postMap);
