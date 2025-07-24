@@ -18,17 +18,18 @@ if (typeof window.showMessageBox !== 'function') {
  * @returns {string} URL postingan yang ditemukan atau URL fallback.
  */
 function resolveFigLink(item) {
-    // Normalisasi judul artikel dari spreadsheet menjadi slug yang diharapkan Blogger
-    // Contoh: "Address Engine Fig 102a" menjadi "addressenginefig102a"
     const rawTitle = item.judul_artikel?.trim() || '';
+    
+    // Perbaikan: Pastikan slug hanya terdiri dari huruf dan angka, tanpa spasi atau karakter khusus lainnya.
+    // Ini harus cocok dengan bagaimana Blogger membuat permalink.
     const slugFromSpreadsheet = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
     
     let resolvedLink = '';
     let yearToUse = '';
     let monthToUse = '';
 
-    console.log(`[resolveFigLink] Processing spreadsheet title: "${rawTitle}"`);
-    console.log(`[resolveFigLink] Generated slug from spreadsheet: "${slugFromSpreadsheet}"`);
+    console.log(`[resolveFigLink Debug] Input rawTitle from spreadsheet: "${rawTitle}"`); // Logging input
+    console.log(`[resolveFigLink Debug] Generated slugFromSpreadsheet: "${slugFromSpreadsheet}"`); // Logging slug hasil proses
 
     // Coba cari di window.postMap berdasarkan slug yang dinormalisasi
     if (window.postMap?.[slugFromSpreadsheet]) {
@@ -36,7 +37,7 @@ function resolveFigLink(item) {
         resolvedLink = postInfo.url;
         yearToUse = postInfo.year;
         monthToUse = postInfo.month;
-        console.log(`[resolveFigLink] Found match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Resolved URL: ${resolvedLink}`);
+        console.log(`[resolveFigLink Debug] Found match in postMap for slug "${slugFromSpreadsheet}". Resolved URL: ${resolvedLink}`);
     } else {
         // Fallback: Jika tidak ditemukan di postMap, gunakan tahun dan bulan saat ini
         // Ini adalah skenario yang ingin kita hindari jika postMap sudah akurat
@@ -44,7 +45,7 @@ function resolveFigLink(item) {
         yearToUse = today.getFullYear();
         monthToUse = (today.getMonth() + 1).toString().padStart(2, '0');
         resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
-        console.warn(`[resolveFigLink] No exact match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Using fallback URL: ${resolvedLink}`);
+        console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${slugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
     }
     return resolvedLink;
 }
@@ -72,7 +73,7 @@ function renderFigResult(item) {
     let html = `
         <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
             <h3 class="font-semibold text-blue-700">
-                <a href="${link}" target="_blank" class="hover:underline"> <!-- PERBAIKAN: Tambahkan target="_blank" dan hapus spa-link -->
+                <a href="${link}" target="_blank" class="hover:underline"> <!-- Target="_blank" untuk membuka di tab baru -->
                     ${item.judul_artikel || 'Judul tidak tersedia'}
                 </a>
             </h3>
@@ -141,11 +142,7 @@ window.jalankanPencarianFigSidebar = function (query) {
                     ${hasil.map(renderFigResult).join('')}
                 </div>`;
             }
-            // Pasang kembali listener SPA setelah konten baru dirender
-            // PERBAIKAN: Hapus baris ini karena tautan hasil pencarian tidak lagi ditangani SPA
-            // if (typeof window.attachSpaLinkListeners === 'function') {
-            //     window.attachSpaLinkListeners();
-            // }
+            // Karena sekarang tautan membuka di tab baru, tidak perlu memanggil attachSpaLinkListeners
         })
         .catch(err => {
             console.error("⚠️ Fetch gagal:", err);
