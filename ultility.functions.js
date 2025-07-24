@@ -4,14 +4,17 @@
 window.postMap = window.postMap || {};
 
 /**
- * Fungsi utilitas untuk menormalisasi teks menjadi slug yang cocok dengan Blogger.
+ * Fungsi utilitas global untuk menormalisasi teks menjadi slug yang cocok dengan Blogger.
  * Menghapus semua spasi dan karakter non-alphanumeric, mengonversi ke huruf kecil.
+ * Didefinisikan secara global agar dapat diakses oleh skrip lain.
  * @param {string} text - Teks yang akan dinormalisasi.
  * @returns {string} Slug yang dinormalisasi.
  */
-function normalizeSlug(text) {
+window.normalizeSlug = function(text) { // Make it global
+    // Pastikan normalizeSlug hanya mengizinkan huruf dan angka,
+    // menghapus semua karakter lain termasuk garis miring, sesuai perilaku Blogger.
     return text?.toLowerCase().trim().replace(/[^a-z0-9]/g, '') || '';
-}
+};
 
 /**
  * Mengisi peta postingan (postMap) dengan judul postingan dan URL-nya.
@@ -36,32 +39,34 @@ window.populatePostMap = async function() {
 
         // Ekstrak bagian slug dari URL Blogger yang sebenarnya (misal: addressenginefig102a)
         // Regex untuk menangkap bagian setelah tahun/bulan dan sebelum .html
+        // Tangkap seluruh bagian slug secara mentah (termasuk garis miring jika ada di permalink kustom)
+        // Kemudian normalizeSlug akan membersihkannya.
         const urlMatch = url.match(/\/(\d{4})\/(\d{2})\/(.+?)\.html$/);
-        let extractedSlugFromUrl = '';
+        let rawExtractedSlugFromUrl = ''; // Slug mentah dari URL
         let yearFromUrl = '';
         let monthFromUrl = '';
 
         if (urlMatch && urlMatch[3]) {
             yearFromUrl = urlMatch[1];
             monthFromUrl = urlMatch[2];
-            // PERBAIKAN: Normalisasi slug yang diekstrak dari URL Blogger
-            // Ini akan menghapus semua karakter non-alphanumeric dari slug,
-            // termasuk garis miring jika ada (sesuai perilaku Blogger).
-            extractedSlugFromUrl = normalizeSlug(urlMatch[3]);
+            rawExtractedSlugFromUrl = urlMatch[3]; // Ambil slug mentah
         } else {
-            // Fallback: jika regex gagal, coba buat slug dari judul (kurang akurat)
-            extractedSlugFromUrl = normalizeSlug(title);
-            console.warn(`[populatePostMap Debug] Gagal mengekstrak slug dari URL: "${url}". Menggunakan slug dari judul: "${extractedSlugFromUrl}"`);
+            // Fallback: jika regex gagal, gunakan judul mentah sebagai dasar slug
+            rawExtractedSlugFromUrl = title;
+            console.warn(`[populatePostMap Debug] Gagal mengekstrak slug dari URL: "${url}". Menggunakan judul sebagai dasar slug mentah: "${rawExtractedSlugFromUrl}"`);
         }
         
+        // Normalisasi slug mentah menggunakan fungsi normalizeSlug yang konsisten
+        const normalizedSlug = window.normalizeSlug(rawExtractedSlugFromUrl); // Use global normalizeSlug
+
         // Gunakan slug yang sudah dinormalisasi sebagai kunci di postMap
         // Simpan objek yang berisi URL lengkap, tahun, dan bulan
-        window.postMap[extractedSlugFromUrl] = {
+        window.postMap[normalizedSlug] = {
             url: url,
             year: yearFromUrl,
             month: monthFromUrl
         };
-        console.log(`[populatePostMap Debug] Title from Blogger: "${title}" -> Extracted & Normalized Slug: "${extractedSlugFromUrl}" (Year: ${yearFromUrl}, Month: ${monthFromUrl}) -> Actual URL: "${url}"`);
+        console.log(`[populatePostMap Debug] Title from Blogger: "${title}" -> Raw Slug from URL: "${rawExtractedSlugFromUrl}" -> Normalized Slug (Key): "${normalizedSlug}" (Year: ${yearFromUrl}, Month: ${monthFromUrl}) -> Actual URL: "${url}"`);
     });
     console.log("PostMap berhasil diisi:", window.postMap);
 };
