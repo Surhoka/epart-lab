@@ -4,6 +4,13 @@
 // Ini adalah bagian penting yang harus ada sebelum skrip ini dijalankan
 window.postMap = window.postMap || {};
 
+// Asumsi normalizeSlug tersedia secara global dari utility.functions.js
+// Fallback jika tidak ditemukan (meskipun seharusnya selalu ada jika utility.functions.js dimuat lebih dulu)
+if (typeof window.normalizeSlug !== 'function') {
+    console.warn("Fungsi 'normalizeSlug' tidak ditemukan secara global. Pastikan utility.functions.js dimuat dengan benar.");
+    window.normalizeSlug = function(text) { return text?.toLowerCase().trim().replace(/[^a-z0-9]/g, '') || ''; };
+}
+
 // Fungsi utility untuk menambahkan kelas CSS dengan aman
 function safeAddClass(element, ...classNames) {
     if (element && element.classList) {
@@ -54,7 +61,7 @@ async function loadPageContent(url, pushState = true) {
         return;
     }
 
-    console.log(`[SPA Debug] Attempting to load URL: "${url}"`); // LOGGING BARU: URL yang akan dimuat
+    console.log(`[SPA Debug] Attempting to load URL: "${url}"`); // LOGGING: URL yang akan dimuat
 
     showLoading();
 
