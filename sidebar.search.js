@@ -47,6 +47,18 @@ document.addEventListener('DOMContentLoaded', function() {
       window.postMap = {};
   }
 
+  // Fungsi untuk membuat slug yang konsisten dari judul artikel
+  // Mengubah spasi menjadi tanda hubung untuk mencerminkan struktur URL Blogger
+  function createSlugFromTitle(title) {
+      if (!title) return '';
+      return title.toLowerCase()
+                  .trim()
+                  .replace(/\s+/g, '-') // Mengubah spasi menjadi tanda hubung
+                  .replace(/[^a-z0-9.-]/g, '') // Hanya memungkinkan huruf, angka, tanda hubung, dan titik
+                  .replace(/-+/g, '-')         // Mengganti beberapa tanda hubung dengan satu tanda hubung
+                  .replace(/^-+|-+$/g, '');    // Menghapus tanda hubung di awal/akhir
+  }
+
   // Fungsi untuk mengisi postMap
   function populatePostMap() {
       return new Promise(resolve => { // Mengembalikan Promise
@@ -64,21 +76,31 @@ document.addEventListener('DOMContentLoaded', function() {
                   const url = link?.href;
                   if (title && url) {
                       let slug = '';
-                      // Coba ekstrak slug dari URL postingan Blogger (misal: /YYYY/MM/post-slug.html)
-                      const postMatch = url.match(/\/(\d{4})\/(\d{2})\/([^\/]+)\.html$/);
-                      if (postMatch && postMatch[3]) {
-                          slug = postMatch[3]; // Ambil slug langsung dari URL Blogger
-                      } else {
-                          // Coba ekstrak slug dari URL halaman statis (misal: /p/page-slug.html)
-                          const pageMatch = url.match(/\/p\/([^\/]+)\.html$/);
-                          if (pageMatch && pageMatch[1]) {
-                              slug = pageMatch[1];
-                          } else {
-                              // Fallback: sanitasi judul jika pola URL tidak cocok
-                              slug = title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+                      try {
+                          const urlObj = new URL(url);
+                          const path = urlObj.pathname;
+
+                          // Untuk postingan standar: /YYYY/MM/post-slug.html
+                          const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(.+)\.html$/);
+                          if (postMatch && postMatch[3]) {
+                              slug = postMatch[3]; // Ini akan menangkap seluruh slug seperti "address-engine-fig.102a"
+                          } 
+                          // Untuk halaman statis: /p/page-slug.html
+                          else {
+                              const pageMatch = path.match(/^\/p\/(.+)\.html$/);
+                              if (pageMatch && pageMatch[1]) {
+                                  slug = pageMatch[1]; // Ini akan menangkap seluruh slug seperti "address-engine-fig.102a"
+                              } else {
+                                  // Fallback: sanitasi judul jika struktur URL tidak terduga
+                                  slug = createSlugFromTitle(title); // Menggunakan pembuatan slug yang baru untuk fallback
+                              }
                           }
+                      } catch (e) {
+                          console.warn(`⚠️ Gagal mem-parse URL "${url}":`, e);
+                          slug = createSlugFromTitle(title); // Fallback ke slug berbasis judul
                       }
-                      window.postMap[slug] = url; // Gunakan slug yang diekstrak sebagai kunci
+                      
+                      window.postMap[slug] = url; // Menggunakan slug yang diekstrak sebagai kunci
                       console.log(`✅ Post Terpetakan: Judul Asli: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
                   } else {
                       console.warn(`⚠️ Melewati tautan karena judul atau URL hilang: TextContent="${link?.textContent}", Href="${link?.href}"`);
@@ -101,18 +123,25 @@ document.addEventListener('DOMContentLoaded', function() {
                   const url = titleElement?.href;
                   if (title && url) {
                       let slug = '';
-                      const postMatch = url.match(/\/(\d{4})\/(\d{2})\/([^\/]+)\.html$/);
-                      if (postMatch && postMatch[3]) {
-                          slug = postMatch[3];
-                      } else {
-                          const pageMatch = url.match(/\/p\/([^\/]+)\.html$/);
-                          if (pageMatch && pageMatch[1]) {
-                              slug = pageMatch[1];
+                      try {
+                          const urlObj = new URL(url);
+                          const path = urlObj.pathname;
+                          const postMatch = path.match(/^\/(\d{4})\/(\d{2})\/(.+)\.html$/);
+                          if (postMatch && postMatch[3]) {
+                              slug = postMatch[3];
                           } else {
-                              slug = title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+                              const pageMatch = path.match(/^\/p\/(.+)\.html$/);
+                              if (pageMatch && pageMatch[1]) {
+                                  slug = pageMatch[1];
+                              } else {
+                                  slug = createSlugFromTitle(title);
+                              }
                           }
+                      } catch (e) {
+                          console.warn(`⚠️ Gagal mem-parse URL (fallback) "${url}":`, e);
+                          slug = createSlugFromTitle(title);
                       }
-                      window.postMap[slug] = url; // Gunakan window.postMap
+                      window.postMap[slug] = url; // Menggunakan window.postMap
                       console.log(`✅ Post Terpetakan (Fallback): Judul Asli dari Blogger: "${title}" -> Slug dari URL: "${slug}" -> URL: "${url}"`);
                   } else {
                       console.warn(`⚠️ Melewati postingan fallback karena judul atau URL hilang: TitleElementText="${titleElement?.textContent}", Href="${titleElement?.href}"`);
@@ -125,17 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
               resolve(); // Selesaikan promise setelah diisi
           }
       });
-  }
-
-  // Fungsi untuk membuat slug yang konsisten dari judul artikel
-  function createSlugFromTitle(title) {
-      if (!title) return '';
-      return title.toLowerCase()
-                  .trim()
-                  .replace(/[^a-z0-9\s-]/g, '') // Hapus karakter non-alphanumeric kecuali spasi dan tanda hubung
-                  .replace(/\s+/g, '-')        // Ganti spasi dengan tanda hubung tunggal
-                  .replace(/-+/g, '-')         // Ganti beberapa tanda hubung dengan tanda hubung tunggal
-                  .replace(/^-+|-+$/g, '');    // Hapus tanda hubung di awal/akhir
   }
 
   // Panggil populatePostMap saat DOM siap, lalu lanjutkan dengan inisialisasi lainnya
