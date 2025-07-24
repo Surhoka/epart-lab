@@ -89,14 +89,14 @@ async function loadPageContent(url, pushState = true) {
             attachSpaLinkListeners(); // Pasang kembali untuk tautan baru
 
             // Panggil kembali fungsi untuk mengisi dropdown kategori kendaraan
-            if (typeof populateVehicleCategoryDropdown === 'function') {
-                populateVehicleCategoryDropdown();
+            if (typeof window.populateVehicleCategoryDropdown === 'function') {
+                window.populateVehicleCategoryDropdown();
             }
 
             // Jalankan kembali populasi peta postingan
             // PENTING: Jalankan ini dan tunggu sampai selesai karena jalankanPencarianFigSidebar bergantung padanya
-            if (typeof populatePostMap === 'function') {
-                await populatePostMap(); // Tunggu hingga postMap diperbarui
+            if (typeof window.populatePostMap === 'function') {
+                await window.populatePostMap(); // Tunggu hingga postMap diperbarui
             }
 
             // Setelah postMap diperbarui, panggil fungsi pencarian sidebar untuk menyegarkan hasilnya
