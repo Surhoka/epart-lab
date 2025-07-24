@@ -1,3 +1,5 @@
+// main-navigation.js
+
 // Utility function to safely add CSS classes
 function safeAddClass(element, ...classNames) {
     if (element && element.classList) {
@@ -73,12 +75,10 @@ function createNestedMenu(items, startIndex, currentLevel) {
                 safeAddClass(subUl, currentLevel === 0 ? 'dropdown-menu' : 'dropdown-submenu');
                 li.appendChild(subUl);
 
-                // Add mobile toggle
+                // Add click event listener for both desktop and mobile
                 anchor.addEventListener('click', (e) => {
-                    if (window.innerWidth < 768) {
-                        e.preventDefault();
-                        li.classList.toggle('show-dropdown');
-                    }
+                    e.preventDefault(); // Always prevent default navigation for dropdown toggles
+                    li.classList.toggle('show-dropdown');
                 });
 
                 i = nested.nextIndex - 1; // -1 because it will be ++ at the end
@@ -89,7 +89,7 @@ function createNestedMenu(items, startIndex, currentLevel) {
             currentLevelUl.appendChild(li);
             i++;
         } else if (leadingUnderscores < currentLevel) {
-            console.log(`↩ [createMenu] Returning from level ${currentLevel} to ${leadingUnderscores}.`); // Log when returning
+            console.log(`↩ [createMenu] Returning from level ${currentLevel} to ${leadingUnderscores}.`);
             break; // Go back to the previous parent
         } else {
             console.warn(`✳ Menu "${itemName}" skips a level. Skipping.`);
@@ -100,66 +100,68 @@ function createNestedMenu(items, startIndex, currentLevel) {
     return { ul: currentLevelUl, nextIndex: i };
 }
 
-/**
- * Fungsi untuk mengisi dropdown "Pilih Kategori Kendaraan".
- */
-function populateVehicleCategoryDropdown() {
-    const vehicleCategorySelect = document.getElementById('vehicleCategorySelect');
-    const linkList2Data = document.querySelector('#LinkList2 .widget-content ul');
+// Function to build a tree structure (currently not directly used for rendering, but kept for logical clarity)
+const buildTree = (links) => {
+    const tree = [];
+    const parents = []; // Stores references to parent nodes at each depth
 
-    if (linkList2Data && vehicleCategorySelect) {
-        vehicleCategorySelect.innerHTML = '<option value="">Pilih Model Kendaraan</option>';
-        const categoryLinks = Array.from(linkList2Data.querySelectorAll('li a'));
+    links.forEach(raw => {
+        const depth = (raw.name.trim().match(/^_+/) || [''])[0].length;
+        const name = raw.name.replace(/^_*/, '');
 
-        categoryLinks.forEach(link => {
-            const categoryName = link.textContent.trim();
-            const categoryUrl = link.href;
-            if (categoryName) {
-                const option = document.createElement('option');
-                option.value = categoryUrl; // Use URL as value
-                option.textContent = categoryName;
-                vehicleCategorySelect.appendChild(option);
+        const node = {
+            name: name,
+            href: raw.target,
+            children: []
+        };
+
+        if (depth === 0) {
+            tree.push(node);
+            parents[0] = node;
+        } else {
+            const parent = parents[depth - 1];
+            if (parent) {
+                parent.children.push(node);
+                parents[depth] = node;
+            } else {
+                console.warn(`⚠️ Item "${name}" (depth ${depth}) has no corresponding parent.`);
             }
-        });
-    } else {
-        console.warn('PERINGATAN: Elemen data LinkList2 atau dropdown vehicleCategorySelect tidak ditemukan untuk mengisi kategori kendaraan.');
-    }
-}
+        }
+    });
+    return tree;
+};
 
-/**
- * Fungsi inisialisasi untuk modul navigasi.
- */
-window.initNav = function() {
+// DOMContentLoaded ensures elements are available
+document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuButtonInNav = document.getElementById('mobile-menu-button-in-nav');
     const mainMenuNav = document.getElementById('main-menu-nav');
 
     // Get initial links directly from the UL element #main-menu-nav
-    // Ensure data-original-name is correctly retrieved
     const initialLinks = Array.from(mainMenuNav.children).map(li => {
         const anchor = li.querySelector('a');
         return {
             name: anchor ? anchor.getAttribute('data-original-name') || anchor.textContent.trim() : '',
             target: anchor ? anchor.href : '#',
-            element: li
+            element: li // Store reference to the original li
         };
     }).filter(link => link.name); // Filter out potentially empty links
 
-    console.log('Tautan Awal dari b:loop (main-menu-nav):', initialLinks);
+    console.log('Initial Links from b:loop (main-menu-nav):', initialLinks);
 
     // Remove existing menu items from mainMenuNav before rebuilding
-    // This is important because Blogger already renders flat items here.
     while (mainMenuNav.firstChild) {
         mainMenuNav.removeChild(mainMenuNav.firstChild);
     }
-
+    
     if (initialLinks.length) {
+        // Render the main menu (desktop and mobile)
         const finalMenuUlContent = createNestedMenu(initialLinks, 0, 0).ul;
         while (finalMenuUlContent.firstChild) {
             mainMenuNav.appendChild(finalMenuUlContent.firstChild);
         }
-        console.log('Menu utama dirender (struktur desktop dan mobile).');
+        console.log('Main menu rendered (desktop and mobile structure).');
     } else {
-        console.log('Tidak ada tautan awal yang ditemukan untuk merender menu. Harap periksa pengaturan widget LinkList Blogger Anda.');
+        console.log('No initial links found to render menus. Please check your Blogger LinkList widget settings.');
     }
 
     // Mobile menu (hamburger) button functionality
@@ -179,28 +181,10 @@ window.initNav = function() {
         // Close nested dropdowns/submenus if clicked outside the parent li
         document.querySelectorAll('.group.show-dropdown').forEach(liWithDropdown => {
             const dropdownMenu = liWithDropdown.querySelector('.dropdown-menu, .dropdown-submenu');
-            const dropdownToggle = liWithDropdown.querySelector('.dropdown-toggle');
-
+            
             if (dropdownMenu && !liWithDropdown.contains(e.target)) {
                 liWithDropdown.classList.remove('show-dropdown');
-                if (dropdownToggle) {
-                    dropdownToggle.querySelector('.dropdown-arrow')?.classList.remove('rotated');
-                }
             }
         });
     });
-
-    // Event listener to navigate to URL when an option is selected
-    const vehicleCategorySelect = document.getElementById('vehicleCategorySelect');
-    if (vehicleCategorySelect) {
-        vehicleCategorySelect.addEventListener('change', function() {
-            const selectedUrl = this.value;
-            if (selectedUrl) {
-                window.location.href = selectedUrl;
-            }
-        });
-    }
-
-    // Call function to populate dropdown
-    populateVehicleCategoryDropdown();
-};
+});
