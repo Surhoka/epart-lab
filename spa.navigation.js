@@ -54,6 +54,8 @@ async function loadPageContent(url, pushState = true) {
         return;
     }
 
+    console.log(`[SPA Debug] Attempting to load URL: "${url}"`); // LOGGING BARU: URL yang akan dimuat
+
     showLoading();
 
     try {
