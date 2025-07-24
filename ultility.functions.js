@@ -27,7 +27,7 @@ window.populatePostMap = async function() {
         // Ini sesuai dengan perilaku default Blogger untuk permalink seperti "addressenginefig102a".
         const slug = title.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, ''); // Hapus semua spasi dan karakter non-alphanumeric
         window.postMap[slug] = url;
-        console.log(`[populatePostMap] Title: "${title}" -> Slug: "${slug}" -> URL: "${url}"`); // LOGGING TAMBAHAN
+        console.log(`[populatePostMap] Title: "${title}" -> Generated Slug: "${slug}" -> Actual URL: "${url}"`); // LOGGING TAMBAHAN
     });
     console.log("PostMap berhasil diisi:", window.postMap);
 };
