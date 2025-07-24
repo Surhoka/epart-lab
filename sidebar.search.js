@@ -20,32 +20,39 @@ if (typeof window.showMessageBox !== 'function') {
 function resolveFigLink(item) {
     const rawTitle = item.judul_artikel?.trim() || '';
     
-    // Perbaikan: Pastikan slug hanya terdiri dari huruf dan angka, tanpa spasi atau karakter khusus lainnya.
-    // Ini harus cocok dengan bagaimana Blogger membuat permalink.
-    const slugFromSpreadsheet = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+    // PERBAIKAN PENTING: Jika permalink Anda kustom seperti /2025/07/address/engine/fig.102a.html
+    // maka slug yang kita cari di postMap harus mencerminkan itu.
+    // Kita akan mencoba membuat slug yang lebih "mentah" dari judul spreadsheet
+    // dan membiarkan populatePostMap yang mengekstrak slug yang benar dari URL Blogger.
+    // Kemudian, resolveFigLink akan mencari slug yang diekstrak oleh populatePostMap.
+
+    // Untuk saat ini, kita akan tetap menormalisasi judul spreadsheet ke format tanpa spasi/karakter khusus
+    // dan mengandalkan populatePostMap untuk menyimpan URL yang benar.
+    const normalizedSlugFromSpreadsheet = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
     
     let resolvedLink = '';
     let yearToUse = '';
     let monthToUse = '';
 
-    console.log(`[resolveFigLink Debug] Input rawTitle from spreadsheet: "${rawTitle}"`); // Logging input
-    console.log(`[resolveFigLink Debug] Generated slugFromSpreadsheet: "${slugFromSpreadsheet}"`); // Logging slug hasil proses
+    console.log(`[resolveFigLink Debug] Input rawTitle from spreadsheet: "${rawTitle}"`);
+    console.log(`[resolveFigLink Debug] Normalized slug from spreadsheet for lookup: "${normalizedSlugFromSpreadsheet}"`);
 
     // Coba cari di window.postMap berdasarkan slug yang dinormalisasi
-    if (window.postMap?.[slugFromSpreadsheet]) {
-        const postInfo = window.postMap[slugFromSpreadsheet];
-        resolvedLink = postInfo.url;
+    if (window.postMap?.[normalizedSlugFromSpreadsheet]) {
+        const postInfo = window.postMap[normalizedSlugFromSpreadsheet];
+        resolvedLink = postInfo.url; // Gunakan URL lengkap yang sudah tersimpan dari Blogger
         yearToUse = postInfo.year;
         monthToUse = postInfo.month;
-        console.log(`[resolveFigLink Debug] Found match in postMap for slug "${slugFromSpreadsheet}". Resolved URL: ${resolvedLink}`);
+        console.log(`[resolveFigLink Debug] Found match in postMap for slug "${normalizedSlugFromSpreadsheet}". Resolved URL: ${resolvedLink}`);
     } else {
         // Fallback: Jika tidak ditemukan di postMap, gunakan tahun dan bulan saat ini
-        // Ini adalah skenario yang ingin kita hindari jika postMap sudah akurat
+        // dan slug yang dinormalisasi dari spreadsheet.
+        // Ini adalah skenario yang ingin kita hindari jika postMap sudah akurat.
         const today = new Date();
         yearToUse = today.getFullYear();
         monthToUse = (today.getMonth() + 1).toString().padStart(2, '0');
-        resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
-        console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${slugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
+        resolvedLink = `/${yearToUse}/${monthToUse}/${normalizedSlugFromSpreadsheet}.html`; 
+        console.warn(`[resolveFigLink Debug] No exact match in postMap for slug "${normalizedSlugFromSpreadsheet}". Using fallback URL: ${resolvedLink}`);
     }
     return resolvedLink;
 }
@@ -73,7 +80,7 @@ function renderFigResult(item) {
     let html = `
         <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm text-sm space-y-1">
             <h3 class="font-semibold text-blue-700">
-                <a href="${link}" target="_blank" class="hover:underline"> <!-- Target="_blank" untuk membuka di tab baru -->
+                <a href="${link}" target="_blank" class="hover:underline no-spa"> <!-- PERBAIKAN: Tambahkan target="_blank" dan kelas "no-spa" -->
                     ${item.judul_artikel || 'Judul tidak tersedia'}
                 </a>
             </h3>
