@@ -18,22 +18,30 @@ if (typeof window.showMessageBox !== 'function') {
  * @returns {string} URL postingan yang ditemukan atau URL fallback.
  */
 function resolveFigLink(item) {
-    // PERBAIKAN: Normalisasi slug dengan MENGHILANGKAN spasi, agar cocok dengan format Blogger.
+    // Normalisasi judul artikel dari spreadsheet menjadi slug yang diharapkan Blogger
     // Contoh: "Address Engine Fig 102a" menjadi "addressenginefig102a"
     const rawTitle = item.judul_artikel?.trim() || '';
-    const slug = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+    const slugFromSpreadsheet = rawTitle.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
     
     let resolvedLink = '';
-    if (window.postMap?.[slug]) {
-        resolvedLink = window.postMap[slug];
-        console.log(`[resolveFigLink] Found match for spreadsheet title "${rawTitle}" (generated slug: "${slug}") in postMap. Resolved URL: ${resolvedLink}`); // LOGGING TAMBAHAN
+    let yearToUse = '';
+    let monthToUse = '';
+
+    // Coba cari di window.postMap berdasarkan slug yang dinormalisasi
+    if (window.postMap?.[slugFromSpreadsheet]) {
+        const postInfo = window.postMap[slugFromSpreadsheet];
+        resolvedLink = postInfo.url;
+        yearToUse = postInfo.year;
+        monthToUse = postInfo.month;
+        console.log(`[resolveFigLink] Found match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Resolved URL: ${resolvedLink}`); // LOGGING TAMBAHAN
     } else {
-        // Fallback default struktur: ini mungkin masih diperlukan jika ada inkonsistensi
-        // atau jika postingan belum ada di postMap.
-        const currentYear = new Date().getFullYear();
-        const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0'); // Get current month (01-12)
-        resolvedLink = `/${currentYear}/${currentMonth}/${slug}.html`; 
-        console.warn(`[resolveFigLink] No exact match for spreadsheet title "${rawTitle}" (generated slug: "${slug}") in postMap. Using fallback URL: ${resolvedLink}`); // LOGGING TAMBAHAN
+        // Fallback: Jika tidak ditemukan di postMap, gunakan tahun dan bulan saat ini
+        // Ini adalah skenario yang ingin kita hindari jika postMap sudah akurat
+        const today = new Date();
+        yearToUse = today.getFullYear();
+        monthToUse = (today.getMonth() + 1).toString().padStart(2, '0');
+        resolvedLink = `/${yearToUse}/${monthToUse}/${slugFromSpreadsheet}.html`; 
+        console.warn(`[resolveFigLink] No exact match for spreadsheet title "${rawTitle}" (generated slug: "${slugFromSpreadsheet}") in postMap. Using fallback URL: ${resolvedLink}`); // LOGGING TAMBAHAN
     }
     return resolvedLink;
 }
