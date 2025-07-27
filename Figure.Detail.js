@@ -50,18 +50,18 @@ function renderEstimasiTable() {
       totalBelanja += jumlah;
 
       row.innerHTML = `
-        <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">${index + 1}</td>
-        <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">${item.kodePart}</td>
-        <td class="py-2 px-4 border-b border-gray-200 text-sm">${item.deskripsi}</td>
-        <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">${item.qty}</td>
-        <td class="py-2 px-4 border-b border-gray-200 text-sm text-right">Rp ${item.harga.toLocaleString('id-ID')}</td>
-        <td class="py-2 px-4 border-b border-gray-200 text-sm text-right">Rp ${jumlah.toLocaleString('id-ID')}</td>
-        <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">
-            <button class="text-gray-500 hover:text-red-600 transition duration-200 delete-item-btn" title="Hapus" data-index="${index}">
-                <i class="fas fa-trash-alt text-lg"></i>
-            </button>
-        </td>
-      `;
+          <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">${index + 1}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">${item.kodePart}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-sm">${item.deskripsi}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">${item.qty}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-sm text-right">Rp ${item.harga.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-sm text-right">Rp ${jumlah.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-sm text-center">
+              <button class="text-gray-500 hover:text-red-600 transition duration-200 delete-item-btn" title="Hapus" data-index="${index}">
+                  <i class="fas fa-trash-alt text-lg"></i>
+              </button>
+          </td>
+        `;
       estimasiTableBody.appendChild(row);
     });
   }
@@ -69,10 +69,10 @@ function renderEstimasiTable() {
   // Add total row
   const totalRow = document.createElement('tr');
   totalRow.innerHTML = `
-    <td colspan="5" class="py-2 px-4 border-b border-gray-200 text-right font-semibold">Total:</td>
-    <td class="py-2 px-4 border-b border-gray-200 text-sm font-semibold text-right">Rp ${totalBelanja.toLocaleString('id-ID')}</td>
-    <td class="py-2 px-4 border-b border-gray-200 text-sm"></td>
-  `;
+      <td colspan="5" class="py-2 px-4 border-b border-gray-200 text-right font-semibold">Total:</td>
+      <td class="py-2 px-4 border-b border-gray-200 text-sm font-semibold text-right">Rp ${totalBelanja.toLocaleString('id-ID')}</td>
+      <td class="py-2 px-4 border-b border-gray-200 text-sm"></td>
+    `;
   estimasiTableBody.appendChild(totalRow);
 
   // Add event listener for delete buttons after table is rendered
@@ -106,7 +106,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(items) && typeof window.addEstimasiItem === 'function' && typeof window.updateEstimasiBadges === 'function') {
         items.forEach(i => {
           // Panggil fungsi global yang diekspos oleh Template Median UI5a
-          window.addEstimasiItem({kodePart: i.kodePart, deskripsi: i.deskripsi, qty: i.qty, harga: i.harga});
+          window.addEstimasiItem({
+            kodePart: i.kodePart,
+            deskripsi: i.deskripsi,
+            qty: i.qty,
+            harga: i.harga
+          });
         });
         // Setelah semua item ditambahkan, panggil update badge
         window.updateEstimasiBadges();
@@ -212,13 +217,29 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch(partMasterURL).then(res => res.json())
     ])
     .then(([imageDataRaw, hotspotDataRaw, partDataRaw]) => {
-      // Ensure all fetched data are arrays
+      // Ensure all fetched data are arrays. If a response is a single object, wrap it in an array.
+      // If a response is null/undefined, make it an empty array.
       const imageData = Array.isArray(imageDataRaw) ? imageDataRaw : (imageDataRaw ? [imageDataRaw] : []);
       const hotspotData = Array.isArray(hotspotDataRaw) ? hotspotDataRaw : (hotspotDataRaw ? [hotspotDataRaw] : []);
       const partData = Array.isArray(partDataRaw) ? partDataRaw : (partDataRaw ? [partDataRaw] : []);
 
+      // Debugging: Log the type and content of imageData right before the problematic line
+      console.log("Type of imageData:", typeof imageData, "Content:", imageData);
+
+      // The error "imageData.find is not a function" suggests imageData might not be an array.
+      // This check explicitly ensures it is an array before attempting array-like access.
+      if (!Array.isArray(imageData)) {
+        console.error("Critical Error: imageData is not an array as expected. It is:", typeof imageData, imageData);
+        container.textContent = "⚠️ Gagal memuat data gambar. Format data tidak valid (bukan array).";
+        return; // Stop execution to prevent further errors
+      }
+
       const imageSrc = imageData[0]?.urlgambar?.trim();
-      if (!imageSrc) throw new Error("Gambar tidak ditemukan");
+      if (!imageSrc) {
+        console.error("Error: URL gambar tidak ditemukan dalam data gambar yang diterima.", imageData);
+        container.textContent = "⚠️ URL gambar tidak ditemukan dalam data. Pastikan data Google Sheet benar.";
+        return;
+      }
 
       // Create a map for quick part data lookup
       const partMap = {};
@@ -360,15 +381,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
                       // ** Panggil fungsi global window.addEstimasiItem dari Template Median UI5a.txt **
                       if (typeof window.addEstimasiItem === 'function') {
-                          window.addEstimasiItem({
-                              kodePart: partCode,
-                              deskripsi: partDescription,
-                              qty: quantity,
-                              harga: partPrice
-                          });
-                          console.log(`Menambahkan part dengan kode: ${partCode}, deskripsi: ${partDescription}, quantity: ${quantity}, harga: ${partPrice} ke keranjang.`);
+                        window.addEstimasiItem({
+                          kodePart: partCode,
+                          deskripsi: partDescription,
+                          qty: quantity,
+                          harga: partPrice
+                        });
+                        console.log(`Menambahkan part dengan kode: ${partCode}, deskripsi: ${partDescription}, quantity: ${quantity}, harga: ${partPrice} ke keranjang.`);
                       } else {
-                          console.warn("window.addEstimasiItem tidak ditemukan. Badge mungkin tidak diperbarui.");
+                        console.warn("window.addEstimasiItem tidak ditemukan. Badge mungkin tidak diperbarui.");
                       }
                     });
                   }
@@ -465,15 +486,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // ** Panggil fungsi global window.addEstimasiItem **
                 if (typeof window.addEstimasiItem === 'function') {
-                    window.addEstimasiItem({
-                        kodePart: partCode,
-                        deskripsi: partDescription,
-                        qty: quantity,
-                        harga: partPrice
-                    });
-                    console.log(`Menambahkan part dengan kode: ${partCode}, deskripsi: ${partDescription}, quantity: ${quantity}, harga: ${partPrice} ke keranjang.`);
+                  window.addEstimasiItem({
+                    kodePart: partCode,
+                    deskripsi: partDescription,
+                    qty: quantity,
+                    harga: partPrice
+                  });
+                  console.log(`Menambahkan part dengan kode: ${partCode}, deskripsi: ${partDescription}, quantity: ${quantity}, harga: ${partPrice} ke keranjang.`);
                 } else {
-                    console.warn("window.addEstimasiItem tidak ditemukan. Badge mungkin tidak diperbarui.");
+                  console.warn("window.addEstimasiItem tidak ditemukan. Badge mungkin tidak diperbarui.");
                 }
               });
             }
