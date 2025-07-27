@@ -88,7 +88,7 @@ const createAndPlaceHotspots = (img, hotspotData, partMap, scrollArea, hotspotRe
 function initializeFigurePageWithId(figureId) {
   const container = document.getElementById("hotspot-container");
   // URL untuk data Google Sheets
-  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/CatalogData";
+  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/Engine";
   const hotspotURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/HotspotData";
   const partMasterURL = "https://opensheet.elk.sh/1AlEA83WkT1UyXnnbPBxbXgPhdNUiCP_yarCIk_RhN5o/PartMaster";
   const figure = figureId; // Gunakan figureId yang dilewatkan
@@ -108,9 +108,17 @@ function initializeFigurePageWithId(figureId) {
       fetch(partMasterURL).then(res => res.json())
     ])
     .then(([imageData, hotspotData, partData]) => {
-      // Temukan gambar spesifik untuk figure saat ini
-      const currentFigureImage = imageData.find(imgItem => imgItem.figure?.trim().toUpperCase() === figure);
-      const imageSrc = currentFigureImage?.urlgambar?.trim();
+      let imageSrc = null; // Inisialisasi imageSrc ke null
+
+      // Periksa apakah imageData adalah array dan tidak kosong
+      if (Array.isArray(imageData) && imageData.length > 0) {
+        // Temukan gambar spesifik untuk figure saat ini
+        const currentFigureImage = imageData.find(imgItem => imgItem.figure?.trim().toUpperCase() === figure);
+        imageSrc = currentFigureImage?.urlgambar?.trim();
+      } else {
+        console.warn("imageData bukan array atau kosong. Tidak dapat menemukan gambar.");
+      }
+
       if (!imageSrc) {
           container.textContent = `⚠️ Gambar untuk FIG ${figure} tidak ditemukan.`;
           return;
@@ -249,7 +257,6 @@ function initializeFigurePageWithId(figureId) {
                       const partDescription = partMap[partCode]?.deskripsi || "N/A";
                       const partPrice = partMap[partCode]?.harga || 0;
 
-                      // Panggil fungsi global window.addEstimasiItem jika tersedia
                       if (typeof window.addEstimasiItem === 'function') {
                           window.addEstimasiItem({
                               kodePart: partCode,
@@ -412,8 +419,7 @@ function initializeFigurePageWithId(figureId) {
 }
 
 // Logika pemuatan awal:
-// Jika halaman ini dimuat langsung (bukan melalui navigasi SPA),
-// itu harus mengekstrak ID figure dari URL dan menginisialisasi dirinya sendiri.
+// Jika halaman ini dimuat langsung, itu harus mengekstrak ID figure dari URL dan menginisialisasi dirinya sendiri.
 document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
   let figureId = null;
