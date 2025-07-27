@@ -216,6 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Layanan opensheet.elk.sh mungkin mengembalikan objek tunggal alih-alih array
       // jika hanya ada satu baris data di lembar.
       const imageData = Array.isArray(imageDataRaw) ? imageDataRaw : [imageDataRaw];
+      console.log("Type of imageData:", typeof imageData, "Is Array:", Array.isArray(imageData), "Content:", imageData); // Ditambahkan untuk debugging
 
       const imageSrc = imageData[0]?.urlgambar?.trim();
       if (!imageSrc) throw new Error("Gambar tidak ditemukan");
