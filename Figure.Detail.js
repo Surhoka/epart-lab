@@ -212,24 +212,42 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch(partMasterURL).then(res => res.json())
     ])
     .then(([imageDataRaw, hotspotData, partData]) => {
-      // Pastikan imageData selalu menjadi array.
-      // Layanan opensheet.elk.sh mungkin mengembalikan objek tunggal alih-alih array
-      // jika hanya ada satu baris data di lembar.
-      const imageData = Array.isArray(imageDataRaw) ? imageDataRaw : [imageDataRaw];
-      console.log("Type of imageData:", typeof imageData, "Is Array:", Array.isArray(imageData), "Content:", imageData); // Ditambahkan untuk debugging
+      let imageData;
 
-      const imageSrc = imageData[0]?.urlgambar?.trim();
-      if (!imageSrc) throw new Error("Gambar tidak ditemukan");
+      // Log data mentah yang diterima dari URL Engine
+      console.log("Raw imageData from Engine URL:", imageDataRaw);
 
-      // Buat peta untuk pencarian data bagian cepat
-      const partMap = {};
-      partData.forEach(p => {
-        const kode = p.kodepart?.trim();
-        if (kode) partMap[kode] = {
-          deskripsi: p.deskripsi?.trim() || "-",
-          harga: parseInt(p.harga || "0", 10) // Parse harga sebagai integer
-        };
-      });
+      // Pastikan imageData selalu menjadi array objek
+      if (Array.isArray(imageDataRaw)) {
+        imageData = imageDataRaw;
+      } else if (typeof imageDataRaw === 'object' && imageDataRaw !== null) {
+        // Jika itu adalah objek tunggal, bungkus dalam array
+        imageData = [imageDataRaw];
+      } else {
+        // Jika imageDataRaw adalah null, undefined, atau non-objek lainnya, inisialisasi sebagai array kosong
+        imageData = [];
+        console.warn("imageDataRaw is not an array or a valid object. Initializing imageData as empty array.");
+      }
+
+      // Log imageData yang telah diproses
+      console.log("Processed imageData (after conversion):", imageData);
+
+      // Pemeriksaan penting: Jika imageData entah bagaimana masih bukan array di sini, catat kesalahan.
+      if (!Array.isArray(imageData)) {
+          console.error("BUG: imageData is not an array after processing!", imageData);
+          // Fallback untuk mencegah kesalahan lebih lanjut, meskipun ini menunjukkan cacat logika.
+          imageData = [];
+      }
+
+      // Ini adalah baris 112:44 yang merujuk pada kesalahan.
+      // Kesalahan "imageData.find is not a function" di sini sangat membingungkan jika itu benar-benar baris ini.
+      // Ini menyiratkan imageData adalah objek, bukan array, dan di suatu tempat 'find' dipanggil padanya.
+      // Namun, baris ini hanya mengakses imageData[0].
+      const imageSrc = imageData.length > 0 ? imageData[0].urlgambar?.trim() : null;
+
+      if (!imageSrc) {
+        throw new Error("Gambar tidak ditemukan atau URL gambar tidak valid dari data sumber.");
+      }
 
       // Buat kontainer utama untuk gambar dan kontrol
       const containerBox = document.createElement("div");
@@ -359,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       const partDescription = partMap[partCode]?.deskripsi || "N/A";
                       const partPrice = partMap[partCode]?.harga || 0;
 
-                      // ** Panggil fungsi global window.addEstimasiItem dari Template Median UI5a.txt **
+                      // ** Panggil fungsi global window.addEstimasiItem **
                       if (typeof window.addEstimasiItem === 'function') {
                           window.addEstimasiItem({
                               kodePart: partCode,
