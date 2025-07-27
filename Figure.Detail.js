@@ -93,6 +93,13 @@ function deleteEstimasiItem(index) {
   }
 }
 
+// 🔧 Helper untuk pastikan data array
+function normalizeSheetResponse(response) {
+  if (Array.isArray(response)) return response;
+  if (response && typeof response === 'object') return [response];
+  return [];
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   loadEstimasiFromLocalStorage(); // Load data when DOM is ready
@@ -210,34 +217,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return hotspotMap;
   };
 
-  // Fetch all data concurrently
+  // Fetch all data concurrently with normalization
   Promise.all([
-      fetch(engineURL).then(res => res.json()),
-      fetch(hotspotURL).then(res => res.json()),
-      fetch(partMasterURL).then(res => res.json())
+      fetch(engineURL).then(res => res.json()).then(normalizeSheetResponse),
+      fetch(hotspotURL).then(res => res.json()).then(normalizeSheetResponse),
+      fetch(partMasterURL).then(res => res.json()).then(normalizeSheetResponse)
     ])
-    .then(([imageDataRaw, hotspotDataRaw, partDataRaw]) => {
-      // Ensure all fetched data are arrays. If a response is a single object, wrap it in an array.
-      // If a response is null/undefined, make it an empty array.
-      const imageData = Array.isArray(imageDataRaw) ? imageDataRaw : (imageDataRaw ? [imageDataRaw] : []);
-      const hotspotData = Array.isArray(hotspotDataRaw) ? hotspotDataRaw : (hotspotDataRaw ? [hotspotDataRaw] : []);
-      const partData = Array.isArray(partDataRaw) ? partDataRaw : (partDataRaw ? [partDataRaw] : []);
-
+    .then(([imageData, hotspotData, partData]) => {
       // Debugging: Log the type and content of imageData right before the problematic line
-      console.log("Type of imageData:", typeof imageData, "Content:", imageData);
+      console.log("🧪 Debug imageData:", typeof imageData, imageData);
 
-      // The error "imageData.find is not a function" suggests imageData might not be an array.
-      // This check explicitly ensures it is an array before attempting array-like access.
-      if (!Array.isArray(imageData)) {
-        console.error("Critical Error: imageData is not an array as expected. It is:", typeof imageData, imageData);
-        container.textContent = "⚠️ Gagal memuat data gambar. Format data tidak valid (bukan array).";
-        return; // Stop execution to prevent further errors
-      }
+      // Use .find() to get the image source for the specific figure
+      const imageSrc = imageData.find(i => i.figure?.trim() === figure)?.urlgambar?.trim();
 
-      const imageSrc = imageData[0]?.urlgambar?.trim();
       if (!imageSrc) {
-        console.error("Error: URL gambar tidak ditemukan dalam data gambar yang diterima.", imageData);
-        container.textContent = "⚠️ URL gambar tidak ditemukan dalam data. Pastikan data Google Sheet benar.";
+        console.warn("⚠️ URL gambar tidak ditemukan.");
+        container.textContent = "Gambar tidak tersedia untuk figure yang dimaksud.";
         return;
       }
 
@@ -379,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       const partDescription = partMap[partCode]?.deskripsi || "N/A";
                       const partPrice = partMap[partCode]?.harga || 0;
 
-                      // ** Panggil fungsi global window.addEstimasiItem dari Template Median UI5a.txt **
+                      // ** Panggil fungsi global window.addEstimasiItem **
                       if (typeof window.addEstimasiItem === 'function') {
                         window.addEstimasiItem({
                           kodePart: partCode,
