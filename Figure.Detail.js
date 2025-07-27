@@ -419,7 +419,8 @@ function initializeFigurePageWithId(figureId) {
 }
 
 // Logika pemuatan awal:
-// Jika halaman ini dimuat langsung, itu harus mengekstrak ID figure dari URL dan menginisialisasi dirinya sendiri.
+// Jika halaman ini dimuat langsung (bukan melalui navigasi SPA),
+// itu harus mengekstrak ID figure dari URL dan menginisialisasi dirinya sendiri.
 document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
   let figureId = null;
