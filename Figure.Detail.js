@@ -211,7 +211,12 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch(hotspotURL).then(res => res.json()),
       fetch(partMasterURL).then(res => res.json())
     ])
-    .then(([imageData, hotspotData, partData]) => {
+    .then(([imageDataRaw, hotspotDataRaw, partDataRaw]) => {
+      // Ensure all fetched data are arrays
+      const imageData = Array.isArray(imageDataRaw) ? imageDataRaw : (imageDataRaw ? [imageDataRaw] : []);
+      const hotspotData = Array.isArray(hotspotDataRaw) ? hotspotDataRaw : (hotspotDataRaw ? [hotspotDataRaw] : []);
+      const partData = Array.isArray(partDataRaw) ? partDataRaw : (partDataRaw ? [partDataRaw] : []);
+
       const imageSrc = imageData[0]?.urlgambar?.trim();
       if (!imageSrc) throw new Error("Gambar tidak ditemukan");
 
