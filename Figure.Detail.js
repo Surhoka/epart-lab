@@ -1,6 +1,4 @@
-console.log("Figure.Detail.js version: 1.0.1"); // Untuk membantu debugging cache
-
-// Fungsi untuk menggulir kontainer gambar
+// Function to scroll the image container
 function scrollGambar(offset) {
   const container = document.getElementById("gambar-wrapper");
   if (container) container.scrollBy({
@@ -20,7 +18,7 @@ function loadEstimasiFromLocalStorage() {
       estimasiItems = JSON.parse(storedData);
     } catch (e) {
       console.error("Error parsing estimasi data from localStorage:", e);
-      estimasiItems = []; // Reset jika terjadi kesalahan parsing
+      estimasiItems = []; // Reset if parsing error
     }
   }
 }
@@ -34,11 +32,11 @@ function saveEstimasiToLocalStorage() {
 function renderEstimasiTable() {
   const estimasiTableBody = document.getElementById('estimasiTableBody');
   if (!estimasiTableBody) {
-    console.warn("Element dengan ID 'estimasiTableBody' tidak ditemukan. Tidak dapat merender tabel estimasi.");
+    console.warn("Element with ID 'estimasiTableBody' not found. Cannot render estimation table.");
     return;
   }
 
-  estimasiTableBody.innerHTML = ''; // Hapus konten tabel sebelumnya
+  estimasiTableBody.innerHTML = ''; // Clear previous table content
   let totalBelanja = 0;
 
   if (estimasiItems.length === 0) {
@@ -68,7 +66,7 @@ function renderEstimasiTable() {
     });
   }
 
-  // Tambahkan baris total
+  // Add total row
   const totalRow = document.createElement('tr');
   totalRow.innerHTML = `
     <td colspan="5" class="py-2 px-4 border-b border-gray-200 text-right font-semibold">Total:</td>
@@ -77,7 +75,7 @@ function renderEstimasiTable() {
   `;
   estimasiTableBody.appendChild(totalRow);
 
-  // Tambahkan event listener untuk tombol hapus setelah tabel dirender
+  // Add event listener for delete buttons after table is rendered
   estimasiTableBody.querySelectorAll('.delete-item-btn').forEach(button => {
     button.addEventListener('click', function() {
       const indexToDelete = parseInt(this.dataset.index);
@@ -89,15 +87,15 @@ function renderEstimasiTable() {
 // Fungsi untuk menghapus item dari estimasi
 function deleteEstimasiItem(index) {
   if (index > -1 && index < estimasiItems.length) {
-    estimasiItems.splice(index, 1); // Hapus item dari array
-    saveEstimasiToLocalStorage(); // Simpan perubahan ke localStorage
-    renderEstimasiTable(); // Render ulang tabel
+    estimasiItems.splice(index, 1); // Remove item from array
+    saveEstimasiToLocalStorage(); // Save changes to localStorage
+    renderEstimasiTable(); // Re-render the table
   }
 }
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadEstimasiFromLocalStorage(); // Muat data saat DOM siap
+  loadEstimasiFromLocalStorage(); // Load data when DOM is ready
 
   // ** START of new code integration (from previous turn, adjusted to use window.addEstimasiItem) **
   const dataScript = document.querySelector('.data-estimasi');
@@ -121,13 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   const container = document.getElementById("hotspot-container");
-  // URL untuk data Google Sheets
-  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/Engine";
+  // URLs for Google Sheets data
+  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/CatalogData";
   const hotspotURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/HotspotData";
   const partMasterURL = "https://opensheet.elk.sh/1AlEA83WkT1UyXnnbPBxbXgPhdNUiCP_yarCIk_RhN5o/PartMaster";
-  const figure = "FIG.102A"; // Gambar yang akan ditampilkan
+  const figure = "FIG.102A"; // The figure to display
 
-  // Fungsi untuk mengubah string menjadi Title Case
+  // Function to convert a string to Title Case
   const toTitleCase = (str) => {
     if (!str) return '';
     return str.replace(
@@ -138,32 +136,32 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   };
 
-  // Fungsi untuk membuat dan menempatkan hotspot
+  // Function to create and place hotspots
   const createAndPlaceHotspots = (img, hotspotData, partMap, scrollArea, hotspotRefs, rowRefs, figure) => {
-    // Hapus hotspot yang ada sebelum membuat yang baru
+    // Remove existing hotspots before creating new ones
     Array.from(scrollArea.getElementsByClassName('hotspot')).forEach(hs => hs.remove());
 
-    // Dapatkan posisi gambar relatif terhadap viewport
+    // Get image position relative to viewport
     const imgRect = img.getBoundingClientRect();
-    // Dapatkan posisi area gulir relatif terhadap viewport
+    // Get scroll area position relative to viewport
     const scrollAreaRect = scrollArea.getBoundingClientRect();
 
-    // Hitung offset gambar di dalam area gulir
-    // Ini penting jika ada padding atau margin di scrollArea yang menggeser gambar
+    // Calculate image offset within the scroll area
+    // This is important if there's padding or margin in scrollArea that shifts the image
     const imgOffsetX = imgRect.left - scrollAreaRect.left;
     const imgOffsetY = imgRect.top - scrollAreaRect.top;
 
     const scale = img.clientWidth / img.naturalWidth;
     const hotspotMap = {};
 
-    // Filter data hotspot untuk gambar saat ini dan buat hotspot
+    // Filter hotspot data for the current figure and create hotspots
     hotspotData.filter(i => i.figure?.trim() === figure).forEach(item => {
       const kode = item.kodepart?.trim();
       const x = parseFloat(item.x);
       const y = parseFloat(item.y);
-      if (!kode || isNaN(x) || isNaN(y)) return; // Lewati jika data tidak valid
+      if (!kode || isNaN(x) || isNaN(y)) return; // Skip if data is invalid
 
-      // Hitung posisi hotspot berdasarkan skala dan tambahkan offset gambar
+      // Calculate hotspot position based on scale and add image offset
       const px = (x * scale) + imgOffsetX;
       const py = (y * scale) + imgOffsetY;
       hotspotMap[kode] = {
@@ -182,15 +180,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const tooltip = document.createElement("div");
       tooltip.className = "tooltip";
-      // Terapkan Title Case pada deskripsi di tooltip
-      tooltip.textContent = toTitleCase(partMap[kode]?.deskripsi || "Info"); // Tampilkan deskripsi bagian di tooltip
+      // Apply Title Case to the description in the tooltip
+      tooltip.textContent = toTitleCase(partMap[kode]?.deskripsi || "Info"); // Display part description in tooltip
 
       hotspot.appendChild(dot);
       hotspot.appendChild(tooltip);
       scrollArea.appendChild(hotspot);
       hotspotRefs[kode] = hotspot;
 
-      // Klik hotspot -> gulir ke baris tabel
+      // Click hotspot -> scroll to table row
       hotspot.addEventListener("click", e => {
         e.preventDefault();
         const row = rowRefs[kode];
@@ -200,85 +198,61 @@ document.addEventListener("DOMContentLoaded", () => {
             block: "center"
           });
           row.classList.add("highlighted");
-          setTimeout(() => row.classList.remove("highlighted"), 1500); // Hapus highlight setelah 1.5 detik
+          setTimeout(() => row.classList.remove("highlighted"), 1500); // Remove highlight after 1.5 seconds
         }
       });
     });
     return hotspotMap;
   };
 
-  // Ambil semua data secara bersamaan
+  // Fetch all data concurrently
   Promise.all([
       fetch(engineURL).then(res => res.json()),
       fetch(hotspotURL).then(res => res.json()),
       fetch(partMasterURL).then(res => res.json())
     ])
-    .then(([imageDataRaw, hotspotData, partData]) => {
-      let imageData;
+    .then(([imageData, hotspotData, partData]) => {
+      const imageSrc = imageData[0]?.urlgambar?.trim();
+      if (!imageSrc) throw new Error("Gambar tidak ditemukan");
 
-      // Log data mentah yang diterima dari URL Engine
-      console.log("Raw imageData from Engine URL:", imageDataRaw);
+      // Create a map for quick part data lookup
+      const partMap = {};
+      partData.forEach(p => {
+        const kode = p.kodepart?.trim();
+        if (kode) partMap[kode] = {
+          deskripsi: p.deskripsi?.trim() || "-",
+          harga: parseInt(p.harga || "0", 10) // Parse harga as integer
+        };
+      });
 
-      // Pastikan imageData selalu menjadi array objek
-      if (Array.isArray(imageDataRaw)) {
-        imageData = imageDataRaw;
-      } else if (typeof imageDataRaw === 'object' && imageDataRaw !== null) {
-        // Jika itu adalah objek tunggal, bungkus dalam array
-        imageData = [imageDataRaw];
-      } else {
-        // Jika imageDataRaw adalah null, undefined, atau non-objek lainnya, inisialisasi sebagai array kosong
-        imageData = [];
-        console.warn("imageDataRaw is not an array or a valid object. Initializing imageData as empty array.");
-      }
-
-      // Log imageData yang telah diproses
-      console.log("Processed imageData (after conversion):", imageData);
-
-      // Pemeriksaan penting: Jika imageData entah bagaimana masih bukan array di sini, catat kesalahan.
-      if (!Array.isArray(imageData)) {
-          console.error("BUG: imageData is not an array after processing!", imageData);
-          // Fallback untuk mencegah kesalahan lebih lanjut, meskipun ini menunjukkan cacat logika.
-          imageData = [];
-      }
-
-      // Ini adalah baris 112:44 yang merujuk pada kesalahan.
-      // Kesalahan "imageData.find is not a function" di sini sangat membingungkan jika itu benar-benar baris ini.
-      // Ini menyiratkan imageData adalah objek, bukan array, dan di suatu tempat 'find' dipanggil padanya.
-      // Namun, baris ini hanya mengakses imageData[0].
-      const imageSrc = imageData.length > 0 ? imageData[0].urlgambar?.trim() : null; // Cache bust: v1.0.1
-
-      if (!imageSrc) {
-        throw new Error("Gambar tidak ditemukan atau URL gambar tidak valid dari data sumber.");
-      }
-
-      // Buat kontainer utama untuk gambar dan kontrol
+      // Create main container for image and controls
       const containerBox = document.createElement("div");
       containerBox.style.position = "relative";
-      containerBox.style.display = "inline-block"; // Penting untuk membungkus gambar dengan benar
-      containerBox.className = "w-full max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 mb-8"; // Kelas Tailwind
+      containerBox.style.display = "inline-block"; // Important to wrap the image correctly
+      containerBox.className = "w-full max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 mb-8"; // Tailwind classes
 
-      // Buat area yang dapat digulir untuk gambar
+      // Create scrollable area for the image
       const scrollArea = document.createElement("div");
       scrollArea.id = "gambar-wrapper";
       scrollArea.style.height = "60vh";
       scrollArea.style.overflowY = "auto";
       scrollArea.style.position = "relative";
       scrollArea.style.overflowX = "hidden";
-      scrollArea.className = "rounded-lg overflow-hidden border border-gray-200"; // Kelas Tailwind
+      scrollArea.className = "rounded-lg overflow-hidden border border-gray-200"; // Tailwind classes
 
-      // Buat elemen gambar
+      // Create the image element
       const img = new Image();
-      // Atur data-src untuk lazy loading daripada src
+      // Set data-src for lazy loading instead of src
       img.dataset.src = imageSrc;
-      img.style.width = "100%"; // Pastikan gambar mengisi lebar kontainer
-      img.style.height = "auto"; // Pertahankan rasio aspek
+      img.style.width = "100%"; // Ensure image fills container width
+      img.style.height = "auto"; // Maintain aspect ratio
       img.style.display = "block";
-      img.classList.add('lazyload'); // Tambahkan kelas lazyload
+      img.classList.add('lazyload'); // Add lazyload class
 
       scrollArea.appendChild(img);
       containerBox.appendChild(scrollArea);
 
-      // Buat kontrol gulir
+      // Create scroll controls
       const controls = document.createElement("div");
       controls.className = "scroll-controls";
       controls.innerHTML = `
@@ -288,11 +262,11 @@ document.addEventListener("DOMContentLoaded", () => {
       containerBox.appendChild(controls);
       container.appendChild(containerBox);
 
-      const hotspotRefs = {}; // Simpan referensi ke elemen hotspot
-      const rowRefs = {}; // Simpan referensi ke elemen baris tabel
-      let currentHotspotMap = {}; // Untuk menyimpan hotspotMap terbaru
+      const hotspotRefs = {}; // Store references to hotspot elements
+      const rowRefs = {}; // Store references to table row elements
+      let currentHotspotMap = {}; // To store the latest hotspotMap
 
-      // Intersection Observer untuk lazy loading
+      // Intersection Observer for lazy loading
       if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
@@ -300,10 +274,10 @@ document.addEventListener("DOMContentLoaded", () => {
               const lazyImage = entry.target;
               lazyImage.src = lazyImage.dataset.src;
               lazyImage.onload = () => {
-                // Setelah gambar dimuat, buat hotspot dan tabel
+                // Once the image is loaded, create hotspots and the table
                 currentHotspotMap = createAndPlaceHotspots(lazyImage, hotspotData, partMap, scrollArea, hotspotRefs, rowRefs, figure);
 
-                // 🟢 Tabel Bagian - Buat tabel hanya sekali
+                // 🟢 Part Table - Create the table only once
                 const table = document.createElement("table");
                 table.innerHTML = `
                   <thead>
@@ -319,67 +293,67 @@ document.addEventListener("DOMContentLoaded", () => {
                 `;
                 const tbody = table.querySelector("tbody");
 
-                // Isi baris tabel dengan data bagian
+                // Populate table rows with part data
                 hotspotData.filter(i => i.figure?.trim() === figure).forEach((item, index) => {
                   const kode = item.kodepart?.trim();
                   if (!kode) return;
 
                   const part = partMap[kode] || {};
-                  // Terapkan Title Case di sini
+                  // Apply Title Case here
                   const fullDeskripsi = toTitleCase(part.deskripsi || "-");
-                  // Potong deskripsi untuk tampilan, simpan deskripsi lengkap di atribut title
+                  // Truncate description for display, keep full description in title attribute
                   const displayDeskripsi = fullDeskripsi.length > 50 ? fullDeskripsi.substring(0, 47) + "..." : fullDeskripsi;
-                  const harga = part.harga || 0; // Gunakan harga integer yang di-parse
+                  const harga = part.harga || 0; // Use parsed integer price
 
                   const row = document.createElement("tr");
                   row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${kode}</td>
                     <td title="${fullDeskripsi}">${displayDeskripsi}</td>
-                    <td>Rp ${harga.toLocaleString("id-ID")}</td> <!-- Tampilkan harga dengan awalan 'Rp' -->
+                    <td>Rp ${harga.toLocaleString("id-ID")}</td> <!-- Display price with 'Rp' prefix -->
                     <td>
                       <input type="number" class="qty-input" value="1" min="1" data-kodepart="${kode}">
                       <i class="fas fa-shopping-cart cart-icon" data-kodepart="${kode}"></i>
                     </td>
                   `;
                   tbody.appendChild(row);
-                  rowRefs[kode] = row; // Simpan referensi baris
+                  rowRefs[kode] = row; // Store row reference
 
                   row.style.cursor = "pointer";
                   row.addEventListener("click", (e) => {
-                    // Hanya jika klik bukan pada ikon keranjang atau input kuantitas
+                    // Only if the click is not on the cart icon or quantity input
                     if (!e.target.classList.contains('cart-icon') && !e.target.classList.contains('qty-input')) {
-                      const pos = currentHotspotMap[kode]; // Gunakan hotspotMap terbaru
+                      const pos = currentHotspotMap[kode]; // Use the latest hotspotMap
                       const hotspot = hotspotRefs[kode];
 
                       if (pos) scrollArea.scrollTo({
                         top: pos.py - 100,
                         behavior: "smooth"
-                      }); // Gulir ke posisi hotspot
+                      }); // Scroll to hotspot position
 
                       tbody.querySelectorAll("tr").forEach(tr => tr.classList.remove("highlighted"));
                       row.classList.add("highlighted");
 
                       if (hotspot) {
                         hotspot.classList.add("glow");
-                        setTimeout(() => hotspot.classList.remove("glow"), 1000); // Hapus glow setelah 1 detik
+                        setTimeout(() => hotspot.classList.remove("glow"), 1000); // Remove glow after 1 second
                       }
                     }
                   });
 
-                  // Tambahkan event listener untuk ikon keranjang
+                  // Add event listener for the cart icon
                   const cartIcon = row.querySelector('.cart-icon');
                   if (cartIcon) {
                     cartIcon.addEventListener('click', (e) => {
-                      e.stopPropagation(); // Cegah event klik baris agar tidak terpicu
+                      e.stopPropagation(); // Prevent row click event from triggering
                       const partCode = e.target.dataset.kodepart;
                       const qtyInput = row.querySelector(`.qty-input[data-kodepart="${partCode}"]`);
-                      const quantity = qtyInput ? parseInt(qtyInput.value, 10) : 1; // Dapatkan nilai kuantitas
+                      const quantity = qtyInput ? parseInt(qtyInput.value, 10) : 1; // Get quantity value
 
                       const partDescription = partMap[partCode]?.deskripsi || "N/A";
                       const partPrice = partMap[partCode]?.harga || 0;
 
-                      // ** Panggil fungsi global window.addEstimasiItem **
+                      // ** Panggil fungsi global window.addEstimasiItem dari Template Median UI5a.txt **
                       if (typeof window.addEstimasiItem === 'function') {
                           window.addEstimasiItem({
                               kodePart: partCode,
@@ -397,18 +371,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 container.appendChild(table);
               };
-              observer.unobserve(lazyImage); // Berhenti mengamati setelah dimuat
+              observer.unobserve(lazyImage); // Stop observing once loaded
             }
           });
         });
-        observer.observe(img); // Mulai mengamati gambar
+        observer.observe(img); // Start observing the image
       } else {
-        // Fallback untuk browser yang tidak mendukung Intersection Observer
+        // Fallback for browsers that don't support Intersection Observer
         img.src = img.dataset.src;
         img.onload = () => {
           currentHotspotMap = createAndPlaceHotspots(img, hotspotData, partMap, scrollArea, hotspotRefs, rowRefs, figure);
 
-          // 🟢 Tabel Bagian - Buat tabel hanya sekali
+          // 🟢 Part Table - Create the table only once
           const table = document.createElement("table");
           table.innerHTML = `
             <thead>
@@ -424,62 +398,62 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           const tbody = table.querySelector("tbody");
 
-          // Isi baris tabel dengan data bagian
+          // Populate table rows with part data
           hotspotData.filter(i => i.figure?.trim() === figure).forEach((item, index) => {
             const kode = item.kodepart?.trim();
             if (!kode) return;
 
             const part = partMap[kode] || {};
-            // Terapkan Title Case di sini
+            // Apply Title Case here
             const fullDeskripsi = toTitleCase(part.deskripsi || "-");
-            // Potong deskripsi untuk tampilan, simpan deskripsi lengkap di atribut title
+            // Truncate description for display, keep full description in title attribute
             const displayDeskripsi = fullDeskripsi.length > 50 ? fullDeskripsi.substring(0, 47) + "..." : fullDeskripsi;
-            const harga = part.harga || 0; // Gunakan harga integer yang di-parse
+            const harga = part.harga || 0; // Use parsed integer price
 
             const row = document.createElement("tr");
             row.innerHTML = `
               <td>${index + 1}</td>
               <td>${kode}</td>
               <td title="${fullDeskripsi}">${displayDeskripsi}</td>
-              <td>Rp ${harga.toLocaleString("id-ID")}</td> <!-- Tampilkan harga dengan awalan 'Rp' -->
+              <td>Rp ${harga.toLocaleString("id-ID")}</td> <!-- Display price with 'Rp' prefix -->
               <td>
                 <input type="number" class="qty-input" value="1" min="1" data-kodepart="${kode}">
                 <i class="fas fa-shopping-cart cart-icon" data-kodepart="${kode}"></i>
               </td>
             `;
             tbody.appendChild(row);
-            rowRefs[kode] = row; // Simpan referensi baris
+            rowRefs[kode] = row; // Store row reference
 
             row.style.cursor = "pointer";
             row.addEventListener("click", (e) => {
-              // Hanya jika klik bukan pada ikon keranjang atau input kuantitas
+              // Only if the click is not on the cart icon or quantity input
               if (!e.target.classList.contains('cart-icon') && !e.target.classList.contains('qty-input')) {
-                const pos = currentHotspotMap[kode]; // Gunakan hotspotMap terbaru
+                const pos = currentHotspotMap[kode]; // Use the latest hotspotMap
                 const hotspot = hotspotRefs[kode];
 
                 if (pos) scrollArea.scrollTo({
                   top: pos.py - 100,
                   behavior: "smooth"
-                }); // Gulir ke posisi hotspot
+                }); // Scroll to hotspot position
 
                 tbody.querySelectorAll("tr").forEach(tr => tr.classList.remove("highlighted"));
                 row.classList.add("highlighted");
 
                 if (hotspot) {
                   hotspot.classList.add("glow");
-                  setTimeout(() => hotspot.classList.remove("glow"), 1000); // Hapus glow setelah 1 detik
+                  setTimeout(() => hotspot.classList.remove("glow"), 1000); // Remove glow after 1 second
                 }
               }
             });
 
-            // Tambahkan event listener untuk ikon keranjang
+            // Add event listener for the cart icon
             const cartIcon = row.querySelector('.cart-icon');
             if (cartIcon) {
               cartIcon.addEventListener('click', (e) => {
-                e.stopPropagation(); // Cegah event klik baris agar tidak terpicu
+                e.stopPropagation(); // Prevent row click event from triggering
                 const partCode = e.target.dataset.kodepart;
                 const qtyInput = row.querySelector(`.qty-input[data-kodepart="${partCode}"]`);
-                const quantity = qtyInput ? parseInt(qtyInput.value, 10) : 1; // Dapatkan nilai kuantitas
+                const quantity = qtyInput ? parseInt(qtyInput.value, 10) : 1; // Get quantity value
 
                 const partDescription = partMap[partCode]?.deskripsi || "N/A";
                 const partPrice = partMap[partCode]?.harga || 0;
@@ -504,37 +478,37 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       }
 
-      // Variabel untuk menahan timeout debounce
+      // Variable to hold the debounce timeout
       let resizeTimeout;
 
-      // Tambahkan ResizeObserver untuk memperbarui hotspot saat gambar diubah ukurannya
+      // Add ResizeObserver to update hotspots when image resizes
       if (typeof ResizeObserver !== 'undefined') {
         const resizeObserver = new ResizeObserver(entries => {
           for (let entry of entries) {
             if (entry.target === img) {
-              // Hapus timeout yang ada untuk mencegah beberapa panggilan
+              // Clear any existing timeout to prevent multiple calls
               clearTimeout(resizeTimeout);
-              // Setel timeout baru
+              // Set a new timeout
               resizeTimeout = setTimeout(() => {
-                // Gambar telah diubah ukurannya, perbarui posisi hotspot
+                // Image has been resized, update hotspot positions
                 currentHotspotMap = createAndPlaceHotspots(img, hotspotData, partMap, scrollArea, hotspotRefs, rowRefs, figure);
-              }, 100); // Debounce 100ms
+              }, 100); // 100ms debounce
             }
           }
         });
         resizeObserver.observe(img);
       } else {
-        // Fallback untuk browser lama: tambahkan event listener resize window
-        // Terapkan debounce ke resize window juga
+        // Fallback for older browsers: add window resize event listener
+        // Apply debounce to window resize as well
         window.addEventListener('resize', () => {
           clearTimeout(resizeTimeout);
           resizeTimeout = setTimeout(() => {
             currentHotspotMap = createAndPlaceHotspots(img, hotspotData, partMap, scrollArea, hotspotRefs, rowRefs, figure);
-          }, 100); // Debounce 100ms
+          }, 100); // 100ms debounce
         });
       }
 
-      // --- START: Kode baru untuk membuat div tersembunyi dengan kode bagian ---
+      // --- START: New code to create hidden div with part codes ---
       const kodeList = partData
         .filter(row => row.fig_id?.trim().toUpperCase() === figure)
         .map(row => row.kodepart?.trim())
@@ -546,9 +520,9 @@ document.addEventListener("DOMContentLoaded", () => {
         hiddenDiv.className = "kode-indeks-auto";
         hiddenDiv.textContent = "Kode Part: " + kodeList.join(", ");
         document.body.appendChild(hiddenDiv);
-        console.log("Div tersembunyi 'kode-indeks-auto' dibuat dengan konten:", hiddenDiv.textContent);
+        console.log("Hidden div 'kode-indeks-auto' created with content:", hiddenDiv.textContent);
       }
-      // --- END: Kode baru ---
+      // --- END: New code ---
 
     })
     .catch(err => {
