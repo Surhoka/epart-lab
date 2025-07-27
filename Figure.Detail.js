@@ -88,7 +88,7 @@ const createAndPlaceHotspots = (img, hotspotData, partMap, scrollArea, hotspotRe
 function initializeFigurePageWithId(figureId) {
   const container = document.getElementById("hotspot-container");
   // URL untuk data Google Sheets
-  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/Engine";
+  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/CatalogData";
   const hotspotURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/HotspotData";
   const partMasterURL = "https://opensheet.elk.sh/1AlEA83WkT1UyXnnbPBxbXgPhdNUiCP_yarCIk_RhN5o/PartMaster";
   const figure = figureId; // Gunakan figureId yang dilewatkan
