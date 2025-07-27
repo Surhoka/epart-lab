@@ -1,3 +1,5 @@
+console.log("Figure.Detail.js version: 1.0.1"); // Untuk membantu debugging cache
+
 // Fungsi untuk menggulir kontainer gambar
 function scrollGambar(offset) {
   const container = document.getElementById("gambar-wrapper");
@@ -243,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Kesalahan "imageData.find is not a function" di sini sangat membingungkan jika itu benar-benar baris ini.
       // Ini menyiratkan imageData adalah objek, bukan array, dan di suatu tempat 'find' dipanggil padanya.
       // Namun, baris ini hanya mengakses imageData[0].
-      const imageSrc = imageData.length > 0 ? imageData[0].urlgambar?.trim() : null;
+      const imageSrc = imageData.length > 0 ? imageData[0].urlgambar?.trim() : null; // Cache bust: v1.0.1
 
       if (!imageSrc) {
         throw new Error("Gambar tidak ditemukan atau URL gambar tidak valid dari data sumber.");
