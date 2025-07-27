@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const container = document.getElementById("hotspot-container");
   // URL untuk data Google Sheets
-  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/CatalogData";
+  const engineURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/Engine";
   const hotspotURL = "https://opensheet.elk.sh/1ceai6m0DaFy6R09su_bToetXMFdaVx9fRcX2k3DVvgU/HotspotData";
   const partMasterURL = "https://opensheet.elk.sh/1AlEA83WkT1UyXnnbPBxbXgPhdNUiCP_yarCIk_RhN5o/PartMaster";
   const figure = "FIG.102A"; // Gambar yang akan ditampilkan
@@ -211,7 +211,12 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch(hotspotURL).then(res => res.json()),
       fetch(partMasterURL).then(res => res.json())
     ])
-    .then(([imageData, hotspotData, partData]) => {
+    .then(([imageDataRaw, hotspotData, partData]) => {
+      // Pastikan imageData selalu menjadi array.
+      // Layanan opensheet.elk.sh mungkin mengembalikan objek tunggal alih-alih array
+      // jika hanya ada satu baris data di lembar.
+      const imageData = Array.isArray(imageDataRaw) ? imageDataRaw : [imageDataRaw];
+
       const imageSrc = imageData[0]?.urlgambar?.trim();
       if (!imageSrc) throw new Error("Gambar tidak ditemukan");
 
@@ -488,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (entry.target === img) {
               // Hapus timeout yang ada untuk mencegah beberapa panggilan
               clearTimeout(resizeTimeout);
-              // Atur timeout baru
+              // Setel timeout baru
               resizeTimeout = setTimeout(() => {
                 // Gambar telah diubah ukurannya, perbarui posisi hotspot
                 currentHotspotMap = createAndPlaceHotspots(img, hotspotData, partMap, scrollArea, hotspotRefs, rowRefs, figure);
