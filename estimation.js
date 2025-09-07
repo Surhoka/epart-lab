@@ -1,7 +1,7 @@
 // File: src/estimation.js
 // Deskripsi: Mengelola modal estimasi dan fungsionalitas terkait.
 
-import { getProperty } from './utils.js';
+import { getProperty, getDirectGoogleDriveUrl } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
 
 let estimasiItems = JSON.parse(localStorage.getItem('estimasiItems')) || [];
 let partMasterList = [];

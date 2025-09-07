@@ -1,7 +1,7 @@
 // File: src/gallery.js
 // Deskripsi: Mengelola fungsionalitas galeri figur.
 
-import { getProperty, renderImageWithFallback } from './utils.js';
+import { getDirectGoogleDriveUrl } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
 
 let hotspotDataMap = {};
 let katalogDataList = [];

@@ -1,7 +1,7 @@
 // File: src/search.js
 // Deskripsi: Mengelola semua fungsionalitas pencarian.
 
-import { getProperty } from './utils.js';
+import { getProperty } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
 import { showSection } from './router.js';
 
 let partMasterList = [];
