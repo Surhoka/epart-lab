@@ -1,7 +1,7 @@
 // File: src/figure-viewer.js
 // Deskripsi: Mengelola tampilan dan interaksi pada halaman penampil figur.
 
-import { getProperty, getDirectGoogleDriveUrl } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
+import { getProperty, getDirectGoogleDriveUrl } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab/main/utils.js';
 
 let partMasterList = [];
 let hotspotDataList = [];
@@ -234,3 +234,4 @@ export function initFigureViewer(params) {
 
     runHotspotViewer(figureName);
 }
+
