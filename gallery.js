@@ -90,12 +90,13 @@ function renderGallery(selectedModel, selectedCategory) {
             link.href = `#figure-viewer?url=${encodeURIComponent(fig.url)}&kodepart=${encodeURIComponent(fig.kodepart)}&figureName=${encodeURIComponent(fig.figureName)}&model=${encodeURIComponent(selectedModel)}`;
             link.className = 'block w-full h-full';
 
-            const img = renderImageWithFallback({
-                url: fig.url,
-                alt: fig.figureName || 'Miniatur Figur',
-                className: 'w-full h-48 object-cover',
-                onErrorType: 'pixel'
-            });
+            const img = document.createElement('img');
+            img.src = getDirectGoogleDriveUrl(fig.url);
+            img.alt = fig.figureName || 'Miniatur Figur';
+            img.className = 'w-full h-48 object-cover';
+            img.onerror = () => {
+                img.src = 'https://i.ibb.co/gS15Pz9/404-notfound.png'; // Fallback image
+            };
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'p-4 bg-blue-600 text-white text-left';
