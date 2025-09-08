@@ -1,9 +1,9 @@
 // File: src/router.js
 // Deskripsi: Mengelola routing sisi klien dan menampilkan bagian yang sesuai.
 
-import { initFigureViewer } from './figure-viewer.js';
-import { initGallery } from './gallery.js';
-import { renderPostList, renderPostDetail, renderLabels } from './ui.js';
+import { initFigureViewer } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/figure-viewer.js';
+import { initGallery } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/gallery.js';
+import { renderPostList, renderPostDetail, renderLabels } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/ui.js';
 
 const validSections = ['home', 'tentang', 'kontak', 'figure-viewer', 'figure-gallery'];
 
