@@ -1,7 +1,7 @@
 // File: src/ui.js
 // Deskripsi: Fungsi untuk memanipulasi dan merender elemen UI.
 
-import { formatDate, stripHtml } from './utils.js';
+import { formatDate, stripHtml } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
 
 const mainContent = document.getElementById('main-content');
 
@@ -89,3 +89,4 @@ export function renderLabels(labels) {
 
     sidebarList.innerHTML = `<ul>${labelElements}</ul>`;
 }
+
