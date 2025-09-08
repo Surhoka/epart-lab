@@ -1,7 +1,7 @@
 // File: src/api.js
 // Deskripsi: Mengelola semua interaksi dengan Blogger API.
 
-import { BLOG_URL, POSTS_PER_PAGE } from './config.js';
+import { BLOG_URL, POSTS_PER_PAGE } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/config.js';
 
 const API_BASE = `${BLOG_URL}/feeds`;
 
@@ -116,3 +116,4 @@ export async function fetchAllData() {
         partMasterList
     };
 }
+
