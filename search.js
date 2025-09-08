@@ -2,7 +2,7 @@
 // Deskripsi: Mengelola semua fungsionalitas pencarian.
 
 import { getProperty } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
-import { showSection } from './router.js';
+import { showSection } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/router.js';
 
 let partMasterList = [];
 let hotspotDataMap = {};
@@ -144,3 +144,4 @@ export function initSearch() {
         modelSelect.addEventListener('change', searchHandler);
     }
 }
+
