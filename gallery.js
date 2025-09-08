@@ -1,7 +1,7 @@
 // File: src/gallery.js
 // Deskripsi: Mengelola fungsionalitas galeri figur.
 
-import { getDirectGoogleDriveUrl, getProperty } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
+import { getProperty, getDirectGoogleDriveUrl } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/utils.js';
 
 let hotspotDataMap = {};
 let katalogDataList = [];
@@ -200,3 +200,4 @@ export function populateCategoryFilter() {
         categoryFilter.appendChild(option);
     });
 }
+
