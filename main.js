@@ -1,3 +1,4 @@
+
 /**
  * @file main.js
  * @description Main entry point for the application.
@@ -54,11 +55,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.appNavigation = { public: [], admin: [] };
 
         // Build navigation
-        const publicLinks = pagesData.map(page => ({
-            name: page.title,
-            url: `/#/${page.route || ''}`,
-            icon: page.icon || 'link'
-        }));
+        const publicLinks = pagesData
+            .filter(page => !page.route || !page.route.startsWith('admin'))
+            .map(page => ({
+                name: page.title,
+                url: `/#/${page.route || ''}`,
+                icon: page.icon || 'link'
+            }));
         publicLinks.unshift({ name: 'Beranda', url: '#/', icon: 'home' });
         
         // Add admin links
@@ -83,45 +86,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         buildNav([{ name: 'Admin', url: '#/admin', icon: 'admin' }]);
     }
 });
-new_string:
-        window.appNavigation = { public: [], admin: [] };
-
-        // Build navigation
-        const publicLinks = pagesData.map(page => ({
-            name: page.title,
-            url: `/#/${page.route || ''}`,
-            icon: page.icon || 'link'
-        }));
-        publicLinks.unshift({ name: 'Beranda', url: '#/', icon: 'home' });
-        
-        // Add admin links
-        const adminLinks = [
-            { name: 'Dashboard', url: '#/admin/dashboard', icon: 'dashboard' },
-            { name: 'Data Postingan', url: '#/admin/posts', icon: 'postingan' },
-            { name: 'Halaman', url: '#/admin/pages', icon: 'halaman' },
-            { name: 'Settings', url: '#/admin/settings', icon: 'settings' }
-        ];
-
-        window.appNavigation.public = publicLinks;
-        window.appNavigation.admin = adminLinks;
-
-        // Setup routing
-old_string:
-        // Build navigation
-        const navLinksData = pagesData.map(page => ({
-            name: page.title,
-            url: `/#/${page.route || ''}`,
-            icon: page.icon || 'link'
-        }));
-        navLinksData.unshift({ name: 'Beranda', url: '#/', icon: 'home' });
-        
-        // Add admin links
-        const adminNavLinks = [
-            { name: 'Dashboard', url: '#/admin/dashboard', icon: 'dashboard' },
-            { name: 'Data Postingan', url: '#/admin/posts', icon: 'postingan' },
-            { name: 'Halaman', url: '#/admin/pages', icon: 'halaman' },
-            { name: 'Settings', url: '#/admin/settings', icon: 'settings' }
-        ];
-        buildNav(navLinksData.concat(adminNavLinks));
-
-        // Setup routing
