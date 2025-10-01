@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }));
         publicLinks.unshift({ name: 'Beranda', url: '#/', icon: 'home' });
         
-        // Add admin links
+        // Define admin links
         const adminLinks = [
             { name: 'Dashboard', url: '#/admin/dashboard', icon: 'dashboard' },
             { name: 'Data Postingan', url: '#/admin/posts', icon: 'postingan' },
@@ -84,7 +84,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             { name: 'Settings', url: '#/admin/settings', icon: 'settings' }
         ];
 
-        window.appNavigation.public = publicLinks;
+        // Ensure no admin links are present in public navigation after initial filtering
+        const finalPublicLinks = publicLinks.filter(publicLink => {
+            return !adminLinks.some(adminLink => 
+                adminLink.name.toLowerCase().trim() === publicLink.name.toLowerCase().trim() ||
+                adminLink.url === publicLink.url
+            );
+        });
+
+        window.appNavigation.public = finalPublicLinks;
         window.appNavigation.admin = adminLinks;
 
         // Setup routing
