@@ -9,6 +9,6 @@ const adminNavLinks = [
     { name: 'Settings', href: '#/admin/settings', icon: 'settings' }
 ];
 
-// You can export this array to be used by other JavaScript files (e.g., ui.js or main.js)
+// This array is exposed globally to be used by other JavaScript files (e.g., ui.js or main.js)
 // to dynamically render the admin navigation when an admin is logged in.
-export { adminNavLinks };
+window.adminNavLinks = adminNavLinks;
