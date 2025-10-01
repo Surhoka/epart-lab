@@ -57,12 +57,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Build navigation
         const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings', 'Tentang', 'Kontak', 'Kalkulator', 'Peta Gambar']; // Added Indonesian titles
         const normalizedAdminPageTitles = adminPageTitles.map(title => title.toLowerCase().trim());
+        const adminIcons = ['dashboard', 'postingan', 'halaman', 'settings']; // Icons typically associated with admin functions
 
         const publicLinks = pagesData
             .filter(page => {
                 const normalizedPageTitle = page.title.toLowerCase().trim();
-                return (!page.route || !page.route.startsWith('admin')) && 
-                       !normalizedAdminPageTitles.includes(normalizedPageTitle);
+                const isConsideredAdminPage = 
+                    (page.route && page.route.startsWith('admin')) || // Route starts with 'admin'
+                    normalizedAdminPageTitles.includes(normalizedPageTitle) || // Title matches an admin title
+                    adminIcons.includes(page.icon); // Icon matches an admin icon
+
+                return !isConsideredAdminPage;
             })
             .map(page => ({
                 name: page.title,
