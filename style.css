@@ -76,13 +76,6 @@
             margin-right: 46px; /* Adjust for 70px from screen edge, considering 1.5rem header padding */
         }
 
-        #search-input-desktop {
-            background-color: #FAFAFA;
-            border: none; /* Remove border */
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inset shadow */
-            color: #333; /* Ensure text is visible */
-        }
-
         /* New Sidebar Styling */
         .sidebar {
             width: 70px;
