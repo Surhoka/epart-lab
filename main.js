@@ -1,37 +1,18 @@
-
-/**
- * @file main.js
- * @description Main entry point for the application.
- */
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize basic UI elements and event listeners
     initUI();
 
-    // Status login dan role user
-    let isLoggedIn = false;
-    let isAdminUser = false;
-
+    // Cek login dari URL hash (misalnya setelah login via Apps Script)
     const hash = window.location.hash;
     if (hash.includes('?')) {
         const params = new URLSearchParams(hash.split('?')[1]);
         const email = params.get('email');
         if (params.get('action') === 'login' && email) {
             localStorage.setItem('adminEmail', email);
-            isLoggedIn = true;
-            isAdminUser = true;
-            window.location.hash = '#/admin'; // Redirect to admin
+            window.location.hash = '#/admin/dashboard';
         }
     }
 
-    // Check if adminEmail exists in localStorage for persistent login
-    if (localStorage.getItem('adminEmail')) {
-        isLoggedIn = true;
-        isAdminUser = true;
-    }
-
     try {
-        // Fetch all initial data in parallel
         const [pagesResult, postsResult] = await Promise.all([
             callAppsScript('getHalaman'),
             callAppsScript('getPostingan')
@@ -39,8 +20,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const pagesData = pagesResult.data || [];
         const postsData = postsResult.data || [];
-        
-        // Parse data from hidden widgets
+
+        // Parse widget data
         const popularPostsData = [];
         const labelsData = [];
         const popularPostsWidget = document.getElementById('PopularPosts1');
@@ -60,73 +41,103 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Make data globally available to handlers
         setGlobalData({ postsData, pagesData, popularPostsData, labelsData });
 
+        // Navigasi
         window.appNavigation = { public: [], admin: [] };
 
-        // Define all possible menu items
-        const allMenuItems = [
-            { name: 'Beranda', url: '#/', icon: 'home', isPublic: true },
-            // Dynamically add pages from pagesData
-            ...pagesData.map(page => ({
+        const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings', 'Tentang', 'Kontak', 'Kalkulator', 'Peta Gambar'];
+        const normalizedAdminPageTitles = adminPageTitles.map(title => title.toLowerCase().trim());
+        const adminIcons = ['dashboard', 'postingan', 'halaman', 'settings'];
+
+        const publicLinks = pagesData
+            .filter(page => {
+                const normalizedTitle = page.title.toLowerCase().trim();
+                const isAdminPage =
+                    (page.route && page.route.startsWith('admin')) ||
+                    normalizedAdminPageTitles.includes(normalizedTitle) ||
+                    adminIcons.includes(page.icon);
+                return !isAdminPage;
+            })
+            .map(page => ({
                 name: page.title,
                 url: `/#/${page.route || ''}`,
-                icon: page.icon || 'link',
-                isPublic: !(page.route && page.route.startsWith('admin')) // Assume public unless route is admin
-            })),
-            { name: 'Dashboard', url: '#/admin/dashboard', icon: 'dashboard', adminOnly: true },
-            { name: 'Data Postingan', url: '#/admin/posts', icon: 'postingan', adminOnly: true },
-            { name: 'Halaman', url: '#/admin/pages', icon: 'halaman', adminOnly: true },
-            { name: 'Settings', url: '#/admin/settings', icon: 'settings', adminOnly: true },
-            { name: 'Login', url: '#/login', icon: 'admin', showIfNotLoggedIn: true } // Assuming a login page
+                icon: page.icon || 'link'
+            }));
+
+        publicLinks.unshift({ name: 'Beranda', url: '#/', icon: 'home' });
+
+        const adminLinks = [
+            { name: 'Dashboard', url: '#/admin/dashboard', icon: 'dashboard' },
+            { name: 'Data Postingan', url: '#/admin/posts', icon: 'postingan' },
+            { name: 'Halaman', url: '#/admin/pages', icon: 'halaman' },
+            { name: 'Settings', url: '#/admin/settings', icon: 'settings' }
         ];
 
-        // Filter menu items for public navigation
-        const publicNavLinks = allMenuItems.filter(item => {
-            if (item.adminOnly) return false; // Admin-only items never in public nav
-            if (item.showIfNotLoggedIn) return !isLoggedIn; // Show login if not logged in
-            return item.isPublic; // Show public items
+        const finalPublicLinks = publicLinks.filter(publicLink => {
+            return !adminLinks.some(adminLink =>
+                adminLink.name.toLowerCase().trim() === publicLink.name.toLowerCase().trim() ||
+                adminLink.url === publicLink.url
+            );
         });
 
-        // Filter menu items for admin navigation
-        const adminNavLinks = allMenuItems.filter(item => {
-            if (item.adminOnly) return isAdminUser; // Show admin-only items if admin
-            // Optionally, include public items in admin nav if desired, but for now, only admin-specific
-            return false; // For now, admin nav only shows adminOnly items
-        });
+        window.appNavigation.public = finalPublicLinks;
+        window.appNavigation.admin = adminLinks;
 
-        window.appNavigation.public = publicNavLinks;
-        window.appNavigation.admin = adminNavLinks;
-
-        // Setup routing
         window.addEventListener('hashchange', handleRouteChange);
-        handleRouteChange(); // Initial route handling
+        handleRouteChange();
 
-        // Build initial navigation based on route
-        if (isAdminRoute()) {
+        // Render navigasi berdasarkan status login
+        if (isAdminRoute() && isAdminLoggedIn()) {
             buildNav(window.appNavigation.admin, true);
         } else {
             buildNav(window.appNavigation.public);
         }
 
+        // Sembunyikan tombol login jika sudah login
+        const loginButton = document.getElementById("login-button");
+        if (loginButton) {
+            loginButton.style.display = isAdminLoggedIn() ? "none" : "inline-block";
+        }
+
+        // Tampilkan tombol logout jika sudah login
+        const logoutButton = document.getElementById("logout-button");
+        if (logoutButton) {
+            logoutButton.style.display = isAdminLoggedIn() ? "inline-block" : "none";
+            logoutButton.addEventListener("click", () => {
+                localStorage.removeItem("adminEmail");
+                window.location.hash = "#/";
+            });
+        }
+
     } catch (error) {
         console.error("Initialization failed:", error);
-        const appContent = document.getElementById('app-content'); // Ensure appContent is defined
+        const appContent = document.getElementById('app-content');
         if (appContent) {
             appContent.innerHTML = `<div class="bg-red-100 text-red-800 p-8 rounded-xl shadow-md text-center"><h1 class="text-4xl font-bold text-red-700">Application Error</h1><p class="text-red-600 mt-4">Could not load application data. Check the console for details.</p></div>`;
         }
-        // Build a minimal nav for recovery
         buildNav([{ name: 'Admin', url: '#/admin', icon: 'admin' }], true);
     }
 });
 
-// Function to check if the current route is an admin route
+// Cek apakah route saat ini adalah admin
 function isAdminRoute() {
     return window.location.hash.startsWith('#/admin');
 }
 
-// Function to check if the current route is an admin route
-function isAdminRoute() {
-    return window.location.hash.startsWith('#/admin');
+// Cek apakah user sudah login sebagai admin
+function isAdminLoggedIn() {
+    return localStorage.getItem("adminEmail") !== null;
+}
+
+// Proteksi akses admin
+function handleRouteChange() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#/admin') && !isAdminLoggedIn()) {
+        window.location.hash = '#/';
+        return;
+    }
+
+    // Lanjutkan routing normal...
+    // (Tambahkan handler routing lain di sini jika perlu)
 }
