@@ -24,12 +24,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Ambil data dari widget tersembunyi
         const popularPostsData = [];
         const labelsData = [];
+
         const popularPostsWidget = document.getElementById('PopularPosts1');
         if (popularPostsWidget) {
             popularPostsWidget.querySelectorAll('ul > li > a').forEach(link => {
                 popularPostsData.push({ title: link.textContent.trim(), url: link.getAttribute('href') });
             });
         }
+
         const labelsWidget = document.getElementById('Label1');
         if (labelsWidget) {
             labelsWidget.querySelectorAll('.widget-content a').forEach(link => {
