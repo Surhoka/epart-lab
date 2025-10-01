@@ -83,10 +83,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.addEventListener('hashchange', handleRouteChange);
         handleRouteChange(); // Initial route handling
 
+        // Build initial navigation based on route
+        if (isAdminRoute()) {
+            buildNav(window.appNavigation.admin, true);
+        } else {
+            buildNav(window.appNavigation.public);
+        }
+
     } catch (error) {
         console.error("Initialization failed:", error);
-        appContent.innerHTML = `<div class="bg-red-100 text-red-800 p-8 rounded-xl shadow-md text-center"><h1 class="text-4xl font-bold text-red-700">Application Error</h1><p class="text-red-600 mt-4">Could not load application data. Check the console for details.</p></div>`;
+        const appContent = document.getElementById('app-content'); // Ensure appContent is defined
+        if (appContent) {
+            appContent.innerHTML = `<div class="bg-red-100 text-red-800 p-8 rounded-xl shadow-md text-center"><h1 class="text-4xl font-bold text-red-700">Application Error</h1><p class="text-red-600 mt-4">Could not load application data. Check the console for details.</p></div>`;
+        }
         // Build a minimal nav for recovery
-        buildNav([{ name: 'Admin', url: '#/admin', icon: 'admin' }]);
+        buildNav([{ name: 'Admin', url: '#/admin', icon: 'admin' }], true);
     }
 });
+
+// Function to check if the current route is an admin route
+function isAdminRoute() {
+    return window.location.hash.startsWith('#/admin');
+}
+
+// Function to check if the current route is an admin route
+function isAdminRoute() {
+    return window.location.hash.startsWith('#/admin');
+}
