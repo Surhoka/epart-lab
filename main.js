@@ -20,39 +20,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // Temporarily use dummy data for local testing due to CORS issues
-        const pagesData = [
-            { title: 'Beranda', route: '', icon: 'home' },
-            { title: 'Tentang', route: 'about', icon: 'about' },
-            { title: 'Kontak', route: 'contact', icon: 'contact' },
-            { title: 'Kalkulator', route: 'calculator', icon: 'calculator' },
-            { title: 'Peta Gambar', route: 'image_hotspot', icon: 'image_hotspot' },
-            { title: 'Dashboard', route: 'admin/dashboard', icon: 'dashboard' },
-            { title: 'Data Postingan', route: 'admin/posts', icon: 'postingan' },
-            { title: 'Halaman', route: 'admin/pages', icon: 'halaman' },
-            { title: 'Settings', route: 'admin/settings', icon: 'settings' }
-        ];
-        const postsData = []; // Dummy posts data, not relevant for navigation testing
+        // Fetch all initial data in parallel
+        const [pagesResult, postsResult] = await Promise.all([
+            callAppsScript('getHalaman'),
+            callAppsScript('getPostingan')
+        ]);
+
+        const pagesData = pagesResult.data || [];
+        const postsData = postsResult.data || [];
+        
+        // Parse data from hidden widgets
         const popularPostsData = [];
         const labelsData = [];
-        
-        // No need to parse hidden widgets with dummy data
-        // const popularPostsWidget = document.getElementById('PopularPosts1');
-        // if (popularPostsWidget) {
-        //     popularPostsWidget.querySelectorAll('ul > li > a').forEach(link => {
-        //         popularPostsData.push({ title: link.textContent.trim(), url: link.getAttribute('href') });
-        //     });
-        // }
-        // const labelsWidget = document.getElementById('Label1');
-        // if (labelsWidget) {
-        //     labelsWidget.querySelectorAll('.widget-content a').forEach(link => {
-        //         const labelName = link.textContent.trim();
-        //         const postCountMatch = labelName.match(/\((\d+)\)/);
-        //         const count = postCountMatch ? parseInt(postCountMatch[1], 10) : 0;
-        //         const cleanLabelName = labelName.replace(/\s*\((\d+)\)/, '').trim();
-        //         labelsData.push({ name: cleanLabelName, url: link.getAttribute('href'), count: count });
-        //     });
-        // }
+        const popularPostsWidget = document.getElementById('PopularPosts1');
+        if (popularPostsWidget) {
+            popularPostsWidget.querySelectorAll('ul > li > a').forEach(link => {
+                popularPostsData.push({ title: link.textContent.trim(), url: link.getAttribute('href') });
+            });
+        }
+        const labelsWidget = document.getElementById('Label1');
+        if (labelsWidget) {
+            labelsWidget.querySelectorAll('.widget-content a').forEach(link => {
+                const labelName = link.textContent.trim();
+                const postCountMatch = labelName.match(/\((\d+)\)/);
+                const count = postCountMatch ? parseInt(postCountMatch[1], 10) : 0;
+                const cleanLabelName = labelName.replace(/\s*\((\d+)\)/, '').trim();
+                labelsData.push({ name: cleanLabelName, url: link.getAttribute('href'), count: count });
+            });
+        }
 
         // Make data globally available to handlers
         setGlobalData({ postsData, pagesData, popularPostsData, labelsData });
@@ -83,9 +78,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         window.appNavigation.public = publicLinks;
         window.appNavigation.admin = adminLinks;
-
-        console.log('Public Links:', window.appNavigation.public); // Debugging log
-        console.log('Admin Links:', window.appNavigation.admin);   // Debugging log
 
         // Setup routing
         window.addEventListener('hashchange', handleRouteChange);
