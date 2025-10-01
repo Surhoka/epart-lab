@@ -56,11 +56,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Build navigation
         const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings', 'Tentang', 'Kontak', 'Kalkulator', 'Peta Gambar']; // Added Indonesian titles
+        const normalizedAdminPageTitles = adminPageTitles.map(title => title.toLowerCase().trim());
+
         const publicLinks = pagesData
-            .filter(page => 
-                (!page.route || !page.route.startsWith('admin')) && 
-                !adminPageTitles.includes(page.title)
-            )
+            .filter(page => {
+                const normalizedPageTitle = page.title.toLowerCase().trim();
+                return (!page.route || !page.route.startsWith('admin')) && 
+                       !normalizedAdminPageTitles.includes(normalizedPageTitle);
+            })
             .map(page => ({
                 name: page.title,
                 url: `/#/${page.route || ''}`,
