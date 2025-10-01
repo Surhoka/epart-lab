@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.appNavigation = { public: [], admin: [] };
 
         // Build navigation
-        const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings'];
+        const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings', 'Tentang', 'Kontak', 'Kalkulator', 'Peta Gambar']; // Added Indonesian titles
         const publicLinks = pagesData
             .filter(page => 
                 (!page.route || !page.route.startsWith('admin')) && 
@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         window.appNavigation.public = publicLinks;
         window.appNavigation.admin = adminLinks;
+
+        console.log('Public Links:', window.appNavigation.public); // Debugging log
+        console.log('Admin Links:', window.appNavigation.admin);   // Debugging log
 
         // Setup routing
         window.addEventListener('hashchange', handleRouteChange);
