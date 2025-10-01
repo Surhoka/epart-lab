@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Dynamically add pages from pagesData
             ...pagesData.map(page => ({
                 name: page.title,
-                url: `/#/${page.route || ''}`,
+                url: `#/${page.route || ''}`,
                 icon: page.icon || 'link',
                 isPublic: !(page.route && page.route.startsWith('admin')) // Assume public unless route is admin
             })),
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Filter menu items for public navigation
         const publicNavLinks = allMenuItems.filter(item => {
             // Exclude items that are part of the globally exposed admin navigation
-            const isAdminNavLink = window.adminNavLinks && window.adminNavLinks.some(adminItem => adminItem.href === item.url);
+            const isAdminNavLink = window.adminNavLinks && window.adminNavLinks.some(adminItem => adminItem.url === item.url);
             if (isAdminNavLink) return false;
 
             // Show login if not logged in
