@@ -1,71 +1,64 @@
-// File: src/router.js
-// Deskripsi: Mengelola routing sisi klien dan menampilkan bagian yang sesuai.
 
-import { initFigureViewer } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/figure-viewer.js';
-import { initGallery } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/gallery.js';
-import { renderPostList, renderPostDetail, renderLabels } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/ui.js';
+/**
+ * @file router.js
+ * @description Defines routes and handles URL hash changes.
+ */
 
-const validSections = ['home', 'tentang', 'kontak', 'figure-viewer', 'figure-gallery'];
-
-export function showSection(sectionId, params = {}) {
-    document.querySelectorAll('.section-content').forEach(section => {
-        section.classList.add('hidden');
-    });
-
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.remove('hidden');
-
-        switch (sectionId) {
-            case 'home':
-                // renderPostList(1); // This might be handled by default content
-                // renderLabels();
-                break;
-            case 'figure-viewer':
-                initFigureViewer(params);
-                break;
-            case 'figure-gallery':
-                initGallery(params);
-                break;
-        }
-    }
-    updateActiveNavLink();
-}
+const routes = [
+    { path: '/', handler: renderHomePage },
+    { path: '/search', handler: renderSearchPage },
+    { path: '/artikel/:id', handler: renderPostPage },
+    { path: '/login', handler: renderLoginPage },
+    { path: '/login-callback', handler: renderLoginCallbackPage },
+    { path: '/admin', handler: renderAdminPage },
+    { path: '/admin/:subpage', handler: renderAdminPage },
+    // This is a catch-all for dynamic pages from the CMS
+    { path: '/:route', handler: renderGenericPage }
+];
 
 function handleRouteChange() {
-    const hash = window.location.hash.substring(1);
-    const [sectionId, queryString] = hash.split('?');
-    
-    const paramsObject = {};
-    if (queryString) {
-        const params = new URLSearchParams(queryString);
-        for (const [key, value] of params.entries()) {
-            paramsObject[key] = value;
+    appContent.innerHTML = `<div class="text-center p-8">Loading...</div>`;
+    const hash = window.location.hash.slice(1) || '/';
+    const [path, queryString] = hash.split('?');
+    const query = new URLSearchParams(queryString);
+
+    // Find a matching route
+    for (const route of routes) {
+        const routeParts = route.path.split('/');
+        const pathParts = path.split('/');
+
+        if (routeParts.length === pathParts.length) {
+            const params = {};
+            let match = true;
+
+            for (let i = 0; i < routeParts.length; i++) {
+                if (routeParts[i].startsWith(':')) {
+                    params[routeParts[i].slice(1)] = pathParts[i];
+                } else if (routeParts[i] !== pathParts[i]) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match) {
+                // Call the handler with params and query
+                route.handler({ params, query });
+                highlightActiveLink();
+                return;
+            }
         }
     }
 
-    if (sectionId && validSections.includes(sectionId)) {
-        showSection(sectionId, paramsObject);
-    } else {
-        showSection('home');
+    // If no specific route matches, try to find a dynamic page
+    const dynamicPageRoute = routes.find(r => r.path === '/:route');
+    if (dynamicPageRoute) {
+        dynamicPageRoute.handler({ params: { route: path.slice(1) }, query });
+        highlightActiveLink();
+        return;
     }
-}
 
-export function initRouter() {
-    window.addEventListener('hashchange', handleRouteChange);
-    window.addEventListener('load', () => {
-        // Delay initial routing to allow data to be loaded
-        setTimeout(handleRouteChange, 100);
-    });
-}
 
-function updateActiveNavLink() {
-    const currentHash = window.location.hash.substring(1).split('?')[0] || 'home';
-    document.querySelectorAll('.main-menu-item').forEach(link => {
-        link.classList.remove('active');
-        const linkHash = link.getAttribute('href')?.substring(1).split('?')[0];
-        if (linkHash === currentHash) {
-            link.classList.add('active');
-        }
-    });
+    // If no route is found at all
+    renderNotFoundPage();
+    highlightActiveLink();
 }
