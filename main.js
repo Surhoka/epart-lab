@@ -55,8 +55,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.appNavigation = { public: [], admin: [] };
 
         // Build navigation
+        const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings'];
         const publicLinks = pagesData
-            .filter(page => !page.route || !page.route.startsWith('admin'))
+            .filter(page => 
+                (!page.route || !page.route.startsWith('admin')) && 
+                !adminPageTitles.includes(page.title)
+            )
             .map(page => ({
                 name: page.title,
                 url: `/#/${page.route || ''}`,
