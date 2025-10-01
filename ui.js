@@ -31,21 +31,6 @@ function getSvgIcon(iconName) {
 }
 
 function initUI() {
-    // Language Dropdown
-    const languageToggleButton = document.getElementById('language-toggle-button');
-    const languageDropdown = document.getElementById('language-dropdown');
-    if (languageToggleButton) {
-        languageToggleButton.addEventListener('click', (event) => {
-            event.stopPropagation();
-            languageDropdown.classList.toggle('hidden');
-        });
-    }
-    window.addEventListener('click', (event) => {
-        if (languageDropdown && !languageDropdown.classList.contains('hidden') && !event.target.closest('#language-toggle-button')) {
-            languageDropdown.classList.add('hidden');
-        }
-    });
-
     // Sidebar
     const sidebar = document.querySelector('.sidebar');
     const outerWrapper = document.querySelector('.outer-wrapper');
@@ -142,26 +127,4 @@ function highlightActiveLink() {
             link.classList.add('active');
         }
     });
-}
-
-// Google Translate helpers
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'id', includedLanguages: 'en,id', autoDisplay: false}, 'google_translate_element');
-}
-
-function doGTranslate(lang_pair) {
-  if (lang_pair.value) lang_pair = lang_pair.value;
-  if (lang_pair == '') return;
-  var lang = lang_pair.split('|')[1];
-  var teCombo = document.querySelector('#google_translate_element select');
-  if (teCombo) {
-    teCombo.value = lang;
-    teCombo.dispatchEvent(new Event('change'));
-  } else {
-    var d = new Date();
-    d.setTime(d.getTime() + (24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = "googtrans=/id/" + lang + ";" + expires + ";path=/";
-    location.reload();
-  }
 }
