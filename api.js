@@ -1,86 +1,50 @@
-// File: src/api.js
-// Deskripsi: Modul API untuk Blogger dan Spreadsheet (opensheet.elk.sh)
 
-import { BLOG_URL, POSTS_PER_PAGE } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main//config.js';
+/**
+ * @file api.js
+ * @description Handles all communication with the Google Apps Script backend.
+ */
 
-const API_BASE = `${BLOG_URL}/feeds`;
-const DEBUG = true; // Aktifkan log saat development
+const apiUrl = 'https://cms-spabloggerproxy.danialsurhoka.workers.dev'; // Ganti dengan URL Worker Anda!
+const SECRET_WORKER_KEY = 'U8HA-k3N9DLXVN89HEvBQYe2PciFsicVsHVRf83c';
 
-// =======================
-// 🔹 BLOGGER API SECTION
-// =======================
+/**
+ * Calls the Apps Script backend with a specific action and payload.
+ * @param {string} action - The action to perform (e.g., 'getPostingan', 'deletePost').
+ * @param {object} payload - The data to send with the action.
+ * @returns {Promise<object>} - The JSON response from the backend.
+ */
+async function callAppsScript(action, payload = {}) {
+    const dataToSend = {
+        action: action,
+        ...payload
+    };
 
-export async function fetchPosts(page = 1) {
-  const startIndex = (page - 1) * POSTS_PER_PAGE + 1;
-  const url = `${API_BASE}/posts/default?alt=json&start-index=${startIndex}&max-results=${POSTS_PER_PAGE}`;
-  return await fetchJson(url, `fetchPosts page ${page}`);
-}
+    const formBody = new URLSearchParams(dataToSend).toString();
 
-export async function fetchPostByPath(path) {
-  const url = `${BLOG_URL}/feeds/posts/default?alt=json&path=${encodeURIComponent(path)}`;
-  return await fetchJson(url, `fetchPostByPath ${path}`);
-}
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Auth-Token': SECRET_WORKER_KEY
+            },
+            body: formBody
+        });
 
-export async function fetchPostsByLabel(label, page = 1) {
-  const startIndex = (page - 1) * POSTS_PER_PAGE + 1;
-  const url = `${API_BASE}/posts/default/-/${encodeURIComponent(label)}?alt=json&start-index=${startIndex}&max-results=${POSTS_PER_PAGE}`;
-  return await fetchJson(url, `fetchPostsByLabel ${label}`);
-}
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-export async function fetchLabels() {
-  const url = `${API_BASE}/categories/default?alt=json`;
-  const data = await fetchJson(url, 'fetchLabels');
-  return data?.feed?.category || [];
-}
+        const result = await response.json();
 
-// =======================
-// 🔹 SPREADSHEET API SECTION
-// =======================
+        if (result.status === 'error' && result.message === 'Unauthorized: Invalid Worker Token') {
+            throw new Error('Unauthorized');
+        }
 
-const sheetSources = {
-  ModelKendaraan: 'https://opensheet.elk.sh/1viIkJBqKFFR-Ps5et71cORxxAuVfVTWEYk6Uh1ZHOHQ/ModelKendaraan',
-  HotspotData: 'https://opensheet.elk.sh/16YZHIc1dd0QU1bhW4Bb9-jq6LPOEGM8MbTcbo4UDLCc/HotspotData',
-  KatalogData: 'https://opensheet.elk.sh/1AgPWod4lDMq6I5CET74gv2oOE4sakwFRLvX7GCxFROM/KatalogData',
-  PartMaster: 'https://opensheet.elk.sh/1AlEA83WkT1UyXnnbPBxbXgPhdNUiCP_yarCIk_RhN5o/PartMaster'
-};
+        return result;
 
-export async function fetchSheetData(sheetName) {
-  const url = sheetSources[sheetName];
-  if (!url) {
-    console.warn(`❌ Sheet "${sheetName}" tidak ditemukan di sheetSources`);
-    return [];
-  }
-  const data = await fetchJson(url, `fetchSheetData ${sheetName}`);
-  return Array.isArray(data) ? data : [];
-}
-
-export async function fetchAllData() {
-  const keys = Object.keys(sheetSources);
-  const results = await Promise.all(
-    keys.map(async (key) => {
-      const data = await fetchSheetData(key);
-      if (DEBUG) console.log(`✅ ${key} loaded (${data.length} rows)`);
-      return data;
-    })
-  );
-
-  const [modelKendaraanList, hotspotDataList, katalogDataList, partMasterList] = results;
-  return { modelKendaraanList, hotspotDataList, katalogDataList, partMasterList };
-}
-
-// =======================
-// 🔹 HELPER FUNCTION
-// =======================
-
-async function fetchJson(url, context = '') {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const json = await response.json();
-    if (DEBUG) console.log(`📡 ${context} success`, json);
-    return json;
-  } catch (err) {
-    console.error(`⚠️ ${context} failed`, err);
-    return null;
-  }
+    } catch (error) {
+        console.error("Error calling Apps Script:", error);
+        throw new Error(`Error: ${error.message}`);
+    }
 }
