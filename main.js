@@ -4,7 +4,7 @@
  * @description Main entry point for the application.
  */
 
-import { adminNavLinks as importedAdminNavLinks } from './admin.js';
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize basic UI elements and event listeners
@@ -82,13 +82,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Filter menu items for public navigation
         const publicNavLinks = allMenuItems.filter(item => {
-            if (item.adminOnly) return false; // Admin-only items never in public nav
-            if (item.showIfNotLoggedIn) return !isLoggedIn; // Show login if not logged in
-            return item.isPublic; // Show public items
+            // Exclude items that are part of the globally exposed admin navigation
+            const isAdminNavLink = window.adminNavLinks && window.adminNavLinks.some(adminItem => adminItem.href === item.url);
+            if (isAdminNavLink) return false;
+
+            // Show login if not logged in
+            if (item.showIfNotLoggedIn) return !isLoggedIn;
+
+            // Only include items explicitly marked as public or default public (like 'Beranda')
+            return item.isPublic;
         });
 
-        // Use the imported adminNavLinks if the user is an admin, otherwise an empty array
-        const adminNavLinks = isAdminUser ? importedAdminNavLinks : [];
+        // Use the globally exposed adminNavLinks if the user is an admin, otherwise an empty array
+        const adminNavLinks = isAdminUser ? window.adminNavLinks : [];
 
         window.appNavigation.public = publicNavLinks;
         window.appNavigation.admin = adminNavLinks;
@@ -115,10 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Function to check if the current route is an admin route
-function isAdminRoute() {
-    return window.location.hash.startsWith('#/admin');
-}
+
 
 // Function to check if the current route is an admin route
 function isAdminRoute() {
