@@ -101,19 +101,22 @@ function initUI() {
     }
 }
 
-function buildNav(linksData) {
+function buildNav(linksData, isAdmin = false) {
     const sidebarNavLinks = document.getElementById('sidebar-nav-links');
     if (!sidebarNavLinks) return;
     let sidebarHTML = '';
     linksData.forEach(link => {
-        sidebarHTML += `
-            <div class="sidebar-nav-item">
-                <a href="${link.url || '#'}">
-                    <span class="nav-icon">${getSvgIcon(link.icon)}</span>
-                    <span class="nav-text">${link.name}</span>
-                </a>
-            </div>
-        `;
+        // Only show admin links if isAdmin is true
+        if (isAdmin || !link.url.startsWith('#/admin')) {
+            sidebarHTML += `
+                <div class="sidebar-nav-item">
+                    <a href="${link.url || '#'}">
+                        <span class="nav-icon">${getSvgIcon(link.icon)}</span>
+                        <span class="nav-text">${link.name}</span>
+                    </a>
+                </div>
+            `;
+        }
     });
     sidebarNavLinks.innerHTML = sidebarHTML;
     highlightActiveLink();
