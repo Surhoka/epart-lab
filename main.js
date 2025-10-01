@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const pagesData = pagesResult.data || [];
         const postsData = postsResult.data || [];
 
-        // Parse widget data
+        // Ambil data dari widget tersembunyi
         const popularPostsData = [];
         const labelsData = [];
         const popularPostsWidget = document.getElementById('PopularPosts1');
@@ -34,28 +34,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (labelsWidget) {
             labelsWidget.querySelectorAll('.widget-content a').forEach(link => {
                 const labelName = link.textContent.trim();
-                const postCountMatch = labelName.match(/\((\d+)\)/);
-                const count = postCountMatch ? parseInt(postCountMatch[1], 10) : 0;
-                const cleanLabelName = labelName.replace(/\s*\((\d+)\)/, '').trim();
-                labelsData.push({ name: cleanLabelName, url: link.getAttribute('href'), count: count });
+                const countMatch = labelName.match(/\((\d+)\)/);
+                const count = countMatch ? parseInt(countMatch[1], 10) : 0;
+                const cleanLabel = labelName.replace(/\s*\((\d+)\)/, '').trim();
+                labelsData.push({ name: cleanLabel, url: link.getAttribute('href'), count });
             });
         }
 
         setGlobalData({ postsData, pagesData, popularPostsData, labelsData });
 
-        // Navigasi
+        // Navigasi modular
         window.appNavigation = { public: [], admin: [] };
 
-        const adminPageTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings', 'Tentang', 'Kontak', 'Kalkulator', 'Peta Gambar'];
-        const normalizedAdminPageTitles = adminPageTitles.map(title => title.toLowerCase().trim());
+        const adminTitles = ['Dashboard', 'Data Postingan', 'Halaman', 'Settings', 'Tentang', 'Kontak', 'Kalkulator', 'Peta Gambar'];
         const adminIcons = ['dashboard', 'postingan', 'halaman', 'settings'];
+        const normalizedAdminTitles = adminTitles.map(t => t.toLowerCase().trim());
 
         const publicLinks = pagesData
             .filter(page => {
-                const normalizedTitle = page.title.toLowerCase().trim();
+                const title = page.title.toLowerCase().trim();
                 const isAdminPage =
                     (page.route && page.route.startsWith('admin')) ||
-                    normalizedAdminPageTitles.includes(normalizedTitle) ||
+                    normalizedAdminTitles.includes(title) ||
                     adminIcons.includes(page.icon);
                 return !isAdminPage;
             })
@@ -74,12 +74,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             { name: 'Settings', url: '#/admin/settings', icon: 'settings' }
         ];
 
-        const finalPublicLinks = publicLinks.filter(publicLink => {
-            return !adminLinks.some(adminLink =>
-                adminLink.name.toLowerCase().trim() === publicLink.name.toLowerCase().trim() ||
-                adminLink.url === publicLink.url
-            );
-        });
+        const finalPublicLinks = publicLinks.filter(pub =>
+            !adminLinks.some(adm =>
+                adm.name.toLowerCase().trim() === pub.name.toLowerCase().trim() ||
+                adm.url === pub.url
+            )
+        );
 
         window.appNavigation.public = finalPublicLinks;
         window.appNavigation.admin = adminLinks;
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.addEventListener('hashchange', handleRouteChange);
         handleRouteChange();
 
-        // Render navigasi berdasarkan status login
+        // Render navigasi sesuai status login
         if (isAdminRoute() && isAdminLoggedIn()) {
             buildNav(window.appNavigation.admin, true);
         } else {
@@ -95,39 +95,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Sembunyikan tombol login jika sudah login
-        const loginButton = document.getElementById("login-button");
-        if (loginButton) {
-            loginButton.style.display = isAdminLoggedIn() ? "none" : "inline-block";
+        const loginBtn = document.getElementById('login-button');
+        if (loginBtn) {
+            loginBtn.style.display = isAdminLoggedIn() ? 'none' : 'inline-block';
         }
 
         // Tampilkan tombol logout jika sudah login
-        const logoutButton = document.getElementById("logout-button");
-        if (logoutButton) {
-            logoutButton.style.display = isAdminLoggedIn() ? "inline-block" : "none";
-            logoutButton.addEventListener("click", () => {
-                localStorage.removeItem("adminEmail");
-                window.location.hash = "#/";
+        const logoutBtn = document.getElementById('logout-button');
+        if (logoutBtn) {
+            logoutBtn.style.display = isAdminLoggedIn() ? 'inline-block' : 'none';
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('adminEmail');
+                window.location.hash = '#/';
             });
         }
 
-    } catch (error) {
-        console.error("Initialization failed:", error);
+    } catch (err) {
+        console.error('Init error:', err);
         const appContent = document.getElementById('app-content');
         if (appContent) {
-            appContent.innerHTML = `<div class="bg-red-100 text-red-800 p-8 rounded-xl shadow-md text-center"><h1 class="text-4xl font-bold text-red-700">Application Error</h1><p class="text-red-600 mt-4">Could not load application data. Check the console for details.</p></div>`;
+            appContent.innerHTML = `<div class="bg-red-100 text-red-800 p-8 rounded-xl shadow-md text-center">
+                <h1 class="text-4xl font-bold text-red-700">Application Error</h1>
+                <p class="text-red-600 mt-4">Gagal memuat data aplikasi. Cek console untuk detail.</p>
+            </div>`;
         }
         buildNav([{ name: 'Admin', url: '#/admin', icon: 'admin' }], true);
     }
 });
 
-// Cek apakah route saat ini adalah admin
+// Cek apakah route admin
 function isAdminRoute() {
     return window.location.hash.startsWith('#/admin');
 }
 
 // Cek apakah user sudah login sebagai admin
 function isAdminLoggedIn() {
-    return localStorage.getItem("adminEmail") !== null;
+    return localStorage.getItem('adminEmail') !== null;
 }
 
 // Proteksi akses admin
@@ -138,6 +141,5 @@ function handleRouteChange() {
         return;
     }
 
-    // Lanjutkan routing normal...
-    // (Tambahkan handler routing lain di sini jika perlu)
+    // Tambahkan routing lain di sini jika perlu
 }
