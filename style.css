@@ -1,7 +1,27 @@
-        body {
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
             font-family: 'Inter', sans-serif;
             background-color: #F5F5F4; /* Light gray background */
             color: #333333; /* Darker text for white background */
+            height: 100%; /* Ensure html and body take full height */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            line-height: 1; /* Reset line-height to prevent extra space */
+        }
+
+        /* Universal reset for all elements to remove default margins/paddings */
+        * {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Aggressive reset for direct children of body, excluding header and sidebar */
+        body > *:not(.main-header):not(.sidebar) {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
 
         /* New Header Styling */
@@ -205,7 +225,8 @@
         .outer-wrapper {
             margin-left: 70px;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding-top: 60px;
+            padding-top: 60px !important; /* Ensure this padding is applied */
+            min-height: calc(100vh - 40px) !important; /* Adjust min-height to account for footer */
         }
 
         .outer-wrapper.sidebar-expanded {
@@ -213,7 +234,86 @@
         }
 
         .main-section {
-            padding: 1.5rem 14px;
+            padding: 0 14px !important; /* Override any default padding, set top padding to 0 */
+            margin-top: 0 !important; /* Ensure no top margin */
+            min-height: calc(100vh - 60px - 40px) !important; /* Ensure main content takes up remaining height, accounting for header and footer */
+            box-sizing: border-box !important; /* Ensure padding doesn't add to total height */
+        }
+
+        /* Aggressive reset for common block elements within main-section */
+        .main-section h1,
+        .main-section h2,
+        .main-section h3,
+        .main-section h4,
+        .main-section h5,
+        .main-section h6,
+        .main-section p,
+        .main-section div,
+        .main-section * { /* Aggressive reset for all elements within main-section */
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Aggressive reset for Blogger specific elements within main-section */
+        .outer-wrapper .main-section > div,
+        .outer-wrapper .main-section > div > div,
+        .outer-wrapper .main-section > div > div > div,
+        .outer-wrapper .main-section .widget,
+        .outer-wrapper .main-section .widget-content,
+        .outer-wrapper .main-section .widget-content > div,
+        .outer-wrapper .main-section .widget-content > div > div,
+        .outer-wrapper .main-section .widget-content > div > div > div { /* Added more specific targets */
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Ensure no default Blogger padding on the main content area itself */
+        .main-section {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+            /* Also target any direct children of main-section that might have default margins */
+            & > * {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+                margin-bottom: 0 !important; /* Ensure no bottom margin */
+                padding-bottom: 0 !important; /* Ensure no bottom padding */
+            }
+        }
+
+        /* Aggressive reset for all direct children of main-section */
+        .main-section > div,
+        .main-section > div > div,
+        .main-section > div > div > div,
+        .main-section .widget,
+        .main-section .widget-content,
+        .main-section .widget-content > div,
+        .main-section .widget-content > div > div {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Force remove any remaining top margin/padding from the first child of main-section */
+        .main-section > *:first-child {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        /* Even more aggressive reset for elements directly inside main-section */
+        .main-section > div:first-child {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        /* Specific override for Blogger's default widget padding/margin */
+        .main-section .widget,
+        .main-section .widget-content,
+        .main-section .widget-content > div {
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         /* Footer Styling */
@@ -232,8 +332,9 @@
         .outer-wrapper {
             margin-left: 70px;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding-top: 60px; /* Adjusted to match header height */
-            padding-bottom: 40px; /* Adjust based on footer height (0.5rem padding top/bottom + content) */
+            padding-top: 60px !important; /* Adjusted to match header height */
+            padding-bottom: 40px !important; /* Adjust based on footer height (0.5rem padding top/bottom + content) */
+            min-height: calc(100vh - 40px) !important; /* Ensure outer-wrapper takes up remaining height */
         }
         
         #google_translate_element {
