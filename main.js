@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 icon: page.icon || 'link',
                 isPublic: !(page.route && page.route.startsWith('admin')) // Assume public unless route is admin
             })),
-            { name: 'Login', url: '#/login', icon: 'admin', showIfNotLoggedIn: true } // Assuming a login page
         ];
 
         // Filter menu items for public navigation
