@@ -114,6 +114,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             buildNav(window.appNavigation.public);
         }
 
+        // Ensure login status UI is updated after initial load and routing
+        if (window.admin && window.admin.updateLoginStatusUI) {
+            window.admin.updateLoginStatusUI();
+        }
+
     } catch (error) {
         console.error("Initialization failed:", error);
         const appContent = document.getElementById('app-content'); // Ensure appContent is defined
