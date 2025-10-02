@@ -93,6 +93,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return item.isPublic;
         });
 
+        // Ensure window.adminNavLinks is an array before use
+        window.adminNavLinks = window.adminNavLinks || [];
+
         // Use the globally exposed adminNavLinks if the user is an admin, otherwise an empty array
         const adminNavLinks = isAdminUser ? window.adminNavLinks : [];
 
