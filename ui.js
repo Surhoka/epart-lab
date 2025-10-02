@@ -99,6 +99,11 @@ function initUI() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
+
+    // Ensure login status UI is updated when UI is initialized
+    if (window.admin && window.admin.updateLoginStatusUI) {
+        window.admin.updateLoginStatusUI();
+    }
 }
 
 function buildNav(linksData, isAdmin = false) {
