@@ -41,27 +41,54 @@ function updateLoginStatusUI() {
 // Event listener for login/logout actions (for demonstration)
 document.addEventListener('DOMContentLoaded', () => {
     updateLoginStatusUI();
+});
 
-    const loginButton = document.getElementById('login-button');
+// Handle login/logout button click
+document.addEventListener('click', async (event) => {
+    const loginButton = event.target.closest('#login-button');
     if (loginButton) {
-        loginButton.addEventListener('click', (event) => {
-            if (loginButton.href.endsWith('#/logout')) {
-                // Simulate logout
-                localStorage.setItem('isLoggedIn', 'false');
-                updateLoginStatusUI();
-                // Optionally redirect to homepage or login page after logout
-                window.location.hash = '#/';
-                event.preventDefault(); // Prevent default navigation
-            } else if (loginButton.href.endsWith('#/login')) {
-                // Simulate login (for demonstration, assume successful login)
-                // In a real app, this would involve a login form submission
-                // For now, we'll just toggle the status
-                // localStorage.setItem('isLoggedIn', 'true');
-                // updateLoginStatusUI();
-                // window.location.hash = '#/admin/dashboard'; // Redirect to admin dashboard
-                // event.preventDefault();
+        event.preventDefault(); // Prevent default navigation
+
+        if (isLoggedIn()) {
+            // Perform logout
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('adminEmail');
+            updateLoginStatusUI();
+            window.location.hash = '#/'; // Redirect to homepage after logout
+        } else {
+            // Initiate login process
+            try {
+                const response = await callAppsScript('getLoginUrl');
+                if (response.status === 'success' && response.url) {
+                    window.location.href = response.url; // Redirect to Google Apps Script for login
+                } else {
+                    console.error('Failed to get login URL:', response.message);
+                    alert('Failed to initiate login. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error fetching login URL:', error);
+                alert('Error initiating login. Please check your connection.');
             }
-        });
+        }
+    }
+});
+
+// Handle login callback from Google Apps Script
+window.addEventListener('hashchange', () => {
+    if (window.location.hash.startsWith('#/login-callback')) {
+        const params = new URLSearchParams(window.location.hash.split('?')[1]);
+        const email = params.get('email');
+
+        if (email) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('adminEmail', email);
+            updateLoginStatusUI();
+            window.location.hash = '#/admin/dashboard'; // Redirect to admin dashboard
+        } else {
+            console.error('Login callback failed: No email received.');
+            alert('Login failed. Please try again.');
+            window.location.hash = '#/'; // Redirect to homepage
+        }
     }
 });
 
