@@ -76,6 +76,13 @@
             margin-right: 46px; /* Adjust for 70px from screen edge, considering 1.5rem header padding */
         }
 
+        #search-input-desktop {
+            background-color: #FAFAFA;
+            border: none; /* Remove border */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inset shadow */
+            color: #333; /* Ensure text is visible */
+        }
+
         /* New Sidebar Styling */
         .sidebar {
             width: 70px;
@@ -225,7 +232,7 @@
         .outer-wrapper {
             margin-left: 70px;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding-top: 67px; /* Adjusted from 60px to 67px to add 7px gap below header */
+            padding-top: 60px; /* Adjusted to match header height */
             padding-bottom: 40px; /* Adjust based on footer height (0.5rem padding top/bottom + content) */
         }
         
