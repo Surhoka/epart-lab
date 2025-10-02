@@ -70,13 +70,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Define all possible menu items
         const allMenuItems = [
             { name: 'Beranda', url: '#/', icon: 'home', isPublic: true },
-            // Dynamically add pages from pagesData
-            ...pagesData.map(page => ({
-                name: page.title,
-                url: `#/${page.route || ''}`,
-                icon: page.icon || 'link',
-                isPublic: !(page.route && page.route.startsWith('admin')) // Assume public unless route is admin
-            })),
+            // Dynamically add pages from pagesData, excluding the login page
+            ...pagesData
+                .filter(page => page.route !== 'login') // Exclude login page from dynamic navigation
+                .map(page => ({
+                    name: page.title,
+                    url: `#/${page.route || ''}`,
+                    icon: page.icon || 'link',
+                    isPublic: !(page.route && page.route.startsWith('admin')) // Assume public unless route is admin
+                })),
         ];
 
         // Filter menu items for public navigation
