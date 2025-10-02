@@ -55,6 +55,9 @@ function handleRouteChange() {
                 // Call the handler with params and query
                 route.handler({ params, query });
                 // highlightActiveLink() is now called inside buildNav
+                if (window.admin && window.admin.updateLoginStatusUI) {
+                    window.admin.updateLoginStatusUI(); // Update login status in header
+                }
                 return;
             }
         }
@@ -65,6 +68,9 @@ function handleRouteChange() {
     if (dynamicPageRoute) {
         dynamicPageRoute.handler({ params: { route: path.slice(1) }, query });
         // highlightActiveLink() is now called inside buildNav
+        if (window.admin && window.admin.updateLoginStatusUI) {
+            window.admin.updateLoginStatusUI(); // Update login status in header
+        }
         return;
     }
 
@@ -72,4 +78,7 @@ function handleRouteChange() {
     // If no route is found at all
     renderNotFoundPage();
     // highlightActiveLink() is now called inside buildNav
+    if (window.admin && window.admin.updateLoginStatusUI) {
+        window.admin.updateLoginStatusUI(); // Update login status in header
+    }
 }
