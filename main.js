@@ -2,7 +2,8 @@
 let postsData = [];
 let blogInfo = {};
 
-const initUI = () => {
+// Function to initialize UI elements and event listeners
+function initUI() {
     const sidebar = document.querySelector('.sidebar');
     const outerWrapper = document.querySelector('.outer-wrapper');
     const sidebarToggleButton = document.getElementById('sidebar-toggle-button');
@@ -83,7 +84,7 @@ const initUI = () => {
             window.location.hash = '#/admin';
         });
     }
-};
+}
 
 // Make buildNav globally accessible for dynamically loaded scripts
 window.buildNav = (linksData) => {
