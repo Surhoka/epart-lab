@@ -1,4 +1,4 @@
-// Public navigation links for Blogger SPA Template.xml
+/ Public navigation links for Blogger SPA Template.xml
 export const publicNavLinksData = [
     {
         name: 'Beranda',
