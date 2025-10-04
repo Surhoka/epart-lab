@@ -72,3 +72,25 @@ export const svgIcons = {
     'phone': `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>`,
     'admin_panel_settings': `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h4a2 2 0 002-2v-2a2 2 0 00-2-2h-4a2 2 0 00-2 2v2a2 2 0 002 2zM12 13V7m0 0V3m0 4h-4m4 0h4"></path></svg>`
 };
+
+export const getSvgIcon = (iconName) => {
+    if (svgIcons[iconName]) {
+        return svgIcons[iconName];
+    }
+    // Material Icons for admin panel
+    const materialIconsMap = {
+        'article': `<span class="material-icons">article</span>`,
+        'bar_chart': `<span class="material-icons">bar_chart</span>`,
+        'pages': `<span class="material-icons">pages</span>`,
+        'dashboard': `<span class="material-icons">dashboard</span>`,
+        'palette': `<span class="material-icons">palette</span>`,
+        'settings': `<span class="material-icons">settings</span>`,
+        'visibility': `<span class="material-icons">visibility</span>`,
+        'admin_panel_settings': `<span class="material-icons">admin_panel_settings</span>`
+    };
+    if (materialIconsMap[iconName]) {
+        return materialIconsMap[iconName];
+    }
+    console.warn(`Icon "${iconName}" not found. Defaulting to 'link' icon.`);
+    return svgIcons['link']; // Default to 'link' icon if not found
+};
