@@ -2,6 +2,89 @@
 let postsData = [];
 let blogInfo = {};
 
+const initUI = () => {
+    const sidebar = document.querySelector('.sidebar');
+    const outerWrapper = document.querySelector('.outer-wrapper');
+    const sidebarToggleButton = document.getElementById('sidebar-toggle-button');
+
+    let isSidebarExpanded = false;
+
+    const toggleSidebar = () => {
+        isSidebarExpanded = !isSidebarExpanded;
+        sidebar.classList.toggle('expanded', isSidebarExpanded);
+        outerWrapper.classList.toggle('sidebar-expanded', isSidebarExpanded);
+        sidebarToggleButton.classList.toggle('active', isSidebarExpanded);
+    };
+
+    if (sidebarToggleButton) {
+        sidebarToggleButton.addEventListener('click', toggleSidebar);
+    }
+
+    // Theme Toggle Logic
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    if (themeToggleButton) {
+        const sunIcon = themeToggleButton.querySelector('.fa-sun');
+        const moonIcon = themeToggleButton.querySelector('.fa-moon');
+        const htmlEl = document.documentElement;
+
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            htmlEl.classList.add('dark');
+            if(sunIcon) sunIcon.style.display = 'none';
+            if(moonIcon) moonIcon.style.display = 'inline-block';
+        } else {
+            htmlEl.classList.remove('dark');
+            if(sunIcon) sunIcon.style.display = 'inline-block';
+            if(moonIcon) moonIcon.style.display = 'none';
+        }
+
+        themeToggleButton.addEventListener('click', () => {
+            htmlEl.classList.toggle('dark');
+            const isDarkMode = htmlEl.classList.contains('dark');
+            if (isDarkMode) {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'inline-block';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                sunIcon.style.display = 'inline-block';
+                moonIcon.style.display = 'none';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    }
+
+    const currentYearSpan = document.getElementById('current-year');
+    if (currentYearSpan) {
+        currentYearSpan.textContent = new Date().getFullYear();
+    }
+
+    const floatingUpButton = document.getElementById('floating-up-button');
+
+    if (floatingUpButton) {
+        // Show button on scroll
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                floatingUpButton.classList.remove('hidden');
+            } else {
+                floatingUpButton.classList.add('hidden');
+            }
+        });
+
+        // Scroll to top on click
+        floatingUpButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    const loginButton = document.getElementById('login-button');
+    if (loginButton) {
+        loginButton.addEventListener('click', () => {
+            window.location.hash = '#/admin';
+        });
+    }
+};
+
 // Make buildNav globally accessible for dynamically loaded scripts
 window.buildNav = (linksData) => {
     const sidebarNavLinks = document.getElementById('sidebar-nav-links');
@@ -195,89 +278,6 @@ function handleRouteChange() {
         mainContentWrapper.innerHTML = "<p>Halaman tidak ditemukan (404).</p>";
     }
 }
-
-const initUI = () => {
-    const sidebar = document.querySelector('.sidebar');
-    const outerWrapper = document.querySelector('.outer-wrapper');
-    const sidebarToggleButton = document.getElementById('sidebar-toggle-button');
-
-    let isSidebarExpanded = false;
-
-    const toggleSidebar = () => {
-        isSidebarExpanded = !isSidebarExpanded;
-        sidebar.classList.toggle('expanded', isSidebarExpanded);
-        outerWrapper.classList.toggle('sidebar-expanded', isSidebarExpanded);
-        sidebarToggleButton.classList.toggle('active', isSidebarExpanded);
-    };
-
-    if (sidebarToggleButton) {
-        sidebarToggleButton.addEventListener('click', toggleSidebar);
-    }
-
-    // Theme Toggle Logic
-    const themeToggleButton = document.getElementById('theme-toggle-button');
-    if (themeToggleButton) {
-        const sunIcon = themeToggleButton.querySelector('.fa-sun');
-        const moonIcon = themeToggleButton.querySelector('.fa-moon');
-        const htmlEl = document.documentElement;
-
-        // Apply saved theme on load
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            htmlEl.classList.add('dark');
-            if(sunIcon) sunIcon.style.display = 'none';
-            if(moonIcon) moonIcon.style.display = 'inline-block';
-        } else {
-            htmlEl.classList.remove('dark');
-            if(sunIcon) sunIcon.style.display = 'inline-block';
-            if(moonIcon) moonIcon.style.display = 'none';
-        }
-
-        themeToggleButton.addEventListener('click', () => {
-            htmlEl.classList.toggle('dark');
-            const isDarkMode = htmlEl.classList.contains('dark');
-            if (isDarkMode) {
-                sunIcon.style.display = 'none';
-                moonIcon.style.display = 'inline-block';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                sunIcon.style.display = 'inline-block';
-                moonIcon.style.display = 'none';
-                localStorage.setItem('theme', 'light');
-            }
-        });
-    }
-
-    const currentYearSpan = document.getElementById('current-year');
-    if (currentYearSpan) {
-        currentYearSpan.textContent = new Date().getFullYear();
-    }
-
-    const floatingUpButton = document.getElementById('floating-up-button');
-
-    if (floatingUpButton) {
-        // Show button on scroll
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
-                floatingUpButton.classList.remove('hidden');
-            } else {
-                floatingUpButton.classList.add('hidden');
-            }
-        });
-
-        // Scroll to top on click
-        floatingUpButton.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-
-    const loginButton = document.getElementById('login-button');
-    if (loginButton) {
-        loginButton.addEventListener('click', () => {
-            window.location.hash = '#/admin';
-        });
-    }
-};
 
 document.addEventListener('DOMContentLoaded', async () => {
     blogInfo = { // Assign to global blogInfo
