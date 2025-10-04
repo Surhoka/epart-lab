@@ -196,8 +196,7 @@ function handleRouteChange() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-
+const initUI = () => {
     const sidebar = document.querySelector('.sidebar');
     const outerWrapper = document.querySelector('.outer-wrapper');
     const sidebarToggleButton = document.getElementById('sidebar-toggle-button');
@@ -249,12 +248,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    blogInfo = { // Assign to global blogInfo
-        isIndexPage: document.getElementById('blogger-page-info').getAttribute('data-is-index-page') === 'true',
-        homepageUrl: document.getElementById('blogger-page-info').getAttribute('data-homepage-url'),
-        pageType: document.getElementById('blogger-page-info').getAttribute('data-page-type')
-    };
-
     const currentYearSpan = document.getElementById('current-year');
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
@@ -278,15 +271,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Initialize data and render page
-    await initializeApp();
-
     const loginButton = document.getElementById('login-button');
     if (loginButton) {
         loginButton.addEventListener('click', () => {
             window.location.hash = '#/admin';
         });
     }
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    blogInfo = { // Assign to global blogInfo
+        isIndexPage: document.getElementById('blogger-page-info').getAttribute('data-is-index-page') === 'true',
+        homepageUrl: document.getElementById('blogger-page-info').getAttribute('data-homepage-url'),
+        pageType: document.getElementById('blogger-page-info').getAttribute('data-page-type')
+    };
+
+    initUI(); // Initialize UI components
+    await initializeApp(); // Initialize data and render page
 });
 
 const initializeApp = async () => {
