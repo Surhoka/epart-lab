@@ -1,5 +1,5 @@
-/ Public navigation links for Blogger SPA Template.xml
-export const publicNavLinksData = [
+// Public navigation links for Blogger SPA Template.xml
+window.publicNavLinksData = [
     {
         name: 'Beranda',
         url: '#/home',
@@ -23,7 +23,7 @@ export const publicNavLinksData = [
 ];
 
 // Admin navigation links for admin.html
-export const adminNavLinksData = [
+window.adminNavLinksData = [
     {
         name: 'Postingan',
         url: '#/postingan',
@@ -62,7 +62,7 @@ export const adminNavLinksData = [
 ];
 
 // SVG Icon Definitions for public template
-export const svgIcons = {
+window.svgIcons = {
     'home': `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>`,
     'blog': `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2zM5 10h14M5 14h14M5 18h14"></path></svg>`,
     'search': `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>`,
@@ -73,7 +73,7 @@ export const svgIcons = {
     'admin_panel_settings': `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h4a2 2 0 002-2v-2a2 2 0 00-2-2h-4a2 2 0 00-2 2v2a2 2 0 002 2zM12 13V7m0 0V3m0 4h-4m4 0h4"></path></svg>`
 };
 
-export const getSvgIcon = (iconName) => {
+window.getSvgIcon = (iconName) => {
     if (svgIcons[iconName]) {
         return svgIcons[iconName];
     }
