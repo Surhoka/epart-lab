@@ -1,14 +1,32 @@
-// Global variables for data
-let postsData = [];
-let blogInfo = {};
+import { getAppLayoutHtml, initializeLayout } from 'https://cdn.jsdelivr.net/ghSurhoka/epart-lab/components/layout.js';
+import { getHomePageHtml } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab/home.js';
+import { getUserProfilesHtml, initializeUserProfilesPage } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab/userProfiles.js';
 
-document.addEventListener('DOMContentLoaded', async () => {
-    blogInfo = { // Assign to global blogInfo
-        isIndexPage: document.getElementById('blogger-page-info').getAttribute('data-is-index-page') === 'true',
-        homepageUrl: document.getElementById('blogger-page-info').getAttribute('data-homepage-url'),
-        pageType: document.getElementById('blogger-page-info').getAttribute('data-page-type')
-    };
+const pages = {
+  home: getHomePageHtml,
+  profile: getUserProfilesHtml,
+  // Add other pages here as they are converted
+};
 
-    initUI(); // Initialize UI components
-    await initializeApp(); // Initialize data and render page
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.getElementById('root');
+  if (root) {
+    loadPage('home');
+    initializeLayout();
+  }
 });
+
+function loadPage(pageName) {
+  const root = document.getElementById('root');
+  if (!root) return;
+
+  const pageContentHtml = pages[pageName] ? pages[pageName]() : `<h1>Page Not Found</h1><p>The page "${pageName}" does not exist.</p><button onclick="loadPage('home')">Go to Home</button>`;
+  root.innerHTML = getAppLayoutHtml(pageContentHtml);
+
+  // Initialize page-specific scripts
+  if (pageName === 'profile') {
+    initializeUserProfilesPage();
+  }
+}
+
+window.loadPage = loadPage; // Make loadPage globally accessible for onclick events
