@@ -1,4 +1,4 @@
-import { getAppLayoutHtml, initializeLayout } from 'https://cdn.jsdelivr.net/ghSurhoka/epart-lab/components/layout.js';
+import { getAppLayoutHtml, initializeLayout } from 'https://cdn.jsdelivr.net/ghSurhoka/epart-lab/layout.js';
 import { getHomePageHtml } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab/home.js';
 import { getUserProfilesHtml, initializeUserProfilesPage } from 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab/userProfiles.js';
 
