@@ -1,100 +1,82 @@
-// File: src/utils.js
-// Deskripsi: Kumpulan fungsi utilitas yang dapat digunakan kembali.
+// utils.js
+const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyXBcKm42b6KJ8znU8ryYn-5PtlORDH0HMuUoMlM7e24yp5v0dtkOi9Q16wLweMYhHaDg/exec';
 
-/**
- * Menampilkan pesan toast notifikasi.
- * @param {string} message - Pesan yang akan ditampilkan.
- */
-export function showToast(message) {
-  const toast = document.getElementById('toast-notification');
-  if (toast) {
-    toast.textContent = message;
+function showToast(message, type = 'success', duration = 3000) {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        console.error('Toast container not found.');
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.classList.add('toast', `toast-${type}`);
+    toast.innerHTML = `
+        <span class="toast-message">${message}</span>
+        <button class="toast-close-btn">&times;</button>
+    `;
+    
+    toastContainer.appendChild(toast);
+
+    // Force reflow to enable transition
+    void toast.offsetWidth; 
     toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
-  }
+
+    const closeBtn = toast.querySelector('.toast-close-btn');
+    closeBtn.addEventListener('click', () => {
+        hideToast(toast);
+    });
+
+    setTimeout(() => hideToast(toast), duration);
 }
 
-/**
- * Memformat tanggal ke format yang lebih mudah dibaca.
- * @param {string} dateString - String tanggal dalam format ISO.
- * @returns {string} Tanggal yang sudah diformat.
- */
-export function formatDate(dateString) {
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('id-ID', options);
+function hideToast(toast) {
+    toast.classList.remove('show');
+    toast.addEventListener('transitionend', () => {
+        toast.remove();
+    }, { once: true });
 }
 
-/**
- * Membersihkan string HTML dari tag dan entitas.
- * @param {string} htmlString - String yang mengandung HTML.
- * @returns {string} Teks bersih tanpa HTML.
- */
-export function stripHtml(htmlString) {
-    const doc = new DOMParser().parseFromString(htmlString, 'text/html');
-    return doc.body.textContent || "";
-}
+function sendDataToGoogle(action, data, callback, errorHandler) {
+    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+    window[callbackName] = function(response) {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        if (callback) callback(response);
+    };
 
-/**
- * Mengonversi berbagai format URL Google Drive menjadi tautan gambar langsung.
- * @param {string} urlOrId - URL atau ID file Google Drive.
- * @returns {string} URL gambar langsung atau string kosong jika tidak valid.
- */
-export function getDirectGoogleDriveUrl(urlOrId) {
-    if (typeof urlOrId !== 'string' || !urlOrId || urlOrId.trim().toLowerCase() === 'n/a') {
-        return ''; // Return empty for invalid input
+    let url = appsScriptUrl + `?action=${action}&callback=${callbackName}`;
+    for (const key in data) {
+        url += `&${key}=${encodeURIComponent(data[key])}`;
     }
 
-    // Check if it's already a usable direct image link
-    if (urlOrId.match(/\.(jpeg|jpg|gif|png|webp)$/i) || urlOrId.includes('googleusercontent.com')) {
-        return urlOrId;
-    }
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = function() {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        if (errorHandler) errorHandler(new Error('Network error or script loading failed.'));
+    };
+    document.body.appendChild(script);
+}
 
-    let fileId = null;
-
-    // Regex to find Google Drive ID from various URL patterns
-    const patterns = [
-        /drive\.google\.com\/file\/d\/([\w-]+)/,    // /file/d/ID
-        /id=([\w-]+)/,                           // uc?id=ID or export=view&id=ID
-        /\/d\/([\w-]+)/                           // /d/ID/view
-    ];
-
-    for (const pattern of patterns) {
-        const match = urlOrId.match(pattern);
-        if (match && match[1]) {
-            fileId = match[1];
-            break;
+function uploadImageAndGetUrl(fileName, fileData, fileType) {
+    const payload = { action: 'uploadFile', fileName: fileName, fileData: fileData, fileType: fileType };
+    return fetch(appsScriptUrl, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(uploadResponse => {
+        if (uploadResponse.status === 'success' && uploadResponse.url) {
+            try {
+                const fileId = new URL(uploadResponse.url).searchParams.get("id");
+                if (fileId) {
+                    uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                }
+            } catch (e) {
+                console.error('Error parsing URL:', e);
+            }
         }
-    }
-
-    // If no ID was found in a URL, check if the string itself is an ID
-    if (!fileId && /^[\w-]{28,}$/.test(urlOrId.trim())) {
-        fileId = urlOrId.trim();
-    }
-
-    if (fileId) {
-        // Use the robust lh3.googleusercontent.com domain for direct embedding
-        return `https://lh3.googleusercontent.com/d/${fileId}`;
-    }
-
-    // If no ID can be extracted, return the original URL and log a warning
-    console.warn('Tidak dapat mengekstrak ID file Google Drive. Mengembalikan URL asli:', urlOrId);
-    return urlOrId;
-}
-
-/**
- * Mengambil nilai properti dari objek berdasarkan daftar nama properti.
- * @param {Object} obj - Objek yang akan diambil propertinya.
- * @param {string[]} keys - Daftar nama properti yang mungkin (case-insensitive).
- * @returns {*} Nilai properti atau undefined jika tidak ditemukan.
- */
-export function getProperty(obj, keys) {
-    if (!obj || !keys) return undefined;
-    for (const key of keys) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            return obj[key];
-        }
-    }
-    return undefined;
+        return uploadResponse;
+    });
 }
