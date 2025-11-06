@@ -24,7 +24,7 @@ let isEditMode = false;
 let editingSku = null;
 
 // Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
-function initInventoryDaftarProdukPage() {
+window.initInventoryDaftarProdukPage = function() {
     console.log("Halaman Daftar Produk Dimuat.");
     populateInventoryTable();
 
@@ -335,8 +335,4 @@ function handleDelete(sku) {
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initInventoryDaftarProdukPage);
-} else {
-    // initInventoryDaftarProdukPage(); // Router akan memanggil ini
-}
+// The router will call window.initInventoryDaftarProdukPage()
