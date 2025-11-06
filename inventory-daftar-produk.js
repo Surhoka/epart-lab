@@ -55,6 +55,7 @@ function populateInventoryTable(productsToDisplay = null) {
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
     const renderTable = (products) => {
+        console.log("Data received by client for rendering:", products); // Tambahkan log ini
         allProducts = products; // Simpan data ke variabel global
         tableBody.innerHTML = ''; // Kosongkan tabel
 
