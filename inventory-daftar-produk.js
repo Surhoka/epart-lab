@@ -152,7 +152,7 @@ function populateInventoryTable(productsToDisplay = null) {
     };
 
     const handleFailure = (error) => {
-        console.error('Gagal mengambil data produk:', error);
+        console.error("Gagal mengambil data produk:", error);
         tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
         if (typeof showToast === 'function') {
             showToast('Gagal memuat data produk: ' + error.message, 'error');
@@ -164,6 +164,32 @@ function populateInventoryTable(productsToDisplay = null) {
     } else {
         sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
     }
+}
+
+function sendDataToGoogle(action, data, successCallback, errorCallback) {
+    const url = window.appsScriptUrl; // Pastikan appsScriptUrl didefinisikan secara global di EzyParts.xml
+    const params = new URLSearchParams(data);
+    params.append('action', action);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            successCallback(data);
+        } else {
+            errorCallback(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        errorCallback(new Error('Kesalahan jaringan atau server tidak merespons.'));
+    });
 }
 
 /**
