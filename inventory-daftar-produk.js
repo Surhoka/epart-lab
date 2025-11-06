@@ -18,53 +18,39 @@
  * 5. Setelah setiap operasi (tambah/edit/hapus), tabel akan dimuat ulang untuk menampilkan data terbaru.
  */
 
-// Variabel global untuk menyimpan data produk dan status edit
+// Variabel global
 let allProducts = [];
 let isEditMode = false;
 let editingSku = null;
 
-// Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
-window.initInventoryDaftarProdukPage = function() {
+function initInventoryDaftarProdukPage() {
     console.log("Halaman Daftar Produk Dimuat.");
     populateInventoryTable();
 
-    // Attach event listeners for static buttons
     const searchButton = document.getElementById('search-button');
-    if (searchButton) {
-        searchButton.addEventListener('click', handleSearch);
-    }
+    if (searchButton) searchButton.addEventListener('click', handleSearch);
 
     const addProductButton = document.getElementById('add-product-button');
-    if (addProductButton) {
-        addProductButton.addEventListener('click', () => openProductModal());
-    }
+    if (addProductButton) addProductButton.addEventListener('click', () => openProductModal());
 
     const modalCloseButton = document.getElementById('modal-close-button');
-    if (modalCloseButton) {
-        modalCloseButton.addEventListener('click', closeProductModal);
-    }
+    if (modalCloseButton) modalCloseButton.addEventListener('click', closeProductModal);
 
     const modalCancelButton = document.getElementById('modal-cancel-button');
-    if (modalCancelButton) {
-        modalCancelButton.addEventListener('click', closeProductModal);
-    }
+    if (modalCancelButton) modalCancelButton.addEventListener('click', closeProductModal);
 
-    // Add event listener to form for submission
     const productForm = document.getElementById('add-product-form');
     if (productForm) {
-        productForm.removeEventListener('submit', handleFormSubmit); // Prevent duplicate listeners
+        productForm.removeEventListener('submit', handleFormSubmit);
         productForm.addEventListener('submit', handleFormSubmit);
     }
-    
-    // Event delegation for dynamically created edit/delete buttons
+
     const inventoryTableBody = document.getElementById('inventory-table-body');
     if (inventoryTableBody) {
         inventoryTableBody.addEventListener('click', (event) => {
             const target = event.target.closest('button');
             if (!target) return;
-
             const sku = target.closest('tr').dataset.sku;
-
             if (target.classList.contains('edit-product-btn')) {
                 openProductModal(sku);
             } else if (target.classList.contains('delete-product-btn')) {
@@ -73,264 +59,86 @@ window.initInventoryDaftarProdukPage = function() {
         });
     }
 
-    // Inisialisasi ikon Lucide
     lucide.createIcons();
 }
 
-// Wrapper untuk submit handler
 function handleFormSubmit(e) {
     e.preventDefault();
     saveProduct();
 }
 
 /**
- * Mengambil data dari Google Sheet dan mengisi tabel.
- * @param {Array<Object>|null} productsToDisplay - Opsional, array produk untuk ditampilkan. Jika null, akan mengambil dari server.
+ * Ambil data produk via JSONP
  */
 function populateInventoryTable(productsToDisplay = null) {
     const tableBody = document.getElementById('inventory-table-body');
-    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>';
 
     const renderTable = (products) => {
-        console.log("Data received by client for rendering:", products);
+        allProducts = products || [];
+        tableBody.innerHTML = '';
 
-        // Validasi bahwa 'products' adalah array
-        if (!Array.isArray(products)) {
-            console.error("Data yang diterima bukan array:", products);
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-red-500">Error: Format data produk tidak valid.</td></tr>';
-            if (typeof showToast === 'function') {
-                showToast('Format data produk tidak valid.', 'error');
-            }
-            return;
-        }
-        
-        allProducts = products; // Simpan data ke variabel global
-        tableBody.innerHTML = ''; // Kosongkan tabel
-
-        if (products.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+        if (allProducts.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk.</td></tr>';
             return;
         }
 
-        products.forEach((product, index) => {
+        allProducts.forEach((product, index) => {
             let stockColor = 'text-green-600';
             if (product.stock < 50) stockColor = 'text-yellow-600';
             if (product.stock < 20) stockColor = 'text-red-600 font-bold';
-            
-            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
+
+            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : product.price;
 
             const row = `
                 <tr class="hover:bg-gray-50" data-sku="${product.sku}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button class="text-indigo-600 hover:text-indigo-900 mx-1 action-button edit-product-btn" title="Edit">
-                            <i data-lucide="square-pen" class="w-4 h-4"></i>
-                        </button>
-                        <button class="text-red-600 hover:text-red-900 mx-1 action-button delete-product-btn" title="Hapus">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                    <td>${index + 1}</td>
+                    <td>${product.sku}</td>
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>${product.brand}</td>
+                    <td class="text-right">Rp ${formattedPrice}</td>
+                    <td class="${stockColor} text-center">${product.stock}</td>
+                    <td class="text-center">
+                        <button class="edit-product-btn">✏️</button>
+                        <button class="delete-product-btn">🗑️</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
             tableBody.insertAdjacentHTML('beforeend', row);
         });
-        lucide.createIcons(); // Perbarui ikon setelah tabel diisi
-    };
-
-    const handleSuccess = (response) => {
-        if (response.status === 'success') {
-            renderTable(response.data);
-        } else {
-            handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
-        }
-    };
-
-    const handleFailure = (error) => {
-        console.error("Gagal mengambil data produk:", error);
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
-        if (typeof showToast === 'function') {
-            showToast('Gagal memuat data produk: ' + error.message, 'error');
-        }
+        lucide.createIcons();
     };
 
     if (productsToDisplay) {
         renderTable(productsToDisplay);
     } else {
-        sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
+        // Panggil Apps Script via JSONP
+        sendDataToGoogle('getProducts', {}, renderTable, (error) => {
+            console.error('Gagal ambil produk:', error);
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500">Error: ${error.message}</td></tr>`;
+        });
     }
 }
 
-function sendDataToGoogle(action, data, successCallback, errorCallback) {
-    const url = window.appsScriptUrl; // Pastikan appsScriptUrl didefinisikan secara global di EzyParts.xml
-    const params = new URLSearchParams(data);
-    params.append('action', action);
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params.toString(),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            successCallback(data);
-        } else {
-            errorCallback(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
-        }
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        errorCallback(new Error('Kesalahan jaringan atau server tidak merespons.'));
-    });
-}
-
 /**
- * Menangani proses pencarian produk.
+ * Cari produk via JSONP
  */
 function handleSearch() {
-    const searchTerm = document.getElementById('inventory-search').value;
+    const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
     if (searchTerm.trim() === '') {
-        populateInventoryTable(); // Re-fetch all products
+        populateInventoryTable();
         return;
     }
 
-    const handleSuccess = (response) => {
-        if (response.status === 'success') {
-            populateInventoryTable(response.data); // Re-use the populate function with the filtered data
-        } else {
-            handleFailure({ message: response.message || 'Gagal mencari produk.' });
-        }
-    };
-
-    const handleFailure = (error) => {
+    sendDataToGoogle('searchProducts', { searchTerm }, (filteredProducts) => {
+        populateInventoryTable(filteredProducts);
+    }, (error) => {
         console.error('Gagal mencari produk:', error);
-        if (typeof showToast === 'function') {
-            showToast(`Gagal mencari: ${error.message}`, 'error');
-        }
-    };
-
-    sendDataToGoogle('searchProducts', { searchTerm: searchTerm }, handleSuccess, handleFailure);
-}
-
-/**
- * Membuka modal untuk menambah atau mengedit produk.
- * @param {string|null} sku - SKU produk yang akan diedit. Jika null, mode tambah.
- */
-function openProductModal(sku = null) {
-    const modal = document.getElementById('product-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const form = document.getElementById('add-product-form');
-    const skuInput = document.getElementById('product-sku');
-
-    form.reset();
-
-    if (sku) { // Mode Edit
-        isEditMode = true;
-        editingSku = sku;
-        const product = allProducts.find(p => p.sku === sku);
-        if (product) {
-            modalTitle.textContent = 'Edit Produk';
-            skuInput.value = product.sku;
-            skuInput.readOnly = true; // SKU tidak bisa diubah saat edit
-            document.getElementById('product-name').value = product.name;
-            document.getElementById('product-price').value = product.price;
-            document.getElementById('product-stock').value = product.stock;
-            // Anda bisa menambahkan field lain di sini (kategori, merek)
-        }
-    } else { // Mode Tambah
-        isEditMode = false;
-        editingSku = null;
-        modalTitle.textContent = 'Tambah Produk Baru';
-        skuInput.readOnly = false;
-    }
-
-    modal.classList.remove('hidden');
-    lucide.createIcons();
-}
-
-/**
- * Menutup modal form produk.
- */
-function closeProductModal() {
-    document.getElementById('product-modal').classList.add('hidden');
-}
-
-/**
- * Mengirim data dari form ke Apps Script untuk disimpan.
- */
-function saveProduct() {
-    const productData = {
-        sku: document.getElementById('product-sku').value.toUpperCase(),
-        name: document.getElementById('product-name').value,
-        price: parseFloat(document.getElementById('product-price').value),
-        stock: parseInt(document.getElementById('product-stock').value),
-        // Ambil data kategori dan merek jika ada formnya
-        category: 'Uncategorized', // Ganti dengan input form jika ada
-        brand: 'N/A' // Ganti dengan input form jika ada
-    };
-
-    // Validasi sederhana
-    if (!productData.sku || !productData.name || isNaN(productData.price) || isNaN(productData.stock)) {
-        if (typeof showToast === 'function') showToast('Harap isi semua kolom dengan benar.', 'error');
-        return;
-    }
-
-    const handleSuccess = (result) => {
-        if (result.status === 'success') {
-            console.log(result.message);
-            closeProductModal();
-            populateInventoryTable(); // Reload the table
-            if (typeof showToast === 'function') showToast(result.message, 'success');
-        } else {
-            handleFailure({ message: result.message || 'Gagal menyimpan produk.' });
-        }
-    };
-
-    const handleFailure = (error) => {
-        console.error('Error saat menyimpan produk:', error);
-        if (typeof showToast === 'function') showToast(`Gagal menyimpan: ${error.message}`, 'error');
-    };
-
-    const action = isEditMode ? 'updateProduct' : 'addProduct';
-
-    sendDataToGoogle(action, { productData: productData }, handleSuccess, handleFailure);
-}
-
-/**
- * Menangani proses penghapusan produk.
- * @param {string} sku - SKU produk yang akan dihapus.
- */
-function handleDelete(sku) {
-    if (!confirm(`Apakah Anda yakin ingin menghapus produk dengan SKU: ${sku}?`)) {
-        return;
-    }
-
-    const handleSuccess = (result) => {
-        if (result.status === 'success') {
-            console.log(result.message);
-            populateInventoryTable(); // Reload the table for accurate data
-            if (typeof showToast === 'function') showToast(result.message, 'success');
-        } else {
-            handleFailure({ message: result.message || 'Gagal menghapus produk.' });
-        }
-    };
-
-    const handleFailure = (error) => {
-        console.error('Gagal menghapus produk:', error);
-        if (typeof showToast === 'function') showToast(`Gagal menghapus: ${error.message}`, 'error');
-    };
-
-    sendDataToGoogle('deleteProduct', { sku: sku }, handleSuccess, handleFailure);
+        showToast(`Gagal mencari: ${error.message}`, 'error');
+    });
 }
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
 // The router will call window.initInventoryDaftarProdukPage()
+
