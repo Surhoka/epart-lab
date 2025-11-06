@@ -162,10 +162,14 @@ function populateInventoryTable(productsToDisplay = null) {
     if (productsToDisplay) {
         renderTable(productsToDisplay);
     } else {
-        google.script.run
-            .withSuccessHandler(handleSuccess)
-            .withFailureHandler(handleFailure)
-            .getProducts();
+        fetch(appsScriptUrl, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'getProducts' }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(handleSuccess)
+        .catch(handleFailure);
     }
 }
 
@@ -194,10 +198,14 @@ function handleSearch() {
         }
     };
 
-    google.script.run
-        .withSuccessHandler(handleSuccess)
-        .withFailureHandler(handleFailure)
-        .searchProducts(searchTerm);
+    fetch(appsScriptUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'searchProducts', searchTerm: searchTerm }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(handleSuccess)
+    .catch(handleFailure);
 }
 
 /**
@@ -279,15 +287,16 @@ function saveProduct() {
         if (typeof showToast === 'function') showToast(`Gagal menyimpan: ${error.message}`, 'error');
     };
 
-    const runner = google.script.run
-        .withSuccessHandler(handleSuccess)
-        .withFailureHandler(handleFailure);
+    const action = isEditMode ? 'updateProduct' : 'addProduct';
 
-    if (isEditMode) {
-        runner.updateProduct(productData);
-    } else {
-        runner.addProduct(productData);
-    }
+    fetch(appsScriptUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action: action, productData: productData }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(handleSuccess)
+    .catch(handleFailure);
 }
 
 /**
@@ -314,10 +323,14 @@ function handleDelete(sku) {
         if (typeof showToast === 'function') showToast(`Gagal menghapus: ${error.message}`, 'error');
     };
 
-    google.script.run
-        .withSuccessHandler(handleSuccess)
-        .withFailureHandler(handleFailure)
-        .deleteProduct(sku);
+    fetch(appsScriptUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deleteProduct', sku: sku }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(handleSuccess)
+    .catch(handleFailure);
 }
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
