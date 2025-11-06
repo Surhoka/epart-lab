@@ -51,7 +51,7 @@ function handleFormSubmit(e) {
  */
 function populateInventoryTable() {
     const tableBody = document.getElementById('inventory-table-body');
-    tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
     google.script.run
         .withSuccessHandler(products => {
@@ -59,11 +59,11 @@ function populateInventoryTable() {
             tableBody.innerHTML = ''; // Kosongkan tabel
 
             if (products.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
                 return;
             }
 
-            products.forEach(product => {
+            products.forEach((product, index) => {
                 let stockColor = 'text-green-600';
                 if (product.stock < 50) stockColor = 'text-yellow-600';
                 if (product.stock < 20) stockColor = 'text-red-600 font-bold';
@@ -72,6 +72,7 @@ function populateInventoryTable() {
 
                 const row = `
                     <tr class="hover:bg-gray-50" data-sku="${product.sku}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
@@ -94,7 +95,7 @@ function populateInventoryTable() {
         })
         .withFailureHandler(error => {
             console.error('Gagal mengambil data produk:', error);
-            tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
         })
         .getProducts();
 }
