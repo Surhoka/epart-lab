@@ -92,7 +92,18 @@ function populateInventoryTable(productsToDisplay = null) {
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
     const renderTable = (products) => {
-        console.log("Data received by client for rendering:", products); // Tambahkan log ini
+        console.log("Data received by client for rendering:", products);
+
+        // Validasi bahwa 'products' adalah array
+        if (!Array.isArray(products)) {
+            console.error("Data yang diterima bukan array:", products);
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-red-500">Error: Format data produk tidak valid.</td></tr>';
+            if (typeof showToast === 'function') {
+                showToast('Format data produk tidak valid.', 'error');
+            }
+            return;
+        }
+        
         allProducts = products; // Simpan data ke variabel global
         tableBody.innerHTML = ''; // Kosongkan tabel
 
@@ -132,25 +143,29 @@ function populateInventoryTable(productsToDisplay = null) {
         lucide.createIcons(); // Perbarui ikon setelah tabel diisi
     };
 
+    const handleSuccess = (response) => {
+        if (response.status === 'success') {
+            renderTable(response.data);
+        } else {
+            handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
+        }
+    };
+
+    const handleFailure = (error) => {
+        console.error('Gagal mengambil data produk:', error);
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+        if (typeof showToast === 'function') {
+            showToast('Gagal memuat data produk: ' + error.message, 'error');
+        }
+    };
+
     if (productsToDisplay) {
         renderTable(productsToDisplay);
     } else {
-        fetch(appsScriptUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
-            body: JSON.stringify({ action: 'getProducts' })
-        })
-        .then(response => response.json())
-        .then(data => {
-            renderTable(data);
-        })
-        .catch(error => {
-            console.error('Gagal mengambil data produk:', error);
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
-            showToast('Terjadi kesalahan saat memuat data produk: ' + error.message, 'error');
-        });
+        google.script.run
+            .withSuccessHandler(handleSuccess)
+            .withFailureHandler(handleFailure)
+            .getProducts();
     }
 }
 
@@ -158,27 +173,31 @@ function populateInventoryTable(productsToDisplay = null) {
  * Menangani proses pencarian produk.
  */
 function handleSearch() {
-    const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
+    const searchTerm = document.getElementById('inventory-search').value;
     if (searchTerm.trim() === '') {
-        populateInventoryTable(); // Jika kosong, tampilkan semua produk
+        populateInventoryTable(); // Re-fetch all products
         return;
     }
 
-    fetch(appsScriptUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-        },
-        body: JSON.stringify({ action: 'searchProducts', searchTerm: searchTerm })
-    })
-    .then(response => response.json())
-    .then(filteredProducts => {
-        populateInventoryTable(filteredProducts);
-    })
-    .catch(error => {
+    const handleSuccess = (response) => {
+        if (response.status === 'success') {
+            populateInventoryTable(response.data); // Re-use the populate function with the filtered data
+        } else {
+            handleFailure({ message: response.message || 'Gagal mencari produk.' });
+        }
+    };
+
+    const handleFailure = (error) => {
         console.error('Gagal mencari produk:', error);
-        showToast(`Gagal mencari: ${error.message}`, 'error');
-    });
+        if (typeof showToast === 'function') {
+            showToast(`Gagal mencari: ${error.message}`, 'error');
+        }
+    };
+
+    google.script.run
+        .withSuccessHandler(handleSuccess)
+        .withFailureHandler(handleFailure)
+        .searchProducts(searchTerm);
 }
 
 /**
@@ -240,38 +259,35 @@ function saveProduct() {
 
     // Validasi sederhana
     if (!productData.sku || !productData.name || isNaN(productData.price) || isNaN(productData.stock)) {
-        showToast('Harap isi semua kolom dengan benar.', 'error');
+        if (typeof showToast === 'function') showToast('Harap isi semua kolom dengan benar.', 'error');
         return;
     }
 
-    const payload = {
-        action: isEditMode ? 'updateProduct' : 'addProduct',
-        productData: productData
-    };
-
-    fetch(appsScriptUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(result => {
+    const handleSuccess = (result) => {
         if (result.status === 'success') {
             console.log(result.message);
             closeProductModal();
-            populateInventoryTable(); // Muat ulang tabel
-            showToast(result.message, 'success');
+            populateInventoryTable(); // Reload the table
+            if (typeof showToast === 'function') showToast(result.message, 'success');
         } else {
-            console.error('Error saat menyimpan produk:', result.message);
-            showToast(`Gagal menyimpan: ${result.message}`, 'error');
+            handleFailure({ message: result.message || 'Gagal menyimpan produk.' });
         }
-    })
-    .catch(error => {
+    };
+
+    const handleFailure = (error) => {
         console.error('Error saat menyimpan produk:', error);
-        showToast('Terjadi kesalahan jaringan saat menyimpan produk: ' + error.message, 'error');
-    });
+        if (typeof showToast === 'function') showToast(`Gagal menyimpan: ${error.message}`, 'error');
+    };
+
+    const runner = google.script.run
+        .withSuccessHandler(handleSuccess)
+        .withFailureHandler(handleFailure);
+
+    if (isEditMode) {
+        runner.updateProduct(productData);
+    } else {
+        runner.addProduct(productData);
+    }
 }
 
 /**
@@ -283,36 +299,25 @@ function handleDelete(sku) {
         return;
     }
 
-    const payload = {
-        action: 'deleteProduct',
-        sku: sku
-    };
-
-    fetch(appsScriptUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(result => {
+    const handleSuccess = (result) => {
         if (result.status === 'success') {
             console.log(result.message);
-            // Hapus baris dari tabel secara visual untuk respons cepat
-            const row = document.querySelector(`tr[data-sku='${sku}']`);
-            if (row) row.remove();
-            populateInventoryTable(); // Muat ulang tabel untuk data yang lebih akurat
-            showToast(result.message, 'success');
+            populateInventoryTable(); // Reload the table for accurate data
+            if (typeof showToast === 'function') showToast(result.message, 'success');
         } else {
-            console.error('Gagal menghapus produk:', result.message);
-            showToast(`Gagal menghapus: ${result.message}`, 'error');
+            handleFailure({ message: result.message || 'Gagal menghapus produk.' });
         }
-    })
-    .catch(error => {
-        console.error('Error saat menghapus produk:', error);
-        showToast('Terjadi kesalahan jaringan saat menghapus produk: ' + error.message, 'error');
-    });
+    };
+
+    const handleFailure = (error) => {
+        console.error('Gagal menghapus produk:', error);
+        if (typeof showToast === 'function') showToast(`Gagal menghapus: ${error.message}`, 'error');
+    };
+
+    google.script.run
+        .withSuccessHandler(handleSuccess)
+        .withFailureHandler(handleFailure)
+        .deleteProduct(sku);
 }
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
