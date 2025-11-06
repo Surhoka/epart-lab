@@ -28,14 +28,51 @@ function initInventoryDaftarProdukPage() {
     console.log("Halaman Daftar Produk Dimuat.");
     populateInventoryTable();
 
-    // Tambahkan event listener ke form HANYA SEKALI
+    // Attach event listeners for static buttons
+    const searchButton = document.getElementById('search-button');
+    if (searchButton) {
+        searchButton.addEventListener('click', handleSearch);
+    }
+
+    const addProductButton = document.getElementById('add-product-button');
+    if (addProductButton) {
+        addProductButton.addEventListener('click', () => openProductModal());
+    }
+
+    const modalCloseButton = document.getElementById('modal-close-button');
+    if (modalCloseButton) {
+        modalCloseButton.addEventListener('click', closeProductModal);
+    }
+
+    const modalCancelButton = document.getElementById('modal-cancel-button');
+    if (modalCancelButton) {
+        modalCancelButton.addEventListener('click', closeProductModal);
+    }
+
+    // Add event listener to form for submission
     const productForm = document.getElementById('add-product-form');
     if (productForm) {
-        // Hapus listener lama jika ada untuk menghindari duplikasi
-        productForm.removeEventListener('submit', handleFormSubmit);
+        productForm.removeEventListener('submit', handleFormSubmit); // Prevent duplicate listeners
         productForm.addEventListener('submit', handleFormSubmit);
     }
     
+    // Event delegation for dynamically created edit/delete buttons
+    const inventoryTableBody = document.getElementById('inventory-table-body');
+    if (inventoryTableBody) {
+        inventoryTableBody.addEventListener('click', (event) => {
+            const target = event.target.closest('button');
+            if (!target) return;
+
+            const sku = target.closest('tr').dataset.sku;
+
+            if (target.classList.contains('edit-product-btn')) {
+                openProductModal(sku);
+            } else if (target.classList.contains('delete-product-btn')) {
+                handleDelete(sku);
+            }
+        });
+    }
+
     // Inisialisasi ikon Lucide
     lucide.createIcons();
 }
@@ -81,10 +118,10 @@ function populateInventoryTable(productsToDisplay = null) {
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button onclick="openProductModal('${product.sku}')" class="text-indigo-600 hover:text-indigo-900 mx-1 action-button" title="Edit">
+                        <button class="text-indigo-600 hover:text-indigo-900 mx-1 action-button edit-product-btn" title="Edit">
                             <i data-lucide="square-pen" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="handleDelete('${product.sku}')" class="text-red-600 hover:text-red-900 mx-1 action-button" title="Hapus">
+                        <button class="text-red-600 hover:text-red-900 mx-1 action-button delete-product-btn" title="Hapus">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </td>
