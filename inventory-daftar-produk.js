@@ -48,56 +48,84 @@ function handleFormSubmit(e) {
 
 /**
  * Mengambil data dari Google Sheet dan mengisi tabel.
+ * @param {Array<Object>|null} productsToDisplay - Opsional, array produk untuk ditampilkan. Jika null, akan mengambil dari server.
  */
-function populateInventoryTable() {
+function populateInventoryTable(productsToDisplay = null) {
     const tableBody = document.getElementById('inventory-table-body');
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
+    const renderTable = (products) => {
+        allProducts = products; // Simpan data ke variabel global
+        tableBody.innerHTML = ''; // Kosongkan tabel
+
+        if (products.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+            return;
+        }
+
+        products.forEach((product, index) => {
+            let stockColor = 'text-green-600';
+            if (product.stock < 50) stockColor = 'text-yellow-600';
+            if (product.stock < 20) stockColor = 'text-red-600 font-bold';
+            
+            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
+
+            const row = `
+                <tr class="hover:bg-gray-50" data-sku="${product.sku}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button onclick="openProductModal('${product.sku}')" class="text-indigo-600 hover:text-indigo-900 mx-1 action-button" title="Edit">
+                            <i data-lucide="square-pen" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="handleDelete('${product.sku}')" class="text-red-600 hover:text-red-900 mx-1 action-button" title="Hapus">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+        lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+    };
+
+    if (productsToDisplay) {
+        renderTable(productsToDisplay);
+    } else {
+        google.script.run
+            .withSuccessHandler(renderTable)
+            .withFailureHandler(error => {
+                console.error('Gagal mengambil data produk:', error);
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+            })
+            .getProducts();
+    }
+}
+
+/**
+ * Menangani proses pencarian produk.
+ */
+function handleSearch() {
+    const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
+    if (searchTerm.trim() === '') {
+        populateInventoryTable(); // Jika kosong, tampilkan semua produk
+        return;
+    }
+
     google.script.run
-        .withSuccessHandler(products => {
-            allProducts = products; // Simpan data ke variabel global
-            tableBody.innerHTML = ''; // Kosongkan tabel
-
-            if (products.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
-                return;
-            }
-
-            products.forEach((product, index) => {
-                let stockColor = 'text-green-600';
-                if (product.stock < 50) stockColor = 'text-yellow-600';
-                if (product.stock < 20) stockColor = 'text-red-600 font-bold';
-                
-                const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
-
-                const row = `
-                    <tr class="hover:bg-gray-50" data-sku="${product.sku}">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                            <button onclick="openProductModal('${product.sku}')" class="text-indigo-600 hover:text-indigo-900 mx-1 action-button" title="Edit">
-                                <i data-lucide="square-pen" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="handleDelete('${product.sku}')" class="text-red-600 hover:text-red-900 mx-1 action-button" title="Hapus">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tableBody.insertAdjacentHTML('beforeend', row);
-            });
-            lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+        .withSuccessHandler(filteredProducts => {
+            populateInventoryTable(filteredProducts); // Tampilkan hasil pencarian
         })
         .withFailureHandler(error => {
-            console.error('Gagal mengambil data produk:', error);
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+            console.error('Gagal mencari produk:', error);
+            alert(`Gagal mencari: ${error.message}`);
         })
-        .getProducts();
+        .searchProducts(searchTerm);
 }
 
 /**
