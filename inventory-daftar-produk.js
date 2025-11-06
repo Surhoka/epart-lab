@@ -1,196 +1,287 @@
 /**
  * =================================================================
- *            FILE PENGELOLAAN PRODUK (INVENTORY)
+ *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
  * 
- * CATATAN PENTING:
- * 1. Pastikan ID Google Sheet sudah benar di file `Code.gs` pada objek CONFIG.
- * 2. Pastikan nama sheet untuk produk (default: "Produk") sudah benar di `Code.gs`.
- * 3. Pastikan header kolom di sheet "DaftarProduk" adalah:
- *  No | SKU | NamaProduk | Kategori | Merek | HargaJual | Stok
- *
  * FUNGSI UTAMA:
- * - getProducts: Mengambil semua data produk dari Google Sheet.
- * - addProduct: Menambahkan produk baru ke Google Sheet.
- * - updateProduct: Memperbarui data produk di Google Sheet berdasarkan SKU.
- * - deleteProduct: Menghapus produk dari Google Sheet berdasarkan SKU.
+ * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
+ * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
+ * - openProductModal: Membuka modal untuk menambah atau mengedit produk.
+ * - saveProduct: Mengirim data formulir ke Google Apps Script untuk disimpan.
+ * - handleDelete: Menangani permintaan penghapusan produk.
  * 
- * PENGGUNAAN:
- * Fungsi-fungsi ini akan dipanggil dari file JavaScript sisi klien 
- * (inventory-daftar-produk.js) menggunakan `google.script.run`.
+ * ALUR KERJA:
+ * 1. Saat halaman dimuat, `populateInventoryTable` dipanggil.
+ * 2. Fungsi ini menjalankan `google.script.run` untuk memanggil `getProducts()` di sisi server (.gs).
+ * 3. Setelah data diterima, tabel HTML diperbarui.
+ * 4. Tombol "Tambah", "Edit", dan "Hapus" memanggil fungsi Apps Script yang sesuai.
+ * 5. Setelah setiap operasi (tambah/edit/hapus), tabel akan dimuat ulang untuk menampilkan data terbaru.
  */
 
-/**
- * Mengambil semua data produk dari Google Sheet.
- * @returns {Array<Object>} Array berisi objek-objek produk.
- */
-function getProducts() {
-  const cache = CacheService.getScriptCache();
-  const cacheKey = "allProducts";
-  let cachedProducts = cache.get(cacheKey);
+// Variabel global untuk menyimpan data produk dan status edit
+let allProducts = [];
+let isEditMode = false;
+let editingSku = null;
 
-  if (cachedProducts != null) {
-    console.log("Returning products from cache.");
-    return JSON.parse(cachedProducts);
-  }
+// Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
+function initInventoryDaftarProdukPage() {
+    console.log("Halaman Daftar Produk Dimuat.");
+    populateInventoryTable();
 
-  try {
-    const sheet = SpreadsheetApp.openById(CONFIG.spreadsheetId).getSheetByName(CONFIG.daftarprodukSheetName);
-    // Mulai dari baris ke-2 untuk melewati header, ambil semua data sampai baris terakhir.
-    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
+    // Tambahkan event listener ke form HANYA SEKALI
+    const productForm = document.getElementById('add-product-form');
+    if (productForm) {
+        // Hapus listener lama jika ada untuk menghindari duplikasi
+        productForm.removeEventListener('submit', handleFormSubmit);
+        productForm.addEventListener('submit', handleFormSubmit);
+    }
     
-    const products = data.map(row => ({
-      no: row[0],
-      sku: row[1],
-      name: row[2],
-      category: row[3],
-      brand: row[4],
-      price: row[5],
-      stock: row[6]
-    }));
-    
-    // Simpan data ke cache selama 5 menit (300 detik)
-    cache.put(cacheKey, JSON.stringify(products), 300);
-    console.log("Fetched products from sheet and cached them.");
-    return products;
-  } catch (e) {
-    console.error("Error in getProducts: " + e.toString());
-    return []; // Kembalikan array kosong jika terjadi error
-  }
+    // Inisialisasi ikon Lucide
+    lucide.createIcons();
+}
+
+// Wrapper untuk submit handler
+function handleFormSubmit(e) {
+    e.preventDefault();
+    saveProduct();
 }
 
 /**
- * Memuat ulang dan menyimpan semua data produk ke cache.
- * Digunakan setelah operasi tulis (tambah, edit, hapus) untuk memastikan cache selalu segar.
+ * Mengambil data dari Google Sheet dan mengisi tabel.
+ * @param {Array<Object>|null} productsToDisplay - Opsional, array produk untuk ditampilkan. Jika null, akan mengambil dari server.
  */
-function refreshProductsCache() {
-  const cache = CacheService.getScriptCache();
-  const cacheKey = "allProducts";
-  try {
-    const sheet = SpreadsheetApp.openById(CONFIG.spreadsheetId).getSheetByName(CONFIG.daftarprodukSheetName);
-    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
-    
-    const products = data.map(row => ({
-      no: row[0],
-      sku: row[1],
-      name: row[2],
-      category: row[3],
-      brand: row[4],
-      price: row[5],
-      stock: row[6]
-    }));
-    
-    cache.put(cacheKey, JSON.stringify(products), 300);
-    console.log("Products cache refreshed.");
-  } catch (e) {
-    console.error("Error refreshing products cache: " + e.toString());
-  }
+function populateInventoryTable(productsToDisplay = null) {
+    const tableBody = document.getElementById('inventory-table-body');
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
+
+    const renderTable = (products) => {
+        console.log("Data received by client for rendering:", products); // Tambahkan log ini
+        allProducts = products; // Simpan data ke variabel global
+        tableBody.innerHTML = ''; // Kosongkan tabel
+
+        if (products.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+            return;
+        }
+
+        products.forEach((product, index) => {
+            let stockColor = 'text-green-600';
+            if (product.stock < 50) stockColor = 'text-yellow-600';
+            if (product.stock < 20) stockColor = 'text-red-600 font-bold';
+            
+            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
+
+            const row = `
+                <tr class="hover:bg-gray-50" data-sku="${product.sku}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button onclick="openProductModal('${product.sku}')" class="text-indigo-600 hover:text-indigo-900 mx-1 action-button" title="Edit">
+                            <i data-lucide="square-pen" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="handleDelete('${product.sku}')" class="text-red-600 hover:text-red-900 mx-1 action-button" title="Hapus">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+        lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+    };
+
+    if (productsToDisplay) {
+        renderTable(productsToDisplay);
+    } else {
+        fetch(appsScriptUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({ action: 'getProducts' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            renderTable(data);
+        })
+        .catch(error => {
+            console.error('Gagal mengambil data produk:', error);
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+            showToast('Terjadi kesalahan saat memuat data produk: ' + error.message, 'error');
+        });
+    }
 }
 
 /**
- * Mencari produk berdasarkan istilah pencarian di SKU, Nama Produk, atau Merek.
- * @param {string} searchTerm Istilah pencarian.
- * @returns {Array<Object>} Array berisi objek-objek produk yang cocok.
+ * Menangani proses pencarian produk.
  */
-function searchProducts(searchTerm) {
-  try {
-    const allProducts = getProducts(); // Menggunakan fungsi getProducts yang sudah ada (dengan cache)
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+function handleSearch() {
+    const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
+    if (searchTerm.trim() === '') {
+        populateInventoryTable(); // Jika kosong, tampilkan semua produk
+        return;
+    }
 
-    const filteredProducts = allProducts.filter(product => {
-      return (
-        (product.sku && product.sku.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (product.name && product.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (product.brand && product.brand.toLowerCase().includes(lowerCaseSearchTerm))
-      );
+    fetch(appsScriptUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify({ action: 'searchProducts', searchTerm: searchTerm })
+    })
+    .then(response => response.json())
+    .then(filteredProducts => {
+        populateInventoryTable(filteredProducts);
+    })
+    .catch(error => {
+        console.error('Gagal mencari produk:', error);
+        showToast(`Gagal mencari: ${error.message}`, 'error');
     });
-    return filteredProducts;
-  } catch (e) {
-    console.error("Error in searchProducts: " + e.toString());
-    return [];
-  }
 }
 
 /**
- * Menambahkan satu produk baru ke Google Sheet.
- * @param {Object} productData Objek berisi data produk baru.
- * @returns {Object} Objek berisi status dan pesan.
+ * Membuka modal untuk menambah atau mengedit produk.
+ * @param {string|null} sku - SKU produk yang akan diedit. Jika null, mode tambah.
  */
-function addProduct(productData) {
-  try {
-    const sheet = SpreadsheetApp.openById(CONFIG.spreadsheetId).getSheetByName(CONFIG.daftarprodukSheetName);
-    const newRow = [
-      sheet.getLastRow(), // Nomor baris
-      productData.sku || "SKU-OTOMATIS-" + new Date().getTime(),
-      productData.name,
-      productData.category || "Uncategorized",
-      productData.brand || "N/A",
-      productData.price,
-      productData.stock
-    ];
-    sheet.appendRow(newRow);
-    refreshProductsCache(); // Refresh cache after modification
-    return { status: "success", message: "Produk berhasil ditambahkan." };
-  } catch (e) {
-    console.error("Error in addProduct: " + e.toString());
-    return { status: "error", message: e.toString() };
-  }
-}
+function openProductModal(sku = null) {
+    const modal = document.getElementById('product-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const form = document.getElementById('add-product-form');
+    const skuInput = document.getElementById('product-sku');
 
-/**
- * Memperbarui data produk berdasarkan SKU.
- * @param {Object} productData Objek berisi data produk yang akan diperbarui.
- * @returns {Object} Objek berisi status dan pesan.
- */
-function updateProduct(productData) {
-  try {
-    const sheet = SpreadsheetApp.openById(CONFIG.spreadsheetId).getSheetByName(CONFIG.daftarprodukSheetName);
-    const skus = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues().flat();
-    const rowIndex = skus.indexOf(productData.sku);
+    form.reset();
 
-    if (rowIndex === -1) {
-      return { status: "error", message: "Produk dengan SKU tersebut tidak ditemukan." };
+    if (sku) { // Mode Edit
+        isEditMode = true;
+        editingSku = sku;
+        const product = allProducts.find(p => p.sku === sku);
+        if (product) {
+            modalTitle.textContent = 'Edit Produk';
+            skuInput.value = product.sku;
+            skuInput.readOnly = true; // SKU tidak bisa diubah saat edit
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-stock').value = product.stock;
+            // Anda bisa menambahkan field lain di sini (kategori, merek)
+        }
+    } else { // Mode Tambah
+        isEditMode = false;
+        editingSku = null;
+        modalTitle.textContent = 'Tambah Produk Baru';
+        skuInput.readOnly = false;
     }
 
-    // Index di array adalah 0-based, baris di sheet adalah 1-based + 1 (untuk header)
-    const targetRow = rowIndex + 2; 
-    sheet.getRange(targetRow, 3, 1, 5).setValues([[
-      productData.name,
-      productData.category,
-      productData.brand,
-      productData.price,
-      productData.stock
-    ]]);
-    refreshProductsCache(); // Refresh cache after modification
-    return { status: "success", message: "Produk berhasil diperbarui." };
-  } catch (e) {
-    console.error("Error in updateProduct: " + e.toString());
-    return { status: "error", message: e.toString() };
-  }
+    modal.classList.remove('hidden');
+    lucide.createIcons();
 }
 
 /**
- * Menghapus produk berdasarkan SKU.
- * @param {string} sku SKU produk yang akan dihapus.
- * @returns {Object} Objek berisi status dan pesan.
+ * Menutup modal form produk.
  */
-function deleteProduct(sku) {
-  try {
-    const sheet = SpreadsheetApp.openById(CONFIG.spreadsheetId).getSheetByName(CONFIG.daftarprodukSheetName);
-    const skus = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues().flat();
-    const rowIndex = skus.indexOf(sku);
+function closeProductModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+}
 
-    if (rowIndex === -1) {
-      return { status: "error", message: "Produk dengan SKU tersebut tidak ditemukan." };
+/**
+ * Mengirim data dari form ke Apps Script untuk disimpan.
+ */
+function saveProduct() {
+    const productData = {
+        sku: document.getElementById('product-sku').value.toUpperCase(),
+        name: document.getElementById('product-name').value,
+        price: parseFloat(document.getElementById('product-price').value),
+        stock: parseInt(document.getElementById('product-stock').value),
+        // Ambil data kategori dan merek jika ada formnya
+        category: 'Uncategorized', // Ganti dengan input form jika ada
+        brand: 'N/A' // Ganti dengan input form jika ada
+    };
+
+    // Validasi sederhana
+    if (!productData.sku || !productData.name || isNaN(productData.price) || isNaN(productData.stock)) {
+        showToast('Harap isi semua kolom dengan benar.', 'error');
+        return;
     }
 
-    // Index di array adalah 0-based, baris di sheet adalah 1-based + 1 (untuk header)
-    const targetRow = rowIndex + 2;
-    sheet.deleteRow(targetRow);
-    refreshProductsCache(); // Refresh cache after modification
-    return { status: "success", message: "Produk berhasil dihapus." };
-  } catch (e) {
-    console.error("Error in deleteProduct: " + e.toString());
-    return { status: "error", message: e.toString() };
-  }
+    const payload = {
+        action: isEditMode ? 'updateProduct' : 'addProduct',
+        productData: productData
+    };
+
+    fetch(appsScriptUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            console.log(result.message);
+            closeProductModal();
+            populateInventoryTable(); // Muat ulang tabel
+            showToast(result.message, 'success');
+        } else {
+            console.error('Error saat menyimpan produk:', result.message);
+            showToast(`Gagal menyimpan: ${result.message}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saat menyimpan produk:', error);
+        showToast('Terjadi kesalahan jaringan saat menyimpan produk: ' + error.message, 'error');
+    });
+}
+
+/**
+ * Menangani proses penghapusan produk.
+ * @param {string} sku - SKU produk yang akan dihapus.
+ */
+function handleDelete(sku) {
+    if (!confirm(`Apakah Anda yakin ingin menghapus produk dengan SKU: ${sku}?`)) {
+        return;
+    }
+
+    const payload = {
+        action: 'deleteProduct',
+        sku: sku
+    };
+
+    fetch(appsScriptUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            console.log(result.message);
+            // Hapus baris dari tabel secara visual untuk respons cepat
+            const row = document.querySelector(`tr[data-sku='${sku}']`);
+            if (row) row.remove();
+            populateInventoryTable(); // Muat ulang tabel untuk data yang lebih akurat
+            showToast(result.message, 'success');
+        } else {
+            console.error('Gagal menghapus produk:', result.message);
+            showToast(`Gagal menghapus: ${result.message}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saat menghapus produk:', error);
+        showToast('Terjadi kesalahan jaringan saat menghapus produk: ' + error.message, 'error');
+    });
+}
+
+// Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
+// Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInventoryDaftarProdukPage);
+} else {
+    // initInventoryDaftarProdukPage(); // Router akan memanggil ini
 }
