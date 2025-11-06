@@ -162,14 +162,7 @@ function populateInventoryTable(productsToDisplay = null) {
     if (productsToDisplay) {
         renderTable(productsToDisplay);
     } else {
-        fetch(appsScriptUrl, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'getProducts' }),
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => response.json())
-        .then(handleSuccess)
-        .catch(handleFailure);
+        sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
     }
 }
 
@@ -198,14 +191,7 @@ function handleSearch() {
         }
     };
 
-    fetch(appsScriptUrl, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'searchProducts', searchTerm: searchTerm }),
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(handleSuccess)
-    .catch(handleFailure);
+    sendDataToGoogle('searchProducts', { searchTerm: searchTerm }, handleSuccess, handleFailure);
 }
 
 /**
@@ -289,14 +275,7 @@ function saveProduct() {
 
     const action = isEditMode ? 'updateProduct' : 'addProduct';
 
-    fetch(appsScriptUrl, {
-        method: 'POST',
-        body: JSON.stringify({ action: action, productData: productData }),
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(handleSuccess)
-    .catch(handleFailure);
+    sendDataToGoogle(action, { productData: productData }, handleSuccess, handleFailure);
 }
 
 /**
@@ -323,14 +302,7 @@ function handleDelete(sku) {
         if (typeof showToast === 'function') showToast(`Gagal menghapus: ${error.message}`, 'error');
     };
 
-    fetch(appsScriptUrl, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'deleteProduct', sku: sku }),
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(handleSuccess)
-    .catch(handleFailure);
+    sendDataToGoogle('deleteProduct', { sku: sku }, handleSuccess, handleFailure);
 }
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
