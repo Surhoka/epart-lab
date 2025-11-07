@@ -261,45 +261,61 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
         window[callbackName] = function(rawData) {
             cleanup();
             console.log('Raw JSONP Response:', rawData); // Debug log
-            
-            try {
-                // If rawData is a string, try to parse it as JSON first
-                let data = rawData;
-                if (typeof rawData === 'string') {
-                    try {
-                        data = JSON.parse(rawData);
-                    } catch (e) {
-                        // Not JSON, use as is
-                        data = rawData;
+
+            // Directly handle the response without throwing errors
+            let responseObject;
+
+            // If it's a success message string
+            if (typeof rawData === 'string' && rawData.toLowerCase().includes('berhasil')) {
+                responseObject = {
+                    status: 'success',
+                    message: rawData,
+                    data: []
+                };
+                resolve(responseObject);
+                return;
+            }
+
+            // If it's already an object
+            if (typeof rawData === 'object' && rawData !== null) {
+                responseObject = {
+                    status: rawData.status || 'success',
+                    message: rawData.message || 'Operation successful',
+                    data: rawData.records || rawData.data || rawData.items || []
+                };
+                resolve(responseObject);
+                return;
+            }
+
+            // Try to parse as JSON if it's a string
+            if (typeof rawData === 'string') {
+                try {
+                    const parsed = JSON.parse(rawData);
+                    responseObject = {
+                        status: parsed.status || 'success',
+                        message: parsed.message || 'Operation successful',
+                        data: parsed.records || parsed.data || parsed.items || []
+                    };
+                    resolve(responseObject);
+                    return;
+                } catch (e) {
+                    // If not JSON but doesn't contain error keywords, treat as success message
+                    if (!rawData.toLowerCase().includes('error') && 
+                        !rawData.toLowerCase().includes('gagal') && 
+                        !rawData.toLowerCase().includes('kesalahan')) {
+                        responseObject = {
+                            status: 'success',
+                            message: rawData,
+                            data: []
+                        };
+                        resolve(responseObject);
+                        return;
                     }
                 }
-
-                // Now process the data
-                if (typeof data === 'string') {
-                    // For string responses
-                    const response = {
-                        status: 'success',
-                        message: data,
-                        data: []
-                    };
-                    console.log('Processed response:', response);
-                    resolve(response);
-                } else if (typeof data === 'object' && data !== null) {
-                    // For object responses
-                    const response = {
-                        status: data.status || 'success',
-                        message: data.message || 'Operation successful',
-                        data: data.records || data.data || data.items || []
-                    };
-                    console.log('Processed response:', response);
-                    resolve(response);
-                } else {
-                    throw new Error('Invalid response format');
-                }
-            } catch (error) {
-                console.error('Error processing response:', error);
-                reject(error);
             }
+
+            // If we get here, something went wrong
+            reject(new Error(typeof rawData === 'string' ? rawData : 'Invalid response format'));
         };
 
         // Handle script load error
@@ -319,19 +335,6 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
             successCallback(data);
         })
         .catch(error => {
-            // Don't treat success messages as errors
-            if (error.message && typeof error.message === 'string') {
-                const msg = error.message.toLowerCase();
-                if (msg.includes('berhasil') || msg.includes('success')) {
-                    console.log('Converting error to success:', error.message);
-                    successCallback({
-                        status: 'success',
-                        message: error.message,
-                        data: []
-                    });
-                    return;
-                }
-            }
             console.error('JSONP error:', error);
             errorCallback(error);
         });
