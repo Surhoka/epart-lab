@@ -190,40 +190,62 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
         return;
     }
 
-    const url = window.appsScriptUrl; 
-    const params = new URLSearchParams(data);
-    params.append('action', action);
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params.toString(),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            successCallback(data);
+    // Create URL with query parameters for GET request
+    const url = new URL(window.appsScriptUrl);
+    url.searchParams.append('action', action);
+    // Add all data as query parameters
+    for (const [key, value] of Object.entries(data)) {
+        if (typeof value === 'object') {
+            url.searchParams.append(key, JSON.stringify(value));
         } else {
-            errorCallback(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+            url.searchParams.append(key, value);
         }
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        let errorMessage = 'Kesalahan jaringan atau server tidak merespons.';
-        if (error.message.includes('HTTP error!')) {
-            errorMessage = `Kesalahan server: ${error.message}`;
-        } else if (error.name === 'SyntaxError') {
-            errorMessage = 'Format respons server tidak valid.';
-        }
-        errorCallback(new Error(errorMessage));
+    }
+
+    // Create a unique callback name
+    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+    url.searchParams.append('callback', callbackName);
+
+    // Create promise to handle JSONP
+    const promise = new Promise((resolve, reject) => {
+        // Create script element
+        const script = document.createElement('script');
+        script.src = url.toString();
+        
+        // Define the callback function
+        window[callbackName] = function(data) {
+            // Clean up
+            delete window[callbackName];
+            document.body.removeChild(script);
+            
+            if (data.status === 'success') {
+                resolve(data);
+            } else {
+                reject(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+            }
+        };
+
+        // Handle script load error
+        script.onerror = () => {
+            // Clean up
+            delete window[callbackName];
+            document.body.removeChild(script);
+            reject(new Error('Gagal memuat data dari server.'));
+        };
+
+        // Add script to document
+        document.body.appendChild(script);
     });
+
+    // Handle the promise
+    promise
+        .then(data => {
+            successCallback(data);
+        })
+        .catch(error => {
+            console.error('JSONP error:', error);
+            errorCallback(error);
+        });
 }
 
 /**
