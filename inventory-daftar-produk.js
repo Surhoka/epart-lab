@@ -22,6 +22,8 @@
 let allProducts = [];
 let isEditMode = false;
 let editingSku = null;
+let currentSortField = '';
+let currentSortDirection = 'asc';
 
 // Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
 window.initInventoryDaftarProdukPage = function() {
@@ -101,6 +103,10 @@ function populateInventoryTable(productsToDisplay = null) {
         console.error('Table body element not found');
         return;
     }
+
+    // Update header dengan ikon sort dan event listener
+    updateTableHeaders();
+    
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
     const renderTable = (products) => {
@@ -132,14 +138,14 @@ function populateInventoryTable(productsToDisplay = null) {
             const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
 
             const row = `
-                <tr class="hover:bg-gray-50 text-xs" data-sku="${product.sku}">
-                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${index + 1}</td>
-                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${product.sku}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-700">${product.name}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-500">${product.category}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-500">${product.brand}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900">Rp ${formattedPrice}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-center ${stockColor}">${product.stock}</td>
+                <tr class="hover:bg-gray-50 text-xs border-b" data-sku="${product.sku}">
+                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${index + 1}</td>
+                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${product.sku}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r">${product.name}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${product.category}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${product.brand}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900 border-r">Rp ${formattedPrice}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-center ${stockColor} border-r">${product.stock}</td>
                     <td class="px-2 py-2 whitespace-nowrap text-center">
                         <button class="text-indigo-600 hover:text-indigo-900 mx-0.5 action-button edit-product-btn" title="Edit">
                             <i data-lucide="square-pen" class="w-3.5 h-3.5"></i>
@@ -493,4 +499,72 @@ function handleDelete(sku) {
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
+// Fungsi untuk mengupdate header tabel dengan ikon sort
+function updateTableHeaders() {
+    const headers = document.querySelectorAll('th[data-sort]');
+    headers.forEach(header => {
+        const field = header.getAttribute('data-sort');
+        if (!field) return;
+
+        // Tambahkan style untuk cursor pointer dan hover
+        header.classList.add('cursor-pointer', 'hover:bg-gray-100', 'select-none');
+        
+        // Tambahkan icon sort
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'ml-1 inline-block';
+        if (field === currentSortField) {
+            iconSpan.innerHTML = currentSortDirection === 'asc' ? '↑' : '↓';
+        } else {
+            iconSpan.innerHTML = '↕';
+        }
+        
+        // Hapus icon lama jika ada
+        const oldIcon = header.querySelector('span');
+        if (oldIcon) {
+            header.removeChild(oldIcon);
+        }
+        
+        header.appendChild(iconSpan);
+        
+        // Tambahkan event listener untuk sorting
+        header.addEventListener('click', () => sortTable(field));
+    });
+}
+
+// Fungsi untuk melakukan sorting
+function sortTable(field) {
+    if (currentSortField === field) {
+        // Toggle direction jika field yang sama
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Set field baru dan direction default
+        currentSortField = field;
+        currentSortDirection = 'asc';
+    }
+
+    // Sort data
+    allProducts.sort((a, b) => {
+        let valueA = a[field];
+        let valueB = b[field];
+
+        // Handle numeric fields
+        if (field === 'price' || field === 'stock') {
+            valueA = Number(valueA) || 0;
+            valueB = Number(valueB) || 0;
+        } else {
+            // Handle string fields
+            valueA = String(valueA).toLowerCase();
+            valueB = String(valueB).toLowerCase();
+        }
+
+        if (valueA < valueB) return currentSortDirection === 'asc' ? -1 : 1;
+        if (valueA > valueB) return currentSortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    // Re-render table
+    renderTable(allProducts);
+    updateTableHeaders();
+}
+
 // The router will call window.initInventoryDaftarProdukPage()
