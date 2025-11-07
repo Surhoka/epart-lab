@@ -132,20 +132,20 @@ function populateInventoryTable(productsToDisplay = null) {
             const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
 
             const row = `
-                <tr class="hover:bg-gray-50" data-sku="${product.sku}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button class="text-indigo-600 hover:text-indigo-900 mx-1 action-button edit-product-btn" title="Edit">
-                            <i data-lucide="square-pen" class="w-4 h-4"></i>
+                <tr class="hover:bg-gray-50 text-xs" data-sku="${product.sku}">
+                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${index + 1}</td>
+                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${product.sku}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-700">${product.name}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-500">${product.category}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-500">${product.brand}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900">Rp ${formattedPrice}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-center ${stockColor}">${product.stock}</td>
+                    <td class="px-2 py-2 whitespace-nowrap text-center">
+                        <button class="text-indigo-600 hover:text-indigo-900 mx-0.5 action-button edit-product-btn" title="Edit">
+                            <i data-lucide="square-pen" class="w-3.5 h-3.5"></i>
                         </button>
-                        <button class="text-red-600 hover:text-red-900 mx-1 action-button delete-product-btn" title="Hapus">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <button class="text-red-600 hover:text-red-900 mx-0.5 action-button delete-product-btn" title="Hapus">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                         </button>
                     </td>
                 </tr>
