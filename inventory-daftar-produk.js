@@ -25,7 +25,30 @@ let editingSku = null;
 let currentSortColumn = null;
 let currentSortOrder = 'asc';
 
-// Fungsi untuk render tabel yang bisa dipanggil dari mana saja
+// Function to update table header sort icons
+function updateTableHeaders() {
+    const headers = document.querySelectorAll('th[data-sort]');
+    headers.forEach(header => {
+        const column = header.getAttribute('data-sort');
+        if (!column) return;
+
+        // Reset existing icon classes
+        const icon = header.querySelector('.sort-icon');
+        if (icon) {
+            if (column === currentSortColumn) {
+                icon.classList.remove('hidden');
+                icon.dataset.lucide = currentSortOrder === 'asc' ? 'chevron-up' : 'chevron-down';
+            } else {
+                icon.classList.add('hidden');
+                icon.dataset.lucide = 'chevron-up';
+            }
+        }
+    });
+    
+    // Refresh Lucide icons
+    lucide.createIcons();
+}
+
 // Add sorting functionality
 function handleSort(column) {
     // If clicking the same column, toggle direction
@@ -36,20 +59,8 @@ function handleSort(column) {
         currentSortOrder = 'asc';
     }
 
-    // Update sorting icons
-    document.querySelectorAll('th[data-sort] .sort-icon').forEach(icon => {
-        icon.classList.remove('hidden');
-        icon.dataset.lucide = 'chevron-up';
-        if (icon.closest('th').dataset.sort === column) {
-            icon.dataset.lucide = currentSortOrder === 'asc' ? 'chevron-up' : 'chevron-down';
-        } else {
-            icon.classList.add('hidden');
-        }
-    });
-    lucide.createIcons(); // Refresh icons
-
     // Re-render the table with sorted data
-    renderTable(allProducts);
+    populateInventoryTable(allProducts);
 }
 
 function renderTable(products) {
@@ -66,9 +77,12 @@ function renderTable(products) {
         return;
     }
 
+    // Create a copy of the products array for sorting
+    let sortedProducts = [...products];
+    
     // Sort products if a sort column is active
     if (currentSortColumn) {
-        products.sort((a, b) => {
+        sortedProducts.sort((a, b) => {
             let aValue = a[currentSortColumn];
             let bValue = b[currentSortColumn];
             
@@ -89,6 +103,9 @@ function renderTable(products) {
     }
     
     tableBody.innerHTML = ''; // Kosongkan tabel
+    
+    // Update table headers to show sort state
+    updateTableHeaders();
 
     if (products.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
@@ -189,10 +206,12 @@ window.initInventoryDaftarProdukPage = function() {
         th.addEventListener('click', () => {
             const column = th.dataset.sort;
             handleSort(column);
+            updateTableHeaders(); // Update sort icons after sorting
         });
     });
 
-    // Inisialisasi ikon Lucide
+    // Initialize icons
+    updateTableHeaders();
     lucide.createIcons();
 }
 
@@ -213,12 +232,12 @@ function populateInventoryTable(productsToDisplay = null) {
         return;
     }
 
-    // Update header dengan ikon sort dan event listener
-    updateTableHeaders();
+    // Update global products array first
+    if (productsToDisplay) {
+        allProducts = [...productsToDisplay];
+    }
     
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
-
-    allProducts = productsToDisplay || []; // Update global products array
 
     const handleSuccess = (response) => {
         if (!response) {
@@ -558,72 +577,27 @@ function handleDelete(sku) {
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
-// Fungsi untuk mengupdate header tabel dengan ikon sort
+// Fungsi untuk mengupdate header tabel dengan ikon sort yang aktif
 function updateTableHeaders() {
     const headers = document.querySelectorAll('th[data-sort]');
     headers.forEach(header => {
-        const field = header.getAttribute('data-sort');
-        if (!field) return;
+        const column = header.getAttribute('data-sort');
+        if (!column) return;
 
-        // Tambahkan style untuk cursor pointer dan hover
-        header.classList.add('cursor-pointer', 'hover:bg-gray-100', 'select-none');
-        
-        // Tambahkan icon sort
-        const iconSpan = document.createElement('span');
-        iconSpan.className = 'ml-1 inline-block';
-        if (field === currentSortField) {
-            iconSpan.innerHTML = currentSortDirection === 'asc' ? '↑' : '↓';
-        } else {
-            iconSpan.innerHTML = '↕';
+        // Reset existing icon classes
+        const icon = header.querySelector('.sort-icon');
+        if (icon) {
+            icon.classList.remove('hidden');
+            if (column === currentSortColumn) {
+                icon.dataset.lucide = currentSortOrder === 'asc' ? 'chevron-up' : 'chevron-down';
+            } else {
+                icon.classList.add('hidden');
+            }
         }
-        
-        // Hapus icon lama jika ada
-        const oldIcon = header.querySelector('span');
-        if (oldIcon) {
-            header.removeChild(oldIcon);
-        }
-        
-        header.appendChild(iconSpan);
-        
-        // Tambahkan event listener untuk sorting
-        header.addEventListener('click', () => sortTable(field));
     });
-}
-
-// Fungsi untuk melakukan sorting
-function sortTable(field) {
-    if (currentSortField === field) {
-        // Toggle direction jika field yang sama
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        // Set field baru dan direction default
-        currentSortField = field;
-        currentSortDirection = 'asc';
-    }
-
-    // Sort data
-    allProducts.sort((a, b) => {
-        let valueA = a[field];
-        let valueB = b[field];
-
-        // Handle numeric fields
-        if (field === 'price' || field === 'stock') {
-            valueA = Number(valueA) || 0;
-            valueB = Number(valueB) || 0;
-        } else {
-            // Handle string fields
-            valueA = String(valueA).toLowerCase();
-            valueB = String(valueB).toLowerCase();
-        }
-
-        if (valueA < valueB) return currentSortDirection === 'asc' ? -1 : 1;
-        if (valueA > valueB) return currentSortDirection === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    // Re-render table
-    renderTable(allProducts);
-    updateTableHeaders();
+    
+    // Refresh Lucide icons
+    lucide.createIcons();
 }
 
 // The router will call window.initInventoryDaftarProdukPage()
