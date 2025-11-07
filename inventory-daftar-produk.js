@@ -18,39 +18,61 @@
  * 5. Setelah setiap operasi (tambah/edit/hapus), tabel akan dimuat ulang untuk menampilkan data terbaru.
  */
 
-// Variabel global
+// Variabel global untuk menyimpan data produk dan status edit
 let allProducts = [];
 let isEditMode = false;
 let editingSku = null;
 
-function initInventoryDaftarProdukPage() {
+// Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
+window.initInventoryDaftarProdukPage = function() {
     console.log("Halaman Daftar Produk Dimuat.");
+    
+    // Wait for Lucide to be available
+    if (typeof lucide === 'undefined') {
+        console.error('Lucide not loaded. Icons may not appear correctly.');
+    } else {
+        lucide.createIcons();
+    }
+    
     populateInventoryTable();
 
+    // Attach event listeners for static buttons
     const searchButton = document.getElementById('search-button');
-    if (searchButton) searchButton.addEventListener('click', handleSearch);
-
-    const addProductButton = document.getElementById('add-product-button');
-    if (addProductButton) addProductButton.addEventListener('click', () => openProductModal());
-
-    const modalCloseButton = document.getElementById('modal-close-button');
-    if (modalCloseButton) modalCloseButton.addEventListener('click', closeProductModal);
-
-    const modalCancelButton = document.getElementById('modal-cancel-button');
-    if (modalCancelButton) modalCancelButton.addEventListener('click', closeProductModal);
-
-    const productForm = document.getElementById('add-product-form');
-    if (productForm) {
-        productForm.removeEventListener('submit', handleFormSubmit);
-        productForm.addEventListener('submit', handleFormSubmit);
+    if (searchButton) {
+        searchButton.addEventListener('click', handleSearch);
     }
 
+    const addProductButton = document.getElementById('add-product-button');
+    if (addProductButton) {
+        addProductButton.addEventListener('click', () => openProductModal());
+    }
+
+    const modalCloseButton = document.getElementById('modal-close-button');
+    if (modalCloseButton) {
+        modalCloseButton.addEventListener('click', closeProductModal);
+    }
+
+    const modalCancelButton = document.getElementById('modal-cancel-button');
+    if (modalCancelButton) {
+        modalCancelButton.addEventListener('click', closeProductModal);
+    }
+
+    // Add event listener to form for submission
+    const productForm = document.getElementById('add-product-form');
+    if (productForm) {
+        productForm.removeEventListener('submit', handleFormSubmit); // Prevent duplicate listeners
+        productForm.addEventListener('submit', handleFormSubmit);
+    }
+    
+    // Event delegation for dynamically created edit/delete buttons
     const inventoryTableBody = document.getElementById('inventory-table-body');
     if (inventoryTableBody) {
         inventoryTableBody.addEventListener('click', (event) => {
             const target = event.target.closest('button');
             if (!target) return;
+
             const sku = target.closest('tr').dataset.sku;
+
             if (target.classList.contains('edit-product-btn')) {
                 openProductModal(sku);
             } else if (target.classList.contains('delete-product-btn')) {
@@ -59,86 +81,290 @@ function initInventoryDaftarProdukPage() {
         });
     }
 
+    // Inisialisasi ikon Lucide
     lucide.createIcons();
 }
 
+// Wrapper untuk submit handler
 function handleFormSubmit(e) {
     e.preventDefault();
     saveProduct();
 }
 
 /**
- * Ambil data produk via JSONP
+ * Mengambil data dari Google Sheet dan mengisi tabel.
+ * @param {Array<Object>|null} productsToDisplay - Opsional, array produk untuk ditampilkan. Jika null, akan mengambil dari server.
  */
 function populateInventoryTable(productsToDisplay = null) {
     const tableBody = document.getElementById('inventory-table-body');
-    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>';
+    if (!tableBody) {
+        console.error('Table body element not found');
+        return;
+    }
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
     const renderTable = (products) => {
-        allProducts = products || [];
-        tableBody.innerHTML = '';
+        console.log("Data received by client for rendering:", products);
 
-        if (allProducts.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk.</td></tr>';
+        // Validasi bahwa 'products' adalah array
+        if (!Array.isArray(products)) {
+            console.error("Data yang diterima bukan array:", products);
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-red-500">Error: Format data produk tidak valid.</td></tr>';
+            if (typeof showToast === 'function') {
+                showToast('Format data produk tidak valid.', 'error');
+            }
+            return;
+        }
+        
+        allProducts = products; // Simpan data ke variabel global
+        tableBody.innerHTML = ''; // Kosongkan tabel
+
+        if (products.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
             return;
         }
 
-        allProducts.forEach((product, index) => {
+        products.forEach((product, index) => {
             let stockColor = 'text-green-600';
             if (product.stock < 50) stockColor = 'text-yellow-600';
             if (product.stock < 20) stockColor = 'text-red-600 font-bold';
-
-            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : product.price;
+            
+            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
 
             const row = `
                 <tr class="hover:bg-gray-50" data-sku="${product.sku}">
-                    <td>${index + 1}</td>
-                    <td>${product.sku}</td>
-                    <td>${product.name}</td>
-                    <td>${product.category}</td>
-                    <td>${product.brand}</td>
-                    <td class="text-right">Rp ${formattedPrice}</td>
-                    <td class="${stockColor} text-center">${product.stock}</td>
-                    <td class="text-center">
-                        <button class="edit-product-btn">✏️</button>
-                        <button class="delete-product-btn">🗑️</button>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.sku}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">Rp ${formattedPrice}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center ${stockColor}">${product.stock}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mx-1 action-button edit-product-btn" title="Edit">
+                            <i data-lucide="square-pen" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 mx-1 action-button delete-product-btn" title="Hapus">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
                     </td>
-                </tr>`;
+                </tr>
+            `;
             tableBody.insertAdjacentHTML('beforeend', row);
         });
-        lucide.createIcons();
+        lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+    };
+
+    const handleSuccess = (response) => {
+        if (!response) {
+            handleFailure({ message: 'Tidak ada respons dari server.' });
+            return;
+        }
+        
+        if (response.status === 'success' && response.data) {
+            renderTable(response.data);
+        } else {
+            handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
+        }
+    };
+
+    const handleFailure = (error) => {
+        console.error("Gagal mengambil data produk:", error);
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+        if (typeof showToast === 'function') {
+            showToast('Gagal memuat data produk: ' + error.message, 'error');
+        }
     };
 
     if (productsToDisplay) {
         renderTable(productsToDisplay);
     } else {
-        // Panggil Apps Script via JSONP
-        sendDataToGoogle('getProducts', {}, renderTable, (error) => {
-            console.error('Gagal ambil produk:', error);
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500">Error: ${error.message}</td></tr>`;
-        });
+        sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
     }
 }
 
-/**
- * Cari produk via JSONP
- */
-function handleSearch() {
-    const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
-    if (searchTerm.trim() === '') {
-        populateInventoryTable();
+function sendDataToGoogle(action, data, successCallback, errorCallback) {
+    // Check if appsScriptUrl is defined
+    if (!window.appsScriptUrl) {
+        errorCallback(new Error('appsScriptUrl is not defined. Make sure EzyParts.xml has loaded completely.'));
         return;
     }
 
-    sendDataToGoogle('searchProducts', { searchTerm }, (filteredProducts) => {
-        populateInventoryTable(filteredProducts);
-    }, (error) => {
-        console.error('Gagal mencari produk:', error);
-        showToast(`Gagal mencari: ${error.message}`, 'error');
+    const url = window.appsScriptUrl; 
+    const params = new URLSearchParams(data);
+    params.append('action', action);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            successCallback(data);
+        } else {
+            errorCallback(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        let errorMessage = 'Kesalahan jaringan atau server tidak merespons.';
+        if (error.message.includes('HTTP error!')) {
+            errorMessage = `Kesalahan server: ${error.message}`;
+        } else if (error.name === 'SyntaxError') {
+            errorMessage = 'Format respons server tidak valid.';
+        }
+        errorCallback(new Error(errorMessage));
     });
+}
+
+/**
+ * Menangani proses pencarian produk.
+ */
+function handleSearch() {
+    const searchTerm = document.getElementById('inventory-search').value;
+    if (searchTerm.trim() === '') {
+        populateInventoryTable(); // Re-fetch all products
+        return;
+    }
+
+    const handleSuccess = (response) => {
+        if (response.status === 'success') {
+            populateInventoryTable(response.data); // Re-use the populate function with the filtered data
+        } else {
+            handleFailure({ message: response.message || 'Gagal mencari produk.' });
+        }
+    };
+
+    const handleFailure = (error) => {
+        console.error('Gagal mencari produk:', error);
+        if (typeof showToast === 'function') {
+            showToast(`Gagal mencari: ${error.message}`, 'error');
+        }
+    };
+
+    sendDataToGoogle('searchProducts', { searchTerm: searchTerm }, handleSuccess, handleFailure);
+}
+
+/**
+ * Membuka modal untuk menambah atau mengedit produk.
+ * @param {string|null} sku - SKU produk yang akan diedit. Jika null, mode tambah.
+ */
+function openProductModal(sku = null) {
+    const modal = document.getElementById('product-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const form = document.getElementById('add-product-form');
+    const skuInput = document.getElementById('product-sku');
+
+    form.reset();
+
+    if (sku) { // Mode Edit
+        isEditMode = true;
+        editingSku = sku;
+        const product = allProducts.find(p => p.sku === sku);
+        if (product) {
+            modalTitle.textContent = 'Edit Produk';
+            skuInput.value = product.sku;
+            skuInput.readOnly = true; // SKU tidak bisa diubah saat edit
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-stock').value = product.stock;
+            // Anda bisa menambahkan field lain di sini (kategori, merek)
+        }
+    } else { // Mode Tambah
+        isEditMode = false;
+        editingSku = null;
+        modalTitle.textContent = 'Tambah Produk Baru';
+        skuInput.readOnly = false;
+    }
+
+    modal.classList.remove('hidden');
+    lucide.createIcons();
+}
+
+/**
+ * Menutup modal form produk.
+ */
+function closeProductModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+}
+
+/**
+ * Mengirim data dari form ke Apps Script untuk disimpan.
+ */
+function saveProduct() {
+    const productData = {
+        sku: document.getElementById('product-sku').value.toUpperCase(),
+        name: document.getElementById('product-name').value,
+        price: parseFloat(document.getElementById('product-price').value),
+        stock: parseInt(document.getElementById('product-stock').value),
+        // Ambil data kategori dan merek jika ada formnya
+        category: 'Uncategorized', // Ganti dengan input form jika ada
+        brand: 'N/A' // Ganti dengan input form jika ada
+    };
+
+    // Validasi sederhana
+    if (!productData.sku || !productData.name || isNaN(productData.price) || isNaN(productData.stock)) {
+        if (typeof showToast === 'function') showToast('Harap isi semua kolom dengan benar.', 'error');
+        return;
+    }
+
+    const handleSuccess = (result) => {
+        if (result.status === 'success') {
+            console.log(result.message);
+            closeProductModal();
+            populateInventoryTable(); // Reload the table
+            if (typeof showToast === 'function') showToast(result.message, 'success');
+        } else {
+            handleFailure({ message: result.message || 'Gagal menyimpan produk.' });
+        }
+    };
+
+    const handleFailure = (error) => {
+        console.error('Error saat menyimpan produk:', error);
+        if (typeof showToast === 'function') showToast(`Gagal menyimpan: ${error.message}`, 'error');
+    };
+
+    const action = isEditMode ? 'updateProduct' : 'addProduct';
+
+    sendDataToGoogle(action, { productData: productData }, handleSuccess, handleFailure);
+}
+
+/**
+ * Menangani proses penghapusan produk.
+ * @param {string} sku - SKU produk yang akan dihapus.
+ */
+function handleDelete(sku) {
+    if (!confirm(`Apakah Anda yakin ingin menghapus produk dengan SKU: ${sku}?`)) {
+        return;
+    }
+
+    const handleSuccess = (result) => {
+        if (result.status === 'success') {
+            console.log(result.message);
+            populateInventoryTable(); // Reload the table for accurate data
+            if (typeof showToast === 'function') showToast(result.message, 'success');
+        } else {
+            handleFailure({ message: result.message || 'Gagal menghapus produk.' });
+        }
+    };
+
+    const handleFailure = (error) => {
+        console.error('Gagal menghapus produk:', error);
+        if (typeof showToast === 'function') showToast(`Gagal menghapus: ${error.message}`, 'error');
+    };
+
+    sendDataToGoogle('deleteProduct', { sku: sku }, handleSuccess, handleFailure);
 }
 
 // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
 // The router will call window.initInventoryDaftarProdukPage()
-
