@@ -161,16 +161,29 @@ function populateInventoryTable(productsToDisplay = null) {
             return;
         }
         
-        // If response is a success message without data
-        if (response.status === 'success' && !response.data && response.message) {
-            console.log(response.message);
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+        console.log('Response received:', response); // Debug log
+        
+        // If response indicates empty data
+        if (response.status === 'success' && (!response.data || response.data.length === 0)) {
+            if (response.message && !response.message.toLowerCase().includes('error')) {
+                // Show success message if provided
+                console.log('Success message:', response.message);
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+                if (typeof showToast === 'function') {
+                    showToast(response.message, 'success');
+                }
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+            }
             return;
         }
         
         // If response has data array
         if (response.status === 'success' && Array.isArray(response.data)) {
             renderTable(response.data);
+            if (response.message && typeof showToast === 'function') {
+                showToast(response.message, 'success');
+            }
         } else {
             handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
         }
@@ -178,6 +191,17 @@ function populateInventoryTable(productsToDisplay = null) {
 
     const handleFailure = (error) => {
         console.error("Gagal mengambil data produk:", error);
+        
+        // Check if the error message is actually a success message
+        if (error.message && error.message.toLowerCase().includes('berhasil')) {
+            handleSuccess({
+                status: 'success',
+                message: error.message,
+                data: []
+            });
+            return;
+        }
+        
         tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
         if (typeof showToast === 'function') {
             showToast('Gagal memuat data produk: ' + error.message, 'error');
@@ -226,16 +250,31 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
             delete window[callbackName];
             document.body.removeChild(script);
             
+            console.log('JSONP Response:', data); // Debug log
+            
             // Check if data is a string (direct message) or object
             if (typeof data === 'string') {
-                resolve({
-                    status: 'success',
-                    message: data,
-                    data: [] // Empty array for messages without data
-                });
-            } else if (typeof data === 'object') {
-                if (data.status === 'success' || data.success === true) {
-                    resolve(data);
+                // Check if the message contains error indicators
+                if (data.toLowerCase().includes('error') || 
+                    data.toLowerCase().includes('gagal') || 
+                    data.toLowerCase().includes('kesalahan')) {
+                    reject(new Error(data));
+                } else {
+                    resolve({
+                        status: 'success',
+                        message: data,
+                        data: [] // Empty array for messages without data
+                    });
+                }
+            } else if (typeof data === 'object' && data !== null) {
+                if (data.status === 'success' || data.success === true || 
+                    (data.records && Array.isArray(data.records))) {
+                    // If data has a records array, use that as the data
+                    resolve({
+                        status: 'success',
+                        message: data.message || 'Berhasil mengambil data.',
+                        data: data.records || data.data || []
+                    });
                 } else {
                     reject(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
                 }
