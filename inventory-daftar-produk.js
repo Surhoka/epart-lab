@@ -178,9 +178,10 @@ function populateInventoryTable(productsToDisplay = null) {
             return;
         }
         
-        // If response has data array
-        if (response.status === 'success' && Array.isArray(response.data)) {
-            renderTable(response.data);
+        // If response has data array or is an array itself
+        if ((response.status === 'success' && Array.isArray(response.data)) || Array.isArray(response)) {
+            const products = Array.isArray(response) ? response : response.data;
+            renderTable(products);
             if (response.message && typeof showToast === 'function') {
                 showToast(response.message, 'success');
             }
@@ -276,7 +277,18 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
                 return;
             }
 
-            // If it's already an object
+            // If it's an array, directly pass it as data
+            if (Array.isArray(rawData)) {
+                responseObject = {
+                    status: 'success',
+                    message: 'Data berhasil diambil',
+                    data: rawData
+                };
+                resolve(responseObject);
+                return;
+            }
+
+            // If it's a non-array object
             if (typeof rawData === 'object' && rawData !== null) {
                 responseObject = {
                     status: rawData.status || 'success',
