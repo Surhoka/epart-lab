@@ -35,14 +35,18 @@ function updateTableHeaders() {
         // Reset existing icon classes
         const icon = header.querySelector('.sort-icon');
         if (icon) {
+            icon.classList.remove('text-indigo-600', 'text-gray-400');
             if (column === currentSortColumn) {
-                icon.classList.remove('hidden');
+                icon.classList.add('text-indigo-600');
                 icon.dataset.lucide = currentSortOrder === 'asc' ? 'chevron-up' : 'chevron-down';
             } else {
-                icon.classList.add('hidden');
-                icon.dataset.lucide = 'chevron-up';
+                icon.classList.add('text-gray-400');
+                icon.dataset.lucide = 'chevrons-up-down';
             }
         }
+
+        // Update cursor style
+        header.classList.toggle('active-sort', column === currentSortColumn);
     });
     
     // Refresh Lucide icons
@@ -92,8 +96,8 @@ function renderTable(products) {
                 bValue = Number(bValue) || 0;
             } else {
                 // Convert to strings for text comparison
-                aValue = String(aValue).toLowerCase();
-                bValue = String(bValue).toLowerCase();
+                aValue = String(aValue || '').toLowerCase();
+                bValue = String(bValue || '').toLowerCase();
             }
             
             if (aValue < bValue) return currentSortOrder === 'asc' ? -1 : 1;
@@ -103,6 +107,9 @@ function renderTable(products) {
     }
     
     tableBody.innerHTML = ''; // Kosongkan tabel
+    
+    // Use the sorted products for rendering
+    products = sortedProducts;
     
     // Update table headers to show sort state
     updateTableHeaders();
@@ -201,17 +208,16 @@ window.initInventoryDaftarProdukPage = function() {
         });
     }
 
-    // Add click event listeners for sorting
+    // Add click event listeners for sorting and initialize sort icons
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => {
             const column = th.dataset.sort;
             handleSort(column);
-            updateTableHeaders(); // Update sort icons after sorting
+            // updateTableHeaders is called inside handleSort
         });
     });
 
-    // Initialize icons
-    updateTableHeaders();
+    // Initialize Lucide icons
     lucide.createIcons();
 }
 
