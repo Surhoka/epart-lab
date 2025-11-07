@@ -161,7 +161,15 @@ function populateInventoryTable(productsToDisplay = null) {
             return;
         }
         
-        if (response.status === 'success' && response.data) {
+        // If response is a success message without data
+        if (response.status === 'success' && !response.data && response.message) {
+            console.log(response.message);
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+            return;
+        }
+        
+        // If response has data array
+        if (response.status === 'success' && Array.isArray(response.data)) {
             renderTable(response.data);
         } else {
             handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
@@ -218,10 +226,21 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
             delete window[callbackName];
             document.body.removeChild(script);
             
-            if (data.status === 'success') {
-                resolve(data);
+            // Check if data is a string (direct message) or object
+            if (typeof data === 'string') {
+                resolve({
+                    status: 'success',
+                    message: data,
+                    data: [] // Empty array for messages without data
+                });
+            } else if (typeof data === 'object') {
+                if (data.status === 'success' || data.success === true) {
+                    resolve(data);
+                } else {
+                    reject(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+                }
             } else {
-                reject(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+                reject(new Error('Format respons tidak valid'));
             }
         };
 
