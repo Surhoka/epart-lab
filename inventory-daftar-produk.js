@@ -22,8 +22,109 @@
 let allProducts = [];
 let isEditMode = false;
 let editingSku = null;
-let currentSortField = '';
-let currentSortDirection = 'asc';
+let currentSortColumn = null;
+let currentSortOrder = 'asc';
+
+// Fungsi untuk render tabel yang bisa dipanggil dari mana saja
+// Add sorting functionality
+function handleSort(column) {
+    // If clicking the same column, toggle direction
+    if (currentSortColumn === column) {
+        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortColumn = column;
+        currentSortOrder = 'asc';
+    }
+
+    // Update sorting icons
+    document.querySelectorAll('th[data-sort] .sort-icon').forEach(icon => {
+        icon.classList.remove('hidden');
+        icon.dataset.lucide = 'chevron-up';
+        if (icon.closest('th').dataset.sort === column) {
+            icon.dataset.lucide = currentSortOrder === 'asc' ? 'chevron-up' : 'chevron-down';
+        } else {
+            icon.classList.add('hidden');
+        }
+    });
+    lucide.createIcons(); // Refresh icons
+
+    // Re-render the table with sorted data
+    renderTable(allProducts);
+}
+
+function renderTable(products) {
+    const tableBody = document.getElementById('inventory-table-body');
+    console.log("Data received by client for rendering:", products);
+
+    // Validasi bahwa 'products' adalah array
+    if (!Array.isArray(products)) {
+        console.error("Data yang diterima bukan array:", products);
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-red-500">Error: Format data produk tidak valid.</td></tr>';
+        if (typeof showToast === 'function') {
+            showToast('Format data produk tidak valid.', 'error');
+        }
+        return;
+    }
+
+    // Sort products if a sort column is active
+    if (currentSortColumn) {
+        products.sort((a, b) => {
+            let aValue = a[currentSortColumn];
+            let bValue = b[currentSortColumn];
+            
+            // Handle numeric values
+            if (['price', 'stock'].includes(currentSortColumn)) {
+                aValue = Number(aValue) || 0;
+                bValue = Number(bValue) || 0;
+            } else {
+                // Convert to strings for text comparison
+                aValue = String(aValue).toLowerCase();
+                bValue = String(bValue).toLowerCase();
+            }
+            
+            if (aValue < bValue) return currentSortOrder === 'asc' ? -1 : 1;
+            if (aValue > bValue) return currentSortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+    
+    tableBody.innerHTML = ''; // Kosongkan tabel
+
+    if (products.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+        return;
+    }
+
+    products.forEach((product, index) => {
+        let stockColor = 'text-green-600';
+        if (product.stock < 50) stockColor = 'text-yellow-600';
+        if (product.stock < 20) stockColor = 'text-red-600 font-bold';
+        
+        const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
+
+        const row = `
+            <tr class="hover:bg-gray-50 text-xs border-b" data-sku="${product.sku}">
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${index + 1}</td>
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${product.sku}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r">${product.name}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${product.category}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${product.brand}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900 border-r">Rp ${formattedPrice}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-center ${stockColor} border-r">${product.stock}</td>
+                <td class="px-2 py-2 whitespace-nowrap text-center">
+                    <button class="text-indigo-600 hover:text-indigo-900 mx-0.5 action-button edit-product-btn" title="Edit">
+                        <i data-lucide="square-pen" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button class="text-red-600 hover:text-red-900 mx-0.5 action-button delete-product-btn" title="Hapus">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        tableBody.insertAdjacentHTML('beforeend', row);
+    });
+    lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+}
 
 // Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
 window.initInventoryDaftarProdukPage = function() {
@@ -83,6 +184,14 @@ window.initInventoryDaftarProdukPage = function() {
         });
     }
 
+    // Add click event listeners for sorting
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+            const column = th.dataset.sort;
+            handleSort(column);
+        });
+    });
+
     // Inisialisasi ikon Lucide
     lucide.createIcons();
 }
@@ -109,57 +218,7 @@ function populateInventoryTable(productsToDisplay = null) {
     
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
 
-    const renderTable = (products) => {
-        console.log("Data received by client for rendering:", products);
-
-        // Validasi bahwa 'products' adalah array
-        if (!Array.isArray(products)) {
-            console.error("Data yang diterima bukan array:", products);
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-red-500">Error: Format data produk tidak valid.</td></tr>';
-            if (typeof showToast === 'function') {
-                showToast('Format data produk tidak valid.', 'error');
-            }
-            return;
-        }
-        
-        allProducts = products; // Simpan data ke variabel global
-        tableBody.innerHTML = ''; // Kosongkan tabel
-
-        if (products.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
-            return;
-        }
-
-        products.forEach((product, index) => {
-            let stockColor = 'text-green-600';
-            if (product.stock < 50) stockColor = 'text-yellow-600';
-            if (product.stock < 20) stockColor = 'text-red-600 font-bold';
-            
-            const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
-
-            const row = `
-                <tr class="hover:bg-gray-50 text-xs border-b" data-sku="${product.sku}">
-                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${index + 1}</td>
-                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${product.sku}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r">${product.name}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${product.category}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${product.brand}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-900 border-r">Rp ${formattedPrice}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-center ${stockColor} border-r">${product.stock}</td>
-                    <td class="px-2 py-2 whitespace-nowrap text-center">
-                        <button class="text-indigo-600 hover:text-indigo-900 mx-0.5 action-button edit-product-btn" title="Edit">
-                            <i data-lucide="square-pen" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button class="text-red-600 hover:text-red-900 mx-0.5 action-button delete-product-btn" title="Hapus">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tableBody.insertAdjacentHTML('beforeend', row);
-        });
-        lucide.createIcons(); // Perbarui ikon setelah tabel diisi
-    };
+    allProducts = productsToDisplay || []; // Update global products array
 
     const handleSuccess = (response) => {
         if (!response) {
