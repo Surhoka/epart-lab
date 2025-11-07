@@ -240,54 +240,71 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
 
     // Create promise to handle JSONP
     const promise = new Promise((resolve, reject) => {
+        let timeout = setTimeout(() => {
+            cleanup();
+            reject(new Error('Request timed out'));
+        }, 30000); // 30 second timeout
+
+        function cleanup() {
+            clearTimeout(timeout);
+            delete window[callbackName];
+            if (script.parentNode) {
+                script.parentNode.removeChild(script);
+            }
+        }
+
         // Create script element
         const script = document.createElement('script');
         script.src = url.toString();
         
         // Define the callback function
-        window[callbackName] = function(data) {
-            // Clean up
-            delete window[callbackName];
-            document.body.removeChild(script);
+        window[callbackName] = function(rawData) {
+            cleanup();
+            console.log('Raw JSONP Response:', rawData); // Debug log
             
-            console.log('JSONP Response:', data); // Debug log
-            
-            // Check if data is a string (direct message) or object
-            if (typeof data === 'string') {
-                // Check if the message contains error indicators
-                if (data.toLowerCase().includes('error') || 
-                    data.toLowerCase().includes('gagal') || 
-                    data.toLowerCase().includes('kesalahan')) {
-                    reject(new Error(data));
-                } else {
-                    resolve({
+            try {
+                // If rawData is a string, try to parse it as JSON first
+                let data = rawData;
+                if (typeof rawData === 'string') {
+                    try {
+                        data = JSON.parse(rawData);
+                    } catch (e) {
+                        // Not JSON, use as is
+                        data = rawData;
+                    }
+                }
+
+                // Now process the data
+                if (typeof data === 'string') {
+                    // For string responses
+                    const response = {
                         status: 'success',
                         message: data,
-                        data: [] // Empty array for messages without data
-                    });
-                }
-            } else if (typeof data === 'object' && data !== null) {
-                if (data.status === 'success' || data.success === true || 
-                    (data.records && Array.isArray(data.records))) {
-                    // If data has a records array, use that as the data
-                    resolve({
-                        status: 'success',
-                        message: data.message || 'Berhasil mengambil data.',
-                        data: data.records || data.data || []
-                    });
+                        data: []
+                    };
+                    console.log('Processed response:', response);
+                    resolve(response);
+                } else if (typeof data === 'object' && data !== null) {
+                    // For object responses
+                    const response = {
+                        status: data.status || 'success',
+                        message: data.message || 'Operation successful',
+                        data: data.records || data.data || data.items || []
+                    };
+                    console.log('Processed response:', response);
+                    resolve(response);
                 } else {
-                    reject(new Error(data.message || 'Terjadi kesalahan saat memproses permintaan.'));
+                    throw new Error('Invalid response format');
                 }
-            } else {
-                reject(new Error('Format respons tidak valid'));
+            } catch (error) {
+                console.error('Error processing response:', error);
+                reject(error);
             }
         };
 
         // Handle script load error
         script.onerror = () => {
-            // Clean up
-            delete window[callbackName];
-            document.body.removeChild(script);
+            cleanup();
             reject(new Error('Gagal memuat data dari server.'));
         };
 
@@ -298,9 +315,23 @@ function sendDataToGoogle(action, data, successCallback, errorCallback) {
     // Handle the promise
     promise
         .then(data => {
+            console.log('Promise resolved with:', data);
             successCallback(data);
         })
         .catch(error => {
+            // Don't treat success messages as errors
+            if (error.message && typeof error.message === 'string') {
+                const msg = error.message.toLowerCase();
+                if (msg.includes('berhasil') || msg.includes('success')) {
+                    console.log('Converting error to success:', error.message);
+                    successCallback({
+                        status: 'success',
+                        message: error.message,
+                        data: []
+                    });
+                    return;
+                }
+            }
             console.error('JSONP error:', error);
             errorCallback(error);
         });
