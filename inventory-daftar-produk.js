@@ -2,7 +2,7 @@
  * =================================================================
  *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
- * 
+ * v1
  * FUNGSI UTAMA:
  * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
  * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
@@ -275,6 +275,13 @@ function populateInventoryTable(productsToDisplay = null) {
         return;
     }
 
+    // If data has already been fetched and we are not explicitly forcing a refresh (e.g., from reset button),
+    // just render existing data. This prevents redundant server calls on SPA re-initialization.
+    if (hasFetchedInitialData) {
+        renderTable(allProducts);
+        return;
+    }
+
     // Only show the main "loading" spinner if we are fetching fresh data from the server.
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>';
 
@@ -298,6 +305,9 @@ function populateInventoryTable(productsToDisplay = null) {
             } else {
                 tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
             }
+            allProducts = []; // Ensure allProducts is empty if no data
+            renderTable(allProducts); // Render empty table
+            hasFetchedInitialData = true; // Mark as fetched even if empty
             return;
         }
         
@@ -306,6 +316,7 @@ function populateInventoryTable(productsToDisplay = null) {
             const products = Array.isArray(response) ? response : response.data;
             allProducts = products; // Update the global product list
             renderTable(products);
+            hasFetchedInitialData = true; // Mark as fetched
             if (response.message && typeof showToast === 'function') {
                 showToast(response.message, 'success');
             }
@@ -331,6 +342,7 @@ function populateInventoryTable(productsToDisplay = null) {
         if (typeof showToast === 'function') {
             showToast('Gagal memuat data produk: ' + error.message, 'error');
         }
+        hasFetchedInitialData = true; // Mark as fetched even on failure to prevent re-fetching immediately
     };
 
     // If we reached here, it means productsToDisplay was null, so we fetch from the server.
@@ -373,6 +385,8 @@ function handleResetTable() {
         searchInput.value = '';
     }
 
+    // Reset the flag to force a fresh data fetch
+    hasFetchedInitialData = false; 
     // Muat ulang data tabel dari awal
     populateInventoryTable();
     
