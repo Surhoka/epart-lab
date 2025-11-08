@@ -267,12 +267,15 @@ function populateInventoryTable(productsToDisplay = null) {
         return;
     }
 
-    // Update global products array first
+    // If products are provided directly (e.g., from search), render them immediately and exit.
     if (productsToDisplay) {
         allProducts = [...productsToDisplay];
+        renderTable(allProducts);
+        return;
     }
-    
-    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
+
+    // Only show the main "loading" spinner if we are fetching fresh data from the server.
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>';
 
     const handleSuccess = (response) => {
         if (!response) {
@@ -329,11 +332,8 @@ function populateInventoryTable(productsToDisplay = null) {
         }
     };
 
-    if (productsToDisplay) {
-        renderTable(productsToDisplay);
-    } else {
-        window.sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
-    }
+    // If we reached here, it means productsToDisplay was null, so we fetch from the server.
+    window.sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
 }
 
 /**
