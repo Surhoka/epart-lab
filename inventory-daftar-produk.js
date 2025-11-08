@@ -448,7 +448,17 @@ function saveProduct() {
         if (result.status === 'success') {
             console.log(result.message);
             closeProductModal();
-            populateInventoryTable(); // Reload the table
+            if (isEditMode) {
+                // Find and replace the updated product in allProducts
+                const index = allProducts.findIndex(p => p.sku === editingSku);
+                if (index !== -1) {
+                    allProducts[index] = result.data; // Assuming result.data is the updated product
+                }
+            } else {
+                // Add the new product to allProducts
+                allProducts.push(result.data); // Assuming result.data is the new product
+            }
+            renderTable(allProducts); // Re-render the table with local data
             if (typeof showToast === 'function') showToast(result.message, 'success');
         } else {
             handleFailure({ message: result.message || 'Gagal menyimpan produk.' });
@@ -478,7 +488,9 @@ function handleDelete(sku) {
     const handleSuccess = (result) => {
         if (result.status === 'success') {
             console.log(result.message);
-            populateInventoryTable(); // Reload the table for accurate data
+            // Remove the deleted product from allProducts locally
+            allProducts = allProducts.filter(p => p.sku !== sku);
+            renderTable(allProducts); // Re-render the table with local data
             if (typeof showToast === 'function') showToast(result.message, 'success');
         } else {
             handleFailure({ message: result.message || 'Gagal menghapus produk.' });
