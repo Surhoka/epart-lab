@@ -161,12 +161,6 @@ window.initInventoryDaftarProdukPage = function() {
         lucide.createIcons();
     }
     
-    // Explicitly ensure the import/export buttons container is visible
-    const importExportContainer = document.getElementById('import-export-buttons-container');
-    if (importExportContainer) {
-        importExportContainer.style.display = 'flex'; // Assuming it should be flex based on parent
-    }
-
     populateInventoryTable();
 
     // Attach event listeners for static buttons
