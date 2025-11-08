@@ -120,7 +120,10 @@ function renderTable(products) {
         // If no products, just set the innerHTML directly for the empty state
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
         lucide.createIcons(); // Perbarui ikon setelah tabel diisi
-        tableBody.style.minHeight = ''; // Remove min-height here too
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden'); // Hide overlay for empty state
+        }
         return;
     }
 
@@ -160,8 +163,10 @@ function renderTable(products) {
     tableBody.appendChild(fragment);
     lucide.createIcons(); // Perbarui ikon setelah tabel diisi
 
-    // Remove the min-height after content is rendered
-    tableBody.style.minHeight = ''; // Reset to default
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden'); // Hide overlay after content is rendered
+    }
 }
 
 // Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
@@ -295,13 +300,17 @@ function populateInventoryTable(productsToDisplay = null) {
         return;
     }
 
-    // Set a min-height to prevent scrollbar jumping during loading
-    tableBody.style.minHeight = '200px'; // Adjust this value as needed
-
-    // Only show the main "loading" spinner if we are fetching fresh data from the server.
-    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>';
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('hidden');
+    }
+    // Clear table body content immediately to prevent old data from showing under overlay
+    tableBody.innerHTML = ''; 
 
     const handleSuccess = (response) => {
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden'); // Hide overlay on success
+        }
         if (!response) {
             handleFailure({ message: 'Tidak ada respons dari server.' });
             return;
@@ -359,6 +368,10 @@ function populateInventoryTable(productsToDisplay = null) {
             showToast('Gagal memuat data produk: ' + error.message, 'error');
         }
         hasFetchedInitialData = true; // Mark as fetched even on failure to prevent re-fetching immediately
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden'); // Hide overlay on failure
+        }
     };
 
     // If we reached here, it means productsToDisplay was null, so we fetch from the server.
