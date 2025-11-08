@@ -260,6 +260,85 @@ function handleFormSubmit(e) {
  * Mengambil data dari Google Sheet dan mengisi tabel.
  * @param {Array<Object>|null} productsToDisplay - Opsional, array produk untuk ditampilkan. Jika null, akan mengambil dari server.
  */
+function populateInventoryTable(productsToDisplay = null) {
+    const tableBody = document.getElementById('inventory-table-body');
+    if (!tableBody) {
+        console.error('Table body element not found');
+        return;
+    }
+
+    // Update global products array first
+    if (productsToDisplay) {
+        allProducts = [...productsToDisplay];
+    }
+    
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>'; // Tampilkan loading
+
+    const handleSuccess = (response) => {
+        if (!response) {
+            handleFailure({ message: 'Tidak ada respons dari server.' });
+            return;
+        }
+        
+        console.log('Response received:', response); // Debug log
+        
+        // If response indicates empty data
+        if (response.status === 'success' && (!response.data || response.data.length === 0)) {
+            if (response.message && !response.message.toLowerCase().includes('error')) {
+                // Show success message if provided
+                console.log('Success message:', response.message);
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+                if (typeof showToast === 'function') {
+                    showToast(response.message, 'success');
+                }
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+            }
+            return;
+        }
+        
+        // If response has data array or is an array itself
+        if ((response.status === 'success' && Array.isArray(response.data)) || Array.isArray(response)) {
+            const products = Array.isArray(response) ? response : response.data;
+            allProducts = products; // Update the global product list
+            renderTable(products);
+            if (response.message && typeof showToast === 'function') {
+                showToast(response.message, 'success');
+            }
+        } else {
+            handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
+        }
+    };
+
+    const handleFailure = (error) => {
+        console.error("Gagal mengambil data produk:", error);
+        
+        // Check if the error message is actually a success message
+        if (error.message && error.message.toLowerCase().includes('berhasil')) {
+            handleSuccess({
+                status: 'success',
+                message: error.message,
+                data: []
+            });
+            return;
+        }
+        
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
+        if (typeof showToast === 'function') {
+            showToast('Gagal memuat data produk: ' + error.message, 'error');
+        }
+    };
+
+    if (productsToDisplay) {
+        renderTable(productsToDisplay);
+    } else {
+        window.sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
+    }
+}
+
+/**
+ * Menangani proses pencarian produk.
+ */
 function handleSearch() {
     const searchTerm = document.getElementById('inventory-search').value;
     if (searchTerm.trim() === '') {
