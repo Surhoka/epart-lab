@@ -340,28 +340,22 @@ function populateInventoryTable(productsToDisplay = null) {
  * Menangani proses pencarian produk.
  */
 function handleSearch() {
-    const searchTerm = document.getElementById('inventory-search').value;
+    const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
     if (searchTerm.trim() === '') {
-        populateInventoryTable(); // Re-fetch all products
+        renderTable(allProducts); // Show all products if search term is empty
         return;
     }
 
-    const handleSuccess = (response) => {
-        if (response.status === 'success') {
-            populateInventoryTable(response.data); // Re-use the populate function with the filtered data
-        } else {
-            handleFailure({ message: response.message || 'Gagal mencari produk.' });
-        }
-    };
+    // Filter locally from allProducts
+    const filteredProducts = allProducts.filter(product => {
+        // Customize search logic here: search by SKU, name, category, brand
+        return (product.sku && product.sku.toLowerCase().includes(searchTerm)) ||
+               (product.name && product.name.toLowerCase().includes(searchTerm)) ||
+               (product.category && product.category.toLowerCase().includes(searchTerm)) ||
+               (product.brand && product.brand.toLowerCase().includes(searchTerm));
+    });
 
-    const handleFailure = (error) => {
-        console.error('Gagal mencari produk:', error);
-        if (typeof showToast === 'function') {
-            showToast(`Gagal mencari: ${error.message}`, 'error');
-        }
-    };
-
-    sendDataToGoogle('searchProducts', { searchTerm: searchTerm }, handleSuccess, handleFailure);
+    renderTable(filteredProducts); // Render the filtered results
 }
 
 /**
