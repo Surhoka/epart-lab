@@ -169,6 +169,11 @@ window.initInventoryDaftarProdukPage = function() {
         searchButton.addEventListener('click', handleSearch);
     }
 
+    const resetButton = document.getElementById('reset-table-button');
+    if (resetButton) {
+        resetButton.addEventListener('click', handleResetTable);
+    }
+
     const addProductButton = document.getElementById('add-product-button');
     if (addProductButton) {
         addProductButton.addEventListener('click', () => openProductModal());
@@ -468,6 +473,28 @@ function handleSearch() {
     };
 
     sendDataToGoogle('searchProducts', { searchTerm: searchTerm }, handleSuccess, handleFailure);
+}
+
+/**
+ * Mereset tampilan tabel ke kondisi awal.
+ */
+function handleResetTable() {
+    // Reset variabel sort
+    currentSortColumn = null;
+    currentSortOrder = 'asc';
+
+    // Kosongkan input pencarian
+    const searchInput = document.getElementById('inventory-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    // Muat ulang data tabel dari awal
+    populateInventoryTable();
+    
+    if (typeof showToast === 'function') {
+        showToast('Tabel telah direset.', 'info');
+    }
 }
 
 /**
