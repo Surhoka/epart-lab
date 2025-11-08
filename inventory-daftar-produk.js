@@ -462,7 +462,8 @@ function saveProduct() {
 
     const handleFailure = (error) => {
         console.error('Error saat menyimpan produk:', error);
-        if (typeof showToast === 'function') showToast(`Gagal menyimpan: ${error.message}`, 'error');
+        const errorMessage = (error && error.message) ? error.message : JSON.stringify(error);
+        if (typeof showToast === 'function') showToast(`Gagal menyimpan: ${errorMessage}`, 'error');
     };
 
     const action = isEditMode ? 'updateProduct' : 'addProduct';
