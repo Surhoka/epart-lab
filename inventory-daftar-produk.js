@@ -63,8 +63,8 @@ function handleSort(column) {
         currentSortOrder = 'asc';
     }
 
-    // Re-render the table with sorted data directly
-    renderTable(allProducts);
+    // Re-populate the table to ensure sorting is applied to the latest data
+    populateInventoryTable();
 }
 
 function renderTable(products) {
