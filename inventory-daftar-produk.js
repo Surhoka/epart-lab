@@ -2,7 +2,7 @@
  * =================================================================
  *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
- * v3
+ * v4
  * FUNGSI UTAMA:
  * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
  * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
@@ -120,6 +120,7 @@ function renderTable(products) {
         // If no products, just set the innerHTML directly for the empty state
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
         lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+        tableBody.style.minHeight = ''; // Remove min-height here too
         return;
     }
 
@@ -158,6 +159,9 @@ function renderTable(products) {
     tableBody.innerHTML = '';
     tableBody.appendChild(fragment);
     lucide.createIcons(); // Perbarui ikon setelah tabel diisi
+
+    // Remove the min-height after content is rendered
+    tableBody.style.minHeight = ''; // Reset to default
 }
 
 // Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
@@ -290,6 +294,9 @@ function populateInventoryTable(productsToDisplay = null) {
         renderTable(allProducts);
         return;
     }
+
+    // Set a min-height to prevent scrollbar jumping during loading
+    tableBody.style.minHeight = '200px'; // Adjust this value as needed
 
     // Only show the main "loading" spinner if we are fetching fresh data from the server.
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8"><div class="spinner"></div> Memuat data...</td></tr>';
