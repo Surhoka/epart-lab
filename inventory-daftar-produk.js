@@ -2,7 +2,7 @@
  * =================================================================
  *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
- * v1
+ * v2
  * FUNGSI UTAMA:
  * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
  * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
@@ -107,7 +107,8 @@ function renderTable(products) {
         });
     }
     
-    tableBody.innerHTML = ''; // Kosongkan tabel
+    // Create a document fragment to build the new table content off-DOM
+    const fragment = document.createDocumentFragment();
     
     // Use the sorted products for rendering
     products = sortedProducts;
@@ -116,7 +117,9 @@ function renderTable(products) {
     updateTableHeaders();
 
     if (products.length === 0) {
+        // If no products, just set the innerHTML directly for the empty state
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
+        lucide.createIcons(); // Perbarui ikon setelah tabel diisi
         return;
     }
 
@@ -127,7 +130,7 @@ function renderTable(products) {
         
         const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
 
-        const row = `
+        const rowHtml = `
             <tr class="hover:bg-gray-50 text-xs border-b" data-sku="${product.sku}">
                 <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${index + 1}</td>
                 <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${product.sku}</td>
@@ -146,8 +149,15 @@ function renderTable(products) {
                 </td>
             </tr>
         `;
-        tableBody.insertAdjacentHTML('beforeend', row);
+        // Create a temporary div to parse the HTML string into a DOM element
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = rowHtml;
+        fragment.appendChild(tempDiv.firstElementChild); // Append the <tr> element
     });
+
+    // Clear the table body once and append the fragment in a single DOM operation
+    tableBody.innerHTML = '';
+    tableBody.appendChild(fragment);
     lucide.createIcons(); // Perbarui ikon setelah tabel diisi
 }
 
