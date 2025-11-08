@@ -222,6 +222,20 @@ window.initInventoryDaftarProdukPage = function() {
         });
     });
 
+    // Event listeners for Import Modal
+    const importModalCloseButton = document.getElementById('import-modal-close-button');
+    if (importModalCloseButton) {
+        importModalCloseButton.addEventListener('click', closeImportModal);
+    }
+    const importModalCancelButton = document.getElementById('import-modal-cancel-button');
+    if (importModalCancelButton) {
+        importModalCancelButton.addEventListener('click', closeImportModal);
+    }
+    const processImportButton = document.getElementById('process-import-button');
+    if (processImportButton) {
+        processImportButton.addEventListener('click', handleProcessImport);
+    }
+
     // Initialize Lucide icons
     lucide.createIcons();
 }
@@ -609,236 +623,113 @@ function handleDelete(sku) {
 }
 
     // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
-
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
 
-// Fungsi untuk mengupdate header tabel dengan ikon sort yang aktif
-
-function updateTableHeaders() {
-
-    const headers = document.querySelectorAll('th[data-sort]');
-
-    headers.forEach(header => {
-
-        const column = header.getAttribute('data-sort');
-
-        if (!column) return;
-
-
-
-        // Reset existing icon classes
-
-        const icon = header.querySelector('.sort-icon');
-
-        if (icon) {
-
-            icon.classList.remove('hidden');
-
-            if (column === currentSortColumn) {
-
-                icon.dataset.lucide = currentSortOrder === 'asc' ? 'chevron-up' : 'chevron-down';
-
-            } else {
-
-                icon.classList.add('hidden');
-
-            }
-
-        }
-
-    });
-
-    
-
-    // Refresh Lucide icons
-
-    lucide.createIcons();
-
-}
-
-
-
 // +---------------------------------------------------+
-
 // | FUNGSI UNTUK IMPORT & EXPORT                      |
-
 // +---------------------------------------------------+
 
-
-
 /**
-
  * Membuka modal untuk import CSV.
-
  */
-
 function openImportModal() {
-
-    document.getElementById('import-modal').classList.remove('hidden');
-
-    document.getElementById('csv-input').value = ''; // Kosongkan textarea
-
+    const modal = document.getElementById('import-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const csvInput = document.getElementById('csv-input');
+        if (csvInput) {
+            csvInput.value = ''; // Kosongkan textarea
+        }
+    }
 }
 
-
-
 /**
-
  * Menutup modal import CSV.
-
  */
-
 function closeImportModal() {
-
-    document.getElementById('import-modal').classList.add('hidden');
-
+    const modal = document.getElementById('import-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
-
-
 /**
-
  * Menangani proses export data ke CSV.
-
  */
-
 function handleExport() {
-
     if (typeof showToast === 'function') {
-
         showToast('Mempersiapkan data untuk di-export...', 'info');
-
     }
-
-
-
-    // Header CSV
-
-    const headers = ['SKU', 'NamaProduk', 'Kategori', 'Merek', 'HargaJual', 'Stok'];
-
-    // Menggunakan data `allProducts` yang sudah ada di klien
-
-    const rows = allProducts.map(p => [p.sku, p.name, p.category, p.brand, p.price, p.stock].join(','));
-
-    
-
-    const csvContent = [headers.join(','), ...rows].join('\n');
-
-    
-
-    // Membuat file virtual dan memicu download
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-
-    const link = document.createElement('a');
-
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-
-    link.setAttribute('download', 'export_produk.csv');
-
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-
-
-    if (typeof showToast === 'function') {
-
-        showToast('Export berhasil di-download.', 'success');
-
-    }
-
-}
-
-
-
-/**
-
- * Memproses data CSV yang di-paste oleh pengguna.
-
- */
-
-function handleProcessImport() {
-
-    const csvData = document.getElementById('csv-input').value.trim();
-
-    if (!csvData) {
-
-        if (typeof showToast === 'function') showToast('Textarea CSV tidak boleh kosong.', 'error');
-
-        return;
-
-    }
-
-
-
-    // Tampilkan loading
-
-    const processButton = document.getElementById('process-import-button');
-
-    processButton.disabled = true;
-
-    processButton.innerHTML = '<div class="spinner-white"></div> Memproses...';
-
-
 
     const handleSuccess = (result) => {
-
-        if (result.status === 'success') {
-
-            closeImportModal();
-
-            populateInventoryTable(); // Muat ulang tabel
-
-            if (typeof showToast === 'function') showToast(result.message, 'success');
-
-        } else {
-
-            handleFailure({ message: result.message || 'Gagal mengimpor produk.' });
-
+        if (result.status === 'success' && result.data) {
+            // Membuat file virtual dan memicu download
+            const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `export_produk_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            if (typeof showToast === 'function') {
+                showToast('Export berhasil di-download.', 'success');
+            }
+        } else if (result.status === 'success' && !result.data) {
+            if (typeof showToast === 'function') {
+                showToast('Tidak ada data produk untuk di-export.', 'info');
+            }
+        } 
+        else {
+            handleFailure({ message: result.message || 'Gagal mengekspor data.' });
         }
-
-        // Kembalikan tombol ke state normal
-
-        processButton.disabled = false;
-
-        processButton.innerHTML = 'Proses Import';
-
     };
-
-
 
     const handleFailure = (error) => {
-
-        console.error('Error saat import:', error);
-
-        if (typeof showToast === 'function') showToast(`Gagal import: ${error.message}`, 'error');
-
-        // Kembalikan tombol ke state normal
-
-        processButton.disabled = false;
-
-        processButton.innerHTML = 'Proses Import';
-
+        console.error('Error saat export:', error);
+        if (typeof showToast === 'function') showToast(`Gagal export: ${error.message}`, 'error');
     };
 
-
-
-    // Kirim data CSV mentah ke server untuk diproses
-
-    sendDataToGoogle('importProductsFromCSV', { csvData: csvData }, handleSuccess, handleFailure);
-
+    sendDataToGoogle('exportProductsToCSV', {}, handleSuccess, handleFailure);
 }
 
 
+/**
+ * Memproses data CSV yang di-paste oleh pengguna.
+ */
+function handleProcessImport() {
+    const csvData = document.getElementById('csv-input').value.trim();
+    if (!csvData) {
+        if (typeof showToast === 'function') showToast('Textarea CSV tidak boleh kosong.', 'error');
+        return;
+    }
 
+    const processButton = document.getElementById('process-import-button');
+    processButton.disabled = true;
+    processButton.innerHTML = '<div class="spinner-white"></div> Memproses...';
 
+    const handleSuccess = (result) => {
+        if (result.status === 'success') {
+            closeImportModal();
+            populateInventoryTable(); // Muat ulang tabel
+            if (typeof showToast === 'function') showToast(result.message, 'success');
+        } else {
+            handleFailure({ message: result.message || 'Gagal mengimpor produk.' });
+        }
+        processButton.disabled = false;
+        processButton.innerHTML = 'Proses Import';
+    };
+
+    const handleFailure = (error) => {
+        console.error('Error saat import:', error);
+        if (typeof showToast === 'function') showToast(`Gagal import: ${error.message}`, 'error');
+        processButton.disabled = false;
+        processButton.innerHTML = 'Proses Import';
+    };
+
+    sendDataToGoogle('importProductsFromCSV', { csvData: csvData }, handleSuccess, handleFailure);
+}
 
 // The router will call window.initInventoryDaftarProdukPage()
 
