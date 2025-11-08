@@ -179,6 +179,16 @@ window.initInventoryDaftarProdukPage = function() {
         addProductButton.addEventListener('click', () => openProductModal());
     }
 
+    const importProductButton = document.getElementById('import-product-button');
+    if (importProductButton) {
+        importProductButton.addEventListener('click', openImportModal);
+    }
+
+    const exportProductButton = document.getElementById('export-product-button');
+    if (exportProductButton) {
+        exportProductButton.addEventListener('click', handleExport);
+    }
+
     const modalCloseButton = document.getElementById('modal-close-button');
     if (modalCloseButton) {
         modalCloseButton.addEventListener('click', closeProductModal);
