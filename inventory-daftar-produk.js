@@ -2,7 +2,7 @@
  * =================================================================
  *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
- * v2
+ * v3
  * FUNGSI UTAMA:
  * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
  * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
@@ -130,8 +130,7 @@ function renderTable(products) {
         
         const formattedPrice = (typeof product.price === 'number') ? product.price.toLocaleString('id-ID') : 'N/A';
 
-        const rowHtml = `
-            <tr class="hover:bg-gray-50 text-xs border-b" data-sku="${product.sku}">
+        const rowHtmlContent = `
                 <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${index + 1}</td>
                 <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${product.sku}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r">${product.name}</td>
@@ -147,12 +146,12 @@ function renderTable(products) {
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                     </button>
                 </td>
-            </tr>
         `;
-        // Create a temporary div to parse the HTML string into a DOM element
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = rowHtml;
-        fragment.appendChild(tempDiv.firstElementChild); // Append the <tr> element
+        const tr = document.createElement('tr');
+        tr.classList.add('hover:bg-gray-50', 'text-xs', 'border-b');
+        tr.dataset.sku = product.sku;
+        tr.innerHTML = rowHtmlContent;
+        fragment.appendChild(tr);
     });
 
     // Clear the table body once and append the fragment in a single DOM operation
