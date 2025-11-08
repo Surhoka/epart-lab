@@ -24,6 +24,7 @@ let isEditMode = false;
 let editingSku = null;
 let currentSortColumn = null;
 let currentSortOrder = 'asc';
+let hasFetchedInitialData = false;
 
 // Function to update table header sort icons
 function updateTableHeaders() {
