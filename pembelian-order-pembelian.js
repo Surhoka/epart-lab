@@ -250,18 +250,19 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         
         function addEventListeners() {
             // Hapus listener lama untuk mencegah duplikasi
-            createPoButton.removeEventListener('click', handleNewOrder);
-            searchPoButton.removeEventListener('click', handleSearch);
-            resetPoTableButton.removeEventListener('click', handleResetTable);
-            purchaseOrdersTableBody.removeEventListener('click', handleTableClick);
-            document.getElementById('po-form').removeEventListener('submit', handleSaveOrder);
+            if (createPoButton) createPoButton.removeEventListener('click', handleNewOrder);
+            if (searchPoButton) searchPoButton.removeEventListener('click', handleSearch);
+            if (resetPoTableButton) resetPoTableButton.removeEventListener('click', handleResetTable);
+            if (purchaseOrdersTableBody) purchaseOrdersTableBody.removeEventListener('click', handleTableClick);
+            const poForm = document.getElementById('po-form');
+            if (poForm) poForm.removeEventListener('submit', handleSaveOrder);
 
             // Tambah listener baru
-            createPoButton.addEventListener('click', handleNewOrder);
-            searchPoButton.addEventListener('click', handleSearch);
-            resetPoTableButton.addEventListener('click', handleResetTable);
-            purchaseOrdersTableBody.addEventListener('click', handleTableClick);
-            document.getElementById('po-form').addEventListener('submit', handleSaveOrder);
+            if (createPoButton) createPoButton.addEventListener('click', handleNewOrder);
+            if (searchPoButton) searchPoButton.addEventListener('click', handleSearch);
+            if (resetPoTableButton) resetPoTableButton.addEventListener('click', handleResetTable);
+            if (purchaseOrdersTableBody) purchaseOrdersTableBody.addEventListener('click', handleTableClick);
+            if (poForm) poForm.addEventListener('submit', handleSaveOrder);
             
             console.log('Event listeners untuk Order Pembelian telah ditambahkan/diperbarui.');
         }
@@ -284,8 +285,8 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
 
 // Panggil inisialisasi jika file ini dimuat dalam konteks pengembangan (opsional)
 // Pada SPA, router akan memanggil window.initPembelianOrderPembelianPage()
-document.addEventListener('DOMContentLoaded', () => {
-    // if (!document.body.classList.contains('spa-mode')) {
-         window.initPembelianOrderPembelianPage();
-    // }
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     // if (!document.body.classList.contains('spa-mode')) {
+//          window.initPembelianOrderPembelianPage();
+//     // }
+// });
