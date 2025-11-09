@@ -74,9 +74,10 @@ window.initPembelianDaftarSupplierPage = function() {
             tr.className = 'hover:bg-gray-50 text-xs border-b';
             tr.dataset.supplierId = supplier.ID; // Assuming 'ID' is the unique identifier
             tr.innerHTML = `
-                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${supplier.NamaSupplier || 'N/A'}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-gray-700">${supplier.KontakPerson || 'N/A'}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-gray-500">${supplier.NoTelepon || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${supplier.ID || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${supplier['Nama Supplier'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-700">${supplier['Kontak Person'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500">${supplier['No.Telepon'] || 'N/A'}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-gray-500">${supplier.Alamat || 'N/A'}</td>
                 <td class="px-3 py-2 text-center">
                     <button class="text-indigo-600 hover:text-indigo-900 edit-supplier-btn" title="Edit">
