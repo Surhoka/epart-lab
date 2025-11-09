@@ -126,10 +126,10 @@ window.initPembelianDaftarSupplierPage = function() {
     function handleAddEditSupplier(e) {
         e.preventDefault();
         const supplierData = {
-            NamaSupplier: supplierNameInput.value,
-            KontakPerson: supplierContactPersonInput.value,
-            NoTelepon: supplierPhoneInput.value,
-            Alamat: supplierAddressInput.value
+            "Nama Supplier": supplierNameInput.value,
+            "Kontak Person": supplierContactPersonInput.value,
+            "No.Telepon": supplierPhoneInput.value,
+            "Alamat": supplierAddressInput.value
         };
 
         let action = 'addSupplier';
