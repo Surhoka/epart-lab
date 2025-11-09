@@ -305,7 +305,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         }
 
         // --- Jalankan Inisialisasi ---
-        // initializePage();
+        initializePage();
     };
 }
 
