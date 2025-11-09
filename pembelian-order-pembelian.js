@@ -32,8 +32,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         const loadingOverlay = document.getElementById('loading-overlay-po'); // Asumsi ada overlay loading
         const cancelPoButton = document.getElementById('cancel-po-button'); // Added this line
 
-        const pagePembelianOrderPembelian = document.getElementById('page-pembelian-order-pembelian'); // Get parent container for delegation
-        console.log('pagePembelianOrderPembelian:', pagePembelianOrderPembelian); // Debug log
+        // Removed pagePembelianOrderPembelian for direct event listener approach
 
         // --- Helper Functions ---
         const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
@@ -280,30 +279,18 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             if (poForm) poForm.removeEventListener('submit', handleSaveOrder);
             if (cancelPoButton) cancelPoButton.removeEventListener('click', handleCancelOrder);
 
-            // Tambah listener baru
-            // if (createPoButton) createPoButton.addEventListener('click', handleNewOrder); // Removed direct listener
+            // Tambah listener baru (direct listener)
+            if (createPoButton) {
+                console.log('Attaching direct click listener to createPoButton:', createPoButton); // Debug log
+                createPoButton.addEventListener('click', handleNewOrder);
+            }
             if (searchPoButton) searchPoButton.addEventListener('click', handleSearch);
             if (resetPoTableButton) resetPoTableButton.addEventListener('click', handleResetTable);
             if (purchaseOrdersTableBody) purchaseOrdersTableBody.addEventListener('click', handleTableClick);
             if (poForm) poForm.addEventListener('submit', handleSaveOrder);
             if (cancelPoButton) cancelPoButton.addEventListener('click', handleCancelOrder);
-
-            // Event delegation for createPoButton
-            if (pagePembelianOrderPembelian) {
-                pagePembelianOrderPembelian.removeEventListener('click', handleDelegatedClick); // Prevent duplicates
-                pagePembelianOrderPembelian.addEventListener('click', handleDelegatedClick);
-            }
             
             console.log('Event listeners untuk Order Pembelian telah ditambahkan/diperbarui.');
-        }
-
-        function handleDelegatedClick(event) {
-            console.log('Delegated click event triggered on pagePembelianOrderPembelian. Target:', event.target); // Debug log
-            const targetButton = event.target.closest('#create-po-button');
-            if (targetButton) {
-                console.log('create-po-button clicked via delegation!'); // Debug log
-                handleNewOrder(event);
-            }
         }
 
         function initializePage() {
