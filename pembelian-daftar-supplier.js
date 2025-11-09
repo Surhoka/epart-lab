@@ -138,7 +138,7 @@ window.initPembelianDaftarSupplierPage = function() {
             supplierData.ID = editingSupplierId; // Add ID for update
         }
 
-        window.sendDataToGoogle(action, { supplierData: JSON.stringify(supplierData) },
+        window.sendDataToGoogle(action, { supplierData: encodeURIComponent(JSON.stringify(supplierData)) },
             (response) => {
                 if (response.status === 'success') {
                     showToast(response.message, 'success');
