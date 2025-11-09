@@ -25,7 +25,7 @@ window.initPembelianDaftarSupplierPage = function() {
     function showLoading(isLoading) {
         // Implement a loading indicator if needed
         if (isLoading) {
-            supplierTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-gray-500">Memuat data...</td></tr>';
+            supplierTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Memuat data...</td></tr>';
         }
     }
 
@@ -81,10 +81,10 @@ window.initPembelianDaftarSupplierPage = function() {
                 <td class="px-3 py-2 whitespace-nowrap text-gray-500">${supplier.Alamat || 'N/A'}</td>
                 <td class="px-3 py-2 text-center">
                     <button class="text-indigo-600 hover:text-indigo-900 edit-supplier-btn" title="Edit">
-                        <i data-lucide="square-pen" class="w-4 h-4"></i>
+                        <i data-lucide="square-pen" class="w-4 h-4 inline-block"></i>
                     </button>
                     <button class="text-red-600 hover:text-red-900 delete-supplier-btn ml-2" title="Hapus">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <i data-lucide="trash-2" class="w-4 h-4 inline-block"></i>
                     </button>
                 </td>
             `;
@@ -138,7 +138,7 @@ window.initPembelianDaftarSupplierPage = function() {
             supplierData.ID = editingSupplierId; // Add ID for update
         }
 
-        window.sendDataToGoogle(action, { supplierData: supplierData },
+        window.sendDataToGoogle(action, { supplierData: JSON.stringify(supplierData) },
             (response) => {
                 if (response.status === 'success') {
                     showToast(response.message, 'success');
@@ -169,25 +169,25 @@ window.initPembelianDaftarSupplierPage = function() {
             } else {
                 showToast('Supplier tidak ditemukan untuk diedit.', 'error');
             }
-        } else if (target.classList.contains('delete-supplier-btn')) {
-            if (confirm(`Apakah Anda yakin ingin menghapus supplier ${supplier.NamaSupplier}?`)) {
-                window.sendDataToGoogle('deleteSupplier', { supplierId: supplierId },
-                    (response) => {
-                        if (response.status === 'success') {
-                            showToast(response.message, 'success');
-                            loadSuppliers(searchSupplierInput.value); // Reload with current search term
-                        } else {
-                            showToast(response.message || 'Gagal menghapus supplier.', 'error');
+            } else if (target.classList.contains('delete-supplier-btn')) {
+                if (confirm(`Apakah Anda yakin ingin menghapus supplier ${supplier['Nama Supplier']}?`)) {
+                    window.sendDataToGoogle('deleteSupplier', { supplierId: supplierId },
+                        (response) => {
+                            if (response.status === 'success') {
+                                showToast(response.message, 'success');
+                                loadSuppliers(searchSupplierInput.value); // Reload with current search term
+                            } else {
+                                showToast(response.message || 'Gagal menghapus supplier.', 'error');
+                            }
+                        },
+                        (error) => {
+                            console.error('Error deleting supplier:', error);
+                            showToast('Terjadi kesalahan saat menghapus supplier.', 'error');
                         }
-                    },
-                    (error) => {
-                        console.error('Error deleting supplier:', error);
-                        showToast('Terjadi kesalahan saat menghapus supplier.', 'error');
-                    }
-                );
+                    );
+                }
             }
         }
-    }
 
     function handleSearch() {
         loadSuppliers(searchSupplierInput.value);
