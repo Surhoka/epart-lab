@@ -1,219 +1,272 @@
 // Pastikan fungsi ini hanya didefinisikan sekali
 if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
-
     window.initPembelianOrderPembelianPage = function() {
         console.log('Memulai inisialisasi halaman Order Pembelian...');
 
         // -----------------------------------------------------
         // EzyParts - Halaman Order Pembelian (Purchase Order)
+        // v2 - Disesuaikan dengan pola inventory-daftar-produk.js
         // -----------------------------------------------------
+
+        // --- Variabel Global & State ---
+        let allPurchaseOrders = [];
+        let hasFetchedInitialData = false;
+        let isEditMode = false;
+        let editingPoNumber = null;
 
         // --- Inisialisasi Elemen ---
         const createPoButton = document.getElementById('create-po-button');
+        const searchPoInput = document.getElementById('po-search');
         const searchPoButton = document.getElementById('search-po-button');
         const resetPoTableButton = document.getElementById('reset-po-table-button');
+        
+        const poFormContainer = document.getElementById('po-form-container');
         const poProductList = document.getElementById('po-product-list');
         const poNumberInput = document.getElementById('po-number');
         const poDateInput = document.getElementById('po-date');
-        const poFormContainer = document.getElementById('po-form-container');
         const purchaseOrdersTableBody = document.getElementById('purchase-orders-table-body');
-
-        let listenersAttached = false;
+        const loadingOverlay = document.getElementById('loading-overlay-po'); // Asumsi ada overlay loading
 
         // --- Helper Functions ---
-        const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
+        const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
         const formatDate = (dateString) => {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
             return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         };
 
+        // --- Fungsi Render & UI ---
+
         function showLoading(isLoading) {
-            if (isLoading) {
-                purchaseOrdersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center p-5">
-                            <div class="flex justify-center items-center">
-                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-                                <span class="ml-3">Memuat data...</span>
-                            </div>
-                        </td>
-                    </tr>`;
-            } else {
-                purchaseOrdersTableBody.innerHTML = '';
+            if (loadingOverlay) {
+                loadingOverlay.classList.toggle('hidden', !isLoading);
+            }
+            if(isLoading) {
+                purchaseOrdersTableBody.innerHTML = ''; // Kosongkan tabel saat loading
             }
         }
 
         function renderPurchaseOrdersTable(orders) {
             showLoading(false);
-            if (!orders || orders.length === 0) {
-                purchaseOrdersTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-5 text-gray-500">Tidak ada data order pembelian.</td></tr>';
+            if (!Array.isArray(orders)) {
+                console.error("Data yang diterima bukan array:", orders);
+                purchaseOrdersTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-500">Error: Format data order tidak valid.</td></tr>';
                 return;
             }
 
-            const tableRows = orders.map(order => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 border-r">${order.poNumber || 'N/A'}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-600 border-r">${formatDate(order.poDate)}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-600 border-r">${order.supplier || 'N/A'}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-800 font-medium border-r">${formatCurrency(order.total || 0)}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-center border-r">
+            if (orders.length === 0) {
+                purchaseOrdersTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">Belum ada order pembelian. Silakan buat order baru.</td></tr>';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            orders.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 text-xs border-b';
+                tr.dataset.poNumber = order.poNumber;
+                tr.innerHTML = `
+                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${order.poNumber || 'N/A'}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-600 border-r">${formatDate(order.poDate)}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-600 border-r">${order.supplier || 'N/A'}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-800 font-medium border-r">${formatCurrency(order.total)}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-center border-r">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Completed
+                            ${order.status || 'Completed'}
                         </span>
                     </td>
-                    <td class="px-3 py-2 whitespace-nowrap text-center text-sm font-medium">
-                        <button class="text-indigo-600 hover:text-indigo-800 action-button mr-2" title="Lihat Detail">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
+                    <td class="px-3 py-2 whitespace-nowrap text-center font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-800 action-button mr-2 view-po-btn" title="Lihat Detail">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                         </button>
-                        <button class="text-red-600 hover:text-red-800 action-button" title="Hapus">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <button class="text-red-600 hover:text-red-800 action-button delete-po-btn" title="Hapus">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                         </button>
                     </td>
-                </tr>
-            `).join('');
+                `;
+                fragment.appendChild(tr);
+            });
 
-            purchaseOrdersTableBody.innerHTML = tableRows;
+            purchaseOrdersTableBody.innerHTML = '';
+            purchaseOrdersTableBody.appendChild(fragment);
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
         }
 
-        function loadPurchaseOrders(searchTerm = "") {
-            console.log(`Memuat data order pembelian dengan filter: "${searchTerm}"`);
+        // --- Fungsi Pengambilan Data ---
+
+        function loadPurchaseOrders(forceRefresh = false) {
+            if (hasFetchedInitialData && !forceRefresh) {
+                renderPurchaseOrdersTable(allPurchaseOrders);
+                return;
+            }
+            
             showLoading(true);
 
-            if (typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined') {
-                google.script.run
-                    .withSuccessHandler(response => {
-                        if (response.success) {
-                            renderPurchaseOrdersTable(response.data);
-                        } else {
-                            console.error('Gagal memuat data:', response.message);
-                            purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-red-500">Error: ${response.message}</td></tr>`;
-                        }
-                    })
-                    .withFailureHandler(error => {
-                        console.error('Error saat memanggil Apps Script:', error);
-                        purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-red-500">Error: ${error.message}</td></tr>`;
-                    })
-                    .getPurchaseOrders(searchTerm);
-            } else {
-                console.warn('Google Apps Script API not found. Loading mock data for development.');
-                // Mock data for local development
-                const mockData = [
-                    { poNumber: 'PO-202511-001', poDate: '2025-11-01', supplier: 'PT. Maju Jaya', total: 500000, status: 'Completed' },
-                    { poNumber: 'PO-202511-002', poDate: '2025-11-02', supplier: 'CV. Sparepart Sejati', total: 750000, status: 'Completed' },
-                    { poNumber: 'PO-202511-003', poDate: '2025-11-03', supplier: 'Toko Sinar Abadi', total: 250000, status: 'Completed' }
-                ];
-                setTimeout(() => renderPurchaseOrdersTable(mockData), 1000); // Simulate network delay
-            }
+            const handleSuccess = (response) => {
+                showLoading(false);
+                if (response && response.status === 'success' && Array.isArray(response.data)) {
+                    allPurchaseOrders = response.data;
+                    renderPurchaseOrdersTable(allPurchaseOrders);
+                    hasFetchedInitialData = true;
+                    if (response.message && typeof showToast === 'function') {
+                        showToast(response.message, 'success');
+                    }
+                } else {
+                    handleFailure({ message: response.message || 'Gagal memuat data dengan format yang benar.' });
+                }
+            };
+
+            const handleFailure = (error) => {
+                showLoading(false);
+                console.error("Gagal mengambil data order:", error);
+                const errorMessage = error.message || 'Terjadi kesalahan koneksi.';
+                purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-red-500">Error: ${errorMessage}</td></tr>`;
+                if (typeof showToast === 'function') {
+                    showToast(`Gagal memuat data: ${errorMessage}`, 'error');
+                }
+            };
+
+            // Menggunakan sendDataToGoogle yang konsisten
+            window.sendDataToGoogle('getPurchaseOrders', {}, handleSuccess, handleFailure);
         }
 
-        function generateNewPONumber() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
-            const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            return `PO-${year}${month}${day}-${randomSuffix}`;
-        }
-
-        function handleNewOrder() {
-            console.log('Membuka form order pembelian baru...');
-            poFormContainer.classList.remove('hidden');
-            if (poNumberInput) poNumberInput.value = generateNewPONumber();
-            const supplierSelect = document.getElementById('po-supplier');
-            if(supplierSelect) supplierSelect.value = '';
-            if(poProductList) poProductList.innerHTML = '';
-            document.getElementById('po-total-amount').textContent = formatCurrency(0);
-        }
+        // --- Event Handlers ---
 
         function handleSearch() {
-            const searchTerm = document.getElementById('po-search').value;
-            loadPurchaseOrders(searchTerm);
+            const searchTerm = searchPoInput.value.toLowerCase().trim();
+            if (!searchTerm) {
+                renderPurchaseOrdersTable(allPurchaseOrders);
+                return;
+            }
+            const filteredOrders = allPurchaseOrders.filter(order => {
+                return (order.poNumber && order.poNumber.toLowerCase().includes(searchTerm)) ||
+                       (order.supplier && order.supplier.toLowerCase().includes(searchTerm));
+            });
+            renderPurchaseOrdersTable(filteredOrders);
         }
 
         function handleResetTable() {
-            document.getElementById('po-search').value = '';
-            loadPurchaseOrders();
+            searchPoInput.value = '';
+            loadPurchaseOrders(true); // Paksa muat ulang dari server
+            if (typeof showToast === 'function') {
+                showToast('Tabel telah dimuat ulang.', 'info');
+            }
         }
 
-        function handleAddProduct() {
-            console.log('Menambah produk baru ke dalam list...');
-            const newRowHTML = `
-                <tr>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-center font-medium text-gray-900 border-r">${poProductList.rows.length + 1}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-left text-gray-900 border-r">SKU-BARU</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-left font-medium text-gray-900 border-r">Produk Baru</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-center border-r">1</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-right border-r">Rp 0</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-right border-r">0%</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-right border-r">Rp 0</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-right font-medium border-r">Rp 0</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-center text-sm font-medium">
-                        <button class="text-indigo-600 hover:text-indigo-800 action-button mr-2" title="Edit">
-                            <i data-lucide="edit" class="w-4 h-4"></i>
-                        </button>
-                        <button class="text-red-600 hover:text-red-800 action-button" title="Hapus">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            if (poProductList) {
-                poProductList.insertAdjacentHTML('beforeend', newRowHTML);
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
+        function handleNewOrder() {
+            isEditMode = false;
+            editingPoNumber = null;
+            console.log('Membuka form order pembelian baru...');
+            
+            // Reset form
+            document.getElementById('po-form').reset();
+            poProductList.innerHTML = '';
+            document.getElementById('po-total-amount').textContent = formatCurrency(0);
+
+            // Set tanggal hari ini
+            poDateInput.value = new Date().toISOString().split('T')[0];
+
+            // Dapatkan nomor PO baru dari server
+            window.sendDataToGoogle('getNewPoNumber', {}, 
+                (response) => {
+                    if(response.status === 'success') {
+                        poNumberInput.value = response.data;
+                    } else {
+                        // Fallback jika gagal
+                        poNumberInput.value = `PO-${Date.now()}`;
+                        if (typeof showToast === 'function') showToast('Gagal mendapatkan No. PO baru, gunakan nomor sementara.', 'warning');
+                    }
+                },
+                (error) => {
+                    console.error("Gagal mendapatkan No. PO baru:", error);
+                    poNumberInput.value = `PO-${Date.now()}`;
+                    if (typeof showToast === 'function') showToast('Error koneksi saat meminta No. PO.', 'error');
                 }
-            }
+            );
+
+            poFormContainer.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function handleSaveOrder(event) {
             event.preventDefault();
             console.log('Menyimpan order pembelian...');
-            alert('Fungsi simpan order pembelian belum diimplementasikan.');
+            // Logika penyimpanan akan ditambahkan di sini
+            alert('Fungsi simpan order pembelian belum diimplementasikan sepenuhnya.');
+            
+            // Contoh pengiriman data
+            /*
+            const orderData = {
+                poNumber: poNumberInput.value,
+                poDate: poDateInput.value,
+                supplier: document.getElementById('po-supplier').value,
+                total: 0, // Hitung total dari produk
+                products: [] // Ambil dari tabel produk
+            };
+
+            window.sendDataToGoogle('savePurchaseOrder', { orderData }, 
+                (response) => {
+                    if(response.status === 'success') {
+                        if (typeof showToast === 'function') showToast(response.message, 'success');
+                        poFormContainer.classList.add('hidden');
+                        loadPurchaseOrders(true); // Muat ulang data
+                    } else {
+                        if (typeof showToast === 'function') showToast(response.message, 'error');
+                    }
+                },
+                (error) => {
+                    if (typeof showToast === 'function') showToast(`Error: ${error.message}`, 'error');
+                }
+            );
+            */
         }
-        
+
+        function handleDelete(poNumber) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus Order Pembelian No: ${poNumber}?`)) {
+                return;
+            }
+            alert(`Fungsi hapus untuk ${poNumber} belum diimplementasikan.`);
+            // Logika penghapusan akan ditambahkan di sini
+        }
+
+        function handleViewDetails(poNumber) {
+            alert(`Fungsi lihat detail untuk ${poNumber} belum diimplementasikan.`);
+            // Logika untuk menampilkan detail akan ditambahkan di sini
+        }
+
         function handleTableClick(e) {
             const target = e.target.closest('button');
             if (!target) return;
 
-            const row = target.closest('tr');
-            if (target.title === 'Hapus') {
-                console.log('Menghapus baris produk...');
-                row.remove();
-            } else if (target.title === 'Edit') {
-                console.log('Mengedit baris produk...');
-                alert('Fungsi edit belum diimplementasikan.');
+            const poNumber = target.closest('tr').dataset.poNumber;
+
+            if (target.classList.contains('view-po-btn')) {
+                handleViewDetails(poNumber);
+            } else if (target.classList.contains('delete-po-btn')) {
+                handleDelete(poNumber);
             }
         }
-
+        
         function addEventListeners() {
-            if (listenersAttached) return;
+            // Hapus listener lama untuk mencegah duplikasi
+            createPoButton.removeEventListener('click', handleNewOrder);
+            searchPoButton.removeEventListener('click', handleSearch);
+            resetPoTableButton.removeEventListener('click', handleResetTable);
+            purchaseOrdersTableBody.removeEventListener('click', handleTableClick);
+            document.getElementById('po-form').removeEventListener('submit', handleSaveOrder);
 
-            if (createPoButton) createPoButton.addEventListener('click', handleNewOrder);
-            if (searchPoButton) searchPoButton.addEventListener('click', handleSearch);
-            if (resetPoTableButton) resetPoTableButton.addEventListener('click', handleResetTable);
+            // Tambah listener baru
+            createPoButton.addEventListener('click', handleNewOrder);
+            searchPoButton.addEventListener('click', handleSearch);
+            resetPoTableButton.addEventListener('click', handleResetTable);
+            purchaseOrdersTableBody.addEventListener('click', handleTableClick);
+            document.getElementById('po-form').addEventListener('submit', handleSaveOrder);
             
-            const addProductButton = poFormContainer.querySelector('button.ml-4.bg-indigo-600');
-            if (addProductButton && addProductButton.textContent.includes('Tambah Produk')) {
-                addProductButton.addEventListener('click', handleAddProduct);
-            }
-
-            const saveButton = poFormContainer.querySelector('button[type="submit"]');
-            if (saveButton) saveButton.addEventListener('click', handleSaveOrder);
-            
-            if (poProductList) poProductList.addEventListener('click', handleTableClick);
-            
-            listenersAttached = true;
-            console.log('Event listeners untuk Order Pembelian telah ditambahkan.');
+            console.log('Event listeners untuk Order Pembelian telah ditambahkan/diperbarui.');
         }
 
         function initializePage() {
-            const today = new Date().toISOString().split('T')[0];
-            if (poDateInput) poDateInput.value = today;
-
             loadPurchaseOrders();
             addEventListeners();
 
@@ -228,3 +281,11 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         initializePage();
     };
 }
+
+// Panggil inisialisasi jika file ini dimuat dalam konteks pengembangan (opsional)
+// Pada SPA, router akan memanggil window.initPembelianOrderPembelianPage()
+// document.addEventListener('DOMContentLoaded', () => {
+//     if (!document.body.classList.contains('spa-mode')) {
+//          window.initPembelianOrderPembelianPage();
+//     }
+// });
