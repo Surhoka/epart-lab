@@ -43,10 +43,10 @@ window.initPembelianDaftarSupplierPage = function() {
 
         if (isEditMode && supplier) {
             editingSupplierId = supplier.ID; // Assuming 'ID' is the unique identifier
-            supplierNameInput.value = supplier.NamaSupplier || '';
-            supplierContactPersonInput.value = supplier.KontakPerson || '';
-            supplierPhoneInput.value = supplier.NoTelepon || '';
-            supplierAddressInput.value = supplier.Alamat || '';
+            supplierNameInput.value = supplier['Nama Supplier'] || '';
+            supplierContactPersonInput.value = supplier['Kontak Person'] || '';
+            supplierPhoneInput.value = supplier['No.Telepon'] || '';
+            supplierAddressInput.value = supplier['Alamat'] || '';
         } else {
             editingSupplierId = null;
         }
