@@ -83,32 +83,31 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             console.log(`Memuat data order pembelian dengan filter: "${searchTerm}"`);
             showLoading(true);
 
-            if (typeof google === 'undefined' || typeof google.script === 'undefined' || typeof google.script.run === 'undefined') {
-                console.error('Google Apps Script API is not available. This app must be run as a web app from Google Apps Script.');
-                purchaseOrdersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center p-5 text-red-500">
-                            <strong>Error:</strong> Aplikasi ini harus dijalankan dari Google Apps Script.<br>
-                            Data tidak dapat dimuat.
-                        </td>
-                    </tr>`;
-                return;
+            if (typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined') {
+                google.script.run
+                    .withSuccessHandler(response => {
+                        if (response.success) {
+                            renderPurchaseOrdersTable(response.data);
+                        } else {
+                            console.error('Gagal memuat data:', response.message);
+                            purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-red-500">Error: ${response.message}</td></tr>`;
+                        }
+                    })
+                    .withFailureHandler(error => {
+                        console.error('Error saat memanggil Apps Script:', error);
+                        purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-red-500">Error: ${error.message}</td></tr>`;
+                    })
+                    .getPurchaseOrders(searchTerm);
+            } else {
+                console.warn('Google Apps Script API not found. Loading mock data for development.');
+                // Mock data for local development
+                const mockData = [
+                    { poNumber: 'PO-202511-001', poDate: '2025-11-01', supplier: 'PT. Maju Jaya', total: 500000, status: 'Completed' },
+                    { poNumber: 'PO-202511-002', poDate: '2025-11-02', supplier: 'CV. Sparepart Sejati', total: 750000, status: 'Completed' },
+                    { poNumber: 'PO-202511-003', poDate: '2025-11-03', supplier: 'Toko Sinar Abadi', total: 250000, status: 'Completed' }
+                ];
+                setTimeout(() => renderPurchaseOrdersTable(mockData), 1000); // Simulate network delay
             }
-
-            google.script.run
-                .withSuccessHandler(response => {
-                    if (response.success) {
-                        renderPurchaseOrdersTable(response.data);
-                    } else {
-                        console.error('Gagal memuat data:', response.message);
-                        purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-red-500">Error: ${response.message}</td></tr>`;
-                    }
-                })
-                .withFailureHandler(error => {
-                    console.error('Error saat memanggil Apps Script:', error);
-                    purchaseOrdersTableBody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-red-500">Error: ${error.message}</td></tr>`;
-                })
-                .getPurchaseOrders(searchTerm);
         }
 
         function generateNewPONumber() {
