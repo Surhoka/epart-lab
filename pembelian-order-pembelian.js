@@ -159,7 +159,9 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             }
         }
 
-        function handleNewOrder() {
+        function handleNewOrder(event) { // Added event parameter
+            event.stopPropagation(); // Prevent event from bubbling up
+            event.preventDefault();  // Prevent default action (e.g., form submission if button type is submit)
             console.log('handleNewOrder triggered!'); // Debug log
             isEditMode = false;
             editingPoNumber = null;
