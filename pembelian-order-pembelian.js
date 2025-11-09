@@ -82,6 +82,19 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         function loadPurchaseOrders(searchTerm = "") {
             console.log(`Memuat data order pembelian dengan filter: "${searchTerm}"`);
             showLoading(true);
+
+            if (typeof google === 'undefined' || typeof google.script === 'undefined' || typeof google.script.run === 'undefined') {
+                console.error('Google Apps Script API is not available. This app must be run as a web app from Google Apps Script.');
+                purchaseOrdersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center p-5 text-red-500">
+                            <strong>Error:</strong> Aplikasi ini harus dijalankan dari Google Apps Script.<br>
+                            Data tidak dapat dimuat.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
             google.script.run
                 .withSuccessHandler(response => {
                     if (response.success) {
