@@ -16,12 +16,15 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
 
         // --- Inisialisasi Elemen ---
         const createPoButton = document.getElementById('create-po-button');
+        console.log('createPoButton:', createPoButton); // Debug log
         const searchPoInput = document.getElementById('po-search');
         const searchPoButton = document.getElementById('search-po-button');
         const resetPoTableButton = document.getElementById('reset-po-table-button');
         
         const poFormContainer = document.getElementById('po-form-container');
+        console.log('poFormContainer:', poFormContainer); // Debug log
         const purchaseOrdersTableContainer = document.getElementById('purchase-orders-table-container'); // Added this line
+        console.log('purchaseOrdersTableContainer:', purchaseOrdersTableContainer); // Debug log
         const poProductList = document.getElementById('po-product-list');
         const poNumberInput = document.getElementById('po-number');
         const poDateInput = document.getElementById('po-date');
@@ -157,6 +160,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         }
 
         function handleNewOrder() {
+            console.log('handleNewOrder triggered!'); // Debug log
             isEditMode = false;
             editingPoNumber = null;
             console.log('Membuka form order pembelian baru...');
