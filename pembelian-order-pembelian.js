@@ -278,14 +278,14 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         }
 
         // --- Jalankan Inisialisasi ---
-        initializePage();
+        // initializePage();
     };
 }
 
 // Panggil inisialisasi jika file ini dimuat dalam konteks pengembangan (opsional)
 // Pada SPA, router akan memanggil window.initPembelianOrderPembelianPage()
-// document.addEventListener('DOMContentLoaded', () => {
-//     if (!document.body.classList.contains('spa-mode')) {
-//          window.initPembelianOrderPembelianPage();
-//     }
-// });
+document.addEventListener('DOMContentLoaded', () => {
+    // if (!document.body.classList.contains('spa-mode')) {
+         window.initPembelianOrderPembelianPage();
+    // }
+});
