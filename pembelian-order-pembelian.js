@@ -21,11 +21,13 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         const resetPoTableButton = document.getElementById('reset-po-table-button');
         
         const poFormContainer = document.getElementById('po-form-container');
+        const purchaseOrdersTableContainer = document.getElementById('purchase-orders-table-container'); // Added this line
         const poProductList = document.getElementById('po-product-list');
         const poNumberInput = document.getElementById('po-number');
         const poDateInput = document.getElementById('po-date');
         const purchaseOrdersTableBody = document.getElementById('purchase-orders-table-body');
         const loadingOverlay = document.getElementById('loading-overlay-po'); // Asumsi ada overlay loading
+        const cancelPoButton = document.getElementById('cancel-po-button'); // Added this line
 
         // --- Helper Functions ---
         const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
@@ -185,7 +187,8 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                 }
             );
 
-            poFormContainer.classList.remove('hidden');
+            purchaseOrdersTableContainer.classList.add('hidden'); // Hide the table
+            poFormContainer.classList.remove('hidden'); // Show the form
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -193,10 +196,10 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             event.preventDefault();
             console.log('Menyimpan order pembelian...');
             // Logika penyimpanan akan ditambahkan di sini
-            alert('Fungsi simpan order pembelian belum diimplementasikan sepenuhnya.');
+            // alert('Fungsi simpan order pembelian belum diimplementasikan sepenuhnya.');
             
             // Contoh pengiriman data
-            /*
+            
             const orderData = {
                 poNumber: poNumberInput.value,
                 poDate: poDateInput.value,
@@ -210,6 +213,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                     if(response.status === 'success') {
                         if (typeof showToast === 'function') showToast(response.message, 'success');
                         poFormContainer.classList.add('hidden');
+                        purchaseOrdersTableContainer.classList.remove('hidden'); // Show the table
                         loadPurchaseOrders(true); // Muat ulang data
                     } else {
                         if (typeof showToast === 'function') showToast(response.message, 'error');
@@ -219,7 +223,16 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                     if (typeof showToast === 'function') showToast(`Error: ${error.message}`, 'error');
                 }
             );
-            */
+            
+        }
+
+        function handleCancelOrder() {
+            console.log('Membatalkan order pembelian...');
+            poFormContainer.classList.add('hidden'); // Hide the form
+            purchaseOrdersTableContainer.classList.remove('hidden'); // Show the table
+            if (typeof showToast === 'function') {
+                showToast('Pembuatan order dibatalkan.', 'info');
+            }
         }
 
         function handleDelete(poNumber) {
@@ -256,6 +269,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             if (purchaseOrdersTableBody) purchaseOrdersTableBody.removeEventListener('click', handleTableClick);
             const poForm = document.getElementById('po-form');
             if (poForm) poForm.removeEventListener('submit', handleSaveOrder);
+            if (cancelPoButton) cancelPoButton.removeEventListener('click', handleCancelOrder); // Added this line
 
             // Tambah listener baru
             if (createPoButton) createPoButton.addEventListener('click', handleNewOrder);
@@ -263,6 +277,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             if (resetPoTableButton) resetPoTableButton.addEventListener('click', handleResetTable);
             if (purchaseOrdersTableBody) purchaseOrdersTableBody.addEventListener('click', handleTableClick);
             if (poForm) poForm.addEventListener('submit', handleSaveOrder);
+            if (cancelPoButton) cancelPoButton.addEventListener('click', handleCancelOrder); // Added this line
             
             console.log('Event listeners untuk Order Pembelian telah ditambahkan/diperbarui.');
         }
