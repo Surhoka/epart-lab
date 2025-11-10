@@ -5,9 +5,13 @@ window.initPembelianDaftarSupplierPage = function() {
     let allSuppliers = [];
     let isEditMode = false;
     let editingSupplierId = null;
+    let currentPage = 1;
+    const itemsPerPage = 10; // You can adjust this value as needed
+    let totalItems = 0;
 
     // --- DOM Elements ---
     const supplierTableBody = document.getElementById('supplier-table-body');
+    const paginationContainer = document.getElementById('pagination-container');
     const addSupplierButton = document.getElementById('add-supplier-button');
     const supplierModal = document.getElementById('supplier-modal');
     const supplierModalTitle = document.getElementById('supplier-modal-title');
@@ -26,6 +30,7 @@ window.initPembelianDaftarSupplierPage = function() {
         // Implement a loading indicator if needed
         if (isLoading) {
             supplierTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Memuat data...</td></tr>';
+            paginationContainer.innerHTML = ''; // Clear pagination during loading
         }
     }
 
@@ -64,7 +69,7 @@ window.initPembelianDaftarSupplierPage = function() {
     function renderSuppliersTable(suppliers) {
         showLoading(false);
         if (!Array.isArray(suppliers) || suppliers.length === 0) {
-            supplierTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-gray-500">Belum ada data supplier.</td></tr>';
+            supplierTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Belum ada data supplier.</td></tr>';
             return;
         }
 
@@ -98,26 +103,90 @@ window.initPembelianDaftarSupplierPage = function() {
         }
     }
 
-    function loadSuppliers(searchTerm = '', forceRefresh = false) {
+    function renderPagination(totalItems, itemsPerPage, currentPage) {
+        paginationContainer.innerHTML = ''; // Clear previous pagination
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        if (totalPages <= 1) return; // No pagination needed for 1 or fewer pages
+
+        const paginationInfo = document.createElement('span');
+        const startItem = (currentPage - 1) * itemsPerPage + 1;
+        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+        paginationInfo.textContent = `Menampilkan ${startItem} sampai ${endItem} dari ${totalItems} Supplier`;
+        paginationContainer.appendChild(paginationInfo);
+
+        const pageButtonsContainer = document.createElement('div');
+        pageButtonsContainer.className = 'flex space-x-1';
+
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.className = 'p-2 rounded-md hover:bg-gray-100 action-button';
+        prevButton.textContent = 'Sebelumnya';
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => goToPage(currentPage - 1));
+        pageButtonsContainer.appendChild(prevButton);
+
+        // Page numbers
+        const maxPageButtons = 5; // Max number of page buttons to show
+        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+
+        if (endPage - startPage + 1 < maxPageButtons) {
+            startPage = Math.max(1, endPage - maxPageButtons + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.className = `p-2 rounded-md action-button ${i === currentPage ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100'}`;
+            pageButton.textContent = i;
+            pageButton.addEventListener('click', () => goToPage(i));
+            pageButtonsContainer.appendChild(pageButton);
+        }
+
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.className = 'p-2 rounded-md hover:bg-gray-100 action-button';
+        nextButton.textContent = 'Berikutnya';
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => goToPage(currentPage + 1));
+        pageButtonsContainer.appendChild(nextButton);
+
+        paginationContainer.appendChild(pageButtonsContainer);
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        loadSuppliers(searchSupplierInput.value);
+    }
+
+    function loadSuppliers(searchTerm = '') {
         showLoading(true);
-        const action = searchTerm ? 'searchSuppliers' : 'getSuppliers'; // Assuming a searchSuppliers action in backend
-        const params = searchTerm ? { searchTerm: searchTerm } : {};
+        const action = searchTerm ? 'searchSuppliers' : 'getSuppliers';
+        const params = {
+            searchTerm: searchTerm,
+            page: currentPage,
+            itemsPerPage: itemsPerPage
+        };
 
         window.sendDataToGoogle(action, params,
             (response) => {
                 if (response.status === 'success' && Array.isArray(response.data)) {
                     allSuppliers = response.data;
+                    totalItems = response.totalItems || allSuppliers.length; // Assuming backend returns totalItems
                     renderSuppliersTable(allSuppliers);
+                    renderPagination(totalItems, itemsPerPage, currentPage);
                     if (response.message) showToast(response.message, 'success');
                 } else {
                     showToast(response.message || 'Gagal memuat data supplier.', 'error');
                     renderSuppliersTable([]); // Render empty table on error
+                    renderPagination(0, itemsPerPage, currentPage); // Render empty pagination
                 }
             },
             (error) => {
                 console.error('Error loading suppliers:', error);
                 showToast('Terjadi kesalahan saat memuat data supplier.', 'error');
                 renderSuppliersTable([]); // Render empty table on error
+                renderPagination(0, itemsPerPage, currentPage); // Render empty pagination
             }
         );
     }
