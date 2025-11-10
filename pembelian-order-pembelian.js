@@ -88,13 +88,14 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         }
 
         async function loadModalProducts(searchTerm = '') {
-            console.log('Memuat data produk untuk modal...');
+            console.log('Memulai memuat data produk untuk modal dengan searchTerm:', searchTerm); // Added log
             const loadingOverlay = document.getElementById('loading-overlay-modal-product');
             loadingOverlay.classList.remove('hidden');
             modalProductList.innerHTML = ''; // Clear previous products
 
             window.sendDataToGoogle('getProductsForPO', { searchTerm: searchTerm },
                 (response) => {
+                    console.log('Response dari getProductsForPO:', response); // Added log
                     loadingOverlay.classList.add('hidden');
                     if (response.status === 'success' && response.data) {
                         if (response.data.length === 0) {
@@ -122,6 +123,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                     }
                 },
                 (error) => {
+                    console.error('Error callback dari getProductsForPO:', error); // Added log
                     loadingOverlay.classList.add('hidden');
                     console.error('Error koneksi saat memuat produk modal:', error);
                     modalProductList.innerHTML = `<tr><td colspan="5" class="px-3 py-2 text-center text-red-500">Error koneksi: ${error.message}</td></tr>`;
@@ -291,9 +293,8 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         function addEventListeners() {
             const poForm = document.getElementById('po-form');
             
-            // Temporary: Log all clicks on the body to debug
+            // Using event delegation for createPoButton to handle dynamic content
             document.body.addEventListener('click', (event) => {
-                console.log('Body clicked. Target:', event.target);
                 if (event.target.closest('#create-po-button')) {
                     console.log('Event delegated click on createPoButton detected.');
                     handleNewOrder(event);
