@@ -24,11 +24,84 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         const poNumberInput = document.getElementById('po-number');
         const poDateInput = document.getElementById('po-date');
         const poSupplierSelect = document.getElementById('po-supplier'); // Reference the new select element
+        const addProductButton = document.getElementById('add-product-button'); // Reference the add product button
         const cancelPoButton = document.getElementById('cancel-po-button'); // Added this line
 
         // --- Helper Functions ---
         const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
         // formatDate is not strictly needed here, but keeping it for consistency if other parts of the form use it.
+
+        let productRowCount = 0; // To keep track of product rows
+
+        function addProductRow() {
+            productRowCount++;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="px-3 py-2 whitespace-nowrap text-center border-r">${productRowCount}</td>
+                <td class="px-3 py-2 whitespace-nowrap border-r">
+                    <input type="text" class="product-sku w-full p-1 border rounded-md" placeholder="SKU">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap border-r">
+                    <input type="text" class="product-name w-full p-1 border rounded-md" placeholder="Nama Produk">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-center border-r">
+                    <input type="number" class="product-qty w-20 p-1 border rounded-md text-center" value="1" min="1">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-right border-r">
+                    <input type="number" class="product-buy-price w-full p-1 border rounded-md text-right" value="0" min="0">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-right border-r">
+                    <input type="number" class="product-discount w-full p-1 border rounded-md text-right" value="0" min="0">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-right border-r">
+                    <input type="number" class="product-sell-price w-full p-1 border rounded-md text-right" value="0" min="0">
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-right border-r product-subtotal">${formatCurrency(0)}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-center">
+                    <button type="button" class="delete-product-row text-red-600 hover:text-red-800 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </td>
+            `;
+            poProductList.appendChild(newRow);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            updateTotalAmount(); // Update total when a new row is added
+        }
+
+        function updateTotalAmount() {
+            let total = 0;
+            poProductList.querySelectorAll('tr').forEach(row => {
+                const qty = parseFloat(row.querySelector('.product-qty').value) || 0;
+                const buyPrice = parseFloat(row.querySelector('.product-buy-price').value) || 0;
+                const discount = parseFloat(row.querySelector('.product-discount').value) || 0;
+                const subtotal = (qty * buyPrice) - discount;
+                row.querySelector('.product-subtotal').textContent = formatCurrency(subtotal);
+                total += subtotal;
+            });
+            document.getElementById('po-total-amount').textContent = formatCurrency(total);
+        }
+
+        // Event delegation for deleting product rows
+        poProductList.addEventListener('click', (event) => {
+            if (event.target.closest('.delete-product-row')) {
+                event.target.closest('tr').remove();
+                productRowCount--; // Decrement count
+                // Re-number rows
+                poProductList.querySelectorAll('tr').forEach((row, index) => {
+                    row.children[0].textContent = index + 1;
+                });
+                updateTotalAmount();
+            }
+        });
+
+        // Event delegation for input changes to update total
+        poProductList.addEventListener('input', (event) => {
+            if (event.target.classList.contains('product-qty') ||
+                event.target.classList.contains('product-buy-price') ||
+                event.target.classList.contains('product-discount')) {
+                updateTotalAmount();
+            }
+        });
 
         async function loadSuppliers() {
             console.log('Memuat data supplier...');
@@ -141,6 +214,10 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
             if (createPoButton) {
                 console.log('Attaching direct click listener to createPoButton:', createPoButton);
                 createPoButton.addEventListener('click', handleNewOrder);
+            }
+            if (addProductButton) {
+                console.log('Attaching click listener to addProductButton:', addProductButton);
+                addProductButton.addEventListener('click', addProductRow);
             }
             if (poForm) poForm.addEventListener('submit', handleSaveOrder);
             if (cancelPoButton) cancelPoButton.addEventListener('click', handleCancelOrder);
