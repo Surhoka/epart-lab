@@ -209,6 +209,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         // --- Event Handlers ---
 
         function handleNewOrder(event) {
+            console.log('createPoButton clicked - handleNewOrder function initiated.'); // Added log
             event.stopPropagation();
             event.preventDefault();
             console.log('handleNewOrder triggered!');
