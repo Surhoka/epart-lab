@@ -5,7 +5,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
 
         // -----------------------------------------------------
         // EzyParts - Halaman Order Pembelian (Purchase Order)
-        // v2 - Disesuaikan dengan pola inventory-daftar-produk.js
+        // Disesuaikan dengan pola inventory-daftar-produk.js
         // -----------------------------------------------------
 
         // --- Variabel Global & State ---
@@ -23,11 +23,37 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         const poProductList = document.getElementById('po-product-list');
         const poNumberInput = document.getElementById('po-number');
         const poDateInput = document.getElementById('po-date');
+        const poSupplierSelect = document.getElementById('po-supplier'); // Reference the new select element
         const cancelPoButton = document.getElementById('cancel-po-button'); // Added this line
 
         // --- Helper Functions ---
         const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
         // formatDate is not strictly needed here, but keeping it for consistency if other parts of the form use it.
+
+        async function loadSuppliers() {
+            console.log('Memuat data supplier...');
+            window.sendDataToGoogle('getSuppliers', {},
+                (response) => {
+                    if (response.status === 'success' && response.data) {
+                        poSupplierSelect.innerHTML = '<option value="">Pilih Supplier</option>'; // Reset and add default
+                        response.data.forEach(supplier => {
+                            const option = document.createElement('option');
+                            option.value = supplier.nama; // Assuming 'nama' is the supplier name
+                            option.textContent = supplier.nama;
+                            poSupplierSelect.appendChild(option);
+                        });
+                        console.log('Data supplier berhasil dimuat.');
+                    } else {
+                        console.error('Gagal memuat data supplier:', response.message);
+                        if (typeof showToast === 'function') showToast('Gagal memuat data supplier.', 'error');
+                    }
+                },
+                (error) => {
+                    console.error('Error koneksi saat memuat supplier:', error);
+                    if (typeof showToast === 'function') showToast('Error koneksi saat memuat supplier.', 'error');
+                }
+            );
+        }
 
         // --- Event Handlers ---
 
@@ -124,6 +150,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
 
         function initializePage() {
             addEventListeners();
+            loadSuppliers(); // Load suppliers when the page initializes
 
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
