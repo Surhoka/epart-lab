@@ -18,8 +18,8 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         
         const poFormContainer = document.getElementById('po-form-container');
         console.log('poFormContainer:', poFormContainer); // Debug log
-        const poPageContent = document.getElementById('page-pembelian-order-pembelian'); // Reference the main page content
-        console.log('poPageContent:', poPageContent); // Debug log
+        const poListView = document.getElementById('po-list-view'); // Reference the new list view container
+        console.log('poListView:', poListView); // Debug log
         const poProductList = document.getElementById('po-product-list');
         const poNumberInput = document.getElementById('po-number');
         const poDateInput = document.getElementById('po-date');
@@ -64,7 +64,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                 }
             );
 
-            poPageContent.classList.add('hidden'); // Hide the main page content
+            poListView.classList.add('hidden'); // Hide the list view
             poFormContainer.classList.remove('hidden'); // Show the form
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
@@ -86,7 +86,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                     if(response.status === 'success') {
                         if (typeof showToast === 'function') showToast(response.message, 'success');
                         poFormContainer.classList.add('hidden');
-                        poPageContent.classList.remove('hidden'); // Show the main page content
+                        poListView.classList.remove('hidden'); // Show the list view
                         // Trigger a reload of the purchase order list if it's active
                         if (typeof window.initPembelianDaftarPembelianPage === 'function') {
                             window.initPembelianDaftarPembelianPage(); // Re-initialize to refresh data
@@ -104,7 +104,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         function handleCancelOrder() {
             console.log('Membatalkan order pembelian...');
             poFormContainer.classList.add('hidden'); // Hide the form
-            poPageContent.classList.remove('hidden'); // Show the main page content
+            poListView.classList.remove('hidden'); // Show the list view
             if (typeof showToast === 'function') {
                 showToast('Pembuatan order dibatalkan.', 'info');
             }
