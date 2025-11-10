@@ -74,12 +74,12 @@ window.initPembelianDaftarSupplierPage = function() {
             tr.className = 'hover:bg-gray-50 text-xs border-b';
             tr.dataset.supplierId = supplier.ID; // Assuming 'ID' is the unique identifier
             tr.innerHTML = `
-                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${supplier.ID || 'N/A'}</td>
-                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900">${supplier['Nama Supplier'] || 'N/A'}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-gray-700">${supplier['Kontak Person'] || 'N/A'}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-gray-500">${supplier['No.Telepon'] || 'N/A'}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-gray-500">${supplier.Alamat || 'N/A'}</td>
-                <td class="px-3 py-2 text-center">
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${supplier.ID || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${supplier['Nama Supplier'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r">${supplier['Kontak Person'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${supplier['No.Telepon'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${supplier.Alamat || 'N/A'}</td>
+                <td class="px-3 py-2 text-center border-r">
                     <button class="text-indigo-600 hover:text-indigo-900 edit-supplier-btn" title="Edit">
                         <i data-lucide="square-pen" class="w-4 h-4 inline-block"></i>
                     </button>
