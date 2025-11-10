@@ -6,11 +6,14 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
         // --- Variabel Global & State ---
         let allPurchaseOrders = [];
         let hasFetchedInitialData = false;
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc'; // 'asc' or 'desc'
 
         // --- Inisialisasi Elemen ---
         const searchPoInput = document.getElementById('search-purchase-order-input');
         const searchPoButton = document.getElementById('search-purchase-order-button');
         const addPurchaseOrderButton = document.getElementById('add-purchase-order-button'); // This button will likely be handled by the order-pembelian.js
+        const purchaseOrdersTableContainer = document.getElementById('purchase-orders-table-container'); // Need this to access thead
         const purchaseOrdersTableBody = document.getElementById('purchase-orders-table-body');
         const loadingOverlay = document.getElementById('loading-overlay-po');
         const paginationContainer = document.getElementById('pagination-container-po'); // Assuming pagination will be implemented here
@@ -47,8 +50,25 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
                 return;
             }
 
+            // Apply sorting before rendering
+            const sortedOrders = [...orders].sort((a, b) => {
+                if (!currentSortColumn) return 0;
+
+                const aValue = a[currentSortColumn];
+                const bValue = b[currentSortColumn];
+
+                if (aValue === null || aValue === undefined) return currentSortDirection === 'asc' ? 1 : -1;
+                if (bValue === null || bValue === undefined) return currentSortDirection === 'asc' ? -1 : 1;
+
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    return currentSortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                }
+                // For numbers and dates
+                return currentSortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+            });
+
             const fragment = document.createDocumentFragment();
-            orders.forEach(order => {
+            sortedOrders.forEach(order => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 text-xs border-b';
                 tr.dataset.poNumber = order['No. PO']; // Use 'No. PO' from backend
@@ -79,6 +99,21 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
+
+            // Update sort icons
+            document.querySelectorAll('#purchase-orders-table-container th[data-sort]').forEach(th => {
+                const sortIcon = th.querySelector('.sort-icon');
+                if (sortIcon) {
+                    sortIcon.classList.remove('rotate-180', 'text-indigo-600');
+                    sortIcon.classList.add('text-gray-400');
+                    if (th.dataset.sort === currentSortColumn) {
+                        sortIcon.classList.add('text-indigo-600');
+                        if (currentSortDirection === 'desc') {
+                            sortIcon.classList.add('rotate-180');
+                        }
+                    }
+                }
+            });
         }
 
         // --- Fungsi Pengambilan Data ---
@@ -160,11 +195,39 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
                 handleDelete(poNumber);
             }
         }
+
+        function handleSort(e) {
+            const targetTh = e.target.closest('th[data-sort]');
+            if (!targetTh) return;
+
+            const sortColumn = targetTh.dataset.sort;
+            // Map frontend sort keys to backend response keys
+            const backendSortColumnMap = {
+                'poNumber': 'No. PO',
+                'poDate': 'Tanggal Order',
+                'supplier': 'Supplier',
+                'total': 'Total',
+                'status': 'Status'
+            };
+            const actualSortColumn = backendSortColumnMap[sortColumn];
+
+            if (currentSortColumn === actualSortColumn) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = actualSortColumn;
+                currentSortDirection = 'asc';
+            }
+            renderPurchaseOrdersTable(allPurchaseOrders); // Re-render with new sort order
+        }
         
         function addEventListeners() {
             if (searchPoButton) searchPoButton.addEventListener('click', handleSearch);
             if (purchaseOrdersTableBody) purchaseOrdersTableBody.addEventListener('click', handleTableClick);
-            // The addPurchaseOrderButton will be handled by the purchase order creation script
+            
+            // Add event listeners for sorting
+            document.querySelectorAll('#purchase-orders-table-container th[data-sort]').forEach(th => {
+                th.addEventListener('click', handleSort);
+            });
             
             console.log('Event listeners untuk Daftar Pembelian telah ditambahkan/diperbarui.');
         }
