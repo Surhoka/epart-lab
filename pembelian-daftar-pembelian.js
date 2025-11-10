@@ -18,6 +18,46 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
         const loadingOverlay = document.getElementById('loading-overlay-po');
         const paginationContainer = document.getElementById('pagination-container-po'); // Assuming pagination will be implemented here
 
+        // Function to update table header sort icons
+        function updateTableHeaders() {
+            const headers = document.querySelectorAll('#purchase-orders-table-container th[data-sort]');
+            headers.forEach(header => {
+                const column = header.getAttribute('data-sort');
+                if (!column) return;
+
+                // Map frontend sort keys to backend response keys
+                const backendSortColumnMap = {
+                    'poNumber': 'No. PO',
+                    'poDate': 'Tanggal Order',
+                    'supplier': 'Supplier',
+                    'total': 'Total',
+                    'status': 'Status'
+                };
+                const actualColumn = backendSortColumnMap[column];
+
+                // Reset existing icon classes
+                const icon = header.querySelector('.sort-icon');
+                if (icon) {
+                    icon.classList.remove('text-indigo-600', 'text-gray-400');
+                    if (actualColumn === currentSortColumn) {
+                        icon.classList.add('text-indigo-600');
+                        icon.dataset.lucide = currentSortDirection === 'asc' ? 'chevron-up' : 'chevron-down';
+                    } else {
+                        icon.classList.add('text-gray-400');
+                        icon.dataset.lucide = 'chevrons-up-down';
+                    }
+                }
+
+                // Update cursor style
+                header.classList.toggle('active-sort', actualColumn === currentSortColumn);
+            });
+            
+            // Refresh Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
         // --- Helper Functions ---
         const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
         const formatDate = (dateString) => {
@@ -96,24 +136,9 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
 
             purchaseOrdersTableBody.innerHTML = '';
             purchaseOrdersTableBody.appendChild(fragment);
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-
-            // Update sort icons
-            document.querySelectorAll('#purchase-orders-table-container th[data-sort]').forEach(th => {
-                const sortIcon = th.querySelector('.sort-icon');
-                if (sortIcon) {
-                    sortIcon.classList.remove('rotate-180', 'text-indigo-600');
-                    sortIcon.classList.add('text-gray-400');
-                    if (th.dataset.sort === currentSortColumn) {
-                        sortIcon.classList.add('text-indigo-600');
-                        if (currentSortDirection === 'desc') {
-                            sortIcon.classList.add('rotate-180');
-                        }
-                    }
-                }
-            });
+            
+            // Update sort icons after rendering
+            updateTableHeaders();
         }
 
         // --- Fungsi Pengambilan Data ---
