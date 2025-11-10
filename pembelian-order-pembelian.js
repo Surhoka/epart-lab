@@ -5,7 +5,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
 
         // -----------------------------------------------------
         // EzyParts - Halaman Order Pembelian (Purchase Order)
-        // Disesuaikan dengan pola inventory-daftar-produk.js
+        // v2 - Disesuaikan dengan pola inventory-daftar-produk.js
         // -----------------------------------------------------
 
         // --- Variabel Global & State ---
@@ -38,8 +38,8 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
                         poSupplierSelect.innerHTML = '<option value="">Pilih Supplier</option>'; // Reset and add default
                         response.data.forEach(supplier => {
                             const option = document.createElement('option');
-                            option.value = supplier.nama; // Assuming 'nama' is the supplier name
-                            option.textContent = supplier.nama;
+                            option.value = supplier['Nama Supplier']; // Use the correct key 'Nama Supplier'
+                            option.textContent = supplier['Nama Supplier']; // Use the correct key 'Nama Supplier'
                             poSupplierSelect.appendChild(option);
                         });
                         console.log('Data supplier berhasil dimuat.');
