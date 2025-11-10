@@ -51,15 +51,15 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
             orders.forEach(order => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 text-xs border-b';
-                tr.dataset.poNumber = order.poNumber;
+                tr.dataset.poNumber = order['No. PO']; // Use 'No. PO' from backend
                 tr.innerHTML = `
-                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${order.poNumber || 'N/A'}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-600 border-r">${formatDate(order.poDate)}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-gray-600 border-r">${order.supplier || 'N/A'}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-800 font-medium border-r">${formatCurrency(order.total)}</td>
+                    <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${order['No. PO'] || 'N/A'}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-600 border-r">${formatDate(order['Tanggal Order'])}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-gray-600 border-r">${order['Supplier'] || 'N/A'}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-right text-gray-800 font-medium border-r">${formatCurrency(order['Total'])}</td>
                     <td class="px-3 py-2 whitespace-nowrap text-center border-r">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            ${order.status || 'Completed'}
+                            ${order['Status'] || 'Completed'}
                         </span>
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap text-center font-medium">
@@ -128,8 +128,9 @@ if (typeof window.initPembelianDaftarPembelianPage === 'undefined') {
                 return;
             }
             const filteredOrders = allPurchaseOrders.filter(order => {
-                return (order.poNumber && order.poNumber.toLowerCase().includes(searchTerm)) ||
-                       (order.supplier && order.supplier.toLowerCase().includes(searchTerm));
+                const poNumber = order['No. PO'] ? String(order['No. PO']).toLowerCase() : '';
+                const supplier = order['Supplier'] ? String(order['Supplier']).toLowerCase() : '';
+                return poNumber.includes(searchTerm) || supplier.includes(searchTerm);
             });
             renderPurchaseOrdersTable(filteredOrders);
         }
