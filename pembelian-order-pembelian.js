@@ -290,13 +290,16 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         
         function addEventListeners() {
             const poForm = document.getElementById('po-form');
-            // Using event delegation for createPoButton to handle dynamic content
+            
+            // Temporary: Log all clicks on the body to debug
             document.body.addEventListener('click', (event) => {
+                console.log('Body clicked. Target:', event.target);
                 if (event.target.closest('#create-po-button')) {
                     console.log('Event delegated click on createPoButton detected.');
                     handleNewOrder(event);
                 }
             });
+
             if (addProductButton) {
                 console.log('Attaching click listener to addProductButton:', addProductButton);
                 addProductButton.addEventListener('click', openProductModal); // Open modal instead of adding row directly
