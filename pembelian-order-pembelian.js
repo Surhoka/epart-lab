@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Event listeners untuk Order Pembelian (Form) telah ditambahkan/diperbarui.');
     }
 
-    function initializePage() {
+    function initPembelianOrderPembelianPage() {
         addEventListeners();
         loadSuppliers();
 
@@ -269,5 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Jalankan Inisialisasi ---
-    initializePage();
+    window.initPembelianOrderPembelianPage = initPembelianOrderPembelianPage;
+    initPembelianOrderPembelianPage();
 });
