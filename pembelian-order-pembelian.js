@@ -187,12 +187,25 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         console.log('Menyimpan order pembelian...');
         
+        const products = [];
+        poProductList.querySelectorAll('tr').forEach(row => {
+            const product = {
+                sku: row.querySelector('.product-sku').value,
+                name: row.querySelector('.product-name').value,
+                qty: row.querySelector('.product-qty').value,
+                buyPrice: row.querySelector('.product-buy-price').value,
+                discount: row.querySelector('.product-discount').value,
+                sellPrice: row.querySelector('.product-sell-price').value,
+            };
+            products.push(product);
+        });
+
         const orderData = {
             poNumber: poNumberInput.value,
             poDate: poDateInput.value,
             supplier: document.getElementById('po-supplier').value,
-            total: 0, // Hitung total dari produk
-            products: [] // Ambil dari tabel produk
+            total: 0, // This should be recalculated on the server or updated from updateTotalAmount
+            products: products
         };
 
         window.sendDataToGoogle('savePurchaseOrder', { orderData }, 
@@ -201,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (typeof showToast === 'function') showToast(response.message, 'success');
                     if (poFormContainer) poFormContainer.classList.add('hidden');
                     if (poListView) poListView.classList.remove('hidden');
+                    // Assuming there's a function to refresh the list view
                     if (typeof window.initPembelianDaftarPembelianPage === 'function') {
                         window.initPembelianDaftarPembelianPage();
                     }
@@ -257,262 +271,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Jalankan Inisialisasi ---
     initializePage();
 });
-
-</final_file_content>
-
-IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
-
-<environment_details>
-# Visual Studio Code Visible Files
-js/pembelian-order-pembelian.js
-
-# Visual Studio Code Open Tabs
-gs/Code.gs
-gs/pembelian-order-pembelian.gs
-js/pembelian-daftar-pembelian.js
-gs/inventory-daftar-produk.gs
-EzyParts.xml
-pembelian-order-pembelian.html
-js/pembelian-order-pembelian.js
-
-# Current Time
-11/10/2025, 3:08:20 PM (Asia/Jakarta, UTC+7:00)
-
-# Context Window Usage
-88,783 / 1,048.576K tokens used (8%)
-
-# Current Mode
-ACT MODE
-                            `;
-                            modalProductList.appendChild(row);
-                        });
-                        console.log('Data produk modal berhasil dimuat.');
-                    } else {
-                        console.error('Gagal memuat data produk modal:', response.message);
-                        modalProductList.innerHTML = `<tr><td colspan="3" class="px-3 py-2 text-center text-red-500">Gagal memuat produk: ${response.message}</td></tr>`;
-                        if (typeof showToast === 'function') showToast('Gagal memuat data produk.', 'error');
-                    }
-                },
-                (error) => {
-                    console.error('Error callback dari getProductsForPO:', error); // Added log
-                    loadingOverlay.classList.add('hidden');
-                    console.error('Error koneksi saat memuat produk modal:', error);
-                    modalProductList.innerHTML = `<tr><td colspan="3" class="px-3 py-2 text-center text-red-500">Error koneksi: ${error.message}</td></tr>`;
-                    if (typeof showToast === 'function') showToast('Error koneksi saat memuat produk.', 'error');
-                }
-            );
-        }
-
-        function addSelectedProductsToOrder() {
-            const selectedCheckboxes = modalProductList.querySelectorAll('.product-select-checkbox:checked');
-            selectedCheckboxes.forEach(checkbox => {
-                const sku = checkbox.dataset.sku;
-                const name = checkbox.dataset.name;
-                const buyPrice = parseFloat(checkbox.dataset.buyprice) || 0;
-                const sellPrice = parseFloat(checkbox.dataset.sellprice) || 0;
-                // Check if product already exists in the main order list
-                const existingRow = poProductList.querySelector(`tr[data-sku="${sku}"]`);
-                if (existingRow) {
-                    const qtyInput = existingRow.querySelector('.product-qty');
-                    qtyInput.value = parseInt(qtyInput.value) + 1;
-                } else {
-                    productRowCount++;
-                    const newRow = document.createElement('tr');
-                    newRow.dataset.sku = sku; // Add data-sku for easy lookup
-                    newRow.innerHTML = `
-                        <td class="px-3 py-2 whitespace-nowrap text-center border-r">${productRowCount}</td>
-                        <td class="px-3 py-2 whitespace-nowrap border-r">
-                            <input type="text" class="product-sku w-full p-1 border rounded-md" value="${sku}" readonly>
-                        </td>
-                        <td class="px-3 py-2 whitespace-nowrap border-r">
-                            <input type="text" class="product-name w-full p-1 border rounded-md" value="${name}" readonly>
-                        </td>
-                        <td class="px-3 py-2 whitespace-nowrap text-center border-r">
-                            <input type="number" class="product-qty w-20 p-1 border rounded-md text-center" value="1" min="1">
-                        </td>
-                        <td class="px-3 py-2 whitespace-nowrap text-right border-r">
-                            <input type="number" class="product-buy-price w-full p-1 border rounded-md text-right" value="${buyPrice}" min="0">
-                        </td>
-                        <td class="px-3 py-2 whitespace-nowrap text-right border-r">
-                            <input type="number" class="product-discount w-full p-1 border rounded-md text-right" value="0" min="0">
-                        </td>
-                        <td class="px-3 py-2 whitespace-nowrap text-right border-r">
-                            <input type="number" class="product-sell-price w-full p-1 border rounded-md text-right" value="${sellPrice}" min="0">
-                        </td>
-                        <td class="px-3 py-2 whitespace-nowrap text-right border-r product-subtotal">${formatCurrency(buyPrice)}</td>
-                        <td class="px-3 py-2 whitespace-nowrap text-center">
-                            <button type="button" class="delete-product-row text-red-600 hover:text-red-800 transition">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </td>
-                    `;
-                    poProductList.appendChild(newRow);
-                }
-                checkbox.checked = false; // Uncheck after adding
-            });
-            updateTotalAmount();
-            closeProductModal();
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        async function loadSuppliers() {
-            console.log('Memuat data supplier...');
-            window.sendDataToGoogle('getSuppliers', {},
-                (response) => {
-                    if (response.status === 'success' && response.data) {
-                        poSupplierSelect.innerHTML = '<option value="">Pilih Supplier</option>'; // Reset and add default
-                        response.data.forEach(supplier => {
-                            const option = document.createElement('option');
-                            option.value = supplier['Nama Supplier']; // Use the correct key 'Nama Supplier'
-                            option.textContent = supplier['Nama Supplier']; // Use the correct key 'Nama Supplier'
-                            poSupplierSelect.appendChild(option);
-                        });
-                        console.log('Data supplier berhasil dimuat.');
-                    } else {
-                        console.error('Gagal memuat data supplier:', response.message);
-                        if (typeof showToast === 'function') showToast('Gagal memuat data supplier.', 'error');
-                    }
-                },
-                (error) => {
-                    console.error('Error koneksi saat memuat supplier:', error);
-                    if (typeof showToast === 'function') showToast('Error koneksi saat memuat supplier.', 'error');
-                }
-            );
-        }
-
-        // --- Event Handlers ---
-
-        function handleNewOrder(event) {
-            console.log('createPoButton clicked - handleNewOrder function initiated.'); // Added log
-            event.stopPropagation();
-            event.preventDefault();
-            console.log('handleNewOrder triggered!');
-            isEditMode = false;
-            editingPoNumber = null;
-            console.log('Membuka form order pembelian baru...');
-            
-            // Reset form
-            document.getElementById('po-form').reset();
-            poProductList.innerHTML = '';
-            document.getElementById('po-total-amount').textContent = formatCurrency(0);
-
-            // Set tanggal hari ini
-            poDateInput.value = new Date().toISOString().split('T')[0];
-
-            // Dapatkan nomor PO baru dari server
-            window.sendDataToGoogle('getNewPoNumber', {}, 
-                (response) => {
-                    if(response.status === 'success') {
-                        poNumberInput.value = response.data;
-                    } else {
-                        poNumberInput.value = `PO-${Date.now()}`;
-                        if (typeof showToast === 'function') showToast('Gagal mendapatkan No. PO baru, gunakan nomor sementara.', 'warning');
-                    }
-                },
-                (error) => {
-                    console.error("Gagal mendapatkan No. PO baru:", error);
-                    poNumberInput.value = `PO-${Date.now()}`;
-                    if (typeof showToast === 'function') showToast('Error koneksi saat meminta No. PO.', 'error');
-                }
-            );
-
-            poListView.classList.add('hidden'); // Hide the list view
-            poFormContainer.classList.remove('hidden'); // Show the form
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        function handleSaveOrder(event) {
-            event.preventDefault();
-            console.log('Menyimpan order pembelian...');
-            
-            const orderData = {
-                poNumber: poNumberInput.value,
-                poDate: poDateInput.value,
-                supplier: document.getElementById('po-supplier').value,
-                total: 0, // Hitung total dari produk
-                products: [] // Ambil dari tabel produk
-            };
-
-            window.sendDataToGoogle('savePurchaseOrder', { orderData }, 
-                (response) => {
-                    if(response.status === 'success') {
-                        if (typeof showToast === 'function') showToast(response.message, 'success');
-                        poFormContainer.classList.add('hidden');
-                        poListView.classList.remove('hidden'); // Show the list view
-                        // Trigger a reload of the purchase order list if it's active
-                        if (typeof window.initPembelianDaftarPembelianPage === 'function') {
-                            window.initPembelianDaftarPembelianPage(); // Re-initialize to refresh data
-                        }
-                    } else {
-                        if (typeof showToast === 'function') showToast(response.message, 'error');
-                    }
-                },
-                (error) => {
-                    if (typeof showToast === 'function') showToast(`Error: ${error.message}`, 'error');
-                }
-            );
-        }
-
-        function handleCancelOrder() {
-            console.log('Membatalkan order pembelian...');
-            poFormContainer.classList.add('hidden'); // Hide the form
-            poListView.classList.remove('hidden'); // Show the list view
-            if (typeof showToast === 'function') {
-                showToast('Pembuatan order dibatalkan.', 'info');
-            }
-        }
-        
-        function addEventListeners() {
-            const poForm = document.getElementById('po-form');
-            
-            // Using event delegation for createPoButton to handle dynamic content
-            document.body.addEventListener('click', (event) => {
-                if (event.target.closest('#create-po-button')) {
-                    console.log('Event delegated click on createPoButton detected.');
-                    handleNewOrder(event);
-                }
-            });
-
-            if (addProductButton) {
-                console.log('Attaching click listener to addProductButton:', addProductButton);
-                addProductButton.addEventListener('click', openProductModal); // Open modal instead of adding row directly
-            }
-            if (closeProductModalButton) {
-                closeProductModalButton.addEventListener('click', closeProductModal);
-            }
-            if (searchProductButton) {
-                searchProductButton.addEventListener('click', () => loadModalProducts(productSearchInput.value));
-            }
-            if (productSearchInput) {
-                productSearchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        loadModalProducts(productSearchInput.value);
-                    }
-                });
-            }
-            if (addSelectedProductsButton) {
-                addSelectedProductsButton.addEventListener('click', addSelectedProductsToOrder);
-            }
-            if (poForm) poForm.addEventListener('submit', handleSaveOrder);
-            if (cancelPoButton) cancelPoButton.addEventListener('click', handleCancelOrder);
-            
-            console.log('Event listeners untuk Order Pembelian (Form) dan Modal telah ditambahkan/diperbarui.');
-        }
-
-        function initializePage() {
-            addEventListeners();
-            loadSuppliers(); // Load suppliers when the page initializes
-            // Do not load modal products here, only when modal opens
-
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-
-            console.log('Halaman Order Pembelian (Form) berhasil diinisialisasi.');
-        }
-
-        // --- Jalankan Inisialisasi ---
-        document.addEventListener('DOMContentLoaded', initializePage);
-    };
-}
