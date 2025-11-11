@@ -1,4 +1,3 @@
-document.addEventListener('DOMContentLoaded', () => {
     const inventoryTableBody = document.getElementById('inventory-table-body');
     const inventorySearchInput = document.getElementById('inventory-search');
     const searchButton = document.getElementById('search-button');
@@ -166,4 +165,3 @@ document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
         }
     };
-});
