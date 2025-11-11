@@ -248,7 +248,7 @@ if (typeof window.initPembelianOrderPembelianPage === 'undefined') {
         }
 
         // --- Jalankan Inisialisasi ---
-        document.addEventListener('DOMContentLoaded', initializePage);
+        initializePage();
     };
 }
 
