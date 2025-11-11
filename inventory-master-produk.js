@@ -83,7 +83,7 @@
     };
 
     const renderPagination = (totalProducts, totalPages) => {
-        console.log('renderPagination called. totalProducts:', totalProducts, 'totalPages:', totalPages, 'currentPage:', currentPage);
+        console.log('renderPagination DEBUG: totalProducts =', totalProducts, ', totalPages =', totalPages, ', currentPage =', currentPage, ', productsPerPage =', productsPerPage);
         paginationButtonsContainer.innerHTML = '';
         paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
 
@@ -102,7 +102,7 @@
 
         // Page numbers
         for (let i = 1; i <= totalPages; i++) {
-            console.log('Adding page button for page:', i); // Debug log
+            // console.log('Adding page button for page:', i); // Removed for now to focus on initial values
             const pageButton = document.createElement('button');
             pageButton.textContent = i;
             pageButton.className = `p-2 rounded-md ${currentPage === i ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
@@ -160,6 +160,8 @@
 
         const totalProducts = filteredProducts.length;
         const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+        console.log('applyFiltersAndSort DEBUG: totalProducts =', totalProducts, ', totalPages =', totalPages, ', currentPage =', currentPage);
 
         // Adjust currentPage if it's out of bounds after filtering/sorting
         if (totalPages === 0) {
