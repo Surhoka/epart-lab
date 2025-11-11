@@ -1,4 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
     console.log('Memulai inisialisasi halaman Order Pembelian...');
 
     // -----------------------------------------------------
@@ -270,5 +269,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Jalankan Inisialisasi ---
     window.initPembelianOrderPembelianPage = initPembelianOrderPembelianPage;
-    initPembelianOrderPembelianPage();
-});
+    // The router will call initPembelianOrderPembelianPage directly, no need to call it here.
