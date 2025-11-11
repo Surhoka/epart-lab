@@ -2,7 +2,7 @@
  * =================================================================
  *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
- * v4
+ * v3
  * FUNGSI UTAMA:
  * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
  * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
@@ -18,13 +18,6 @@
  * 5. Setelah setiap operasi (tambah/edit/hapus), tabel akan dimuat ulang untuk menampilkan data terbaru.
  */
 
-// Variabel global untuk menyimpan data produk dan status edit
-let allProducts = [];
-let isEditMode = false;
-let editingSku = null;
-let currentSortColumn = null;
-let currentSortOrder = 'asc';
-let hasFetchedInitialData = false;
 
 // Function to update table header sort icons
 function updateTableHeaders() {
@@ -172,6 +165,14 @@ function renderTable(products) {
 // Fungsi inisialisasi utama yang akan dipanggil oleh router SPA
 window.initInventoryDaftarProdukPage = function() {
     console.log("Halaman Daftar Produk Dimuat.");
+
+    // Variabel lokal untuk menyimpan data produk dan status edit
+    let allProducts = [];
+    let isEditMode = false;
+    let editingSku = null;
+    let currentSortColumn = null;
+    let currentSortOrder = 'asc';
+    let hasFetchedInitialData = false;
     
     // Wait for Lucide to be available
     if (typeof lucide === 'undefined') {
@@ -198,15 +199,6 @@ window.initInventoryDaftarProdukPage = function() {
         addProductButton.addEventListener('click', () => openProductModal());
     }
 
-    const importProductButton = document.getElementById('import-product-button');
-    if (importProductButton) {
-        importProductButton.addEventListener('click', openImportModal);
-    }
-
-    const exportProductButton = document.getElementById('export-product-button');
-    if (exportProductButton) {
-        exportProductButton.addEventListener('click', handleExport);
-    }
 
     const modalCloseButton = document.getElementById('modal-close-button');
     if (modalCloseButton) {
@@ -251,19 +243,6 @@ window.initInventoryDaftarProdukPage = function() {
         });
     });
 
-    // Event listeners for Import Modal
-    const importModalCloseButton = document.getElementById('import-modal-close-button');
-    if (importModalCloseButton) {
-        importModalCloseButton.addEventListener('click', closeImportModal);
-    }
-    const importModalCancelButton = document.getElementById('import-modal-cancel-button');
-    if (importModalCancelButton) {
-        importModalCancelButton.addEventListener('click', closeImportModal);
-    }
-    const processImportButton = document.getElementById('process-import-button');
-    if (processImportButton) {
-        processImportButton.addEventListener('click', handleProcessImport);
-    }
 
     // Initialize Lucide icons
     lucide.createIcons();
@@ -550,111 +529,5 @@ function handleDelete(sku) {
 
     // Panggil fungsi inisialisasi saat DOM siap jika file ini dimuat secara mandiri
 // Namun, karena ini adalah SPA, pemanggilan utama dilakukan oleh router.
-
-// +---------------------------------------------------+
-// | FUNGSI UNTUK IMPORT & EXPORT                      |
-// +---------------------------------------------------+
-
-/**
- * Membuka modal untuk import CSV.
- */
-function openImportModal() {
-    const modal = document.getElementById('import-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        const csvInput = document.getElementById('csv-input');
-        if (csvInput) {
-            csvInput.value = ''; // Kosongkan textarea
-        }
-    }
-}
-
-/**
- * Menutup modal import CSV.
- */
-function closeImportModal() {
-    const modal = document.getElementById('import-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-}
-
-/**
- * Menangani proses export data ke CSV.
- */
-function handleExport() {
-    if (typeof showToast === 'function') {
-        showToast('Mempersiapkan data untuk di-export...', 'info');
-    }
-
-    const handleSuccess = (result) => {
-        if (result.status === 'success' && result.data) {
-            // Membuat file virtual dan memicu download
-            const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `export_produk_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            if (typeof showToast === 'function') {
-                showToast('Export berhasil di-download.', 'success');
-            }
-        } else if (result.status === 'success' && !result.data) {
-            if (typeof showToast === 'function') {
-                showToast('Tidak ada data produk untuk di-export.', 'info');
-            }
-        } 
-        else {
-            handleFailure({ message: result.message || 'Gagal mengekspor data.' });
-        }
-    };
-
-    const handleFailure = (error) => {
-        console.error('Error saat export:', error);
-        if (typeof showToast === 'function') showToast(`Gagal export: ${error.message}`, 'error');
-    };
-
-    sendDataToGoogle('exportProductsToCSV', {}, handleSuccess, handleFailure);
-}
-
-
-/**
- * Memproses data CSV yang di-paste oleh pengguna.
- */
-function handleProcessImport() {
-    const csvData = document.getElementById('csv-input').value.trim();
-    if (!csvData) {
-        if (typeof showToast === 'function') showToast('Textarea CSV tidak boleh kosong.', 'error');
-        return;
-    }
-
-    const processButton = document.getElementById('process-import-button');
-    processButton.disabled = true;
-    processButton.innerHTML = '<div class="spinner-white"></div> Memproses...';
-
-    const handleSuccess = (result) => {
-        if (result.status === 'success') {
-            closeImportModal();
-            populateInventoryTable(); // Muat ulang tabel
-            if (typeof showToast === 'function') showToast(result.message, 'success');
-        } else {
-            handleFailure({ message: result.message || 'Gagal mengimpor produk.' });
-        }
-        processButton.disabled = false;
-        processButton.innerHTML = 'Proses Import';
-    };
-
-    const handleFailure = (error) => {
-        console.error('Error saat import:', error);
-        if (typeof showToast === 'function') showToast(`Gagal import: ${error.message}`, 'error');
-        processButton.disabled = false;
-        processButton.innerHTML = 'Proses Import';
-    };
-
-    sendDataToGoogle('importProductsFromCSV', { csvData: csvData }, handleSuccess, handleFailure);
-}
 
 // The router will call window.initInventoryDaftarProdukPage()
