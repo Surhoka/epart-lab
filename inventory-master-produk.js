@@ -83,7 +83,6 @@
     };
 
     const renderPagination = (totalProducts, totalPages) => {
-        console.log('renderPagination DEBUG: totalProducts =', totalProducts, ', totalPages =', totalPages, ', currentPage =', currentPage, ', productsPerPage =', productsPerPage);
         paginationButtonsContainer.innerHTML = '';
         paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
 
@@ -100,17 +99,58 @@
         });
         paginationButtonsContainer.appendChild(prevButton);
 
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            // console.log('Adding page button for page:', i); // Removed for now to focus on initial values
+        // Page numbers (dynamic rendering)
+        const maxPageButtons = 5; // Number of page buttons to display at once (excluding first/last and ellipses)
+        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+        let endPage = Math.min(totalPages, currentPage + Math.floor(maxPageButtons / 2));
+
+        if (endPage - startPage + 1 < maxPageButtons) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, totalPages - maxPageButtons + 1);
+            }
+        }
+
+        const addPageButton = (page, isCurrent) => {
             const pageButton = document.createElement('button');
-            pageButton.textContent = i;
-            pageButton.className = `p-2 rounded-md ${currentPage === i ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
+            pageButton.textContent = page;
+            pageButton.className = `p-2 rounded-md ${isCurrent ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
             pageButton.addEventListener('click', () => {
-                currentPage = i;
+                currentPage = page;
                 applyFiltersAndSort();
             });
             paginationButtonsContainer.appendChild(pageButton);
+        };
+
+        const addEllipsis = () => {
+            const ellipsisSpan = document.createElement('span');
+            ellipsisSpan.textContent = '...';
+            ellipsisSpan.className = 'p-2';
+            paginationButtonsContainer.appendChild(ellipsisSpan);
+        };
+
+        if (totalPages > 1) {
+            // Always show first page
+            if (startPage > 1) {
+                addPageButton(1, currentPage === 1);
+                if (startPage > 2) {
+                    addEllipsis();
+                }
+            }
+
+            // Show pages around current page
+            for (let i = startPage; i <= endPage; i++) {
+                addPageButton(i, currentPage === i);
+            }
+
+            // Always show last page
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    addEllipsis();
+                }
+                addPageButton(totalPages, currentPage === totalPages);
+            }
         }
 
         // Next button
@@ -160,8 +200,6 @@
 
         const totalProducts = filteredProducts.length;
         const totalPages = Math.ceil(totalProducts / productsPerPage);
-
-        console.log('applyFiltersAndSort DEBUG: totalProducts =', totalProducts, ', totalPages =', totalPages, ', currentPage =', currentPage);
 
         // Adjust currentPage if it's out of bounds after filtering/sorting
         if (totalPages === 0) {
