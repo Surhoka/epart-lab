@@ -9,6 +9,13 @@
     let currentSortColumn = null;
     let currentSortDirection = 'asc'; // 'asc' or 'desc'
 
+    // Pagination variables
+    const productsPerPage = 10;
+    let currentPage = 1;
+
+    const paginationInfoSpan = document.getElementById('pagination-info');
+    const paginationButtonsContainer = document.getElementById('pagination-buttons');
+
     // Helper to format Rupiah currency
     const formatRupiah = (amount) => {
         return new Intl.NumberFormat('id-ID', {
@@ -62,16 +69,60 @@
             return;
         }
 
+        const startIndex = (currentPage - 1) * productsPerPage;
         productsToRender.forEach((product, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td class="px-3 py-2 whitespace-nowrap border-r">${index + 1}</td>
+                <td class="px-3 py-2 whitespace-nowrap border-r">${startIndex + index + 1}</td>
                 <td class="px-3 py-2 whitespace-nowrap border-r">${product.SKU || '-'}</td>
                 <td class="px-3 py-2 whitespace-nowrap border-r">${product.NamaProduk || '-'}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-right border-r">${formatRupiah(product.HargaSupplier || 0)}</td>
             `;
             inventoryTableBody.appendChild(row);
         });
+    };
+
+    const renderPagination = (totalProducts, totalPages) => {
+        paginationButtonsContainer.innerHTML = '';
+        paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
+
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Sebelumnya';
+        prevButton.className = `p-2 rounded-md hover:bg-gray-100 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'action-button'}`;
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                applyFiltersAndSort();
+            }
+        });
+        paginationButtonsContainer.appendChild(prevButton);
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            pageButton.className = `p-2 rounded-md ${currentPage === i ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
+            pageButton.addEventListener('click', () => {
+                currentPage = i;
+                applyFiltersAndSort();
+            });
+            paginationButtonsContainer.appendChild(pageButton);
+        }
+
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Berikutnya';
+        nextButton.className = `p-2 rounded-md hover:bg-gray-100 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'action-button'}`;
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyFiltersAndSort();
+            }
+        });
+        paginationButtonsContainer.appendChild(nextButton);
     };
 
     const applyFiltersAndSort = () => {
@@ -97,7 +148,24 @@
             });
         }
 
-        renderTable(filteredProducts);
+        const totalProducts = filteredProducts.length;
+        const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+        // Adjust currentPage if it's out of bounds after filtering/sorting
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        } else if (totalPages === 0) {
+            currentPage = 0; // No pages if no products
+        } else if (currentPage === 0 && totalPages > 0) {
+            currentPage = 1; // Reset to first page if it was 0
+        }
+
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+        renderTable(paginatedProducts);
+        renderPagination(totalProducts, totalPages);
     };
 
     const setupEventListeners = () => {
@@ -112,6 +180,7 @@
             inventorySearchInput.value = '';
             currentSortColumn = null;
             currentSortDirection = 'asc';
+            currentPage = 1; // Reset pagination
             // Reset sort icons
             tableHeaders.forEach(header => {
                 const icon = header.querySelector('.sort-icon');
