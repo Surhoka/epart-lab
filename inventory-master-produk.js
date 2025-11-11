@@ -83,6 +83,7 @@
     };
 
     const renderPagination = (totalProducts, totalPages) => {
+        console.log('renderPagination called. totalProducts:', totalProducts, 'totalPages:', totalPages, 'currentPage:', currentPage);
         paginationButtonsContainer.innerHTML = '';
         paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
 
@@ -101,6 +102,7 @@
 
         // Page numbers
         for (let i = 1; i <= totalPages; i++) {
+            console.log('Adding page button for page:', i); // Debug log
             const pageButton = document.createElement('button');
             pageButton.textContent = i;
             pageButton.className = `p-2 rounded-md ${currentPage === i ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
