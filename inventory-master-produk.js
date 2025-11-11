@@ -139,12 +139,20 @@
 
         if (currentSortColumn) {
             filteredProducts.sort((a, b) => {
-                const aValue = a[currentSortColumn]; // Assuming column names match data-sort attributes
+                const aValue = a[currentSortColumn];
                 const bValue = b[currentSortColumn];
 
-                if (aValue < bValue) return currentSortDirection === 'asc' ? -1 : 1;
-                if (aValue > bValue) return currentSortDirection === 'asc' ? 1 : -1;
-                return 0;
+                if (currentSortColumn === 'HargaSupplier') {
+                    const numA = parseFloat(aValue);
+                    const numB = parseFloat(bValue);
+                    if (numA < numB) return currentSortDirection === 'asc' ? -1 : 1;
+                    if (numA > numB) return currentSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                } else {
+                    if (aValue < bValue) return currentSortDirection === 'asc' ? -1 : 1;
+                    if (aValue > bValue) return currentSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                }
             });
         }
 
@@ -152,12 +160,12 @@
         const totalPages = Math.ceil(totalProducts / productsPerPage);
 
         // Adjust currentPage if it's out of bounds after filtering/sorting
-        if (currentPage > totalPages && totalPages > 0) {
+        if (totalPages === 0) {
+            currentPage = 1; // Always keep currentPage at 1, even if no products
+        } else if (currentPage > totalPages) {
             currentPage = totalPages;
-        } else if (totalPages === 0) {
-            currentPage = 0; // No pages if no products
-        } else if (currentPage === 0 && totalPages > 0) {
-            currentPage = 1; // Reset to first page if it was 0
+        } else if (currentPage < 1) {
+            currentPage = 1;
         }
 
         const startIndex = (currentPage - 1) * productsPerPage;
