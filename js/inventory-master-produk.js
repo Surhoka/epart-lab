@@ -5,13 +5,14 @@
     const loadingOverlay = document.getElementById('loading-overlay');
     const tableHeaders = document.querySelectorAll('#inventory-table-container th[data-sort]');
 
-    let allProducts = [];
     let currentSortColumn = null;
     let currentSortDirection = 'asc'; // 'asc' or 'desc'
 
     // Pagination variables
-    const productsPerPage = 10;
+    const productsPerPage = 10; // Default limit
     let currentPage = 1;
+    let totalProducts = 0;
+    let totalPages = 0;
 
     const paginationInfoSpan = document.getElementById('pagination-info');
     const paginationButtonsContainer = document.getElementById('pagination-buttons');
@@ -36,16 +37,39 @@
 
     const fetchProductData = async () => {
         showLoading();
+        const searchTerm = inventorySearchInput.value;
+
+        const params = {
+            action: 'getProducts',
+            page: currentPage,
+            limit: productsPerPage,
+            searchTerm: searchTerm,
+            sortColumn: currentSortColumn,
+            sortDirection: currentSortDirection
+        };
+
         return new Promise(resolve => {
-            window.sendDataToGoogle('getProducts', {}, (response) => {
+            window.sendDataToGoogle('getProducts', params, (response) => {
                 hideLoading();
                 if (response.status === 'success') {
-                    allProducts = response.data;
+                    // Update global state with server response
+                    allProducts = response.data; // This will be the paginated data
+                    totalProducts = response.totalProducts;
+                    totalPages = response.totalPages;
+                    currentPage = response.currentPage;
+                    // productsPerPage = response.limit; // Can update if server enforces a different limit
+
+                    renderTable(allProducts);
+                    renderPagination();
                     resolve(allProducts);
                 } else {
                     console.error('Error fetching products:', response.message);
                     showToast('Gagal memuat data produk: ' + response.message, 'error');
                     allProducts = [];
+                    totalProducts = 0;
+                    totalPages = 0;
+                    renderTable([]);
+                    renderPagination();
                     resolve([]);
                 }
             }, (error) => {
@@ -53,6 +77,10 @@
                 console.error('Network error fetching products:', error);
                 showToast('Kesalahan jaringan saat memuat data produk.', 'error');
                 allProducts = [];
+                totalProducts = 0;
+                totalPages = 0;
+                renderTable([]);
+                renderPagination();
                 resolve([]);
             });
         });
@@ -69,6 +97,7 @@
             return;
         }
 
+        // Calculate startIndex based on server's currentPage and limit
         const startIndex = (currentPage - 1) * productsPerPage;
         productsToRender.forEach((product, index) => {
             const row = document.createElement('tr');
@@ -82,7 +111,7 @@
         });
     };
 
-    const renderPagination = (totalProducts, totalPages) => {
+    const renderPagination = () => {
         paginationButtonsContainer.innerHTML = '';
         paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
 
@@ -94,7 +123,7 @@
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                applyFiltersAndSort();
+                fetchProductData(); // Fetch data for previous page
             }
         });
         paginationButtonsContainer.appendChild(prevButton);
@@ -118,7 +147,7 @@
             pageButton.className = `p-2 rounded-md ${isCurrent ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
             pageButton.addEventListener('click', () => {
                 currentPage = page;
-                applyFiltersAndSort();
+                fetchProductData(); // Fetch data for selected page
             });
             paginationButtonsContainer.appendChild(pageButton);
         };
@@ -161,61 +190,18 @@
         nextButton.addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage++;
-                applyFiltersAndSort();
+                fetchProductData(); // Fetch data for next page
             }
         });
         paginationButtonsContainer.appendChild(nextButton);
     };
 
     const applyFiltersAndSort = () => {
-        let filteredProducts = [...allProducts];
-        const searchTerm = inventorySearchInput.value.toLowerCase();
-
-        if (searchTerm) {
-            filteredProducts = filteredProducts.filter(product =>
-                (product.SKU && product.SKU.toLowerCase().includes(searchTerm)) ||
-                (product.NamaProduk && product.NamaProduk.toLowerCase().includes(searchTerm)) ||
-                (product.Merek && product.Merek.toLowerCase().includes(searchTerm))
-            );
-        }
-
-        if (currentSortColumn) {
-            filteredProducts.sort((a, b) => {
-                const aValue = a[currentSortColumn];
-                const bValue = b[currentSortColumn];
-
-                if (currentSortColumn === 'HargaSupplier') {
-                    const numA = parseFloat(aValue);
-                    const numB = parseFloat(bValue);
-                    if (numA < numB) return currentSortDirection === 'asc' ? -1 : 1;
-                    if (numA > numB) return currentSortDirection === 'asc' ? 1 : -1;
-                    return 0;
-                } else {
-                    if (aValue < bValue) return currentSortDirection === 'asc' ? -1 : 1;
-                    if (aValue > bValue) return currentSortDirection === 'asc' ? 1 : -1;
-                    return 0;
-                }
-            });
-        }
-
-        const totalProducts = filteredProducts.length;
-        const totalPages = Math.ceil(totalProducts / productsPerPage);
-
-        // Adjust currentPage if it's out of bounds after filtering/sorting
-        if (totalPages === 0) {
-            currentPage = 1; // Always keep currentPage at 1, even if no products
-        } else if (currentPage > totalPages) {
-            currentPage = totalPages;
-        } else if (currentPage < 1) {
-            currentPage = 1;
-        }
-
-        const startIndex = (currentPage - 1) * productsPerPage;
-        const endIndex = startIndex + productsPerPage;
-        const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-        renderTable(paginatedProducts);
-        renderPagination(totalProducts, totalPages);
+        // Client-side filtering, sorting, and pagination logic removed.
+        // All these operations are now handled by the server.
+        // Just trigger a data fetch with current parameters.
+        currentPage = 1; // Reset to first page on new filter/sort
+        fetchProductData();
     };
 
     const setupEventListeners = () => {
@@ -239,8 +225,7 @@
                     lucide.createIcons();
                 }
             });
-            await fetchProductData(); // Re-fetch original data
-            applyFiltersAndSort();
+            await fetchProductData(); // Re-fetch data with default parameters
         });
 
         tableHeaders.forEach(header => {
@@ -269,15 +254,14 @@
                 }
                 lucide.createIcons(); // Re-render lucide icons after changing data-lucide attribute
 
-                applyFiltersAndSort();
+                applyFiltersAndSort(); // Trigger server-side sort
             });
         });
     };
 
     // Initial load function for SPA router
     window.initInventoryMasterProdukPage = async () => {
-        await fetchProductData();
-        applyFiltersAndSort();
+        await fetchProductData(); // Initial fetch with default parameters
         setupEventListeners();
         // Render Lucide icons if they are present on the page
         if (typeof lucide !== 'undefined') {
