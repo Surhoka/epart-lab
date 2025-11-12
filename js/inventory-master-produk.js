@@ -101,7 +101,7 @@
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="px-3 py-2 text-center text-gray-500">Tidak ada produk ditemukan.</td>
+                    <td colspan="6" class="px-3 py-2 text-center text-gray-500">Tidak ada produk ditemukan.</td>
                 </tr>
             `;
             return;
@@ -113,6 +113,7 @@
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="px-3 py-2 whitespace-nowrap border-r">${startIndex + index + 1}</td>
+                <td class="px-3 py-2 whitespace-nowrap border-r">${product.ID || '-'}</td>
                 <td class="px-3 py-2 whitespace-nowrap border-r">${product.SKU || '-'}</td>
                 <td class="px-3 py-2 whitespace-nowrap border-r">${product.NamaProduk || '-'}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-right border-r">${formatRupiah(product.HargaSupplier || 0)}</td>
