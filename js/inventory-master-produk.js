@@ -90,7 +90,8 @@
         });
     };
 
-    const renderTable = (productsToRender, currentPage, productsPerPage) => { // Accept parameters
+    const renderTable = (productsToRender, currentPageParam, productsPerPageParam) => { // Accept parameters
+        console.log(`DEBUG: renderTable params - currentPageParam: ${currentPageParam}, productsPerPageParam: ${productsPerPageParam}`); // Added debug log
         inventoryTableBody.innerHTML = '';
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
@@ -102,7 +103,7 @@
         }
 
         // Calculate startIndex based on passed currentPage and productsPerPage
-        const startIndex = (currentPage - 1) * productsPerPage;
+        const startIndex = (currentPageParam - 1) * productsPerPageParam;
         productsToRender.forEach((product, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
