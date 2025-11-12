@@ -58,6 +58,8 @@
                 hideLoading();
                 if (response.status === 'success') {
                     console.log(`DEBUG: Raw response object in fetchProductData:`, response); // Log entire response object
+                    console.log(`DEBUG: Keys of response object:`, Object.keys(response)); // Log keys
+                    console.log(`DEBUG: response.hasOwnProperty('totalProducts'):`, response.hasOwnProperty('totalProducts')); // Check property existence
 
                     // Update global pagination state with server response
                     // Use nullish coalescing to provide default if response properties are null/undefined
