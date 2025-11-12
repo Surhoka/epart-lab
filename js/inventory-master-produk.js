@@ -201,7 +201,6 @@
         // All these operations are now handled by the server.
         // Just trigger a data fetch with current parameters.
         currentPage = 1; // Reset to first page on new filter/sort
-        console.log('Client-side search input value before fetch:', inventorySearchInput.value); // Added log
         fetchProductData();
     };
 
