@@ -10,9 +10,6 @@
 
     // Pagination variables
     const productsPerPage = 10; // Default limit
-    let currentPage = 1;
-    let totalProducts = 0;
-    let totalPages = 0;
 
     const paginationInfoSpan = document.getElementById('pagination-info');
     const paginationButtonsContainer = document.getElementById('pagination-buttons');
@@ -35,14 +32,22 @@
         loadingOverlay.classList.add('hidden');
     };
 
+    // Global state for pagination, now managed by fetchProductData and passed to render functions
+    let currentPaginationState = {
+        currentPage: 1,
+        totalProducts: 0,
+        totalPages: 0,
+        limit: productsPerPage // Use productsPerPage as the default limit
+    };
+
     const fetchProductData = async () => {
         showLoading();
         const searchTerm = inventorySearchInput.value;
 
         const params = {
             action: 'getProducts',
-            page: currentPage,
-            limit: productsPerPage,
+            page: currentPaginationState.currentPage, // Use state
+            limit: currentPaginationState.limit, // Use state
             searchTerm: searchTerm,
             sortColumn: currentSortColumn,
             sortDirection: currentSortDirection
@@ -52,41 +57,40 @@
             window.sendDataToGoogle('getProducts', params, (response) => {
                 hideLoading();
                 if (response.status === 'success') {
-                    // Update global state with server response
-                    allProducts = response.data; // This will be the paginated data
-                    totalProducts = response.totalProducts;
-                    totalPages = response.totalPages;
-                    currentPage = parseInt(response.currentPage); // Ensure currentPage is an integer
-                    // productsPerPage = response.limit; // Can update if server enforces a different limit
+                    // Update global pagination state with server response
+                    currentPaginationState = {
+                        currentPage: parseInt(response.currentPage),
+                        totalProducts: response.totalProducts,
+                        totalPages: response.totalPages,
+                        limit: response.limit // Use server-enforced limit
+                    };
 
-                    renderTable(allProducts);
-                    renderPagination();
-                    resolve(allProducts);
+                    renderTable(response.data, currentPaginationState.currentPage, currentPaginationState.limit);
+                    renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
+                    resolve(response.data);
                 } else {
                     console.error('Error fetching products:', response.message);
                     showToast('Gagal memuat data produk: ' + response.message, 'error');
-                    allProducts = [];
-                    totalProducts = 0;
-                    totalPages = 0;
-                    renderTable([]);
-                    renderPagination();
+                    // Reset pagination state on error
+                    currentPaginationState = { currentPage: 1, totalProducts: 0, totalPages: 0, limit: productsPerPage };
+                    renderTable([], currentPaginationState.currentPage, currentPaginationState.limit);
+                    renderPagination(0, 0, 1, productsPerPage);
                     resolve([]);
                 }
             }, (error) => {
                 hideLoading();
                 console.error('Network error fetching products:', error);
                 showToast('Kesalahan jaringan saat memuat data produk.', 'error');
-                allProducts = [];
-                totalProducts = 0;
-                totalPages = 0;
-                renderTable([]);
-                renderPagination();
+                // Reset pagination state on network error
+                currentPaginationState = { currentPage: 1, totalProducts: 0, totalPages: 0, limit: productsPerPage };
+                renderTable([], currentPaginationState.currentPage, currentPaginationState.limit);
+                renderPagination(0, 0, 1, productsPerPage);
                 resolve([]);
             });
         });
     };
 
-    const renderTable = (productsToRender) => {
+    const renderTable = (productsToRender, currentPage, productsPerPage) => { // Accept parameters
         inventoryTableBody.innerHTML = '';
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
@@ -97,9 +101,8 @@
             return;
         }
 
-        // Calculate startIndex based on server's currentPage and limit
+        // Calculate startIndex based on passed currentPage and productsPerPage
         const startIndex = (currentPage - 1) * productsPerPage;
-        console.log(`DEBUG: renderTable - currentPage: ${currentPage}, productsPerPage: ${productsPerPage}, startIndex: ${startIndex}`); // Added debug log
         productsToRender.forEach((product, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -112,7 +115,7 @@
         });
     };
 
-    const renderPagination = () => {
+    const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => { // Accept parameters
         paginationButtonsContainer.innerHTML = '';
         paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
 
@@ -123,7 +126,7 @@
         prevButton.disabled = currentPage === 1;
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) {
-                currentPage--;
+                currentPaginationState.currentPage--; // Update state
                 fetchProductData(); // Fetch data for previous page
             }
         });
@@ -147,7 +150,7 @@
             pageButton.textContent = page;
             pageButton.className = `p-2 rounded-md ${isCurrent ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
             pageButton.addEventListener('click', () => {
-                currentPage = page;
+                currentPaginationState.currentPage = page; // Update state
                 fetchProductData(); // Fetch data for selected page
             });
             paginationButtonsContainer.appendChild(pageButton);
@@ -190,7 +193,7 @@
         nextButton.disabled = currentPage === totalPages;
         nextButton.addEventListener('click', () => {
             if (currentPage < totalPages) {
-                currentPage++;
+                currentPaginationState.currentPage++; // Update state
                 fetchProductData(); // Fetch data for next page
             }
         });
@@ -198,10 +201,7 @@
     };
 
     const applyFiltersAndSort = () => {
-        // Client-side filtering, sorting, and pagination logic removed.
-        // All these operations are now handled by the server.
-        // Just trigger a data fetch with current parameters.
-        currentPage = 1; // Reset to first page on new filter/sort
+        currentPaginationState.currentPage = 1; // Reset to first page on new filter/sort
         fetchProductData();
     };
 
@@ -217,7 +217,7 @@
             inventorySearchInput.value = '';
             currentSortColumn = null;
             currentSortDirection = 'asc';
-            currentPage = 1; // Reset pagination
+            currentPaginationState.currentPage = 1; // Reset pagination state
             // Reset sort icons
             tableHeaders.forEach(header => {
                 const icon = header.querySelector('.sort-icon');
