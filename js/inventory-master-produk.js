@@ -57,18 +57,12 @@
             window.sendDataToGoogle('getProducts', params, (response) => {
                 hideLoading();
                 if (response.status === 'success') {
-                    console.log(`DEBUG: Raw response object in fetchProductData:`, response); // Log entire response object
-                    console.log(`DEBUG: Keys of response object:`, Object.keys(response)); // Log keys
-                    console.log(`DEBUG: response.hasOwnProperty('totalProducts'):`, response.hasOwnProperty('totalProducts')); // Check property existence
-
                     // Update global pagination state with server response
                     // Use nullish coalescing to provide default if response properties are null/undefined
                     currentPaginationState.currentPage = parseInt(response.currentPage ?? 1); // Default to 1
-                    currentPaginationState.totalProducts = response.totalProducts ?? 0; // Default to 0
-                    currentPaginationState.totalPages = response.totalPages ?? 0; // Default to 0
+                    currentPaginationState.totalProducts = parseInt(response.totalProducts ?? 0); // Default to 0, ensure integer
+                    currentPaginationState.totalPages = parseInt(response.totalPages ?? 0); // Default to 0, ensure integer
                     currentPaginationState.limit = parseInt(response.limit ?? productsPerPage); // Default to productsPerPage
-
-                    console.log(`DEBUG: currentPaginationState after update: ${JSON.stringify(currentPaginationState)}`); // Added debug log
 
                     renderTable(response.data, currentPaginationState.currentPage, currentPaginationState.limit);
                     renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
