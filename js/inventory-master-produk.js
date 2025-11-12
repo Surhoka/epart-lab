@@ -33,7 +33,7 @@
     };
 
     // Global state for pagination, now managed by fetchProductData and passed to render functions
-    let currentPaginationState = {
+    const currentPaginationState = { // Changed to const
         currentPage: 1,
         totalProducts: 0,
         totalPages: 0,
@@ -58,12 +58,12 @@
                 hideLoading();
                 if (response.status === 'success') {
                     // Update global pagination state with server response
-                    currentPaginationState = {
-                        currentPage: parseInt(response.currentPage),
-                        totalProducts: response.totalProducts,
-                        totalPages: response.totalPages,
-                        limit: response.limit // Use server-enforced limit
-                    };
+                    currentPaginationState.currentPage = parseInt(response.currentPage); // Update property
+                    currentPaginationState.totalProducts = response.totalProducts; // Update property
+                    currentPaginationState.totalPages = response.totalPages; // Update property
+                    currentPaginationState.limit = parseInt(response.limit); // Ensure limit is an integer // Update property
+
+                    console.log(`DEBUG: currentPaginationState after update: ${JSON.stringify(currentPaginationState)}`); // Added debug log
 
                     renderTable(response.data, currentPaginationState.currentPage, currentPaginationState.limit);
                     renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
@@ -72,7 +72,10 @@
                     console.error('Error fetching products:', response.message);
                     showToast('Gagal memuat data produk: ' + response.message, 'error');
                     // Reset pagination state on error
-                    currentPaginationState = { currentPage: 1, totalProducts: 0, totalPages: 0, limit: productsPerPage };
+                    currentPaginationState.currentPage = 1;
+                    currentPaginationState.totalProducts = 0;
+                    currentPaginationState.totalPages = 0;
+                    currentPaginationState.limit = productsPerPage;
                     renderTable([], currentPaginationState.currentPage, currentPaginationState.limit);
                     renderPagination(0, 0, 1, productsPerPage);
                     resolve([]);
@@ -82,7 +85,10 @@
                 console.error('Network error fetching products:', error);
                 showToast('Kesalahan jaringan saat memuat data produk.', 'error');
                 // Reset pagination state on network error
-                currentPaginationState = { currentPage: 1, totalProducts: 0, totalPages: 0, limit: productsPerPage };
+                currentPaginationState.currentPage = 1;
+                currentPaginationState.totalProducts = 0;
+                currentPaginationState.totalPages = 0;
+                currentPaginationState.limit = productsPerPage;
                 renderTable([], currentPaginationState.currentPage, currentPaginationState.limit);
                 renderPagination(0, 0, 1, productsPerPage);
                 resolve([]);
@@ -91,7 +97,7 @@
     };
 
     const renderTable = (productsToRender, currentPageParam, productsPerPageParam) => { // Accept parameters
-        console.log(`DEBUG: renderTable params - currentPageParam: ${currentPageParam}, productsPerPageParam: ${productsPerPageParam}`); // Added debug log
+        // console.log(`DEBUG: renderTable params - currentPageParam: ${currentPageParam}, productsPerPageParam: ${productsPerPageParam}`); // Removed debug log
         inventoryTableBody.innerHTML = '';
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
