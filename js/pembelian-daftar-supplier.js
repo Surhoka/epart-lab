@@ -1,0 +1,281 @@
+window.initPembelianDaftarSupplierPage = function() {
+    console.log('Initializing Pembelian Daftar Supplier Page');
+
+    // --- Global Variables & State ---
+    let allSuppliers = [];
+    let isEditMode = false;
+    let editingSupplierId = null;
+    let currentPage = 1;
+    const itemsPerPage = 10; // You can adjust this value as needed
+    let totalItems = 0;
+
+    // --- DOM Elements ---
+    const supplierTableBody = document.getElementById('supplier-table-body');
+    const paginationContainer = document.getElementById('pagination-container');
+    const addSupplierButton = document.getElementById('add-supplier-button');
+    const supplierModal = document.getElementById('supplier-modal');
+    const supplierModalTitle = document.getElementById('supplier-modal-title');
+    const supplierModalCloseButton = document.getElementById('supplier-modal-close-button');
+    const supplierModalCancelButton = document.getElementById('supplier-modal-cancel-button');
+    const addSupplierForm = document.getElementById('add-supplier-form');
+    const supplierNameInput = document.getElementById('supplier-name');
+    const supplierContactPersonInput = document.getElementById('supplier-contact-person');
+    const supplierPhoneInput = document.getElementById('supplier-phone');
+    const supplierAddressInput = document.getElementById('supplier-address');
+    const searchSupplierInput = document.getElementById('search-supplier-input'); // Assuming a search input will be added
+    const searchSupplierButton = document.getElementById('search-supplier-button'); // Assuming a search button will be added
+
+    // --- Helper Functions ---
+    function showLoading(isLoading) {
+        // Implement a loading indicator if needed
+        if (isLoading) {
+            supplierTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Memuat data...</td></tr>';
+            paginationContainer.innerHTML = ''; // Clear pagination during loading
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        // Placeholder for a toast notification function
+        console.log(`Toast (${type}): ${message}`);
+        // In a real app, you'd display a visual toast here
+    }
+
+    // --- Modal Functions ---
+    function openSupplierModal(mode, supplier = null) {
+        isEditMode = mode === 'edit';
+        supplierModalTitle.textContent = isEditMode ? 'Edit Supplier' : 'Tambah Supplier Baru';
+        addSupplierForm.reset();
+
+        if (isEditMode && supplier) {
+            editingSupplierId = supplier.ID; // Assuming 'ID' is the unique identifier
+            supplierNameInput.value = supplier['Nama Supplier'] || '';
+            supplierContactPersonInput.value = supplier['Kontak Person'] || '';
+            supplierPhoneInput.value = supplier['No.Telepon'] || '';
+            supplierAddressInput.value = supplier['Alamat'] || '';
+        } else {
+            editingSupplierId = null;
+        }
+        supplierModal.classList.remove('hidden');
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
+    function closeSupplierModal() {
+        supplierModal.classList.add('hidden');
+    }
+
+    // --- Data Fetching & Rendering ---
+    function renderSuppliersTable(suppliers) {
+        showLoading(false);
+        if (!Array.isArray(suppliers) || suppliers.length === 0) {
+            supplierTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Belum ada data supplier.</td></tr>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        suppliers.forEach(supplier => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 text-xs border-b';
+            tr.dataset.supplierId = supplier.ID; // Assuming 'ID' is the unique identifier
+            tr.innerHTML = `
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${supplier.ID || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 border-r">${supplier['Nama Supplier'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-700 border-r">${supplier['Kontak Person'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${supplier['No.Telepon'] || 'N/A'}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-gray-500 border-r">${supplier.Alamat || 'N/A'}</td>
+                <td class="px-3 py-2 text-center border-r">
+                    <button class="text-indigo-600 hover:text-indigo-900 edit-supplier-btn" title="Edit">
+                        <i data-lucide="square-pen" class="w-4 h-4 inline-block"></i>
+                    </button>
+                    <button class="text-red-600 hover:text-red-900 delete-supplier-btn ml-2" title="Hapus">
+                        <i data-lucide="trash-2" class="w-4 h-4 inline-block"></i>
+                    </button>
+                </td>
+            `;
+            fragment.appendChild(tr);
+        });
+
+        supplierTableBody.innerHTML = '';
+        supplierTableBody.appendChild(fragment);
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
+    function renderPagination(totalItems, itemsPerPage, currentPage) {
+        paginationContainer.innerHTML = ''; // Clear previous pagination
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        if (totalPages <= 1) return; // No pagination needed for 1 or fewer pages
+
+        const paginationInfo = document.createElement('span');
+        const startItem = (currentPage - 1) * itemsPerPage + 1;
+        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+        paginationInfo.textContent = `Menampilkan ${startItem} sampai ${endItem} dari ${totalItems} Supplier`;
+        paginationContainer.appendChild(paginationInfo);
+
+        const pageButtonsContainer = document.createElement('div');
+        pageButtonsContainer.className = 'flex space-x-1';
+
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.className = 'p-2 rounded-md hover:bg-gray-100 action-button';
+        prevButton.textContent = 'Sebelumnya';
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => goToPage(currentPage - 1));
+        pageButtonsContainer.appendChild(prevButton);
+
+        // Page numbers
+        const maxPageButtons = 5; // Max number of page buttons to show
+        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+
+        if (endPage - startPage + 1 < maxPageButtons) {
+            startPage = Math.max(1, endPage - maxPageButtons + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.className = `p-2 rounded-md action-button ${i === currentPage ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100'}`;
+            pageButton.textContent = i;
+            pageButton.addEventListener('click', () => goToPage(i));
+            pageButtonsContainer.appendChild(pageButton);
+        }
+
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.className = 'p-2 rounded-md hover:bg-gray-100 action-button';
+        nextButton.textContent = 'Berikutnya';
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => goToPage(currentPage + 1));
+        pageButtonsContainer.appendChild(nextButton);
+
+        paginationContainer.appendChild(pageButtonsContainer);
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        loadSuppliers(searchSupplierInput.value);
+    }
+
+    function loadSuppliers(searchTerm = '') {
+        showLoading(true);
+        const action = searchTerm ? 'searchSuppliers' : 'getSuppliers';
+        const params = {
+            searchTerm: searchTerm,
+            page: currentPage,
+            itemsPerPage: itemsPerPage
+        };
+
+        window.sendDataToGoogle(action, params,
+            (response) => {
+                if (response.status === 'success' && Array.isArray(response.data)) {
+                    allSuppliers = response.data;
+                    totalItems = response.totalItems || allSuppliers.length; // Assuming backend returns totalItems
+                    renderSuppliersTable(allSuppliers);
+                    renderPagination(totalItems, itemsPerPage, currentPage);
+                    if (response.message) showToast(response.message, 'success');
+                } else {
+                    showToast(response.message || 'Gagal memuat data supplier.', 'error');
+                    renderSuppliersTable([]); // Render empty table on error
+                    renderPagination(0, itemsPerPage, currentPage); // Render empty pagination
+                }
+            },
+            (error) => {
+                console.error('Error loading suppliers:', error);
+                showToast('Terjadi kesalahan saat memuat data supplier.', 'error');
+                renderSuppliersTable([]); // Render empty table on error
+                renderPagination(0, itemsPerPage, currentPage); // Render empty pagination
+            }
+        );
+    }
+
+    // --- Event Handlers ---
+    function handleAddEditSupplier(e) {
+        e.preventDefault();
+        const supplierData = {
+            "Nama Supplier": supplierNameInput.value,
+            "Kontak Person": supplierContactPersonInput.value,
+            "No.Telepon": supplierPhoneInput.value,
+            "Alamat": supplierAddressInput.value
+        };
+
+        let action = 'addSupplier';
+        if (isEditMode) {
+            action = 'updateSupplier';
+            supplierData.ID = editingSupplierId; // Add ID for update
+        }
+
+        window.sendDataToGoogle(action, { supplierData: encodeURIComponent(JSON.stringify(supplierData)) },
+            (response) => {
+                if (response.status === 'success') {
+                    showToast(response.message, 'success');
+                    closeSupplierModal();
+                    loadSuppliers(searchSupplierInput.value); // Reload with current search term
+                } else {
+                    showToast(response.message || 'Gagal menyimpan supplier.', 'error');
+                }
+            },
+            (error) => {
+                console.error('Error saving supplier:', error);
+                showToast('Terjadi kesalahan saat menyimpan supplier.', 'error');
+            }
+        );
+    }
+
+    function handleTableClick(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const row = target.closest('tr');
+        const supplierId = row.dataset.supplierId;
+        const supplier = allSuppliers.find(s => s.ID == supplierId); // Find by ID
+
+        if (target.classList.contains('edit-supplier-btn')) {
+            if (supplier) {
+                openSupplierModal('edit', supplier);
+            } else {
+                showToast('Supplier tidak ditemukan untuk diedit.', 'error');
+            }
+            } else if (target.classList.contains('delete-supplier-btn')) {
+                if (confirm(`Apakah Anda yakin ingin menghapus supplier ${supplier['Nama Supplier']}?`)) {
+                    window.sendDataToGoogle('deleteSupplier', { supplierId: supplierId },
+                        (response) => {
+                            if (response.status === 'success') {
+                                showToast(response.message, 'success');
+                                loadSuppliers(searchSupplierInput.value); // Reload with current search term
+                            } else {
+                                showToast(response.message || 'Gagal menghapus supplier.', 'error');
+                            }
+                        },
+                        (error) => {
+                            console.error('Error deleting supplier:', error);
+                            showToast('Terjadi kesalahan saat menghapus supplier.', 'error');
+                        }
+                    );
+                }
+            }
+        }
+
+    function handleSearch() {
+        loadSuppliers(searchSupplierInput.value);
+    }
+
+    // --- Event Listeners ---
+    if (addSupplierButton) addSupplierButton.addEventListener('click', () => openSupplierModal('add'));
+    if (supplierModalCloseButton) supplierModalCloseButton.addEventListener('click', closeSupplierModal);
+    if (supplierModalCancelButton) supplierModalCancelButton.addEventListener('click', closeSupplierModal);
+    if (addSupplierForm) addSupplierForm.addEventListener('submit', handleAddEditSupplier);
+    if (supplierTableBody) supplierTableBody.addEventListener('click', handleTableClick);
+    if (searchSupplierButton) searchSupplierButton.addEventListener('click', handleSearch);
+    if (searchSupplierInput) searchSupplierInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            handleSearch();
+        }
+    });
+
+    // --- Initialization ---
+    loadSuppliers(); // Initial load of suppliers
+};
