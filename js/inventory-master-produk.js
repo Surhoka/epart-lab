@@ -56,7 +56,7 @@
                     allProducts = response.data; // This will be the paginated data
                     totalProducts = response.totalProducts;
                     totalPages = response.totalPages;
-                    currentPage = response.currentPage;
+                    currentPage = parseInt(response.currentPage); // Ensure currentPage is an integer
                     // productsPerPage = response.limit; // Can update if server enforces a different limit
 
                     renderTable(allProducts);
