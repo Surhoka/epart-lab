@@ -99,6 +99,7 @@
 
         // Calculate startIndex based on server's currentPage and limit
         const startIndex = (currentPage - 1) * productsPerPage;
+        console.log(`DEBUG: renderTable - currentPage: ${currentPage}, productsPerPage: ${productsPerPage}, startIndex: ${startIndex}`); // Added debug log
         productsToRender.forEach((product, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
