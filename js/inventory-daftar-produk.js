@@ -20,7 +20,8 @@
 
 
 // Variabel lokal untuk menyimpan data produk dan status edit
-let allProducts = [];
+let allProducts = []; // This will now store the currently displayed page of products
+let totalProductsCount = 0; // Total count of products from the server
 let isEditMode = false;
 let editingSku = null;
 let currentSortColumn = null;
@@ -31,7 +32,7 @@ let hasFetchedInitialData = false;
 let currentPage = 1;
 let itemsPerPage = 10; // Default
 let totalPages = 0;
-let filteredAndSortedProducts = []; // Products after search and sort, before pagination
+// filteredAndSortedProducts is no longer needed as filtering/sorting/pagination is server-side
 
 // Function to update table header sort icons
 function updateTableHeaders() {
@@ -71,11 +72,11 @@ function handleSort(column) {
         currentSortOrder = 'asc';
     }
 
-    // Render the table with the new sorting order using existing data
-    renderTable(filteredAndSortedProducts);
+    // Re-fetch data from server with new sorting
+    populateInventoryTable();
 }
 
-function renderTable(products) {
+function renderTable(products, totalCount, page, limit) {
     const tableBody = document.getElementById('inventory-table-body');
     const paginationInfo = document.getElementById('pagination-info');
     console.log("Data received by client for rendering:", products);
@@ -90,43 +91,17 @@ function renderTable(products) {
         return;
     }
 
-    // Apply sorting
-    let displayProducts = [...products];
-    if (currentSortColumn) {
-        displayProducts.sort((a, b) => {
-            let aValue = a[currentSortColumn];
-            let bValue = b[currentSortColumn];
-            
-            if (['price', 'stock'].includes(currentSortColumn)) {
-                aValue = Number(aValue) || 0;
-                bValue = Number(bValue) || 0;
-            } else {
-                aValue = String(aValue || '').toLowerCase();
-                bValue = String(bValue || '').toLowerCase();
-            }
-            
-            if (aValue < bValue) return currentSortOrder === 'asc' ? -1 : 1;
-            if (aValue > bValue) return currentSortOrder === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }
-    filteredAndSortedProducts = displayProducts; // Update global filtered and sorted list
-
-    // Apply pagination
-    totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
-    if (currentPage > totalPages && totalPages > 0) {
-        currentPage = totalPages;
-    } else if (totalPages === 0) {
-        currentPage = 0;
-    }
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
+    // Update global pagination variables based on server response
+    allProducts = products; // Store the current page's products
+    totalProductsCount = totalCount;
+    currentPage = page;
+    itemsPerPage = limit;
+    totalPages = Math.ceil(totalProductsCount / itemsPerPage);
     
     // Update table headers to show sort state
     updateTableHeaders();
 
-    if (paginatedProducts.length === 0) {
+    if (products.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
         paginationInfo.textContent = '0-0 dari 0';
         renderPagination();
@@ -139,7 +114,8 @@ function renderTable(products) {
     }
 
     const fragment = document.createDocumentFragment();
-    paginatedProducts.forEach((product, index) => {
+    const startIndex = (currentPage - 1) * itemsPerPage; // Calculate start index for numbering
+    products.forEach((product, index) => {
         let stockColor = 'text-green-600';
         if (product.stock < 50) stockColor = 'text-yellow-600';
         if (product.stock < 20) stockColor = 'text-red-600 font-bold';
@@ -180,9 +156,9 @@ function renderTable(products) {
     }
 
     // Update pagination info
-    const startItem = startIndex + 1;
-    const endItem = Math.min(endIndex, filteredAndSortedProducts.length);
-    paginationInfo.textContent = `${startItem}-${endItem} dari ${filteredAndSortedProducts.length}`;
+    const startItem = totalProductsCount > 0 ? startIndex + 1 : 0;
+    const endItem = Math.min(startIndex + products.length, totalProductsCount);
+    paginationInfo.textContent = `${startItem}-${endItem} dari ${totalProductsCount}`;
     renderPagination();
 }
 
@@ -212,7 +188,7 @@ const renderPagination = () => {
         pageButton.className = `p-2 rounded-md ${isCurrent ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
         pageButton.addEventListener('click', () => {
             currentPage = page;
-            renderTable(allProducts); // Re-render table with new page
+            populateInventoryTable(); // Re-fetch data for new page
         });
         paginationButtonsContainer.appendChild(pageButton);
     };
@@ -232,7 +208,7 @@ const renderPagination = () => {
     prevButton.addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
-            renderTable(allProducts);
+            populateInventoryTable();
         }
     });
     paginationButtonsContainer.appendChild(prevButton);
@@ -268,7 +244,7 @@ const renderPagination = () => {
     nextButton.addEventListener('click', () => {
         if (currentPage < totalPages) {
             currentPage++;
-            renderTable(allProducts);
+            populateInventoryTable();
         }
     });
     paginationButtonsContainer.appendChild(nextButton);
@@ -347,27 +323,12 @@ window.initInventoryDaftarProdukPage = function() {
 
 /**
  * Mengambil data dari Google Sheet dan mengisi tabel.
- * @param {Array<Object>|null} productsToDisplay - Opsional, array produk untuk ditampilkan. Jika null, akan mengambil dari server.
+ * @param {string} [searchTerm=''] - The term to filter products by SKU, NamaProduk, or Merek.
  */
-function populateInventoryTable(productsToDisplay = null) {
+function populateInventoryTable(searchTerm = '') {
     const tableBody = document.getElementById('inventory-table-body');
     if (!tableBody) {
         console.error('Table body element not found');
-        return;
-    }
-
-    // If products are provided directly (e.g., from search), render them immediately and exit.
-    if (productsToDisplay) {
-        allProducts = [...productsToDisplay];
-        currentPage = 1; // Reset to first page on new search/filter
-        renderTable(allProducts);
-        return;
-    }
-
-    // If data has already been fetched and we are not explicitly forcing a refresh (e.g., from reset button),
-    // just render existing data. This prevents redundant server calls on SPA re-initialization.
-    if (hasFetchedInitialData) {
-        renderTable(allProducts);
         return;
     }
 
@@ -402,18 +363,17 @@ function populateInventoryTable(productsToDisplay = null) {
                 tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
             }
             allProducts = []; // Ensure allProducts is empty if no data
-            currentPage = 1; // Reset current page
-            renderTable(allProducts); // Render empty table
+            totalProductsCount = 0;
+            currentPage = 0; // Reset current page
+            totalPages = 0;
+            renderTable([], 0, 0, itemsPerPage); // Render empty table
             hasFetchedInitialData = true; // Mark as fetched even if empty
             return;
         }
         
-        // If response has data array or is an array itself
-        if ((response.status === 'success' && Array.isArray(response.data)) || Array.isArray(response)) {
-            const products = Array.isArray(response) ? response : response.data;
-            allProducts = products; // Update the global product list
-            currentPage = 1; // Reset current page when new data is fetched
-            renderTable(products);
+        // If response has data array
+        if (response.status === 'success' && Array.isArray(response.data)) {
+            renderTable(response.data, response.totalProducts, response.currentPage, response.limit);
             hasFetchedInitialData = true; // Mark as fetched
             if (response.message && typeof showToast === 'function') {
                 showToast(response.message, 'success');
@@ -448,7 +408,14 @@ function populateInventoryTable(productsToDisplay = null) {
     };
 
     // If we reached here, it means productsToDisplay was null, so we fetch from the server.
-    window.sendDataToGoogle('getProducts', {}, handleSuccess, handleFailure);
+    const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        searchTerm: searchTerm,
+        sortColumn: currentSortColumn,
+        sortDirection: currentSortOrder
+    };
+    window.sendDataToGoogle('getProducts', params, handleSuccess, handleFailure);
 }
 
 /**
@@ -456,22 +423,8 @@ function populateInventoryTable(productsToDisplay = null) {
  */
     function handleSearch() {
         const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
-        if (searchTerm.trim() === '') {
-            currentPage = 1; // Reset to first page when search is cleared
-            renderTable(allProducts); // Show all products if search term is empty
-            return;
-        }
-
-        // Filter locally from allProducts
-        const filteredProducts = allProducts.filter(product => {
-            // Customize search logic here: search by SKU, name, category, brand
-            return (product.sku && product.sku.toLowerCase().includes(searchTerm)) ||
-                   (product.name && product.name.toLowerCase().includes(searchTerm)) ||
-                   (product.category && product.category.toLowerCase().includes(searchTerm)) ||
-                   (product.brand && product.brand.toLowerCase().includes(searchTerm));
-        });
         currentPage = 1; // Reset to first page on new search
-        renderTable(filteredProducts); // Render the filtered results
+        populateInventoryTable(searchTerm); // Fetch data from server with search term
     }
 
     /**
@@ -508,27 +461,49 @@ function openProductModal(sku = null) {
     const modalTitle = document.getElementById('modal-title');
     const form = document.getElementById('add-product-form');
     const skuInput = document.getElementById('product-sku');
+    const productNameInput = document.getElementById('product-name');
+    const productSupplierPriceInput = document.getElementById('product-supplier-price');
+    const productStockInput = document.getElementById('product-stock');
+    const productCategoryInput = document.getElementById('product-category');
+    const productBrandInput = document.getElementById('product-brand');
+
 
     form.reset();
 
     if (sku) { // Mode Edit
         isEditMode = true;
         editingSku = sku;
-        const product = allProducts.find(p => p.sku === sku);
+        const product = allProducts.find(p => p.sku === sku); // Find in the currently displayed products
         if (product) {
             modalTitle.textContent = 'Edit Produk';
             skuInput.value = product.sku;
             skuInput.readOnly = true; // SKU tidak bisa diubah saat edit
-            document.getElementById('product-name').value = product.name;
-            document.getElementById('product-price').value = product.price;
-            document.getElementById('product-stock').value = product.stock;
-            // Anda bisa menambahkan field lain di sini (kategori, merek)
+            productNameInput.value = product.name;
+            productSupplierPriceInput.value = product.price; // Assuming 'price' from table is 'Harga Jual' which is 'Harga Supplier'
+            productStockInput.value = product.stock;
+            productCategoryInput.value = product.category;
+            productBrandInput.value = product.brand;
+
+            // Set fields as read-only and add styling
+            productNameInput.readOnly = true;
+            productNameInput.classList.add('bg-gray-100');
+            productNameInput.setAttribute('data-source', 'master');
+
+            productSupplierPriceInput.readOnly = true;
+            productSupplierPriceInput.classList.add('bg-gray-100');
+            productSupplierPriceInput.setAttribute('data-source', 'master');
         }
     } else { // Mode Tambah
         isEditMode = false;
         editingSku = null;
         modalTitle.textContent = 'Tambah Produk Baru';
         skuInput.readOnly = false;
+        productNameInput.readOnly = false;
+        productNameInput.classList.remove('bg-gray-100');
+        productNameInput.removeAttribute('data-source');
+        productSupplierPriceInput.readOnly = false;
+        productSupplierPriceInput.classList.remove('bg-gray-100');
+        productSupplierPriceInput.removeAttribute('data-source');
     }
 
     modal.classList.remove('hidden');
@@ -549,11 +524,10 @@ function saveProduct() {
     const productData = {
         sku: document.getElementById('product-sku').value.toUpperCase(),
         name: document.getElementById('product-name').value,
-        price: parseFloat(document.getElementById('product-price').value),
+        price: parseFloat(document.getElementById('product-supplier-price').value), // Use supplier price for saving
         stock: parseInt(document.getElementById('product-stock').value),
-        // Ambil data kategori dan merek jika ada formnya
-        category: 'Uncategorized', // Ganti dengan input form jika ada
-        brand: 'N/A' // Ganti dengan input form jika ada
+        category: document.getElementById('product-category').value,
+        brand: document.getElementById('product-brand').value
     };
 
     // Validasi sederhana
