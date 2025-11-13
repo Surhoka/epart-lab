@@ -349,20 +349,14 @@ function populateInventoryTable(searchTerm) {
         
         console.log('Server Response:', response);
 
-        // Data is now in response.data, pagination info in response.pagination
-        const { data, pagination } = response;
-
-        // Defensive check: Ensure pagination is an object before accessing its properties
-        const safePagination = pagination || {};
-        const totalRecords = safePagination.totalRecords || 0;
-        const pageNum = safePagination.page || 1;
-        const pageSize = safePagination.pageSize || currentPaginationState.limit; // Use client-side default if not provided
+        // Data is now in response.data, pagination info as top-level properties
+        const { data, page, pageSize, totalRecords, totalPages } = response;
 
         // Update currentPaginationState unconditionally
-        currentPaginationState.totalProducts = totalRecords;
-        currentPaginationState.currentPage = pageNum;
-        currentPaginationState.limit = pageSize;
-        currentPaginationState.totalPages = Math.ceil(currentPaginationState.totalProducts / currentPaginationState.limit);
+        currentPaginationState.totalProducts = totalRecords || 0;
+        currentPaginationState.currentPage = page || 1;
+        currentPaginationState.limit = pageSize || currentPaginationState.limit;
+        currentPaginationState.totalPages = totalPages || 0;
 
         if (!data || data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk atau tidak ada hasil yang cocok.</td></tr>';
