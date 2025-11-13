@@ -21,7 +21,6 @@
 
 // Variabel lokal untuk menyimpan data produk dan status edit
 let allProducts = []; // This will now store the currently displayed page of products
-let totalProductsCount = 0; // Total count of products from the server
 let isEditMode = false;
 let editingSku = null;
 let currentSortColumn = null;
@@ -102,7 +101,6 @@ function renderTable(productsToRender, currentPageParam, productsPerPageParam) {
 
     if (productsToRender.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
-        paginationInfo.textContent = '0-0 dari 0';
         renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
         lucide.createIcons();
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -154,10 +152,7 @@ function renderTable(productsToRender, currentPageParam, productsPerPageParam) {
         loadingOverlay.classList.add('hidden');
     }
 
-    // Update pagination info
-    const startItem = currentPaginationState.totalProducts > 0 ? startIndex + 1 : 0;
-    const endItem = Math.min(startIndex + productsToRender.length, currentPaginationState.totalProducts);
-    paginationInfo.textContent = `Menampilkan ${startItem} sampai ${endItem} dari ${currentPaginationState.totalProducts} Produk`;
+    // Update pagination info is now handled solely by renderPagination
     renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
 }
 
@@ -165,9 +160,10 @@ const renderPagination = (totalProducts, totalPages, currentPage, productsPerPag
     const paginationButtonsContainer = document.getElementById('pagination-buttons');
     paginationButtonsContainer.innerHTML = '';
 
+    const paginationInfoSpan = document.getElementById('pagination-info');
+
     // Jika tidak ada produk, tampilkan pesan dan jangan render tombol paginasi
     if (totalProducts === 0) {
-        const paginationInfoSpan = document.getElementById('pagination-info');
         paginationInfoSpan.textContent = 'Tidak ada produk ditemukan.';
         return;
     }
@@ -370,8 +366,8 @@ function populateInventoryTable(searchTerm) {
             currentPaginationState.totalPages = 0;
             renderTable([], 0, 1, currentPaginationState.limit); // Render empty table but keep pagination consistent
         } else {
-            // The renderTable function signature is (products, totalCount, page, limit)
-            renderTable(data, totalRecords, pageNum, pageSize);
+            // The renderTable function signature is (products, currentPage, itemsPerPage)
+            renderTable(data, pageNum, pageSize);
         }
         
         hasFetchedInitialData = true;
