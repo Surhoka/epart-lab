@@ -44,68 +44,75 @@
         showLoading();
         const searchTerm = inventorySearchInput.value;
 
-        const params = {
-            action: 'getProducts',
-            page: currentPaginationState.currentPage, // Use state
-            limit: currentPaginationState.limit, // Use state
-            searchTerm: searchTerm,
-            sortColumn: currentSortColumn,
-            sortDirection: currentSortDirection
-        };
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXBcKm42b6KJ8znU8ryYn-5PtlORDH0HMuUoMlM7e24yp5v0dtkOi9Q16wLweMYhHaDg/exec';
 
-        return new Promise(resolve => {
-            window.sendDataToGoogle('getProducts', params, (response) => {
-                console.log('Response received in fetchProductData:', JSON.stringify(response, null, 2));
+        return new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+            const script = document.createElement('script');
+            const timeout = setTimeout(() => {
+                script.remove();
+                delete window[callbackName];
                 hideLoading();
+                showToast('Gagal memuat data: Waktu permintaan habis.', 'error');
+                reject(new Error('Request timed out'));
+            }, 10000); // 10 second timeout
+
+            window[callbackName] = (response) => {
+                clearTimeout(timeout);
+                script.remove();
+                delete window[callbackName];
+                hideLoading();
+
+                console.log('Raw JSONP response received:', JSON.stringify(response, null, 2));
+
                 if (response.status === 'success') {
-                    if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
-                    // Handle case where data is missing, not an array, or empty
-                    currentPaginationState.totalProducts = 0;
-                    currentPaginationState.totalPages = 0;
-                    renderTable([], 1, currentPaginationState.limit);
-                    renderPagination(0, 0, 1, currentPaginationState.limit);
-                    resolve([]); // Resolve with empty array
-                } else {
-                    const products = response.data;
-                    // Use response.totalProducts if available, otherwise fallback to data length.
-                    // This handles cases where the normalized response might be missing pagination details.
-                    const totalProducts = Number(response.totalProducts) || products.length;
+                    if (!response.data || !Array.isArray(response.data)) {
+                        currentPaginationState.totalProducts = 0;
+                        currentPaginationState.totalPages = 0;
+                        renderTable([], 1, currentPaginationState.limit);
+                        renderPagination(0, 0, 1, currentPaginationState.limit);
+                    } else {
+                        const products = response.data;
+                        const totalProducts = Number(response.totalProducts) || 0;
 
-                    // Update global pagination state with server response
-                    currentPaginationState.currentPage = parseInt(response.currentPage ?? 1);
-                    currentPaginationState.totalProducts = totalProducts;
-                    currentPaginationState.totalPages = parseInt(response.totalPages ?? Math.ceil(totalProducts / currentPaginationState.limit));
-                    currentPaginationState.limit = parseInt(response.limit ?? productsPerPage);
+                        currentPaginationState.currentPage = parseInt(response.currentPage || 1);
+                        currentPaginationState.totalProducts = totalProducts;
+                        currentPaginationState.totalPages = parseInt(response.totalPages || 0);
+                        currentPaginationState.limit = parseInt(response.limit || productsPerPage);
 
-                    renderTable(products, currentPaginationState.currentPage, currentPaginationState.limit);
-                    renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
-                    resolve(products);
-                }
+                        renderTable(products, currentPaginationState.currentPage, currentPaginationState.limit);
+                        renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
+                    }
+                    resolve(response.data);
                 } else {
                     console.error('Error fetching products:', response.message);
                     showToast('Gagal memuat data produk: ' + response.message, 'error');
-                    // Reset pagination state on error
-                    currentPaginationState.currentPage = 1;
-                    currentPaginationState.totalProducts = 0;
-                    currentPaginationState.totalPages = 0;
-                    currentPaginationState.limit = productsPerPage;
-                    renderTable([], currentPaginationState.currentPage, currentPaginationState.limit);
-                    renderPagination(0, 0, 1, productsPerPage);
-                    resolve([]);
+                    reject(new Error(response.message));
                 }
-            }, (error) => {
-                hideLoading();
-                console.error('Network error fetching products:', error);
-                showToast('Kesalahan jaringan saat memuat data produk.', 'error');
-                // Reset pagination state on network error
-                currentPaginationState.currentPage = 1;
-                currentPaginationState.totalProducts = 0;
-                currentPaginationState.totalPages = 0;
-                currentPaginationState.limit = productsPerPage;
-                renderTable([], currentPaginationState.currentPage, currentPaginationState.limit);
-                renderPagination(0, 0, 1, productsPerPage);
-                resolve([]);
-            });
+            };
+
+            const params = {
+                action: 'getProducts',
+                page: currentPaginationState.currentPage,
+                limit: currentPaginationState.limit,
+                searchTerm: searchTerm,
+                sortColumn: currentSortColumn,
+                sortDirection: currentSortDirection,
+                callback: callbackName
+            };
+
+            const queryString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&');
+            script.src = SCRIPT_URL + '?' + queryString;
+            document.head.appendChild(script);
+        }).catch(error => {
+            console.error("Fetch product data promise failed:", error);
+            // Ensure UI is in a consistent state on failure
+            currentPaginationState.currentPage = 1;
+            currentPaginationState.totalProducts = 0;
+            currentPaginationState.totalPages = 0;
+            renderTable([], 1, productsPerPage);
+            renderPagination(0, 0, 1, productsPerPage);
+            return []; // Return empty array for downstream consistency
         });
     };
 
