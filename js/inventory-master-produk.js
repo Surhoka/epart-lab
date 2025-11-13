@@ -57,26 +57,29 @@
             window.sendDataToGoogle('getProducts', params, (response) => {
                 hideLoading();
                 if (response.status === 'success') {
-                    const products = Array.isArray(response.data) ? response.data : [];
-                    const totalProducts = Number(response.totalProducts) || 0;
+                    if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
+                    // Handle case where data is missing, not an array, or empty
+                    currentPaginationState.totalProducts = 0;
+                    currentPaginationState.totalPages = 0;
+                    renderTable([], 1, currentPaginationState.limit);
+                    renderPagination(0, 0, 1, currentPaginationState.limit);
+                    resolve([]); // Resolve with empty array
+                } else {
+                    const products = response.data;
+                    // Use response.totalProducts if available, otherwise fallback to data length.
+                    // This handles cases where the normalized response might be missing pagination details.
+                    const totalProducts = Number(response.totalProducts) || products.length;
 
-                    if (products.length === 0) {
-                        // Jika server mengembalikan data kosong meskipun status sukses
-                        currentPaginationState.totalProducts = 0;
-                        currentPaginationState.totalPages = 0;
-                        renderTable([], 1, currentPaginationState.limit);
-                        renderPagination(0, 0, 1, currentPaginationState.limit);
-                    } else {
-                        // Update global pagination state with server response
-                        currentPaginationState.currentPage = parseInt(response.currentPage ?? 1);
-                        currentPaginationState.totalProducts = totalProducts;
-                        currentPaginationState.totalPages = parseInt(response.totalPages ?? 0);
-                        currentPaginationState.limit = parseInt(response.limit ?? productsPerPage);
+                    // Update global pagination state with server response
+                    currentPaginationState.currentPage = parseInt(response.currentPage ?? 1);
+                    currentPaginationState.totalProducts = totalProducts;
+                    currentPaginationState.totalPages = parseInt(response.totalPages ?? Math.ceil(totalProducts / currentPaginationState.limit));
+                    currentPaginationState.limit = parseInt(response.limit ?? productsPerPage);
 
-                        renderTable(products, currentPaginationState.currentPage, currentPaginationState.limit);
-                        renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
-                    }
+                    renderTable(products, currentPaginationState.currentPage, currentPaginationState.limit);
+                    renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
                     resolve(products);
+                }
                 } else {
                     console.error('Error fetching products:', response.message);
                     showToast('Gagal memuat data produk: ' + response.message, 'error');
