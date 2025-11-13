@@ -28,11 +28,13 @@ let currentSortColumn = null;
 let currentSortOrder = 'asc';
 let hasFetchedInitialData = false;
 
-// Variabel untuk paginasi
-let currentPage = 1;
-let itemsPerPage = 10; // Default
-let totalPages = 0;
-// filteredAndSortedProducts is no longer needed as filtering/sorting/pagination is server-side
+// Global state for pagination
+const currentPaginationState = {
+    currentPage: 1,
+    totalProducts: 0,
+    totalPages: 0,
+    limit: 10 // Default limit
+};
 
 // Function to update table header sort icons
 function updateTableHeaders() {
@@ -76,14 +78,14 @@ function handleSort(column) {
     populateInventoryTable();
 }
 
-function renderTable(products, totalCount, page, limit) {
+function renderTable(productsToRender, currentPageParam, productsPerPageParam) {
     const tableBody = document.getElementById('inventory-table-body');
     const paginationInfo = document.getElementById('pagination-info');
-    console.log("Data received by client for rendering:", products);
+    console.log("Data received by client for rendering:", productsToRender);
 
-    // Validasi bahwa 'products' adalah array
-    if (!Array.isArray(products)) {
-        console.error("Data yang diterima bukan array:", products);
+    // Validasi bahwa 'productsToRender' adalah array
+    if (!Array.isArray(productsToRender)) {
+        console.error("Data yang diterima bukan array:", productsToRender);
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-red-500">Error: Format data produk tidak valid.</td></tr>';
         if (typeof showToast === 'function') {
             showToast('Format data produk tidak valid.', 'error');
@@ -92,19 +94,16 @@ function renderTable(products, totalCount, page, limit) {
     }
 
     // Update global pagination variables based on server response
-    allProducts = products; // Store the current page's products
-    totalProductsCount = totalCount;
-    currentPage = page;
-    itemsPerPage = limit;
-    totalPages = Math.ceil(totalProductsCount / itemsPerPage);
+    allProducts = productsToRender; // Store the current page's products
+    // currentPaginationState is already updated in populateInventoryTable
     
     // Update table headers to show sort state
     updateTableHeaders();
 
-    if (products.length === 0) {
+    if (productsToRender.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
         paginationInfo.textContent = '0-0 dari 0';
-        renderPagination();
+        renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
         lucide.createIcons();
         const loadingOverlay = document.getElementById('loading-overlay');
         if (loadingOverlay) {
@@ -114,8 +113,8 @@ function renderTable(products, totalCount, page, limit) {
     }
 
     const fragment = document.createDocumentFragment();
-    const startIndex = (currentPage - 1) * itemsPerPage; // Calculate start index for numbering
-    products.forEach((product, index) => {
+    const startIndex = (currentPageParam - 1) * productsPerPageParam; // Calculate start index for numbering
+    productsToRender.forEach((product, index) => {
         let stockColor = 'text-green-600';
         if (product.stock < 50) stockColor = 'text-yellow-600';
         if (product.stock < 20) stockColor = 'text-red-600 font-bold';
@@ -156,17 +155,20 @@ function renderTable(products, totalCount, page, limit) {
     }
 
     // Update pagination info
-    const startItem = totalProductsCount > 0 ? startIndex + 1 : 0;
-    const endItem = Math.min(startIndex + products.length, totalProductsCount);
-    paginationInfo.textContent = `${startItem}-${endItem} dari ${totalProductsCount}`;
-    renderPagination();
+    const startItem = currentPaginationState.totalProducts > 0 ? startIndex + 1 : 0;
+    const endItem = Math.min(startIndex + productsToRender.length, currentPaginationState.totalProducts);
+    paginationInfo.textContent = `Menampilkan ${startItem} sampai ${endItem} dari ${currentPaginationState.totalProducts} Produk`;
+    renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
 }
 
-const renderPagination = () => {
+const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => {
     const paginationButtonsContainer = document.getElementById('pagination-buttons');
     paginationButtonsContainer.innerHTML = '';
 
-    if (totalPages <= 1) {
+    // Jika tidak ada produk, tampilkan pesan dan jangan render tombol paginasi
+    if (totalProducts === 0) {
+        const paginationInfoSpan = document.getElementById('pagination-info');
+        paginationInfoSpan.textContent = 'Tidak ada produk ditemukan.';
         return;
     }
 
@@ -187,7 +189,7 @@ const renderPagination = () => {
         pageButton.textContent = page;
         pageButton.className = `p-2 rounded-md ${isCurrent ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'hover:bg-gray-100 action-button'}`;
         pageButton.addEventListener('click', () => {
-            currentPage = page;
+            currentPaginationState.currentPage = page;
             populateInventoryTable(); // Re-fetch data for new page
         });
         paginationButtonsContainer.appendChild(pageButton);
@@ -207,7 +209,7 @@ const renderPagination = () => {
     prevButton.disabled = currentPage === 1;
     prevButton.addEventListener('click', () => {
         if (currentPage > 1) {
-            currentPage--;
+            currentPaginationState.currentPage--;
             populateInventoryTable();
         }
     });
@@ -239,11 +241,13 @@ const renderPagination = () => {
     // Next button
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Berikutnya';
-    nextButton.className = `p-2 rounded-md hover:bg-gray-100 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'action-button'}`;
-    nextButton.disabled = currentPage === totalPages;
+    // Disable next button if current page is the last page OR if there are no pages at all
+    const isNextDisabled = (currentPage === totalPages) || (totalPages === 0);
+    nextButton.className = `p-2 rounded-md hover:bg-gray-100 ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : 'action-button'}`;
+    nextButton.disabled = isNextDisabled;
     nextButton.addEventListener('click', () => {
         if (currentPage < totalPages) {
-            currentPage++;
+            currentPaginationState.currentPage++;
             populateInventoryTable();
         }
     });
@@ -356,15 +360,15 @@ function populateInventoryTable(searchTerm) {
         const safePagination = pagination || {};
         const totalRecords = safePagination.totalRecords || 0;
         const pageNum = safePagination.page || 1;
-        const pageSize = safePagination.pageSize || itemsPerPage; // Use client-side default if not provided
+        const pageSize = safePagination.pageSize || currentPaginationState.limit; // Use client-side default if not provided
 
         if (!data || data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk atau tidak ada hasil yang cocok.</td></tr>';
             allProducts = [];
-            totalProductsCount = 0;
-            currentPage = 1;
-            totalPages = 0;
-            renderTable([], 0, 1, itemsPerPage); // Render empty table but keep pagination consistent
+            currentPaginationState.totalProducts = 0;
+            currentPaginationState.currentPage = 1;
+            currentPaginationState.totalPages = 0;
+            renderTable([], 0, 1, currentPaginationState.limit); // Render empty table but keep pagination consistent
         } else {
             // The renderTable function signature is (products, totalCount, page, limit)
             renderTable(data, totalRecords, pageNum, pageSize);
@@ -393,8 +397,8 @@ function populateInventoryTable(searchTerm) {
     const finalSearchTerm = searchTerm !== undefined ? searchTerm : (document.getElementById('inventory-search') ? document.getElementById('inventory-search').value : '');
 
     const options = {
-        page: currentPage,
-        pageSize: itemsPerPage,
+        page: currentPaginationState.currentPage,
+        pageSize: currentPaginationState.limit,
         searchTerm: finalSearchTerm,
         sortColumn: currentSortColumn,
         sortOrder: currentSortOrder
@@ -408,7 +412,7 @@ function populateInventoryTable(searchTerm) {
  * Menangani proses pencarian produk.
  */
 function handleSearch() {
-    currentPage = 1; // Reset to first page on new search
+    currentPaginationState.currentPage = 1; // Reset to first page on new search
     populateInventoryTable(); // Will pick up search term from input and fetch data
 }
 
@@ -419,7 +423,7 @@ function handleSearch() {
         // Reset variabel sort
         currentSortColumn = null;
         currentSortOrder = 'asc';
-        currentPage = 1; // Reset pagination
+        currentPaginationState.currentPage = 1; // Reset pagination
 
         // Kosongkan input pencarian
         const searchInput = document.getElementById('inventory-search');
@@ -536,7 +540,7 @@ function saveProduct() {
                 closeProductModal();
                 // Force a refresh from the server to ensure the table reflects the latest data
                 // including any server-side logic (like MasterProduk lookup)
-                currentPage = 1; // Reset to first page after saving
+                currentPaginationState.currentPage = 1; // Reset to first page after saving
                 populateInventoryTable(); 
                 if (typeof showToast === 'function') showToast(result.message, 'success');
             } else {
@@ -568,7 +572,7 @@ function handleDelete(sku) {
         if (result.status === 'success') {
             console.log(result.message);
             // Force a refresh from the server to ensure the table reflects the latest data
-            currentPage = 1; // Reset to first page after deleting
+            currentPaginationState.currentPage = 1; // Reset to first page after deleting
             populateInventoryTable(); 
             if (typeof showToast === 'function') showToast(result.message, 'success');
         } else {
