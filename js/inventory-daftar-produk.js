@@ -497,6 +497,15 @@ function closeProductModal() {
 }
 
 /**
+ * Menangani event submit dari form produk.
+ * @param {Event} event Objek event dari form submission.
+ */
+function handleFormSubmit(event) {
+    event.preventDefault(); // Mencegah reload halaman
+    saveProduct();
+}
+
+/**
  * Mengirim data dari form ke Apps Script untuk disimpan.
  */
 function saveProduct() {
