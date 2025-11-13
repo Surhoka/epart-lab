@@ -153,12 +153,10 @@ function renderTable(productsToRender, currentPageParam, productsPerPageParam) {
     }
 
     // Update pagination info is now handled solely by renderPagination
-    console.log("Before calling renderPagination, currentPaginationState:", JSON.stringify(currentPaginationState));
     renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
 }
 
 const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => {
-    console.log("renderPagination called with:", `totalProducts: ${totalProducts}, totalPages: ${totalPages}, currentPage: ${currentPage}, productsPerPage: ${productsPerPage}`);
     const paginationButtonsContainer = document.getElementById('pagination-buttons');
     paginationButtonsContainer.innerHTML = '';
 
