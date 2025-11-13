@@ -90,7 +90,7 @@
             };
 
             const params = {
-                action: 'getProducts',
+                action: 'getMasterProducts',
                 page: currentPaginationState.currentPage,
                 limit: currentPaginationState.limit,
                 searchTerm: searchTerm,
