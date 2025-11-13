@@ -352,6 +352,12 @@ function populateInventoryTable(searchTerm) {
         // Data is now in response.data, pagination info in response.pagination
         const { data, pagination } = response;
 
+        // Defensive check: Ensure pagination is an object before accessing its properties
+        const safePagination = pagination || {};
+        const totalRecords = safePagination.totalRecords || 0;
+        const pageNum = safePagination.page || 1;
+        const pageSize = safePagination.pageSize || itemsPerPage; // Use client-side default if not provided
+
         if (!data || data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk atau tidak ada hasil yang cocok.</td></tr>';
             allProducts = [];
@@ -361,7 +367,7 @@ function populateInventoryTable(searchTerm) {
             renderTable([], 0, 1, itemsPerPage); // Render empty table but keep pagination consistent
         } else {
             // The renderTable function signature is (products, totalCount, page, limit)
-            renderTable(data, pagination.totalRecords, pagination.page, pagination.pageSize);
+            renderTable(data, totalRecords, pageNum, pageSize);
         }
         
         hasFetchedInitialData = true;
