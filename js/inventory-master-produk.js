@@ -96,7 +96,7 @@
     };
 
     const renderTable = (productsToRender, currentPageParam, productsPerPageParam) => { // Accept parameters
-        // console.log(`DEBUG: renderTable params - currentPageParam: ${currentPageParam}, productsPerPageParam: ${productsPerPageParam}`); // Removed debug log
+        console.log(`DEBUG: renderTable - productsToRender:`, productsToRender); // Added debug log
         inventoryTableBody.innerHTML = '';
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
