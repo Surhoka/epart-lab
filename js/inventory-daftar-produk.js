@@ -2,7 +2,7 @@
  * =================================================================
  *      SKRIP SISI KLIEN UNTUK HALAMAN DAFTAR PRODUK
  * =================================================================
- * v3
+ * 
  * FUNGSI UTAMA:
  * - initInventoryDaftarProdukPage: Fungsi inisialisasi utama yang dipanggil saat halaman dimuat.
  * - populateInventoryTable: Mengambil data dari Google Apps Script dan menampilkan di tabel.
@@ -323,9 +323,9 @@ window.initInventoryDaftarProdukPage = function() {
 
 /**
  * Mengambil data dari Google Sheet dan mengisi tabel.
- * @param {string} [searchTerm=''] - The term to filter products by SKU, NamaProduk, or Merek.
+ * @param {string} [searchTerm] - The term to filter products by. If not provided, it's taken from the search input.
  */
-function populateInventoryTable(searchTerm = '') {
+function populateInventoryTable(searchTerm) {
     const tableBody = document.getElementById('inventory-table-body');
     if (!tableBody) {
         console.error('Table body element not found');
@@ -336,96 +336,75 @@ function populateInventoryTable(searchTerm = '') {
     if (loadingOverlay) {
         loadingOverlay.classList.remove('hidden');
     }
-    // Clear table body content immediately to prevent old data from showing under overlay
     tableBody.innerHTML = ''; 
 
     const handleSuccess = (response) => {
         if (loadingOverlay) {
-            loadingOverlay.classList.add('hidden'); // Hide overlay on success
+            loadingOverlay.classList.add('hidden');
         }
-        if (!response) {
-            handleFailure({ message: 'Tidak ada respons dari server.' });
+        if (!response || response.status !== 'success') {
+            handleFailure(response || { message: 'Tidak ada respons dari server.' });
             return;
         }
         
-        console.log('Response received:', response); // Debug log
-        
-        // If response indicates empty data
-        if (response.status === 'success' && (!response.data || response.data.length === 0)) {
-            if (response.message && !response.message.toLowerCase().includes('error')) {
-                // Show success message if provided
-                console.log('Success message:', response.message);
-                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
-                if (typeof showToast === 'function') {
-                    showToast(response.message, 'success');
-                }
-            } else {
-                tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk. Silakan tambahkan produk baru.</td></tr>';
-            }
-            allProducts = []; // Ensure allProducts is empty if no data
+        console.log('Server Response:', response);
+
+        // Data is now in response.data, pagination info in response.pagination
+        const { data, pagination } = response;
+
+        if (!data || data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk atau tidak ada hasil yang cocok.</td></tr>';
+            allProducts = [];
             totalProductsCount = 0;
-            currentPage = 0; // Reset current page
+            currentPage = 1;
             totalPages = 0;
-            renderTable([], 0, 0, itemsPerPage); // Render empty table
-            hasFetchedInitialData = true; // Mark as fetched even if empty
-            return;
+            renderTable([], 0, 1, itemsPerPage); // Render empty table but keep pagination consistent
+        } else {
+            // The renderTable function signature is (products, totalCount, page, limit)
+            renderTable(data, pagination.totalRecords, pagination.page, pagination.pageSize);
         }
         
-        // If response has data array
-        if (response.status === 'success' && Array.isArray(response.data)) {
-            renderTable(response.data, response.totalProducts, response.currentPage, response.limit);
-            hasFetchedInitialData = true; // Mark as fetched
-            if (response.message && typeof showToast === 'function') {
-                showToast(response.message, 'success');
-            }
-        } else {
-            handleFailure({ message: response.message || 'Terjadi kesalahan di server.' });
+        hasFetchedInitialData = true;
+        if (response.message && typeof showToast === 'function') {
+            showToast(response.message, 'success');
         }
     };
 
     const handleFailure = (error) => {
         console.error("Gagal mengambil data produk:", error);
-        
-        // Check if the error message is actually a success message
-        if (error.message && error.message.toLowerCase().includes('berhasil')) {
-            handleSuccess({
-                status: 'success',
-                message: error.message,
-                data: []
-            });
-            return;
-        }
-        
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${error.message}</td></tr>`;
-        if (typeof showToast === 'function') {
-            showToast('Gagal memuat data produk: ' + error.message, 'error');
-        }
-        hasFetchedInitialData = true; // Mark as fetched even on failure to prevent re-fetching immediately
-        const loadingOverlay = document.getElementById('loading-overlay');
         if (loadingOverlay) {
-            loadingOverlay.classList.add('hidden'); // Hide overlay on failure
+            loadingOverlay.classList.add('hidden');
         }
+        const errorMessage = (error && error.message) ? error.message : 'Terjadi kesalahan yang tidak diketahui.';
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-red-500">Error: ${errorMessage}</td></tr>`;
+        if (typeof showToast === 'function') {
+            showToast(`Gagal memuat data: ${errorMessage}`, 'error');
+        }
+        hasFetchedInitialData = true;
     };
 
-    // If we reached here, it means productsToDisplay was null, so we fetch from the server.
-    const params = {
+    // The search term now comes from the input field directly if not passed as an argument
+    const finalSearchTerm = searchTerm !== undefined ? searchTerm : (document.getElementById('inventory-search') ? document.getElementById('inventory-search').value : '');
+
+    const options = {
         page: currentPage,
-        limit: itemsPerPage,
-        searchTerm: searchTerm,
+        pageSize: itemsPerPage,
+        searchTerm: finalSearchTerm,
         sortColumn: currentSortColumn,
-        sortDirection: currentSortOrder
+        sortOrder: currentSortOrder
     };
-    window.sendDataToGoogle('getProducts', params, handleSuccess, handleFailure);
+
+    // Call the new paginated function on the server
+    window.sendDataToGoogle('getProductsPaginated', options, handleSuccess, handleFailure);
 }
 
 /**
  * Menangani proses pencarian produk.
  */
-    function handleSearch() {
-        const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
-        currentPage = 1; // Reset to first page on new search
-        populateInventoryTable(searchTerm); // Fetch data from server with search term
-    }
+function handleSearch() {
+    currentPage = 1; // Reset to first page on new search
+    populateInventoryTable(); // Will pick up search term from input and fetch data
+}
 
     /**
      * Mereset tampilan tabel ke kondisi awal.
