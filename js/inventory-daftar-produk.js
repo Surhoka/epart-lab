@@ -657,3 +657,13 @@ function handleDelete(sku) {
     const handleSkuInputDebounced = debounce(handleSkuInput, 500); // Debounce for 500ms
 
     // The router will call window.initInventoryDaftarProdukPage()
+
+/**
+ * Mengambil semua data produk dari server tanpa paginasi atau pencarian.
+ * Berguna untuk mendapatkan daftar lengkap produk.
+ * @param {Function} successCallback - Fungsi yang akan dipanggil jika berhasil.
+ * @param {Function} failureCallback - Fungsi yang akan dipanggil jika gagal.
+ */
+function getDaftarProductClient(successCallback, failureCallback) {
+    window.sendDataToGoogle('getDaftarProduct', {}, successCallback, failureCallback);
+}
