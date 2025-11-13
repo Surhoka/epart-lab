@@ -153,12 +153,12 @@ function renderTable(productsToRender, currentPageParam, productsPerPageParam) {
     }
 
     // Update pagination info is now handled solely by renderPagination
-    console.log("Before calling renderPagination, currentPaginationState:", currentPaginationState);
+    console.log("Before calling renderPagination, currentPaginationState:", JSON.stringify(currentPaginationState));
     renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
 }
 
 const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => {
-    console.log("renderPagination called with:", { totalProducts, totalPages, currentPage, productsPerPage });
+    console.log("renderPagination called with:", `totalProducts: ${totalProducts}, totalPages: ${totalPages}, currentPage: ${currentPage}, productsPerPage: ${productsPerPage}`);
     const paginationButtonsContainer = document.getElementById('pagination-buttons');
     paginationButtonsContainer.innerHTML = '';
 
@@ -360,12 +360,16 @@ function populateInventoryTable(searchTerm) {
         const pageNum = safePagination.page || 1;
         const pageSize = safePagination.pageSize || currentPaginationState.limit; // Use client-side default if not provided
 
+        // Update currentPaginationState unconditionally
+        currentPaginationState.totalProducts = totalRecords;
+        currentPaginationState.currentPage = pageNum;
+        currentPaginationState.limit = pageSize;
+        currentPaginationState.totalPages = Math.ceil(currentPaginationState.totalProducts / currentPaginationState.limit);
+
         if (!data || data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8 text-gray-500">Belum ada produk atau tidak ada hasil yang cocok.</td></tr>';
             allProducts = [];
-            currentPaginationState.totalProducts = 0;
-            currentPaginationState.currentPage = 1;
-            currentPaginationState.totalPages = 0;
+            // currentPaginationState is already updated above, no need to reset to 0 here
             renderTable([], 0, 1, currentPaginationState.limit); // Render empty table but keep pagination consistent
         } else {
             // The renderTable function signature is (products, currentPage, itemsPerPage)
