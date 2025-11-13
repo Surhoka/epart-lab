@@ -44,8 +44,6 @@
         showLoading();
         const searchTerm = inventorySearchInput.value;
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXBcKm42b6KJ8znU8ryYn-5PtlORDH0HMuUoMlM7e24yp5v0dtkOi9Q16wLweMYhHaDg/exec';
-
         return new Promise((resolve, reject) => {
             const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
             const script = document.createElement('script');
@@ -102,7 +100,7 @@
             };
 
             const queryString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&');
-            script.src = SCRIPT_URL + '?' + queryString;
+            script.src = window.appsScriptUrl + '?' + queryString;
             document.head.appendChild(script);
         }).catch(error => {
             console.error("Fetch product data promise failed:", error);
