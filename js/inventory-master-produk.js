@@ -296,7 +296,6 @@
 
     // Initial load function for SPA router
     window.initInventoryMasterProdukPage = async () => {
-        console.log('initInventoryMasterProdukPage function called.'); // Added log
         await fetchProductData(); // Initial fetch with default parameters
         setupEventListeners();
         // Render Lucide icons if they are present on the page
@@ -304,4 +303,3 @@
             lucide.createIcons();
         }
     };
-    console.log('initInventoryMasterProdukPage defined on window object.'); // Added log
