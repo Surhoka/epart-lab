@@ -125,6 +125,13 @@
 
     const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => { // Accept parameters
         paginationButtonsContainer.innerHTML = '';
+
+        // Jika tidak ada produk, tampilkan pesan dan jangan render tombol paginasi
+        if (totalProducts === 0) {
+            paginationInfoSpan.textContent = 'Tidak ada produk ditemukan.';
+            return;
+        }
+
         paginationInfoSpan.textContent = `Menampilkan ${Math.min((currentPage - 1) * productsPerPage + 1, totalProducts)} sampai ${Math.min(currentPage * productsPerPage, totalProducts)} dari ${totalProducts} Produk`;
 
         // Previous button
