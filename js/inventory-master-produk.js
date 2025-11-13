@@ -55,6 +55,7 @@
 
         return new Promise(resolve => {
             window.sendDataToGoogle('getProducts', params, (response) => {
+                console.log('Response received in fetchProductData:', JSON.stringify(response, null, 2));
                 hideLoading();
                 if (response.status === 'success') {
                     if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
