@@ -196,8 +196,10 @@
         // Next button
         const nextButton = document.createElement('button');
         nextButton.textContent = 'Berikutnya';
-        nextButton.className = `p-2 rounded-md hover:bg-gray-100 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'action-button'}`;
-        nextButton.disabled = currentPage === totalPages;
+        // Disable next button if current page is the last page OR if there are no pages at all
+        const isNextDisabled = (currentPage === totalPages) || (totalPages === 0);
+        nextButton.className = `p-2 rounded-md hover:bg-gray-100 ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : 'action-button'}`;
+        nextButton.disabled = isNextDisabled;
         nextButton.addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPaginationState.currentPage++; // Update state
