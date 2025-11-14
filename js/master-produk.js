@@ -1,9 +1,11 @@
-    const inventoryTableBody = document.getElementById('inventory-table-body');
-    const inventorySearchInput = document.getElementById('inventory-search');
-    const searchButton = document.getElementById('search-button');
-    const resetTableButton = document.getElementById('reset-table-button');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const tableHeaders = document.querySelectorAll('#inventory-table-container th[data-sort]');
+    let inventoryTableBody;
+    let inventorySearchInput;
+    let searchButton;
+    let resetTableButton;
+    let loadingOverlay;
+    let tableHeaders;
+    let paginationInfoSpan;
+    let paginationButtonsContainer;
 
     let currentSortColumn = null;
     let currentSortDirection = 'asc'; // 'asc' or 'desc'
@@ -11,8 +13,13 @@
     // Pagination variables
     const productsPerPage = 10; // Default limit
 
-    const paginationInfoSpan = document.getElementById('pagination-info');
-    const paginationButtonsContainer = document.getElementById('pagination-buttons');
+    // Global state for pagination, now managed by fetchProductData and passed to render functions
+    const currentPaginationState = {
+        currentPage: 1,
+        totalProducts: 0,
+        totalPages: 0,
+        limit: productsPerPage // Use productsPerPage as the default limit
+    };
 
     // Helper to format Rupiah currency
     const formatRupiah = (amount) => {
@@ -25,26 +32,23 @@
     };
 
     const showLoading = () => {
-        loadingOverlay.classList.remove('hidden');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden');
+            console.log('Loading overlay shown.');
+        }
     };
 
     const hideLoading = () => {
-        loadingOverlay.classList.add('hidden');
-        console.log('Loading overlay hidden.');
-    };
-
-    // Global state for pagination, now managed by fetchProductData and passed to render functions
-    const currentPaginationState = { // Changed to const
-        currentPage: 1,
-        totalProducts: 0,
-        totalPages: 0,
-        limit: productsPerPage // Use productsPerPage as the default limit
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            console.log('Loading overlay hidden.');
+        }
     };
 
     const fetchProductData = async () => {
         console.log('fetchProductData initiated.');
         showLoading();
-        const searchTerm = inventorySearchInput.value;
+        const searchTerm = inventorySearchInput ? inventorySearchInput.value : ''; // Safely access value
 
         return new Promise((resolve, reject) => {
             const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
@@ -122,6 +126,10 @@
 
     const renderTable = (productsToRender, currentPageParam, productsPerPageParam) => { // Accept parameters
         console.log('renderTable called with products:', productsToRender);
+        if (!inventoryTableBody) {
+            console.error('inventoryTableBody is null. Cannot render table.');
+            return;
+        }
         inventoryTableBody.innerHTML = '';
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
@@ -150,6 +158,10 @@
     };
 
     const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => { // Accept parameters
+        if (!paginationButtonsContainer || !paginationInfoSpan) {
+            console.error('Pagination elements not found. Cannot render pagination.');
+            return;
+        }
         paginationButtonsContainer.innerHTML = '';
 
         // Jika tidak ada produk, tampilkan pesan dan jangan render tombol paginasi
@@ -249,62 +261,81 @@
     };
 
     const setupEventListeners = () => {
-        searchButton.addEventListener('click', applyFiltersAndSort);
-        inventorySearchInput.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                applyFiltersAndSort();
-            }
-        });
+        if (searchButton) searchButton.addEventListener('click', applyFiltersAndSort);
+        if (inventorySearchInput) {
+            inventorySearchInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    applyFiltersAndSort();
+                }
+            });
+        }
 
-        resetTableButton.addEventListener('click', async () => {
-            inventorySearchInput.value = '';
-            currentSortColumn = null;
-            currentSortDirection = 'asc';
-            currentPaginationState.currentPage = 1; // Reset pagination state
-            // Reset sort icons
+        if (resetTableButton) {
+            resetTableButton.addEventListener('click', async () => {
+                if (inventorySearchInput) inventorySearchInput.value = '';
+                currentSortColumn = null;
+                currentSortDirection = 'asc';
+                currentPaginationState.currentPage = 1; // Reset pagination state
+                // Reset sort icons
+                if (tableHeaders) {
+                    tableHeaders.forEach(header => {
+                        const icon = header.querySelector('.sort-icon');
+                        if (icon) {
+                            icon.setAttribute('data-lucide', 'chevrons-up-down');
+                            lucide.createIcons();
+                        }
+                    });
+                }
+                await fetchProductData(); // Re-fetch data with default parameters
+            });
+        }
+
+        if (tableHeaders) {
             tableHeaders.forEach(header => {
-                const icon = header.querySelector('.sort-icon');
-                if (icon) {
-                    icon.setAttribute('data-lucide', 'chevrons-up-down');
-                    lucide.createIcons();
-                }
-            });
-            await fetchProductData(); // Re-fetch data with default parameters
-        });
+                header.addEventListener('click', () => {
+                    const sortColumn = header.dataset.sort;
+                    const icon = header.querySelector('.sort-icon');
 
-        tableHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const sortColumn = header.dataset.sort;
-                const icon = header.querySelector('.sort-icon');
-
-                if (currentSortColumn === sortColumn) {
-                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSortColumn = sortColumn;
-                    currentSortDirection = 'asc';
-                }
-
-                // Reset all icons
-                tableHeaders.forEach(h => {
-                    const i = h.querySelector('.sort-icon');
-                    if (i) {
-                        i.setAttribute('data-lucide', 'chevrons-up-down');
+                    if (currentSortColumn === sortColumn) {
+                        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSortColumn = sortColumn;
+                        currentSortDirection = 'asc';
                     }
+
+                    // Reset all icons
+                    tableHeaders.forEach(h => {
+                        const i = h.querySelector('.sort-icon');
+                        if (i) {
+                            i.setAttribute('data-lucide', 'chevrons-up-down');
+                        }
+                    });
+
+                    // Set current sort icon
+                    if (icon) {
+                        icon.setAttribute('data-lucide', currentSortDirection === 'asc' ? 'chevron-up' : 'chevron-down');
+                    }
+                    lucide.createIcons(); // Re-render lucide icons after changing data-lucide attribute
+
+                    applyFiltersAndSort(); // Trigger server-side sort
                 });
-
-                // Set current sort icon
-                if (icon) {
-                    icon.setAttribute('data-lucide', currentSortDirection === 'asc' ? 'chevron-up' : 'chevron-down');
-                }
-                lucide.createIcons(); // Re-render lucide icons after changing data-lucide attribute
-
-                applyFiltersAndSort(); // Trigger server-side sort
             });
-        });
+        }
     };
 
     // Initial load function for SPA router
     window.initMasterProdukPage = async () => {
+        console.log('initMasterProdukPage called.');
+        // Get DOM elements here to ensure they are available after HTML content is loaded
+        inventoryTableBody = document.getElementById('inventory-table-body');
+        inventorySearchInput = document.getElementById('inventory-search');
+        searchButton = document.getElementById('search-button');
+        resetTableButton = document.getElementById('reset-table-button');
+        loadingOverlay = document.getElementById('loading-overlay');
+        tableHeaders = document.querySelectorAll('#inventory-table-container th[data-sort]');
+        paginationInfoSpan = document.getElementById('pagination-info');
+        paginationButtonsContainer = document.getElementById('pagination-buttons');
+
         await fetchProductData(); // Initial fetch with default parameters
         setupEventListeners();
         // Render Lucide icons if they are present on the page
