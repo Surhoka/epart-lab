@@ -1,0 +1,78 @@
+<div class="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 mb-6">
+    <!-- Konten Utama -->
+    <main class="flex-grow p-6 pb-6">
+        <!-- ----------------------------------------------------- -->
+        <!-- 1. Halaman Dasbor -->
+        <!-- ----------------------------------------------------- -->
+        <div id="page-dasbor" class="page block">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Card Statistik -->
+                <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Total Penjualan Bulan Ini</p>
+                        <i data-lucide="trending-up" class="w-6 h-6 text-indigo-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">Rp 125.000.000</p>
+                </div>
+                <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Total Produk Unik</p>
+                        <i data-lucide="package" class="w-6 h-6 text-green-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">1.250</p>
+                </div>
+                <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Stok Kritis</p>
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">25 Item</p>
+                </div>
+                <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Order Tertunda</p>
+                        <i data-lucide="list-checks" class="w-6 h-6 text-red-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">5 Order</p>
+                </div>
+            </div>
+
+            <!-- Grafik Penjualan dan Stok Terlaris -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="p-6 border border-gray-200 rounded-2xl bg-white">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Tren Penjualan (6 Bulan Terakhir)</h2>
+                    <div style="height: 300px;">
+                        <canvas id="penjualanChart"></canvas>
+                    </div>
+                </div>
+                <div class="p-6 border border-gray-200 rounded-2xl bg-white">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Produk Terlaris Bulan Ini</h2>
+                    <div style="height: 300px;">
+                        <canvas id="stokChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Data Terbaru -->
+            <div class="p-6 border border-gray-200 rounded-2xl bg-white mb-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Order Penjualan Terbaru</h2>
+                <div class="table-container">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Order</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
