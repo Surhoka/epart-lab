@@ -1,0 +1,70 @@
+
+function initLoginPage() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', handleLogin);
+    }
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    const email = event.target.querySelector('input[type="email"]').value;
+    const password = event.target.querySelector('input[type="password"]').value;
+    const submitButton = event.target.querySelector('button[type="submit"]');
+
+    // Disable button and show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+        <div class="spinner border-2 border-t-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin mr-2"></div>
+        Signing In...
+    `;
+
+    try {
+        const response = await fetch(window.appsScriptUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', // As per Apps Script doPost requirement
+            },
+            body: JSON.stringify({
+                action: 'login',
+                email: email,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data.isLoggedIn) {
+            // Store user data in localStorage
+            localStorage.setItem('loggedInUser', JSON.stringify(result.data));
+            
+            // Show success toast
+            if (window.showToast) {
+                window.showToast('Login successful!', 'success');
+            }
+            
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                window.location.hash = '#/dashboard';
+                window.location.reload(); // Reload to update UI state based on login
+            }, 1000);
+
+        } else {
+            // Show error toast
+            if (window.showToast) {
+                window.showToast(result.message || 'Invalid email or password.', 'error');
+            }
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.textContent = 'Sign In';
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        if (window.showToast) {
+            window.showToast('An error occurred during login.', 'error');
+        }
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.textContent = 'Sign In';
+    }
+}
