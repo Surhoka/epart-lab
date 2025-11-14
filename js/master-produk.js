@@ -1,3 +1,5 @@
+    console.log('master-produk.js loaded.'); // Add this line for debugging
+
     let inventoryTableBody;
     let inventorySearchInput;
     let searchButton;
@@ -324,7 +326,7 @@
     };
 
     // Initial load function for SPA router
-    window.initMasterProdukPage = async () => {
+    window.initMasterProdukPage = async function() {
         console.log('initMasterProdukPage called.');
         // Get DOM elements here to ensure they are available after HTML content is loaded
         inventoryTableBody = document.getElementById('inventory-table-body');
