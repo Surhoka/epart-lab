@@ -295,7 +295,7 @@
     };
 
     // Initial load function for SPA router
-    window.initInventoryMasterProdukPage = async () => {
+    window.initMasterProdukPage = async () => {
         await fetchProductData(); // Initial fetch with default parameters
         setupEventListeners();
         // Render Lucide icons if they are present on the page
