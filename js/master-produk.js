@@ -30,6 +30,7 @@
 
     const hideLoading = () => {
         loadingOverlay.classList.add('hidden');
+        console.log('Loading overlay hidden.');
     };
 
     // Global state for pagination, now managed by fetchProductData and passed to render functions
@@ -41,6 +42,7 @@
     };
 
     const fetchProductData = async () => {
+        console.log('fetchProductData initiated.');
         showLoading();
         const searchTerm = inventorySearchInput.value;
 
@@ -52,6 +54,7 @@
                 delete window[callbackName];
                 hideLoading();
                 showToast('Gagal memuat data: Waktu permintaan habis.', 'error');
+                console.error('Request timed out for getMasterProducts.');
                 reject(new Error('Request timed out'));
             }, 10000); // 10 second timeout
 
@@ -61,10 +64,11 @@
                 delete window[callbackName];
                 hideLoading();
 
-                console.log('Raw JSONP response received:', JSON.stringify(response, null, 2));
+                console.log('Raw JSONP response received for getMasterProducts:', JSON.stringify(response, null, 2));
 
                 if (response.status === 'success') {
                     if (!response.data || !Array.isArray(response.data)) {
+                        console.warn('No data or invalid data format received for getMasterProducts.');
                         currentPaginationState.totalProducts = 0;
                         currentPaginationState.totalPages = 0;
                         renderTable([], 1, currentPaginationState.limit);
@@ -78,6 +82,7 @@
                         currentPaginationState.totalPages = parseInt(response.totalPages || 0);
                         currentPaginationState.limit = parseInt(response.limit || productsPerPage);
 
+                        console.log(`Rendering table with ${products.length} products. Total: ${totalProducts}, Pages: ${currentPaginationState.totalPages}, Current Page: ${currentPaginationState.currentPage}`);
                         renderTable(products, currentPaginationState.currentPage, currentPaginationState.limit);
                         renderPagination(currentPaginationState.totalProducts, currentPaginationState.totalPages, currentPaginationState.currentPage, currentPaginationState.limit);
                     }
@@ -101,6 +106,7 @@
 
             const queryString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&');
             script.src = window.appsScriptUrl + '?' + queryString;
+            console.log('Sending request to Apps Script:', script.src);
             document.head.appendChild(script);
         }).catch(error => {
             console.error("Fetch product data promise failed:", error);
@@ -115,6 +121,7 @@
     };
 
     const renderTable = (productsToRender, currentPageParam, productsPerPageParam) => { // Accept parameters
+        console.log('renderTable called with products:', productsToRender);
         inventoryTableBody.innerHTML = '';
         if (productsToRender.length === 0) {
             inventoryTableBody.innerHTML = `
@@ -122,6 +129,7 @@
                     <td colspan="6" class="px-3 py-2 text-center text-gray-500">Tidak ada produk ditemukan.</td>
                 </tr>
             `;
+            console.log('No products to render, displaying "Tidak ada produk ditemukan."');
             return;
         }
 
@@ -138,6 +146,7 @@
             `;
             inventoryTableBody.appendChild(row);
         });
+        console.log('Table rendered successfully.');
     };
 
     const renderPagination = (totalProducts, totalPages, currentPage, productsPerPage) => { // Accept parameters
