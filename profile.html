@@ -1,87 +1,64 @@
-<div class="page-content bg-white p-6 rounded-xl shadow-lg">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Profil Pengguna</h1>
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 lg:p-6 mb-6">
+    <h3 class="mb-5 text-lg font-semibold text-gray-800 lg:mb-7">User Profile</h3>
 
-    <div id="profile-details" class="space-y-4">
-        <div class="flex items-center space-x-4">
-            <img id="profile-picture-display" class="w-24 h-24 rounded-full object-cover border-2 border-indigo-400" src="https://via.placeholder.com/96" alt="Profile Picture" />
-            <div>
-                <p class="text-lg font-semibold text-gray-900" id="profile-username">Nama Pengguna</p>
-                <p class="text-sm text-gray-600" id="profile-email">email@example.com</p>
-            </div>
+    <div class="space-y-6">
+
+      <!-- User Meta Card -->
+      <div class="p-5 border border-gray-200 rounded-2xl bg-white flex flex-col lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-4">
+          <img id="profile-photo" src="https://dummyimage.com/100x100" class="w-20 h-20 rounded-full border object-cover" style="width: 80px; height: 80px;" alt="user"/>
+          <div>
+            <h4 id="profile-name" class="font-semibold text-lg text-gray-800"></h4>
+            <p id="profile-title-location" class="text-sm text-gray-600"></p>
+          </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label for="edit-username" class="block text-sm font-medium text-gray-700">Nama Pengguna</label>
-                <input type="text" id="edit-username" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-            </div>
-            <div>
-                <label for="edit-email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="edit-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-            </div>
-            <div>
-                <label for="edit-phone" class="block text-sm font-medium text-gray-700">Telepon</label>
-                <input type="text" id="edit-phone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-            </div>
-            <div>
-                <label for="edit-address" class="block text-sm font-medium text-gray-700">Alamat</label>
-                <input type="text" id="edit-address" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-            </div>
+        <button id="editMetaBtn" data-section="meta" class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">Edit</button>
+      </div>
+
+      <!-- User Info Card -->
+      <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800">Personal Information</h4>
+          <button id="editInfoBtn" data-section="info" class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">Edit</button>
         </div>
-        <div class="flex justify-end space-x-2 mt-6">
-            <button id="save-profile-button" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-150">Simpan Perubahan</button>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" id="info-display">
+          <div><p class="text-xs text-gray-500">First Name</p><p class="font-medium text-gray-800" data-field="firstName"></p></div>
+          <div><p class="text-xs text-gray-500">Last Name</p><p class="font-medium text-gray-800" data-field="lastName"></p></div>
+          <div><p class="text-xs text-gray-500">Email</p><p class="font-medium text-gray-800" data-field="email"></p></div>
+          <div><p class="font-medium text-gray-800" data-field="phone"></p></div>
+          <div class="col-span-2"><p class="text-xs text-gray-500">Bio</p><p class="font-medium text-gray-800" data-field="bio"></p></div>
         </div>
+      </div>
+
+      <!-- User Address Card -->
+      <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800">Address</h4>
+          <button id="editAddressBtn" data-section="address" class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">Edit</button>
+        </div>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" id="address-display">
+          <div><p class="text-xs text-gray-500">Country</p><p class="font-medium text-gray-800" data-field="country"></p></div>
+          <div><p class="text-xs text-gray-500">City/State</p><p class="font-medium text-gray-800" data-field="cityState"></p></div>
+          <div><p class="text-xs text-gray-500">Postal Code</p><p class="font-medium text-gray-800" data-field="postalCode"></p></div>
+          <div><p class="font-medium text-gray-800" data-field="taxId"></p></div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <hr class="my-8" />
-
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Ubah Kata Sandi</h2>
-    <div class="space-y-4 max-w-md">
-        <div>
-            <label for="current-password" class="block text-sm font-medium text-gray-700">Kata Sandi Saat Ini</label>
-            <input type="password" id="current-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+  <!-- Modal -->
+  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg relative">
+      <button id="closeModalBtn" class="absolute top-3 right-3">✕</button>
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4 text-gray-800">Edit Data</h3>
+      <form id="editForm" class="flex flex-col gap-3">
+        <div id="modal-form-fields" class="flex flex-col gap-3">
+          <!-- Dynamic form fields will be inserted here -->
         </div>
-        <div>
-            <label for="new-password" class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
-            <input type="password" id="new-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+        <div class="flex justify-end gap-2 mt-3">
+          <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Save</button>
         </div>
-        <div>
-            <label for="confirm-password" class="block text-sm font-medium text-gray-700">Konfirmasi Kata Sandi Baru</label>
-            <input type="password" id="confirm-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-        </div>
-        <div class="flex justify-end mt-6">
-            <button id="change-password-button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-150">Ubah Kata Sandi</button>
-        </div>
+      </form>
     </div>
-
-    <hr class="my-8" />
-
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Upload Foto Profil</h2>
-    <div class="space-y-4 max-w-md">
-        <div>
-            <label for="profile-image-upload" class="block text-sm font-medium text-gray-700">Pilih Gambar</label>
-            <input type="file" id="profile-image-upload" accept="image/*" class="mt-1 block w-full text-gray-700" />
-        </div>
-        <div class="flex justify-end mt-6">
-            <button id="upload-image-button" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150">Upload Foto</button>
-        </div>
-    </div>
-</div>
-
-<!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login</h2>
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="login-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required />
-            </div>
-            <div>
-                <label for="login-password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
-                <input type="password" id="login-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required />
-            </div>
-            <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-150">Login</button>
-        </form>
-        <button id="closeLoginModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-    </div>
-</div>
+  </div>
