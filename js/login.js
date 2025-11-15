@@ -1,6 +1,6 @@
 
 function initLoginPage() {
-    const form = document.querySelector('form');
+    const form = document.getElementById('loginForm');
     if (form) {
         form.addEventListener('submit', handleLogin);
     }
@@ -8,9 +8,9 @@ function initLoginPage() {
 
 async function handleLogin(event) {
     event.preventDefault();
-    const email = event.target.querySelector('input[type="email"]').value;
-    const password = event.target.querySelector('input[type="password"]').value;
-    const submitButton = event.target.querySelector('button[type="submit"]');
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const submitButton = document.getElementById('submitButton');
 
     // Disable button and show loading state
     submitButton.disabled = true;
