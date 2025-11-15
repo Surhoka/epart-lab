@@ -23,7 +23,7 @@ async function handleLogin(event) {
         const response = await fetch(window.appsScriptUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // As per Apps Script doPost requirement
+                'Content-Type': 'application/json', // Changed for better compatibility with Apps Script doPost
             },
             body: JSON.stringify({
                 action: 'login',
