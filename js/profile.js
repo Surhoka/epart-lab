@@ -262,4 +262,4 @@ function initProfilePage() {
 
 }
 
-// document.addEventListener('DOMContentLoaded', initProfilePage); // Removed as initProfilePage is called by the router
+document.addEventListener('DOMContentLoaded', initProfilePage); // Re-added to ensure initialization
