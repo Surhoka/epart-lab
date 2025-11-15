@@ -1,4 +1,3 @@
-
 function initLoginPage() {
     const form = document.getElementById('loginForm');
     if (form) {
@@ -23,7 +22,7 @@ async function handleLogin(event) {
         const response = await fetch(window.appsScriptUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json', // Changed for better compatibility with Apps Script doPost
+                'Content-Type': 'text/plain;charset=utf-8', // Reverted for better compatibility with Apps Script doPost and CORS
             },
             body: JSON.stringify({
                 action: 'login',
