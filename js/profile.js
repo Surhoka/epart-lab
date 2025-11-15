@@ -32,6 +32,10 @@ function initProfilePage() {
         { id: "cityState", label: "City/State", type: "text" },
         { id: "postalCode", label: "Postal Code", type: "text" },
         { id: "taxId", label: "TAX ID", type: "text" }
+      ],
+      account: [
+        { id: "email", label: "Username (Email)", type: "email" },
+        { id: "password", label: "New Password", type: "password" } // For changing password
       ]
     };
 
@@ -201,6 +205,14 @@ function initProfilePage() {
           if (displayElement) displayElement.textContent = profileData.address[field];
         }
       }
+
+      // Update Account Information Card
+      const accountDisplayContainer = document.getElementById('account-display');
+      if (accountDisplayContainer && profileData.info) { // Using profileData.info for email
+        const emailDisplayElement = accountDisplayContainer.querySelector('[data-field="email"]');
+        if (emailDisplayElement) emailDisplayElement.textContent = profileData.info.email;
+        // Password is not displayed directly for security reasons
+      }
       
       // Update header with profile info
       const userNameHeader = document.getElementById('user-name-header');
@@ -243,6 +255,7 @@ function initProfilePage() {
     document.getElementById('editMetaBtn').onclick = () => openEditModal('meta');
     document.getElementById('editInfoBtn').onclick = () => openEditModal('info');
     document.getElementById('editAddressBtn').onclick = () => openEditModal('address');
+    document.getElementById('editAccountBtn').onclick = () => openEditModal('account');
     closeButton.onclick = () => modal.classList.add("hidden");
     cancelButton.onclick = () => modal.classList.add("hidden");
     editForm.onsubmit = saveProfileData;
