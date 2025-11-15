@@ -247,5 +247,6 @@ function initProfilePage() {
     cancelButton.onclick = () => modal.classList.add("hidden");
     editForm.onsubmit = saveProfileData;
 
-    loadProfileData(); // Load data when initProfilePage is called
 }
+
+// document.addEventListener('DOMContentLoaded', initProfilePage); // Removed as initProfilePage is called by the router
