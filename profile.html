@@ -43,6 +43,18 @@
           <div><p class="font-medium text-gray-800" data-field="taxId"></p></div>
         </div>
       </div>
+
+      <!-- Username and Password Card -->
+      <div class="p-5 border border-gray-200 rounded-2xl bg-white">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800">Account Information</h4>
+          <button id="editAccountBtn" data-section="account" class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">Edit</button>
+        </div>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" id="account-display">
+          <div><p class="text-xs text-gray-500">Username (Email)</p><p class="font-medium text-gray-800" data-field="email"></p></div>
+          <div><p class="text-xs text-gray-500">Password</p><p class="font-medium text-gray-800">********</p></div>
+        </div>
+      </div>
     </div>
   </div>
 
