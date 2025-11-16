@@ -230,9 +230,9 @@ function initProfilePage() {
     // Fetch initial profile data when the page is loaded
         function loadProfileData() {
       console.log("Attempting to load profile data from sheet...");
-      sendDataToGoogle('readProfileDataFromSheet', {}, (data) => {
-        console.log("Profile data received in success handler:", data); // Modified log
-        profileData = data;
+      sendDataToGoogle('readProfileDataFromSheet', {}, (response) => {
+        console.log("Profile data received in success handler:", response); // Modified log
+        profileData = response.data; // Extract the actual profile data from the normalized response
         // Convert Google Drive URL for profile photo to embeddable format if necessary
         if (profileData.meta && profileData.meta.profilePhotoUrl) {
           try {
