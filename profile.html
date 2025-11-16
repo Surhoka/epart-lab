@@ -12,7 +12,11 @@
             <p id="profile-title-location" class="text-sm text-gray-600"></p>
           </div>
         </div>
-        <button id="editMetaBtn" data-section="meta" class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">Edit</button>
+        <div class="flex items-center gap-2 mt-4 lg:mt-0">
+          <input type="file" id="profile-photo-upload" accept="image/*" class="hidden"/>
+          <button id="uploadPhotoBtn" class="px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600 text-sm">Upload Photo</button>
+          <button id="editMetaBtn" data-section="meta" class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">Edit</button>
+        </div>
       </div>
 
       <!-- User Info Card -->
