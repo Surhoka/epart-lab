@@ -16,13 +16,14 @@ function initProfilePage() {
     const finalizeForm = () => {
       modal.classList.add("hidden");
       const submitButton = editForm.querySelector('button[type="submit"]');
-      submitButton.disabled = false;
-      submitButton.textContent = 'Save';
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save';
+      }
     };
 
     const fieldConfigs = {
       meta: [
-        { id: "profilePhoto", label: "Profile Photo", type: "file" },
         { id: "name", label: "Full Name", type: "text" },
         { id: "title", label: "Title", type: "text" },
         { id: "location", label: "Location", type: "text" }
@@ -103,9 +104,6 @@ function initProfilePage() {
       formData.append('action', 'saveProfileDataOnServer');
       formData.append('section', currentSection);
       
-      // The profilePhoto file is already in formData if selected by the user.
-      // The backend will handle whether it exists or not.
-
       fetch(appsScriptUrl, {
         method: 'POST',
         body: formData // Directly send the FormData object. Fetch handles the headers.
@@ -122,17 +120,13 @@ function initProfilePage() {
           
           const updatedData = {};
           for (let [key, value] of formData.entries()) {
-              if (key !== 'profilePhoto' && key !== 'action' && key !== 'section') {
+              if (key !== 'action' && key !== 'section') { // Removed profilePhoto from exclusion
                   updatedData[key] = value;
               }
           }
 
           profileData[currentSection] = { ...profileData[currentSection], ...updatedData };
           
-          if (result.profilePhotoUrl) {
-            profileData.meta.profilePhotoUrl = result.profilePhotoUrl;
-          }
-
           renderProfileData();
           showToast('Data berhasil disimpan!', 'success');
         } else {
@@ -193,14 +187,21 @@ function initProfilePage() {
       }
       
       // Update header with profile info
-      const userNameHeader = document.getElementById('user-name-header');
-      const userPhotoHeader = document.getElementById('user-photo-header');
+      const profilePictureHeader = document.getElementById('profile-picture');
+      const usernameDisplayHeader = document.getElementById('username-display');
+      const dropdownUsernameDisplayHeader = document.getElementById('dropdown-username-display');
+
       if (profileData.meta) {
-          if (userNameHeader) {
-              userNameHeader.textContent = profileData.meta.name || 'User';
+          if (usernameDisplayHeader) {
+              usernameDisplayHeader.textContent = profileData.meta.name || 'User';
           }
-          if (userPhotoHeader && profileData.meta.profilePhotoUrl) {
-              userPhotoHeader.src = profileData.meta.profilePhotoUrl;
+          if (dropdownUsernameDisplayHeader) {
+              dropdownUsernameDisplayHeader.textContent = profileData.meta.name || 'User';
+          }
+          if (profilePictureHeader && profileData.meta.profilePhotoUrl) {
+              profilePictureHeader.src = profileData.meta.profilePhotoUrl;
+          } else if (profilePictureHeader) {
+              profilePictureHeader.src = 'https://dummyimage.com/100'; // Default image for header
           }
       }
     }
@@ -237,6 +238,68 @@ function initProfilePage() {
     closeButton.onclick = () => modal.classList.add("hidden");
     cancelButton.onclick = () => modal.classList.add("hidden");
     editForm.onsubmit = saveProfileData;
+
+    // New photo upload logic
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+    const profilePhotoUploadInput = document.getElementById('profile-photo-upload');
+
+    if (uploadPhotoBtn && profilePhotoUploadInput) {
+        uploadPhotoBtn.addEventListener('click', () => {
+            profilePhotoUploadInput.click();
+        });
+
+        profilePhotoUploadInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            showToast('Mengunggah foto profil...', 'info', 5000);
+            uploadPhotoBtn.disabled = true;
+            uploadPhotoBtn.textContent = 'Uploading...';
+
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64data = reader.result.split(',')[1]; // Get base64 string without data:image/png;base64,
+                const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
+                
+                try {
+                    const response = await window.uploadImageAndGetUrl(fileName, base64data, file.type);
+                    if (response.status === 'success' && response.url) {
+                        profileData.meta.profilePhotoUrl = response.url;
+                        // Save the new URL to the spreadsheet
+                        sendDataToGoogle('saveProfileDataOnServer', {
+                            section: 'meta',
+                            profilePhotoUrl: response.url
+                        }, (saveResponse) => {
+                            if (saveResponse.status === 'success') {
+                                renderProfileData();
+                                showToast('Foto profil berhasil diunggah dan disimpan!', 'success');
+                            } else {
+                                showToast('Gagal menyimpan URL foto profil: ' + (saveResponse.message || 'Terjadi kesalahan.'), 'error');
+                            }
+                            uploadPhotoBtn.disabled = false;
+                            uploadPhotoBtn.textContent = 'Upload Photo';
+                        }, (saveError) => {
+                            showToast('Error menyimpan URL foto profil: ' + (saveError.message || 'Terjadi kesalahan.'), 'error');
+                            uploadPhotoBtn.disabled = false;
+                            uploadPhotoBtn.textContent = 'Upload Photo';
+                        });
+                    } else {
+                        showToast('Gagal mengunggah foto: ' + (response.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
+                        uploadPhotoBtn.disabled = false;
+                        uploadPhotoBtn.textContent = 'Upload Photo';
+                    }
+                } catch (error) {
+                    console.error('Error during photo upload:', error);
+                    showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
+                    uploadPhotoBtn.disabled = false;
+                    uploadPhotoBtn.textContent = 'Upload Photo';
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // Initial load of profile data
     loadProfileData();
