@@ -126,12 +126,16 @@ function initProfilePage() {
         submitButton.textContent = 'Save';
       };
 
-      fetch(appsScriptUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
+      // Construct the URL for the proxy GET request
+      const proxyPayload = {
+        action: 'proxyPost',
+        payload: JSON.stringify(payload)
+      };
+      const queryString = new URLSearchParams(proxyPayload).toString();
+      const proxyUrl = `${appsScriptUrl}?${queryString}`;
+
+      fetch(proxyUrl, {
+        method: 'GET' // Change to GET method for proxy
       })
       .then(response => response.json())
       .then(result => {
