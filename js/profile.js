@@ -84,7 +84,7 @@ function initProfilePage() {
       modal.classList.remove("hidden");
     }
 
-    function saveProfileData(event) {
+    async function saveProfileData(event) {
       event.preventDefault();
       const submitButton = event.target.querySelector('button[type="submit"]');
       submitButton.disabled = true;
@@ -92,15 +92,13 @@ function initProfilePage() {
 
       const formData = new FormData(editForm);
       const updatedData = {};
-      // Create a plain object from FormData
       for (let [key, value] of formData.entries()) {
-        if (key !== 'profilePhoto') {
-          updatedData[key] = value;
-        }
+          if (key !== 'profilePhoto') {
+              updatedData[key] = value;
+          }
       }
 
       const profilePhotoFile = formData.get('profilePhoto');
-      // Handle file input separately for base64 conversion
       if (currentSection === 'meta' && profilePhotoFile && profilePhotoFile.size > 0) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -114,6 +112,13 @@ function initProfilePage() {
     }
 
     function sendDataToBackend(data) {
+      const payload = {
+        action: 'saveProfileDataOnServer',
+        targetSheet: 'profile',
+        section: currentSection,
+        profileData: data
+      };
+
       const finalizeForm = () => {
         modal.classList.add("hidden");
         const submitButton = editForm.querySelector('button[type="submit"]');
@@ -121,40 +126,48 @@ function initProfilePage() {
         submitButton.textContent = 'Save';
       };
 
-      // Use the existing sendDataToGoogle (JSONP) function to avoid CORS issues
-      sendDataToGoogle(
-        'saveProfileData', 
-        { profileData: JSON.stringify(data) }, // Pass data as a stringified JSON object
-        (result) => { // Success callback
-          if (result.status === 'success') {
-            console.log('Save successful.');
-            // Update local data object
-            // Merge the saved data back into the local profileData object
-            Object.keys(data).forEach(key => {
-                if (profileData[currentSection] && data[key] !== undefined) {
-                    profileData[currentSection][key] = data[key];
-                }
-            });
-
-            // If a new image URL was returned, update the local data
-            if (result.imageUrl) {
-                profileData.meta.profilePhotoUrl = result.imageUrl;
-            }
-
-            renderProfileData(); // Re-render data on the page
-            showToast('Data berhasil disimpan!', 'success');
-          } else {
-            // Handle server-side logical error
-            showToast('Error menyimpan data: ' + result.message, 'error');
-          }
-          finalizeForm();
+      fetch(appsScriptUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
         },
-        (error) => { // Error callback
-          console.error('Error saving data:', error);
-          showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error');
-          finalizeForm();
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 'success') {
+          console.log('Save successful.');
+          // Update local data object
+          profileData[currentSection] = { ...profileData[currentSection], ...data };
+          
+          if (result.imageUrl) {
+            try {
+              const url = new URL(result.imageUrl);
+              const fileId = url.searchParams.get("id");
+              if (fileId) {
+                profileData.meta.profilePhotoUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+              } else {
+                profileData.meta.profilePhotoUrl = result.imageUrl;
+              }
+            } catch (e) {
+              console.error('Error parsing profile photo URL:', e);
+              profileData.meta.profilePhotoUrl = result.imageUrl;
+            }
+          }
+
+          renderProfileData(); // Re-render data di halaman
+          showToast('Data berhasil disimpan!', 'success'); // Use showToast from Admin Dashboard
+        } else {
+          // Handle server-side logical error
+          showToast('Error menyimpan data: ' + result.message, 'error');
         }
-      );
+        finalizeForm();
+      })
+      .catch(error => {
+        console.error('Error saving data:', error);
+        showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error'); // Use showToast from Admin Dashboard
+        finalizeForm();
+      });
     }
 
     function renderProfileData() {
