@@ -98,121 +98,52 @@ function initProfilePage() {
       submitButton.textContent = 'Saving...';
 
       const formData = new FormData(editForm);
-      const profilePhotoFile = formData.get('profilePhoto');
+      
+      // Append metadata for the backend to know what to do.
+      formData.append('action', 'saveProfileData');
+      formData.append('section', currentSection);
+      
+      // The profilePhoto file is already in formData if selected by the user.
+      // The backend will handle whether it exists or not.
 
-      if (currentSection === 'meta' && profilePhotoFile && profilePhotoFile.size > 0) {
-        // Use multipart/form-data for file upload
-        const multipartFormData = new FormData();
-        
-        // Append all form fields to the new FormData object
-        for (let [key, value] of formData.entries()) {
-            multipartFormData.append(key, value);
-        }
-
-        // Add other necessary data that might not be in the form
-        multipartFormData.append('action', 'saveProfileWithPhoto'); // Use a new action for the server
-        multipartFormData.append('section', currentSection);
-        multipartFormData.append('targetSheet', 'profile');
-
-        sendMultipartFormData(multipartFormData);
-      } else {
-        // Use existing JSON-based method for non-file updates
-        const updatedData = {};
-        for (let [key, value] of formData.entries()) {
-            if (key !== 'profilePhoto') {
-                updatedData[key] = value;
-            }
-        }
-        sendDataToBackend(updatedData);
-      }
-    }
-
-    function sendMultipartFormData(formData) {
-      // This function sends multipart/form-data to the server.
-      // The server-side Google Apps Script needs a doPost(e) function
-      // to handle this kind of request.
       fetch(appsScriptUrl, {
         method: 'POST',
-        body: formData
-        // No 'Content-Type' header; the browser sets it automatically for FormData
+        body: formData // Directly send the FormData object. Fetch handles the headers.
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(result => {
         if (result.status === 'success') {
-          console.log('Save successful.');
+          console.log('Save successful.', result);
           
-          const data = {};
+          const updatedData = {};
           for (let [key, value] of formData.entries()) {
-              if (key !== 'profilePhoto' && !(value instanceof File)) {
-                  data[key] = value;
+              if (key !== 'profilePhoto' && key !== 'action' && key !== 'section') {
+                  updatedData[key] = value;
               }
           }
 
-          profileData[currentSection] = { ...profileData[currentSection], ...data };
+          profileData[currentSection] = { ...profileData[currentSection], ...updatedData };
           
-          if (result.imageUrl) {
-            profileData.meta.profilePhotoUrl = result.imageUrl;
+          if (result.profilePhotoUrl) {
+            profileData.meta.profilePhotoUrl = result.profilePhotoUrl;
           }
 
           renderProfileData();
           showToast('Data berhasil disimpan!', 'success');
         } else {
-          console.error('Server-side error:', result);
-          showToast('Error menyimpan data: ' + (result.message || 'Unknown error'), 'error');
-        }
-        finalizeForm();
-      })
-      .catch(error => {
-        console.error('Error saving data:', error);
-        showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error');
-        finalizeForm();
-      });
-    }
-
-    function sendDataToBackend(data) {
-      const payload = {
-        action: 'saveProfileDataOnServer',
-        targetSheet: 'profile',
-        section: currentSection,
-        profileData: data
-      };
-
-      // Construct the URL for the proxy GET request
-      const proxyPayload = {
-        action: 'proxyPost',
-        payload: JSON.stringify(payload)
-      };
-      const queryString = new URLSearchParams(proxyPayload).toString();
-      const proxyUrl = `${appsScriptUrl}?${queryString}`;
-
-      fetch(proxyUrl, {
-        method: 'GET' // Use GET method for proxy as per user's preference
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === 'success') {
-          console.log('Save successful.');
-          // Update local data object
-          profileData[currentSection] = { ...profileData[currentSection], ...data };
-          
-          if (result.imageUrl) {
-            profileData.meta.profilePhotoUrl = result.imageUrl;
-          } else if (data.profilePhotoUrl) { // If imageUrl is not returned, but was part of data (e.g., new upload)
-            profileData.meta.profilePhotoUrl = data.profilePhotoUrl;
-          }
-
-          renderProfileData(); // Re-render data di halaman
-          showToast('Data berhasil disimpan!', 'success'); // Use showToast from Admin Dashboard
-        } else {
-          // Handle server-side logical error
-          console.error('Server-side logical error result:', result); // Added log for debugging
+          console.error('Server-side logical error result:', result);
           showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
         }
         finalizeForm();
       })
       .catch(error => {
-        console.error('Error saving data (fetch catch):', error); // Modified log for debugging
-        showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error'); // Use showToast from Admin Dashboard
+        console.error('Error saving data (fetch catch):', error);
+        showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
         finalizeForm();
       });
     }
