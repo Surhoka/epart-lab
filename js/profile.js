@@ -163,12 +163,13 @@ function initProfilePage() {
           showToast('Data berhasil disimpan!', 'success'); // Use showToast from Admin Dashboard
         } else {
           // Handle server-side logical error
+          console.error('Server-side logical error result:', result); // Added log for debugging
           showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
         }
         finalizeForm();
       })
       .catch(error => {
-        console.error('Error saving data:', error);
+        console.error('Error saving data (fetch catch):', error); // Modified log for debugging
         showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error'); // Use showToast from Admin Dashboard
         finalizeForm();
       });
