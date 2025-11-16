@@ -163,7 +163,7 @@ function initProfilePage() {
           showToast('Data berhasil disimpan!', 'success'); // Use showToast from Admin Dashboard
         } else {
           // Handle server-side logical error
-          showToast('Error menyimpan data: ' + result.message, 'error');
+          showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
         }
         finalizeForm();
       })
