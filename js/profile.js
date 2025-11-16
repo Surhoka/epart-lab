@@ -127,17 +127,31 @@ function initProfilePage() {
       };
 
       // Construct the URL for the proxy GET request
-      const proxyPayload = {
-        action: 'proxyPost',
-        payload: JSON.stringify(payload)
+      let fetchOptions = {
+        method: 'POST', // Default to POST
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       };
-      const queryString = new URLSearchParams(proxyPayload).toString();
-      const proxyUrl = `${appsScriptUrl}?${queryString}`;
 
-      fetch(proxyUrl, {
-        method: 'GET' // Change to GET method for proxy
+      // If it's a profile photo upload, the payload might be too large for GET,
+      // and we should directly POST it.
+      // The server-side handlePost function already expects a JSON payload.
+      const requestUrl = appsScriptUrl; // Direct POST to Apps Script URL
+
+      fetch(requestUrl, fetchOptions)
+      .then(response => {
+        // Apps Script might return text/html for errors, try to parse as JSON first
+        return response.text().then(text => {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error('Failed to parse JSON response:', text);
+            throw new Error('Server returned non-JSON response: ' + text);
+          }
+        });
       })
-      .then(response => response.json())
       .then(result => {
         if (result.status === 'success') {
           console.log('Save successful.');
