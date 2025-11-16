@@ -260,6 +260,8 @@ function initProfilePage() {
     cancelButton.onclick = () => modal.classList.add("hidden");
     editForm.onsubmit = saveProfileData;
 
+    // Initial load of profile data
+    loadProfileData();
 }
 
 document.addEventListener('DOMContentLoaded', initProfilePage); // Re-added to ensure initialization
