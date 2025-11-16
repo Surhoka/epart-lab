@@ -98,24 +98,75 @@ function initProfilePage() {
       submitButton.textContent = 'Saving...';
 
       const formData = new FormData(editForm);
-      const updatedData = {};
-      for (let [key, value] of formData.entries()) {
-          if (key !== 'profilePhoto') {
-              updatedData[key] = value;
-          }
-      }
-
       const profilePhotoFile = formData.get('profilePhoto');
+
       if (currentSection === 'meta' && profilePhotoFile && profilePhotoFile.size > 0) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          updatedData.profilePhoto = e.target.result; // base64 string
-          sendDataToBackend(updatedData);
-        };
-        reader.readAsDataURL(profilePhotoFile);
+        // Use multipart/form-data for file upload
+        const multipartFormData = new FormData();
+        
+        // Append all form fields to the new FormData object
+        for (let [key, value] of formData.entries()) {
+            multipartFormData.append(key, value);
+        }
+
+        // Add other necessary data that might not be in the form
+        multipartFormData.append('action', 'saveProfileWithPhoto'); // Use a new action for the server
+        multipartFormData.append('section', currentSection);
+        multipartFormData.append('targetSheet', 'profile');
+
+        sendMultipartFormData(multipartFormData);
       } else {
+        // Use existing JSON-based method for non-file updates
+        const updatedData = {};
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'profilePhoto') {
+                updatedData[key] = value;
+            }
+        }
         sendDataToBackend(updatedData);
       }
+    }
+
+    function sendMultipartFormData(formData) {
+      // This function sends multipart/form-data to the server.
+      // The server-side Google Apps Script needs a doPost(e) function
+      // to handle this kind of request.
+      fetch(appsScriptUrl, {
+        method: 'POST',
+        body: formData
+        // No 'Content-Type' header; the browser sets it automatically for FormData
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 'success') {
+          console.log('Save successful.');
+          
+          const data = {};
+          for (let [key, value] of formData.entries()) {
+              if (key !== 'profilePhoto' && !(value instanceof File)) {
+                  data[key] = value;
+              }
+          }
+
+          profileData[currentSection] = { ...profileData[currentSection], ...data };
+          
+          if (result.imageUrl) {
+            profileData.meta.profilePhotoUrl = result.imageUrl;
+          }
+
+          renderProfileData();
+          showToast('Data berhasil disimpan!', 'success');
+        } else {
+          console.error('Server-side error:', result);
+          showToast('Error menyimpan data: ' + (result.message || 'Unknown error'), 'error');
+        }
+        finalizeForm();
+      })
+      .catch(error => {
+        console.error('Error saving data:', error);
+        showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error');
+        finalizeForm();
+      });
     }
 
     function sendDataToBackend(data) {
