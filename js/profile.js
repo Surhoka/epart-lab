@@ -145,18 +145,8 @@ function initProfilePage() {
           profileData[currentSection] = { ...profileData[currentSection], ...data };
           
           if (result.imageUrl) {
-            try {
-              const url = new URL(result.imageUrl);
-              const fileId = url.searchParams.get("id");
-              if (fileId) {
-                profileData.meta.profilePhotoUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-              } else {
-                profileData.meta.profilePhotoUrl = result.imageUrl;
-              }
-            } catch (e) {
-              console.error('Error parsing profile photo URL:', e);
-              profileData.meta.profilePhotoUrl = result.imageUrl;
-            }
+            // Server-side already provides lh3.googleusercontent.com URL, use directly
+            profileData.meta.profilePhotoUrl = result.imageUrl;
           }
 
           renderProfileData(); // Re-render data di halaman
