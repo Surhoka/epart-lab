@@ -169,7 +169,7 @@ function initProfilePage() {
       })
       .catch(error => {
         console.error('Error saving data:', error);
-        showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error'); // Use showToast from Admin Dashboard
+        showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error'); // Use showToast from Admin Dashboard
         finalizeForm();
       });
     }
