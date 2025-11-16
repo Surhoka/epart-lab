@@ -1,5 +1,9 @@
 // profile.js
 function initProfilePage() {
+    // IMPORTANT: You must replace this with the actual deployed URL of your gs/fileUpload.gs web app.
+    // Deploy gs/fileUpload.gs as a new web app (Execute as: Me, Who has access: Anyone, even anonymous)
+    // and paste the URL here.
+    const fileUploadAppsScriptUrl = 'https://script.google.com/macros/s/AKfycby9myV0R0mFN1afMZHGUCpNwlhrpDfB9_YamuUnAj1hZKx99EOD80bj0BDtt2wIu-qT0g/exec'; 
 
     // Modal logic
     const modal = document.getElementById("profileModal");
@@ -100,14 +104,31 @@ function initProfilePage() {
 
       const profilePhotoFile = formData.get('profilePhoto');
       if (currentSection === 'meta' && profilePhotoFile && profilePhotoFile.size > 0) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          updatedData.profilePhoto = e.target.result; // base64 string
-          sendDataToBackend(updatedData);
-        };
-        reader.readAsDataURL(profilePhotoFile);
+        // Upload photo separately using POST to the dedicated file upload Apps Script
+        const photoUploadFormData = new FormData();
+        photoUploadFormData.append('file', profilePhotoFile);
+
+        fetch(fileUploadAppsScriptUrl, {
+          method: 'POST',
+          body: photoUploadFormData // Send FormData directly for file upload
+        })
+        .then(response => response.json())
+        .then(photoResult => {
+          if (photoResult.status === 'success') {
+            updatedData.profilePhotoUrl = photoResult.imageUrl; // Store the new image URL
+            sendDataToBackend(updatedData); // Then send profile data with the URL
+          } else {
+            showToast('Error mengunggah foto: ' + (photoResult.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
+            finalizeForm();
+          }
+        })
+        .catch(error => {
+          console.error('Error uploading photo:', error);
+          showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
+          finalizeForm();
+        });
       } else {
-        sendDataToBackend(updatedData);
+        sendDataToBackend(updatedData); // No photo to upload, or not 'meta' section
       }
     }
 
@@ -127,31 +148,17 @@ function initProfilePage() {
       };
 
       // Construct the URL for the proxy GET request
-      let fetchOptions = {
-        method: 'POST', // Default to POST
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
+      const proxyPayload = {
+        action: 'proxyPost',
+        payload: JSON.stringify(payload)
       };
+      const queryString = new URLSearchParams(proxyPayload).toString();
+      const proxyUrl = `${appsScriptUrl}?${queryString}`;
 
-      // If it's a profile photo upload, the payload might be too large for GET,
-      // and we should directly POST it.
-      // The server-side handlePost function already expects a JSON payload.
-      const requestUrl = appsScriptUrl; // Direct POST to Apps Script URL
-
-      fetch(requestUrl, fetchOptions)
-      .then(response => {
-        // Apps Script might return text/html for errors, try to parse as JSON first
-        return response.text().then(text => {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            console.error('Failed to parse JSON response:', text);
-            throw new Error('Server returned non-JSON response: ' + text);
-          }
-        });
+      fetch(proxyUrl, {
+        method: 'GET' // Use GET method for proxy as per user's preference
       })
+      .then(response => response.json())
       .then(result => {
         if (result.status === 'success') {
           console.log('Save successful.');
@@ -159,8 +166,9 @@ function initProfilePage() {
           profileData[currentSection] = { ...profileData[currentSection], ...data };
           
           if (result.imageUrl) {
-            // Server-side already provides lh3.googleusercontent.com URL, use directly
             profileData.meta.profilePhotoUrl = result.imageUrl;
+          } else if (data.profilePhotoUrl) { // If imageUrl is not returned, but was part of data (e.g., new upload)
+            profileData.meta.profilePhotoUrl = data.profilePhotoUrl;
           }
 
           renderProfileData(); // Re-render data di halaman
