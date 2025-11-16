@@ -1,10 +1,5 @@
 // profile.js
 function initProfilePage() {
-    // IMPORTANT: You must replace this with the actual deployed URL of your gs/fileUpload.gs web app.
-    // Deploy gs/fileUpload.gs as a new web app (Execute as: Me, Who has access: Anyone, even anonymous)
-    // and paste the URL here.
-    const fileUploadAppsScriptUrl = 'https://script.google.com/macros/s/AKfycby9myV0R0mFN1afMZHGUCpNwlhrpDfB9_YamuUnAj1hZKx99EOD80bj0BDtt2wIu-qT0g/exec'; 
-
     // Modal logic
     const modal = document.getElementById("profileModal");
     const editForm = document.getElementById("editForm");
@@ -16,6 +11,14 @@ function initProfilePage() {
 
     // Data profil awal (akan diisi dari server)
     let profileData = {}; // Initialize as empty object
+
+    // Moved finalizeForm to a higher scope
+    const finalizeForm = () => {
+      modal.classList.add("hidden");
+      const submitButton = editForm.querySelector('button[type="submit"]');
+      submitButton.disabled = false;
+      submitButton.textContent = 'Save';
+    };
 
     const fieldConfigs = {
       meta: [
@@ -104,31 +107,14 @@ function initProfilePage() {
 
       const profilePhotoFile = formData.get('profilePhoto');
       if (currentSection === 'meta' && profilePhotoFile && profilePhotoFile.size > 0) {
-        // Upload photo separately using POST to the dedicated file upload Apps Script
-        const photoUploadFormData = new FormData();
-        photoUploadFormData.append('file', profilePhotoFile);
-
-        fetch(fileUploadAppsScriptUrl, {
-          method: 'POST',
-          body: photoUploadFormData // Send FormData directly for file upload
-        })
-        .then(response => response.json())
-        .then(photoResult => {
-          if (photoResult.status === 'success') {
-            updatedData.profilePhotoUrl = photoResult.imageUrl; // Store the new image URL
-            sendDataToBackend(updatedData); // Then send profile data with the URL
-          } else {
-            showToast('Error mengunggah foto: ' + (photoResult.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-            finalizeForm();
-          }
-        })
-        .catch(error => {
-          console.error('Error uploading photo:', error);
-          showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-          finalizeForm();
-        });
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updatedData.profilePhoto = e.target.result; // base64 string
+          sendDataToBackend(updatedData);
+        };
+        reader.readAsDataURL(profilePhotoFile);
       } else {
-        sendDataToBackend(updatedData); // No photo to upload, or not 'meta' section
+        sendDataToBackend(updatedData);
       }
     }
 
@@ -138,13 +124,6 @@ function initProfilePage() {
         targetSheet: 'profile',
         section: currentSection,
         profileData: data
-      };
-
-      const finalizeForm = () => {
-        modal.classList.add("hidden");
-        const submitButton = editForm.querySelector('button[type="submit"]');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Save';
       };
 
       // Construct the URL for the proxy GET request
