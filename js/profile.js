@@ -38,7 +38,7 @@ function initProfilePage() {
       address: [
         { id: "country", label: "Country", type: "text" },
         { id: "cityState", label: "City/State", type: "text" },
-        { id: "postalCode", label: "Postal Code", type: "text" },
+        { id: "postalCode", label: "Postal Code", "type": "text" },
         { id: "taxId", label: "TAX ID", type: "text" }
       ],
       account: [
