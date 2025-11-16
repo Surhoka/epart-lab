@@ -100,7 +100,7 @@ function initProfilePage() {
       const formData = new FormData(editForm);
       
       // Append metadata for the backend to know what to do.
-      formData.append('action', 'saveProfileData');
+      formData.append('action', 'saveProfileDataOnServer');
       formData.append('section', currentSection);
       
       // The profilePhoto file is already in formData if selected by the user.
