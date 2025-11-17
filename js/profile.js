@@ -1,308 +1,108 @@
-// profile.js
-function initProfilePage() {
-    // Modal logic
-    const modal = document.getElementById("profileModal");
-    const editForm = document.getElementById("editForm");
-    const modalFormFields = document.getElementById("modal-form-fields");
-    const closeButton = document.getElementById("closeModalBtn");
-    const cancelButton = document.getElementById("cancelBtn");
-
-    let currentSection = '';
-
-    // Data profil awal (akan diisi dari server)
-    let profileData = {}; // Initialize as empty object
-
-    // Moved finalizeForm to a higher scope
-    const finalizeForm = () => {
-      modal.classList.add("hidden");
-      const submitButton = editForm.querySelector('button[type="submit"]');
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Save';
-      }
-    };
-
-    const fieldConfigs = {
-      meta: [
-        { id: "name", label: "Full Name", type: "text" },
-        { id: "title", label: "Title", type: "text" },
-        { id: "location", label: "Location", type: "text" }
-      ],
-      info: [
-        { id: "firstName", label: "First Name", type: "text" },
-        { id: "lastName", label: "Last Name", type: "text" },
-        { id: "email", label: "Email", type: "email" },
-        { id: "phone", label: "Phone", type: "text" },
-        { id: "bio", label: "Bio", type: "textarea" }
-      ],
-      address: [
-        { id: "country", label: "Country", type: "text" },
-        { id: "cityState", label: "City/State", type: "text" },
-        { id: "postalCode", label: "Postal Code", "type": "text" },
-        { id: "taxId", label: "TAX ID", type: "text" }
-      ],
-      account: [
-        { id: "email", label: "Username (Email)", type: "email" },
-        { id: "password", label: "New Password", type: "password" } // For changing password
-      ]
-    };
-
-    function createInputField(field, value) {
-      const div = document.createElement("div");
-      div.className = "flex flex-col";
-      const label = document.createElement("label");
-      label.htmlFor = field.id;
-      label.className = "text-xs text-gray-500 mb-1";
-      label.textContent = field.label;
-      div.appendChild(label);
-      let inputElement;
-      if (field.type === "textarea") {
-        inputElement = document.createElement("textarea");
-        inputElement.rows = 3;
-      } else if (field.type === "file") {
-        inputElement = document.createElement("input");
-        inputElement.type = "file";
-        inputElement.accept = "image/*";
-      } else {
-        inputElement = document.createElement("input");
-        inputElement.type = field.type;
-      }
-      inputElement.id = field.id;
-      inputElement.name = field.id;
-      inputElement.className = "border p-2 rounded";
-      if (field.type !== "file") {
-        inputElement.value = value || '';
-      }
-      div.appendChild(inputElement);
-      return div;
+function initLoginPage() {
+    const form = document.getElementById('loginForm');
+    if (form) {
+        form.addEventListener('submit', handleLogin);
     }
 
-    function openEditModal(section) {
-      currentSection = section;
-      document.getElementById('modalTitle').textContent = 'Edit Data for ' + section.charAt(0).toUpperCase() + section.slice(1);
-      modalFormFields.innerHTML = '';
-      const fields = fieldConfigs[section];
-      // Ensure profileData[section] exists before accessing its properties
-      if (!profileData[section]) {
-        profileData[section] = {}; 
-      }
-      fields.forEach(field => {
-        modalFormFields.appendChild(createInputField(field, profileData[section][field.id]));
-      });
-      modal.classList.remove("hidden");
-    }
+    // Eye Icon functionality
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
 
-    async function saveProfileData(event) {
-      event.preventDefault();
-      const submitButton = event.target.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
-      submitButton.textContent = 'Saving...';
-
-      const formData = new FormData(editForm);
-      
-      // Append metadata for the backend to know what to do.
-      formData.append('action', 'saveProfileDataOnServer');
-      formData.append('section', currentSection);
-      
-      fetch(appsScriptUrl, {
-        method: 'POST',
-        body: formData // Directly send the FormData object. Fetch handles the headers.
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(result => {
-        if (result.status === 'success') {
-          console.log('Save successful.', result);
-          
-          const updatedData = {};
-          for (let [key, value] of formData.entries()) {
-              if (key !== 'action' && key !== 'section') { // Removed profilePhoto from exclusion
-                  updatedData[key] = value;
-              }
-          }
-
-          profileData[currentSection] = { ...profileData[currentSection], ...updatedData };
-          
-          renderProfileData();
-          showToast('Data berhasil disimpan!', 'success');
-        } else {
-          console.error('Server-side logical error result:', result);
-          showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-        }
-        finalizeForm();
-      })
-      .catch(error => {
-        console.error('Error saving data (fetch catch):', error);
-        showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-        finalizeForm();
-      });
-    }
-
-    function renderProfileData() {
-      console.log("renderProfileData: profileData.meta:", profileData.meta); // Added log
-      // Update profile photo
-      const profilePhotoElement = document.getElementById('profile-photo');
-      if (profilePhotoElement && profileData.meta && profileData.meta.profilePhotoUrl) { // Added check for profileData.meta
-        profilePhotoElement.src = profileData.meta.profilePhotoUrl;
-      } else if (profilePhotoElement) {
-          profilePhotoElement.src = 'https://dummyimage.com/100x100'; // Default image
-      }
-
-      // Update User Meta Card
-      if (profileData.meta) { // Added check for profileData.meta
-        const nameEl = document.getElementById('profile-name');
-        const metaEl = document.getElementById('profile-title-location');
-        if(nameEl) nameEl.textContent = profileData.meta.name;
-        if(metaEl) metaEl.textContent = profileData.meta.title + ' · ' + profileData.meta.location;
-      }
-
-      // Update User Info Card
-      const infoDisplayContainer = document.getElementById('info-display');
-      if (infoDisplayContainer && profileData.info) { // Added check for profileData.info
-        for (const field in profileData.info) {
-          const displayElement = infoDisplayContainer.querySelector('[data-field="' + field + '"]');
-          if (displayElement) displayElement.textContent = profileData.info[field];
-        }
-      }
-
-      // Update User Address Card
-      const addressDisplayContainer = document.getElementById('address-display');
-      if (addressDisplayContainer && profileData.address) { // Added check for profileData.address
-        for (const field in profileData.address) {
-          const displayElement = addressDisplayContainer.querySelector('[data-field="' + field + '"]');
-          if (displayElement) displayElement.textContent = profileData.address[field];
-        }
-      }
-
-      // Update Account Information Card
-      const accountDisplayContainer = document.getElementById('account-display');
-      if (accountDisplayContainer && profileData.info) { // Using profileData.info for email
-        const emailDisplayElement = accountDisplayContainer.querySelector('[data-field="email"]');
-        if (emailDisplayElement) emailDisplayElement.textContent = profileData.info.email;
-        // Password is not displayed directly for security reasons
-      }
-      
-      // Update header with profile info
-      const profilePictureHeader = document.getElementById('profile-picture');
-      const usernameDisplayHeader = document.getElementById('username-display');
-      const dropdownUsernameDisplayHeader = document.getElementById('dropdown-username-display');
-
-      if (profileData.meta) {
-          if (usernameDisplayHeader) {
-              usernameDisplayHeader.textContent = profileData.meta.name || 'User';
-          }
-          if (dropdownUsernameDisplayHeader) {
-              dropdownUsernameDisplayHeader.textContent = profileData.meta.name || 'User';
-          }
-          if (profilePictureHeader && profileData.meta.profilePhotoUrl) {
-              profilePictureHeader.src = profileData.meta.profilePhotoUrl;
-          } else if (profilePictureHeader) {
-              profilePictureHeader.src = 'https://dummyimage.com/100'; // Default image for header
-          }
-      }
-    }
-
-    // Fetch initial profile data when the page is loaded
-        function loadProfileData() {
-      console.log("Attempting to load profile data from sheet...");
-      sendDataToGoogle('readProfileDataFromSheet', {}, (response) => {
-        console.log("Profile data received in success handler:", response); // Modified log
-        profileData = response.data; // Extract the actual profile data from the normalized response
-        // Convert Google Drive URL for profile photo to embeddable format if necessary
-        if (profileData.meta && profileData.meta.profilePhotoUrl) {
-          try {
-            const url = new URL(profileData.meta.profilePhotoUrl);
-            const fileId = url.searchParams.get("id");
-            if (fileId) {
-              profileData.meta.profilePhotoUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-            }
-          } catch (e) {
-            console.error('Error parsing loaded profile photo URL:', e);
-          }
-        }
-        renderProfileData();
-      }, (error) => {    console.error('Error loading profile data:', error);
-        showToast('Terjadi kesalahan saat memuat data profil: ' + error.message, 'error');
-      });
-    }
-
-    // Event Listeners
-    document.getElementById('editMetaBtn').onclick = () => openEditModal('meta');
-    document.getElementById('editInfoBtn').onclick = () => openEditModal('info');
-    document.getElementById('editAddressBtn').onclick = () => openEditModal('address');
-    document.getElementById('editAccountBtn').onclick = () => openEditModal('account');
-    closeButton.onclick = () => modal.classList.add("hidden");
-    cancelButton.onclick = () => modal.classList.add("hidden");
-    editForm.onsubmit = saveProfileData;
-
-    // New photo upload logic
-    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-    const profilePhotoUploadInput = document.getElementById('profile-photo-upload');
-
-    if (uploadPhotoBtn && profilePhotoUploadInput) {
-        uploadPhotoBtn.addEventListener('click', () => {
-            profilePhotoUploadInput.click();
-        });
-
-        profilePhotoUploadInput.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
-
-            showToast('Mengunggah foto profil...', 'info', 5000);
-            uploadPhotoBtn.disabled = true;
-            uploadPhotoBtn.textContent = 'Uploading...';
-
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64data = reader.result.split(',')[1]; // Get base64 string without data:image/png;base64,
-                const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
-                
-                try {
-                    const response = await window.uploadImageAndGetUrl(fileName, base64data, file.type);
-                    if (response.status === 'success' && response.url) {
-                        profileData.meta.profilePhotoUrl = response.url;
-                        // Save the new URL to the spreadsheet
-                        sendDataToGoogle('saveProfileDataOnServer', {
-                            section: 'meta',
-                            profilePhotoUrl: response.url
-                        }, (saveResponse) => {
-                            if (saveResponse.status === 'success') {
-                                renderProfileData();
-                                showToast('Foto profil berhasil diunggah dan disimpan!', 'success');
-                            } else {
-                                showToast('Gagal menyimpan URL foto profil: ' + (saveResponse.message || 'Terjadi kesalahan.'), 'error');
-                            }
-                            uploadPhotoBtn.disabled = false;
-                            uploadPhotoBtn.textContent = 'Upload Photo';
-                        }, (saveError) => {
-                            showToast('Error menyimpan URL foto profil: ' + (saveError.message || 'Terjadi kesalahan.'), 'error');
-                            uploadPhotoBtn.disabled = false;
-                            uploadPhotoBtn.textContent = 'Upload Photo';
-                        });
-                    } else {
-                        showToast('Gagal mengunggah foto: ' + (response.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-                        uploadPhotoBtn.disabled = false;
-                        uploadPhotoBtn.textContent = 'Upload Photo';
-                    }
-                } catch (error) {
-                    console.error('Error during photo upload:', error);
-                    showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-                    uploadPhotoBtn.disabled = false;
-                    uploadPhotoBtn.textContent = 'Upload Photo';
-                }
-            };
-            reader.readAsDataURL(file);
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            // Toggle eye icon (simple example, could use different SVGs for open/closed eye)
+            this.querySelector('svg').innerHTML = type === 'password'
+                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`
+                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.879 13.879a3 3 0 11-4.242-4.242m4.242 4.242L21 21m-1.414-1.414L13.879 13.879m0 0L10.5 10.5m-4.242 4.242L3 3m1.414 1.414L10.5 10.5"/>`;
         });
     }
 
-    // Initial load of profile data
-    loadProfileData();
+    // Remember Me functionality
+    const emailInput = document.getElementById('email');
+    const rememberMeCheckbox = document.getElementById('remember-me');
+
+    // Load saved credentials
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+
+    if (savedEmail && savedPassword && emailInput && passwordInput && rememberMeCheckbox) {
+        emailInput.value = savedEmail;
+        passwordInput.value = savedPassword;
+        rememberMeCheckbox.checked = true;
+    }
 }
 
-document.addEventListener('DOMContentLoaded', initProfilePage); // Re-added to ensure initialization
+async function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const rememberMeCheckbox = document.getElementById('remember-me'); // Get checkbox reference
+    const submitButton = document.getElementById('submitButton');
+
+    // Handle "Remember me" state
+    if (rememberMeCheckbox && rememberMeCheckbox.checked) {
+        localStorage.setItem('rememberedEmail', email);
+        localStorage.setItem('rememberedPassword', password);
+    } else {
+        localStorage.removeItem('rememberedEmail');
+        localStorage.removeItem('rememberedPassword');
+    }
+
+    // Disable button and show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+        <div class="spinner border-2 border-t-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin mr-2"></div>
+        Signing In...
+    `;
+
+    try {
+        const response = await fetch(window.appsScriptUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'login',
+                email: email,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data.isLoggedIn) {
+            // Store user data in localStorage
+            localStorage.setItem('loggedInUser', JSON.stringify(result.data));
+            
+            // Show success toast
+            if (window.showToast) {
+                window.showToast('Login successful!', 'success');
+            }
+            
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                window.location.hash = '#/dashboard';
+                window.location.reload(); // Reload to update UI state based on login
+            }, 1000);
+
+        } else {
+            // Show error toast
+            if (window.showToast) {
+                window.showToast(result.message || 'Invalid email or password.', 'error');
+            }
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.textContent = 'Sign In';
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        if (window.showToast) {
+            window.showToast('An error occurred during login.', 'error');
+        }
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.textContent = 'Sign In';
+    }
+}
