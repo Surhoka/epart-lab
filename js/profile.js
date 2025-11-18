@@ -271,8 +271,12 @@ window.initProfilePage = function() {
                 const base64data = reader.result.split(',')[1]; // Get base64 string without data:image/png;base64,
                 const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
                 
-                try {
-                    const response = await window.uploadImageAndGetUrl(fileName, base64data, file.type);
+                // Use sendDataToGoogle (JSONP) for image upload as well
+                sendDataToGoogle('uploadFile', {
+                    fileName: fileName,
+                    fileData: base64data,
+                    fileType: file.type
+                }, (response) => {
                     if (response.status === 'success' && response.url) {
                         profileData.meta.profilePhotoUrl = response.url;
                         // Save the new URL to the spreadsheet
@@ -298,12 +302,12 @@ window.initProfilePage = function() {
                         uploadPhotoBtn.disabled = false;
                         uploadPhotoBtn.textContent = 'Upload Photo';
                     }
-                } catch (error) {
-                    console.error('Error during photo upload:', error);
+                }, (error) => {
+                    console.error('Error during photo upload (sendDataToGoogle callback):', error);
                     showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
                     uploadPhotoBtn.disabled = false;
                     uploadPhotoBtn.textContent = 'Upload Photo';
-                }
+                });
             };
             reader.readAsDataURL(file);
         });
