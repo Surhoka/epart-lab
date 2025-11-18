@@ -30,12 +30,15 @@ window.initLoginPage = function() {
 
             try {
                 // Assuming google.script.run is available for Apps Script communication
-                const response = await google.script.run
-                    .withSuccessHandler(handleLoginSuccess)
-                    .withFailureHandler(handleLoginFailure)
-                    .processLogin({ email, password });
+                // Use window.sendDataToGoogle for Apps Script communication
+                window.sendDataToGoogle(
+                    'processLogin', // The Apps Script function name
+                    { email: email, password: password }, // Data to send
+                    handleLoginSuccess, // Success handler
+                    handleLoginFailure // Failure handler
+                );
             } catch (error) {
-                console.error('Error calling Apps Script:', error);
+                console.error('Error initiating Apps Script call:', error);
                 alert('An unexpected error occurred. Please try again.');
                 submitButton.disabled = false;
                 submitButton.textContent = 'Sign In';
