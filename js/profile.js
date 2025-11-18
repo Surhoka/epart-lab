@@ -1,4 +1,8 @@
 // profile.js
+
+// IMPORTANT: Replace with your deployed Google Apps Script Web App URL
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzC69zLqzmiSIZ44ySU55F2g1VNhGNaUbR5fyfgxKPk2Cc_hBSMDuASVDms8z7iNlBKHw/exec'; 
+
 window.initProfilePage = function() {
     const modal = document.getElementById("profileModal");
     const editForm = document.getElementById("editForm");
@@ -199,8 +203,16 @@ window.initProfilePage = function() {
             fileType: file.type
           };
 
-          // JSONP upload
-          sendDataToGoogle('uploadFile', payload, (response) => {
+          // Use fetch for POST request for file upload
+          fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          })
+          .then(res => res.json())
+          .then(response => {
             if (response.status === 'success' && response.url) {
               profileData.meta.profilePhotoUrl = response.url;
               // Simpan URL ke sheet
@@ -222,7 +234,8 @@ window.initProfilePage = function() {
               uploadPhotoBtn.disabled = false;
               uploadPhotoBtn.textContent = 'Upload Photo';
             }
-          }, (error) => {
+          })
+          .catch(error => {
             showToast('Error upload foto: ' + error.message, 'error');
             uploadPhotoBtn.disabled = false;
             uploadPhotoBtn.textContent = 'Upload Photo';
