@@ -49,13 +49,13 @@ window.initLoginPage = function() {
     function handleLoginSuccess(response) {
         submitButton.disabled = false;
         submitButton.textContent = 'Sign In';
-        if (response.success) {
+        if (response.status === 'success') {
             window.showToast('Login successful! Redirecting...', 'success');
             // Redirect to dashboard or home page within the SPA
             localStorage.setItem('loggedInUser', JSON.stringify(response.data)); // Store user data
             window.location.href = '#/dashboard'; // Redirect to the main SPA file with dashboard hash
         } else {
-            alert('Login failed: ' + response.message);
+            window.showToast('Login failed: ' + response.message, 'error');
         }
     }
 
