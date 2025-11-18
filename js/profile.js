@@ -152,8 +152,12 @@ window.initProfilePage = function() {
 
     function loadProfileData() {
       sendDataToGoogle('readProfileDataFromSheet', {}, (response) => {
-        profileData = response;
-        renderProfileData();
+        if (response && response.data) {
+          profileData = response.data;
+          renderProfileData();
+        } else {
+          showToast('Invalid profile data received.', 'error');
+        }
       }, (error) => {
         showToast('Terjadi kesalahan saat memuat data profil: ' + error.message, 'error');
       });
