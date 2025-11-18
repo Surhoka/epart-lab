@@ -271,15 +271,33 @@ window.initProfilePage = function() {
                 const base64data = reader.result.split(',')[1]; // Get base64 string without data:image/png;base64,
                 const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
                 
-                // Use sendDataToGoogle (JSONP) for image upload as well
-                sendDataToGoogle('uploadFile', {
+                // Revert to fetch POST for image upload due to potential GET URL size limits
+                const uploadPayload = {
+                    action: 'uploadFile',
                     fileName: fileName,
                     fileData: base64data,
                     fileType: file.type
-                }, (response) => {
+                };
+
+                fetch(appsScriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Use JSON for direct POST
+                    },
+                    body: JSON.stringify(uploadPayload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Network response was not ok: ${response.statusText} - ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(response => {
                     if (response.status === 'success' && response.url) {
                         profileData.meta.profilePhotoUrl = response.url;
-                        // Save the new URL to the spreadsheet
+                        // Save the new URL to the spreadsheet using JSONP (sendDataToGoogle)
                         sendDataToGoogle('saveProfileDataOnServer', {
                             section: 'meta',
                             profilePhotoUrl: response.url
@@ -302,8 +320,9 @@ window.initProfilePage = function() {
                         uploadPhotoBtn.disabled = false;
                         uploadPhotoBtn.textContent = 'Upload Photo';
                     }
-                }, (error) => {
-                    console.error('Error during photo upload (sendDataToGoogle callback):', error);
+                })
+                .catch(error => {
+                    console.error('Error during photo upload (fetch catch):', error);
                     showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
                     uploadPhotoBtn.disabled = false;
                     uploadPhotoBtn.textContent = 'Upload Photo';
