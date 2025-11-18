@@ -98,19 +98,33 @@ window.initProfilePage = function() {
       submitButton.disabled = true;
       submitButton.textContent = 'Saving...';
 
+      // Create a plain object from the form data instead of FormData
       const formData = new FormData(editForm);
-      
-      // Append metadata for the backend to know what to do.
-      formData.append('action', 'saveProfileDataOnServer');
-      formData.append('section', currentSection);
-      
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      // Construct the payload for the server
+      const payload = {
+        action: 'saveProfileDataOnServer',
+        section: currentSection,
+        ...data // Spread the form data into the payload
+      };
+
       fetch(appsScriptUrl, {
         method: 'POST',
-        body: formData // Directly send the FormData object. Fetch handles the headers.
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload) // Send the payload as a JSON string
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.statusText}`);
+          // Try to get more detailed error from the response body if possible
+          return response.text().then(text => {
+            throw new Error(`Network response was not ok: ${response.statusText} - ${text}`);
+          });
         }
         return response.json();
       })
@@ -118,14 +132,8 @@ window.initProfilePage = function() {
         if (result.status === 'success') {
           console.log('Save successful.', result);
           
-          const updatedData = {};
-          for (let [key, value] of formData.entries()) {
-              if (key !== 'action' && key !== 'section') { // Removed profilePhoto from exclusion
-                  updatedData[key] = value;
-              }
-          }
-
-          profileData[currentSection] = { ...profileData[currentSection], ...updatedData };
+          // Update local profileData object from the form data we just sent
+          profileData[currentSection] = { ...profileData[currentSection], ...data };
           
           renderProfileData();
           showToast('Data berhasil disimpan!', 'success');
