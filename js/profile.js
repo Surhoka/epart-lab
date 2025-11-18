@@ -113,12 +113,15 @@ window.initProfilePage = function() {
         ...data // Spread the form data into the payload
       };
 
+      // Convert payload to URL-encoded string for application/x-www-form-urlencoded
+      const urlEncodedPayload = new URLSearchParams({ payload: JSON.stringify(payload) }).toString();
+
       fetch(appsScriptUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify(payload) // Send the payload as a JSON string
+        body: urlEncodedPayload // Send the URL-encoded payload
       })
       .then(response => {
         if (!response.ok) {
