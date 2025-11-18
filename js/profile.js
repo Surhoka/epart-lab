@@ -42,7 +42,8 @@ window.initProfilePage = function() {
         { id: "taxId", label: "TAX ID", type: "text" }
       ],
       account: [
-        { id: "email", label: "Username (Email)", type: "email" },
+        { id: "userName", label: "User Name", type: "text" }, // Added for direct User Name field
+        { id: "email", label: "Email", type: "email" }, // Keep email for consistency if needed elsewhere
         { id: "password", label: "New Password", type: "password" } // For changing password
       ]
     };
@@ -135,6 +136,16 @@ window.initProfilePage = function() {
           // Update local profileData object from the form data we just sent
           profileData[currentSection] = { ...profileData[currentSection], ...data };
           
+          // If the 'meta' section was updated and a new name is returned, update localStorage
+          if (currentSection === 'meta' && result.name) {
+              let user = JSON.parse(localStorage.getItem('loggedInUser'));
+              if (user) {
+                  user.fullName = result.name; // Assuming 'name' from payload maps to 'fullName' in localStorage
+                  localStorage.setItem('loggedInUser', JSON.stringify(user));
+                  window.handleAuthUI(); // Re-render header with updated localStorage data
+              }
+          }
+
           renderProfileData();
           showToast('Data berhasil disimpan!', 'success');
         } else {
@@ -188,9 +199,11 @@ window.initProfilePage = function() {
 
       // Update Account Information Card
       const accountDisplayContainer = document.getElementById('account-display');
-      if (accountDisplayContainer && profileData.info) { // Using profileData.info for email
-        const emailDisplayElement = accountDisplayContainer.querySelector('[data-field="email"]');
-        if (emailDisplayElement) emailDisplayElement.textContent = profileData.info.email;
+      if (accountDisplayContainer && profileData.account) { // Added check for profileData.account
+        const userNameDisplayElement = accountDisplayContainer.querySelector('[data-field="userName"]');
+        if (userNameDisplayElement) {
+          userNameDisplayElement.textContent = profileData.account.userName || '';
+        }
         // Password is not displayed directly for security reasons
       }
       
