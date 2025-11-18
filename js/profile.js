@@ -121,6 +121,33 @@ window.initProfilePage = function() {
       const metaEl = document.getElementById('profile-title-location');
       if (nameEl) nameEl.textContent = profileData.meta?.name || '';
       if (metaEl) metaEl.textContent = (profileData.meta?.title || '') + ' · ' + (profileData.meta?.location || '');
+
+      // Render info section
+      const infoDisplay = document.getElementById('info-display');
+      if (infoDisplay && profileData.info) {
+        for (const field in profileData.info) {
+          const element = infoDisplay.querySelector(`[data-field="${field}"]`);
+          if (element) element.textContent = profileData.info[field];
+        }
+      }
+
+      // Render address section
+      const addressDisplay = document.getElementById('address-display');
+      if (addressDisplay && profileData.address) {
+        for (const field in profileData.address) {
+          const element = addressDisplay.querySelector(`[data-field="${field}"]`);
+          if (element) element.textContent = profileData.address[field];
+        }
+      }
+
+      // Render account section
+      const accountDisplay = document.getElementById('account-display');
+      if (accountDisplay && profileData.account) {
+        for (const field in profileData.account) {
+          const element = accountDisplay.querySelector(`[data-field="${field}"]`);
+          if (element) element.textContent = profileData.account[field];
+        }
+      }
     }
 
     function loadProfileData() {
