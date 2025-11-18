@@ -50,9 +50,10 @@ window.initLoginPage = function() {
         submitButton.disabled = false;
         submitButton.textContent = 'Sign In';
         if (response.success) {
-            alert('Login successful! Redirecting...');
-            // Redirect to dashboard or home page
-            window.location.href = 'dashboard.html'; // Or any other success page
+            window.showToast('Login successful! Redirecting...', 'success');
+            // Redirect to dashboard or home page within the SPA
+            localStorage.setItem('loggedInUser', JSON.stringify(response.data)); // Store user data
+            window.location.href = '#/dashboard'; // Redirect to the main SPA file with dashboard hash
         } else {
             alert('Login failed: ' + response.message);
         }
