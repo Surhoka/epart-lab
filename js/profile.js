@@ -1,5 +1,6 @@
 // profile.js
-window.initProfilePage = function() {
+function initProfilePage() {
+
     // Modal logic
     const modal = document.getElementById("profileModal");
     const editForm = document.getElementById("editForm");
@@ -12,18 +13,9 @@ window.initProfilePage = function() {
     // Data profil awal (akan diisi dari server)
     let profileData = {}; // Initialize as empty object
 
-    // Moved finalizeForm to a higher scope
-    const finalizeForm = () => {
-      modal.classList.add("hidden");
-      const submitButton = editForm.querySelector('button[type="submit"]');
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Save';
-      }
-    };
-
     const fieldConfigs = {
       meta: [
+        { id: "profilePhoto", label: "Profile Photo", type: "file" },
         { id: "name", label: "Full Name", type: "text" },
         { id: "title", label: "Title", type: "text" },
         { id: "location", label: "Location", type: "text" }
@@ -38,12 +30,8 @@ window.initProfilePage = function() {
       address: [
         { id: "country", label: "Country", type: "text" },
         { id: "cityState", label: "City/State", type: "text" },
-        { id: "postalCode", label: "Postal Code", "type": "text" },
+        { id: "postalCode", label: "Postal Code", type: "text" },
         { id: "taxId", label: "TAX ID", type: "text" }
-      ],
-      account: [
-        { id: "email", label: "Username (Email)", type: "email" },
-        { id: "password", label: "New Password", type: "password" } // For changing password
       ]
     };
 
@@ -98,54 +86,82 @@ window.initProfilePage = function() {
       submitButton.disabled = true;
       submitButton.textContent = 'Saving...';
 
-      // Create a plain object from the form data instead of FormData
       const formData = new FormData(editForm);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
+      const updatedData = {};
+      for (let [key, value] of formData.entries()) {
+          if (key !== 'profilePhoto') {
+              updatedData[key] = value;
+          }
+      }
 
-      // Construct the payload for the server
+      const profilePhotoFile = formData.get('profilePhoto');
+      if (currentSection === 'meta' && profilePhotoFile && profilePhotoFile.size > 0) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updatedData.profilePhoto = e.target.result; // base64 string
+          sendDataToBackend(updatedData);
+        };
+        reader.readAsDataURL(profilePhotoFile);
+      } else {
+        sendDataToBackend(updatedData);
+      }
+    }
+
+    function sendDataToBackend(data) {
       const payload = {
         action: 'saveProfileDataOnServer',
+        targetSheet: 'profile',
         section: currentSection,
-        ...data // Spread the form data into the payload
+        profileData: data
+      };
+
+      const finalizeForm = () => {
+        modal.classList.add("hidden");
+        const submitButton = editForm.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save';
       };
 
       fetch(appsScriptUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
-        body: JSON.stringify(payload) // Send the payload as a JSON string
+        body: JSON.stringify(payload)
       })
-      .then(response => {
-        if (!response.ok) {
-          // Try to get more detailed error from the response body if possible
-          return response.text().then(text => {
-            throw new Error(`Network response was not ok: ${response.statusText} - ${text}`);
-          });
-        }
-        return response.json();
-      })
+      .then(response => response.json())
       .then(result => {
         if (result.status === 'success') {
-          console.log('Save successful.', result);
-          
-          // Update local profileData object from the form data we just sent
+          console.log('Save successful.');
+          // Update local data object
           profileData[currentSection] = { ...profileData[currentSection], ...data };
           
-          renderProfileData();
-          showToast('Data berhasil disimpan!', 'success');
+          if (result.imageUrl) {
+            try {
+              const url = new URL(result.imageUrl);
+              const fileId = url.searchParams.get("id");
+              if (fileId) {
+                profileData.meta.profilePhotoUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+              } else {
+                profileData.meta.profilePhotoUrl = result.imageUrl;
+              }
+            } catch (e) {
+              console.error('Error parsing profile photo URL:', e);
+              profileData.meta.profilePhotoUrl = result.imageUrl;
+            }
+          }
+
+          renderProfileData(); // Re-render data di halaman
+          showToast('Data berhasil disimpan!', 'success'); // Use showToast from Admin Dashboard
         } else {
-          console.error('Server-side logical error result:', result);
-          showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
+          // Handle server-side logical error
+          showToast('Error menyimpan data: ' + result.message, 'error');
         }
         finalizeForm();
       })
       .catch(error => {
-        console.error('Error saving data (fetch catch):', error);
-        showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
+        console.error('Error saving data:', error);
+        showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error'); // Use showToast from Admin Dashboard
         finalizeForm();
       });
     }
@@ -185,31 +201,16 @@ window.initProfilePage = function() {
           if (displayElement) displayElement.textContent = profileData.address[field];
         }
       }
-
-      // Update Account Information Card
-      const accountDisplayContainer = document.getElementById('account-display');
-      if (accountDisplayContainer && profileData.info) { // Using profileData.info for email
-        const emailDisplayElement = accountDisplayContainer.querySelector('[data-field="email"]');
-        if (emailDisplayElement) emailDisplayElement.textContent = profileData.info.email;
-        // Password is not displayed directly for security reasons
-      }
       
       // Update header with profile info
-      const profilePictureHeader = document.getElementById('profile-picture');
-      const usernameDisplayHeader = document.getElementById('username-display');
-      const dropdownUsernameDisplayHeader = document.getElementById('dropdown-username-display');
-
+      const userNameHeader = document.getElementById('user-name-header');
+      const userPhotoHeader = document.getElementById('user-photo-header');
       if (profileData.meta) {
-          if (usernameDisplayHeader) {
-              usernameDisplayHeader.textContent = profileData.meta.name || 'User';
+          if (userNameHeader) {
+              userNameHeader.textContent = profileData.meta.name || 'User';
           }
-          if (dropdownUsernameDisplayHeader) {
-              dropdownUsernameDisplayHeader.textContent = profileData.meta.name || 'User';
-          }
-          if (profilePictureHeader && profileData.meta.profilePhotoUrl) {
-              profilePictureHeader.src = profileData.meta.profilePhotoUrl;
-          } else if (profilePictureHeader) {
-              profilePictureHeader.src = 'https://dummyimage.com/100'; // Default image for header
+          if (userPhotoHeader && profileData.meta.profilePhotoUrl) {
+              userPhotoHeader.src = profileData.meta.profilePhotoUrl;
           }
       }
     }
@@ -217,9 +218,9 @@ window.initProfilePage = function() {
     // Fetch initial profile data when the page is loaded
         function loadProfileData() {
       console.log("Attempting to load profile data from sheet...");
-      sendDataToGoogle('readProfileDataFromSheet', {}, (response) => {
-        console.log("Profile data received in success handler:", response); // Modified log
-        profileData = response.data; // Extract the actual profile data from the normalized response
+      sendDataToGoogle('readProfileDataFromSheet', {}, (data) => {
+        console.log("Profile data received in success handler:", data); // Modified log
+        profileData = data;
         // Convert Google Drive URL for profile photo to embeddable format if necessary
         if (profileData.meta && profileData.meta.profilePhotoUrl) {
           try {
@@ -242,73 +243,9 @@ window.initProfilePage = function() {
     document.getElementById('editMetaBtn').onclick = () => openEditModal('meta');
     document.getElementById('editInfoBtn').onclick = () => openEditModal('info');
     document.getElementById('editAddressBtn').onclick = () => openEditModal('address');
-    document.getElementById('editAccountBtn').onclick = () => openEditModal('account');
     closeButton.onclick = () => modal.classList.add("hidden");
     cancelButton.onclick = () => modal.classList.add("hidden");
     editForm.onsubmit = saveProfileData;
 
-    // New photo upload logic
-    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-    const profilePhotoUploadInput = document.getElementById('profile-photo-upload');
-
-    if (uploadPhotoBtn && profilePhotoUploadInput) {
-        uploadPhotoBtn.addEventListener('click', () => {
-            profilePhotoUploadInput.click();
-        });
-
-        profilePhotoUploadInput.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
-
-            showToast('Mengunggah foto profil...', 'info', 5000);
-            uploadPhotoBtn.disabled = true;
-            uploadPhotoBtn.textContent = 'Uploading...';
-
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64data = reader.result.split(',')[1]; // Get base64 string without data:image/png;base64,
-                const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
-                
-                try {
-                    const response = await window.uploadImageAndGetUrl(fileName, base64data, file.type);
-                    if (response.status === 'success' && response.url) {
-                        profileData.meta.profilePhotoUrl = response.url;
-                        // Save the new URL to the spreadsheet
-                        sendDataToGoogle('saveProfileDataOnServer', {
-                            section: 'meta',
-                            profilePhotoUrl: response.url
-                        }, (saveResponse) => {
-                            if (saveResponse.status === 'success') {
-                                renderProfileData();
-                                showToast('Foto profil berhasil diunggah dan disimpan!', 'success');
-                            } else {
-                                showToast('Gagal menyimpan URL foto profil: ' + (saveResponse.message || 'Terjadi kesalahan.'), 'error');
-                            }
-                            uploadPhotoBtn.disabled = false;
-                            uploadPhotoBtn.textContent = 'Upload Photo';
-                        }, (saveError) => {
-                            showToast('Error menyimpan URL foto profil: ' + (saveError.message || 'Terjadi kesalahan.'), 'error');
-                            uploadPhotoBtn.disabled = false;
-                            uploadPhotoBtn.textContent = 'Upload Photo';
-                        });
-                    } else {
-                        showToast('Gagal mengunggah foto: ' + (response.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-                        uploadPhotoBtn.disabled = false;
-                        uploadPhotoBtn.textContent = 'Upload Photo';
-                    }
-                } catch (error) {
-                    console.error('Error during photo upload:', error);
-                    showToast('Terjadi kesalahan saat mengunggah foto: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
-                    uploadPhotoBtn.disabled = false;
-                    uploadPhotoBtn.textContent = 'Upload Photo';
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Initial load of profile data
-    loadProfileData();
+    loadProfileData(); // Load data when initProfilePage is called
 }
