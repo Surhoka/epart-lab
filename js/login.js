@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.initLoginPage = function() {
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
     const loginForm = document.getElementById('loginForm');
@@ -61,4 +61,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Login error:', error);
         alert('Login failed: ' + error.message || 'Invalid credentials.');
     }
-});
+};
