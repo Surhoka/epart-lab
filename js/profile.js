@@ -116,23 +116,8 @@ window.initProfilePage = function() {
       // Convert payload to URL-encoded string for application/x-www-form-urlencoded
       const urlEncodedPayload = new URLSearchParams({ payload: JSON.stringify(payload) }).toString();
 
-      fetch(appsScriptUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: urlEncodedPayload // Send the URL-encoded payload
-      })
-      .then(response => {
-        if (!response.ok) {
-          // Try to get more detailed error from the response body if possible
-          return response.text().then(text => {
-            throw new Error(`Network response was not ok: ${response.statusText} - ${text}`);
-          });
-        }
-        return response.json();
-      })
-      .then(result => {
+      // Use sendDataToGoogle (JSONP) for saving data to bypass CORS issues
+      sendDataToGoogle('saveProfileDataOnServer', payload, (result) => {
         if (result.status === 'success') {
           console.log('Save successful.', result);
           
@@ -156,9 +141,8 @@ window.initProfilePage = function() {
           showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
         }
         finalizeForm();
-      })
-      .catch(error => {
-        console.error('Error saving data (fetch catch):', error);
+      }, (error) => {
+        console.error('Error saving data (sendDataToGoogle callback):', error);
         showToast('Terjadi kesalahan saat menyimpan data: ' + (error.message || 'Terjadi kesalahan tidak dikenal.'), 'error');
         finalizeForm();
       });
