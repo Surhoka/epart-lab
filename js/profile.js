@@ -199,8 +199,8 @@ window.initProfilePage = function() {
             fileType: file.type
           };
 
-          // JSONP upload
-          sendDataToGoogle('uploadFile', payload, (response) => {
+          // Using the dedicated image upload function
+          window.uploadImageAndGetUrl(fileName, base64data, file.type).then((response) => {
             if (response.status === 'success' && response.url) {
               profileData.meta.profilePhotoUrl = response.url;
               // Simpan URL ke sheet
@@ -222,7 +222,7 @@ window.initProfilePage = function() {
               uploadPhotoBtn.disabled = false;
               uploadPhotoBtn.textContent = 'Upload Photo';
             }
-          }, (error) => {
+          }).catch((error) => {
             showToast('Error upload foto: ' + error.message, 'error');
             uploadPhotoBtn.disabled = false;
             uploadPhotoBtn.textContent = 'Upload Photo';
