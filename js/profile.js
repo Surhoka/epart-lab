@@ -87,30 +87,30 @@ window.initProfilePage = function() {
       submitButton.textContent = 'Saving...';
 
       const formData = new FormData(editForm);
-      const data = {};
-      formData.forEach((value, key) => { data[key] = value; });
+          const data = {};
+          formData.forEach((value, key) => { data[key] = value; });
 
-      const payload = {
-        action: 'saveProfileDataOnServer',
-        section: currentSection,
-        ...data
-      };
+          const payload = {
+            action: 'saveProfileDataOnServer',
+            section: currentSection,
+            ...data
+          };
 
-      // JSONP call
-      sendDataToGoogle('saveProfileDataOnServer', payload, (result) => {
-        if (result.status === 'success') {
-          profileData[currentSection] = { ...profileData[currentSection], ...data };
-          renderProfileData();
-          showToast('Data berhasil disimpan!', 'success');
-        } else {
-          showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan.'), 'error');
+          // JSONP call
+          sendDataToGoogle('saveProfileDataOnServer', payload, (result) => {
+            if (result.status === 'success') {
+              profileData[currentSection] = { ...profileData[currentSection], ...data };
+              renderProfileData();
+              showToast('Data berhasil disimpan!', 'success');
+            } else {
+              showToast('Error menyimpan data: ' + (result.message || 'Terjadi kesalahan.'), 'error');
+            }
+            finalizeForm();
+          }, (error) => {
+            showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error');
+            finalizeForm();
+          });
         }
-        finalizeForm();
-      }, (error) => {
-        showToast('Terjadi kesalahan saat menyimpan data: ' + error.message, 'error');
-        finalizeForm();
-      });
-    }
 
     function renderProfileData() {
       const profilePhotoElement = document.getElementById('profile-photo');
@@ -191,13 +191,6 @@ window.initProfilePage = function() {
         reader.onloadend = () => {
           const base64data = reader.result.split(',')[1];
           const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
-
-          const payload = {
-            action: 'uploadFile',
-            fileName: fileName,
-            fileData: base64data,
-            fileType: file.type
-          };
 
           // Using the dedicated image upload function
           window.uploadImageAndGetUrl(fileName, base64data, file.type).then((response) => {
