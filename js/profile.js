@@ -1,5 +1,4 @@
 // profile.js
-
 window.initProfilePage = function() {
     const modal = document.getElementById("profileModal");
     const editForm = document.getElementById("editForm");
@@ -200,36 +199,34 @@ window.initProfilePage = function() {
             fileType: file.type
           };
 
-          // Use the existing iframe-based upload function for JSONP compatibility
-          window.uploadImageAndGetUrl(fileName, base64data, file.type)
-            .then(response => {
-              if (response.status === 'success' && response.url) {
-                profileData.meta.profilePhotoUrl = response.url;
-                // Simpan URL ke sheet
-                sendDataToGoogle('saveProfileDataOnServer', {
-                  section: 'meta',
-                  profilePhotoUrl: response.url
-                }, (saveResponse) => {
-                  if (saveResponse.status === 'success') {
-                    renderProfileData();
-                    showToast('Foto profil berhasil diunggah!', 'success');
-                  } else {
-                    showToast('Gagal menyimpan URL foto profil: ' + (saveResponse.message || 'Error'), 'error');
-                  }
-                  uploadPhotoBtn.disabled = false;
-                  uploadPhotoBtn.textContent = 'Upload Photo';
-                });
-              } else {
-                showToast('Gagal mengunggah foto: ' + (response.message || 'Error'), 'error');
+          // JSONP upload
+          sendDataToGoogle('uploadFile', payload, (response) => {
+            if (response.status === 'success' && response.url) {
+              profileData.meta.profilePhotoUrl = response.url;
+              // Simpan URL ke sheet
+              sendDataToGoogle('saveProfileDataOnServer', {
+                section: 'meta',
+                profilePhotoUrl: response.url
+              }, (saveResponse) => {
+                if (saveResponse.status === 'success') {
+                  renderProfileData();
+                  showToast('Foto profil berhasil diunggah!', 'success');
+                } else {
+                  showToast('Gagal menyimpan URL foto profil: ' + (saveResponse.message || 'Error'), 'error');
+                }
                 uploadPhotoBtn.disabled = false;
                 uploadPhotoBtn.textContent = 'Upload Photo';
-              }
-            })
-            .catch(error => {
-              showToast('Error upload foto: ' + error.message, 'error');
+              });
+            } else {
+              showToast('Gagal mengunggah foto: ' + (response.message || 'Error'), 'error');
               uploadPhotoBtn.disabled = false;
               uploadPhotoBtn.textContent = 'Upload Photo';
-            });
+            }
+          }, (error) => {
+            showToast('Error upload foto: ' + error.message, 'error');
+            uploadPhotoBtn.disabled = false;
+            uploadPhotoBtn.textContent = 'Upload Photo';
+          });
         };
         reader.readAsDataURL(file);
       });
