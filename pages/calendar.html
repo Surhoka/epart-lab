@@ -25,71 +25,8 @@
     </div>
     <!-- Breadcrumb End -->
 
-    <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-12"
-      x-data="{
-        events: [
-          {
-            title: 'Meeting',
-            color: 'bg-danger-dim',
-            text: 'text-danger',
-          },
-          {
-            title: 'Travel',
-            color: 'bg-warning-dim',
-            text: 'text-warning',
-          },
-          {
-            title: 'Dinner',
-            color: 'bg-success-dim',
-            text: 'text-success',
-          },
-          {
-            title: 'Lunch',
-            color: 'bg-primary-dim',
-            text: 'text-primary',
-          },
-        ],
-      }"
-    >
-      <div class="col-span-1 sm:col-span-4">
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-          <button
-            class="btn w-full rounded-lg bg-brand-500 py-2.5 text-sm font-medium text-white hover:bg-brand-600"
-            id="add-event"
-          >
-            Add Event
-          </button>
-
-          <div class="mt-8">
-            <p class="mb-5 text-sm font-medium text-gray-500 dark:text-gray-400">Draggable Events</p>
-
-            <div id="external-events" class="flex flex-col gap-3">
-              <template x-for="(event, index) in events" :key="index">
-                <div
-                  class="external-event"
-                  :class="`${event.color} ${event.text}`"
-                  :data-title="event.title"
-                  :data-class="event.text.replace('text-', '')"
-                >
-                  <span class="flex items-center gap-2">
-                    <svg class="h-2 w-2" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="4" cy="4" r="4" fill="currentColor" />
-                    </svg>
-                    <span x-text="event.title"></span>
-                  </span>
-                </div>
-              </template>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-span-1 sm:col-span-8">
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-          <div id="calendar" class="min-h-screen"></div>
-        </div>
-      </div>
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div id="calendar" class="min-h-screen"></div>
     </div>
 
     <!-- BEGIN MODAL -->
