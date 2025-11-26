@@ -28,15 +28,7 @@ window.initCalendarPage = function () {
       Primary: "primary",
       Warning: "warning",
     };
-    eventClassNames({ event }) {
-  const color = {
-    Danger: "red-500",
-    Success: "green-500",
-    Primary: "blue-500",
-    Warning: "yellow-500"
-  }[event.extendedProps.calendar];
-  return [`bg-${color}`, `text-white`, `rounded-md`, `px-2`, `py-1`];
-}
+
     /*=====================*/
     // Calendar Elements and options
     /*=====================*/
