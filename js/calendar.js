@@ -213,10 +213,6 @@ window.initCalendarPage = function () {
       },
       eventClassNames({ event: calendarEvent }) {
         const getColorValue =
-          Danger: "red-500",
-          Success: "green-500",
-          Primary: "blue-500",
-          Warning: "yellow-500"
           calendarsEvents[calendarEvent._def.extendedProps.calendar];
         return [`event-fc-color`, `fc-bg-${getColorValue}`];
       },
