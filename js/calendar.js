@@ -20,6 +20,7 @@ window.initCalendarPage = function () {
     const getModalTitleEl = document.querySelector("#event-title");
     const getModalStartDateEl = document.querySelector("#event-start-date");
     const getModalEndDateEl = document.querySelector("#event-end-date");
+    const getModalAllDayEl = document.querySelector("#event-all-day");
     const getModalAddBtnEl = document.querySelector(".btn-add-event");
     const getModalUpdateBtnEl = document.querySelector(".btn-update-event");
     const getModalDeleteBtnEl = document.querySelector(".btn-delete-event");
@@ -29,6 +30,31 @@ window.initCalendarPage = function () {
       Primary: "primary",
       Warning: "warning",
     };
+
+    /*=====================*/
+    // Helper function to toggle date/time inputs
+    /*=====================*/
+    const toggleDateTimeInputs = (isAllDay) => {
+      if (isAllDay) {
+        getModalStartDateEl.type = 'date';
+        getModalEndDateEl.type = 'date';
+      } else {
+        getModalStartDateEl.type = 'datetime-local';
+        getModalEndDateEl.type = 'datetime-local';
+      }
+    };
+
+    getModalAllDayEl.addEventListener('change', () => {
+      const isAllDay = getModalAllDayEl.checked;
+      toggleDateTimeInputs(isAllDay);
+      // Preserve the date part of the value when toggling
+      if (getModalStartDateEl.value) {
+        getModalStartDateEl.value = getModalStartDateEl.value.slice(0, 10);
+      }
+      if (getModalEndDateEl.value) {
+        getModalEndDateEl.value = getModalEndDateEl.value.slice(0, 10);
+      }
+    });
 
     /*=====================*/
     // Calendar Elements and options
@@ -152,11 +178,32 @@ window.initCalendarPage = function () {
           `input[value="${getModalEventLevel}"]`,
         );
 
+        // Set checkbox state and toggle inputs FIRST
+        getModalAllDayEl.checked = eventObj.allDay;
+        toggleDateTimeInputs(eventObj.allDay);
+
         getModalTitleEl.value = eventObj.title;
-        getModalStartDateEl.value = eventObj.startStr.slice(0, 16);
-        getModalEndDateEl.value = eventObj.endStr
-          ? eventObj.endStr.slice(0, 16)
-          : "";
+
+        // Use different formatting based on allDay status
+        if (eventObj.allDay) {
+            // For all-day events, `startStr` is just the date (YYYY-MM-DD)
+            getModalStartDateEl.value = eventObj.startStr;
+            // FullCalendar's end for all-day is exclusive, subtract one day for display
+            if (eventObj.end) {
+                let endDate = new Date(eventObj.endStr);
+                endDate.setDate(endDate.getDate() - 1);
+                getModalEndDateEl.value = endDate.toISOString().slice(0,10);
+            } else {
+                getModalEndDateEl.value = eventObj.startStr;
+            }
+        } else {
+            // For timed events, use the full datetime string up to minutes
+            getModalStartDateEl.value = eventObj.startStr.slice(0, 16);
+            getModalEndDateEl.value = eventObj.endStr
+              ? eventObj.endStr.slice(0, 16)
+              : "";
+        }
+
         if (getModalCheckedRadioBtnEl) {
           getModalCheckedRadioBtnEl.checked = true;
         }
@@ -193,6 +240,7 @@ window.initCalendarPage = function () {
         title: getTitleUpdatedValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
+        allDay: getModalAllDayEl.checked,
         category: getModalUpdatedCheckedRadioBtnValue, // Send flat for Apps Script
       };
 
@@ -262,6 +310,7 @@ window.initCalendarPage = function () {
         title: getTitleValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
+        allDay: getModalAllDayEl.checked, // Set allDay from checkbox
         category: getModalCheckedRadioBtnValue, // Send flat for Apps Script
         description: ""
       };
@@ -301,6 +350,8 @@ window.initCalendarPage = function () {
       getModalTitleEl.value = "";
       getModalStartDateEl.value = "";
       getModalEndDateEl.value = "";
+      getModalAllDayEl.checked = false; // Reset checkbox
+      toggleDateTimeInputs(false); // Reset input types
       const getModalIfCheckedRadioBtnEl = document.querySelector(
         'input[name="event-level"]:checked',
       );
