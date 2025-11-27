@@ -1,229 +1,324 @@
-<!-- ===== Main Content Start ===== -->
-<main>
-  <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-    <!-- Breadcrumb Start -->
-    <div x-data="{ pageName: `Calendar`}">
-      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90" x-text="pageName"></h2>
+/*========Calender Js=========*/
+/*==========================*/
 
-        <nav>
-          <ol class="flex items-center gap-1.5">
-            <li>
-              <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="index.html">
-                Home
-                <svg class="stroke-current" width="17" height="16" viewBox="0 0 17 16" fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366" stroke="" stroke-width="1.2"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </a>
-            </li>
-            <li class="text-sm text-gray-800 dark:text-white/90" x-text="pageName"></li>
-          </ol>
-        </nav>
-      </div>
-    </div>
-    <!-- Breadcrumb End -->
+window.initCalendarPage = function () {
+  const calendarWrapper = document.querySelector("#calendar");
 
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div id="calendar" class="min-h-screen"></div>
-    </div>
+  if (calendarWrapper) {
+    /*=================*/
+    //  Calender Date variable
+    /*=================*/
+    const newDate = new Date();
+    const getDynamicMonth = () => {
+      const month = newDate.getMonth() + 1;
+      return month < 10 ? `0${month}` : `${month}`;
+    };
 
-    <!-- BEGIN MODAL -->
-    <div class="fixed inset-0 items-center justify-center hidden p-5 overflow-y-auto modal z-99999" id="eventModal">
-      <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"></div>
-      <div
-        class="modal-dialog modal-dialog-scrollable modal-lg no-scrollbar relative flex w-full max-w-[700px] flex-col overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-11">
-        <!-- close btn -->
-        <button
-          class="modal-close-btn transition-color absolute right-5 top-5 z-999 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300 sm:h-11 sm:w-11">
-          <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-              fill="" />
-          </svg>
-        </button>
+    /*=================*/
+    // Calender Modal Elements
+    /*=================*/
+    const getModalTitleEl = document.querySelector("#event-title");
+    const getModalStartDateEl = document.querySelector("#event-start-date");
+    const getModalEndDateEl = document.querySelector("#event-end-date");
+    const getModalAddBtnEl = document.querySelector(".btn-add-event");
+    const getModalUpdateBtnEl = document.querySelector(".btn-update-event");
+    const getModalDeleteBtnEl = document.querySelector(".btn-delete-event");
+    const calendarsEvents = {
+      Danger: "danger",
+      Success: "success",
+      Primary: "primary",
+      Warning: "warning",
+    };
 
-        <div class="flex flex-col px-2 overflow-y-auto modal-content custom-scrollbar">
-          <div class="modal-header">
-            <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl"
-              id="eventModalLabel">
-              Add / Edit Event
-            </h5>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              Plan your next big moment: schedule or edit an event to stay on track
-            </p>
-          </div>
-          <div class="mt-8 modal-body">
-            <div>
-              <div>
-                <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Event Title
-                  </label>
-                  <input id="event-title" type="text"
-                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                </div>
-              </div>
-              <div class="mt-6">
-                <div>
-                  <label class="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Event Color
-                  </label>
-                </div>
-                <div class="flex flex-wrap items-center gap-4 sm:gap-5">
-                  <div class="n-chk">
-                    <div class="form-check form-check-primary form-check-inline">
-                      <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                        for="modalDanger">
-                        <span class="relative">
-                          <input class="sr-only form-check-input" type="radio" name="event-level" value="Danger"
-                            id="modalDanger" />
-                          <span
-                            class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                            <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent">
-                            </span>
-                          </span>
-                        </span>
-                        Danger
-                      </label>
-                    </div>
-                  </div>
-                  <div class="n-chk">
-                    <div class="form-check form-check-warning form-check-inline">
-                      <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                        for="modalSuccess">
-                        <span class="relative">
-                          <input class="sr-only form-check-input" type="radio" name="event-level" value="Success"
-                            id="modalSuccess" />
-                          <span
-                            class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                            <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent">
-                            </span>
-                          </span>
-                        </span>
-                        Success
-                      </label>
-                    </div>
-                  </div>
-                  <div class="n-chk">
-                    <div class="form-check form-check-success form-check-inline">
-                      <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                        for="modalPrimary">
-                        <span class="relative">
-                          <input class="sr-only form-check-input" type="radio" name="event-level" value="Primary"
-                            id="modalPrimary" />
-                          <span
-                            class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                            <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent">
-                            </span>
-                          </span>
-                        </span>
-                        Primary
-                      </label>
-                    </div>
-                  </div>
-                  <div class="n-chk">
-                    <div class="form-check form-check-danger form-check-inline">
-                      <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                        for="modalWarning">
-                        <span class="relative">
-                          <input class="sr-only form-check-input" type="radio" name="event-level" value="Warning"
-                            id="modalWarning" />
-                          <span
-                            class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                            <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent">
-                            </span>
-                          </span>
-                        </span>
-                        Warning
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    /*=====================*/
+    // Calendar Elements and options
+    /*=====================*/
+    const calendarEl = document.querySelector("#calendar");
 
-              <div class="mt-6">
-                <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Enter Start Date
-                  </label>
-                  <div class="relative">
-                    <input id="event-start-date" type="date"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                      onclick="this.showPicker()" />
-                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2">
-                      <svg class="fill-gray-700 dark:fill-gray-400" width="14" height="14" viewBox="0 0 14 14"
-                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.33317 0.0830078C4.74738 0.0830078 5.08317 0.418794 5.08317 0.833008V1.24967H8.9165V0.833008C8.9165 0.418794 9.25229 0.0830078 9.6665 0.0830078C10.0807 0.0830078 10.4165 0.418794 10.4165 0.833008V1.24967L11.3332 1.24967C12.2997 1.24967 13.0832 2.03318 13.0832 2.99967V4.99967V11.6663C13.0832 12.6328 12.2997 13.4163 11.3332 13.4163H2.6665C1.70001 13.4163 0.916504 12.6328 0.916504 11.6663V4.99967V2.99967C0.916504 2.03318 1.70001 1.24967 2.6665 1.24967L3.58317 1.24967V0.833008C3.58317 0.418794 3.91896 0.0830078 4.33317 0.0830078ZM4.33317 2.74967H2.6665C2.52843 2.74967 2.4165 2.8616 2.4165 2.99967V4.24967H11.5832V2.99967C11.5832 2.8616 11.4712 2.74967 11.3332 2.74967H9.6665H4.33317ZM11.5832 5.74967H2.4165V11.6663C2.4165 11.8044 2.52843 11.9163 2.6665 11.9163H11.3332C11.4712 11.9163 11.5832 11.8044 11.5832 11.6663V5.74967Z"
-                          fill="" />
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
+    const calendarHeaderToolbar = {
+      left: "prev next addEventButton",
+      center: "title",
+      right: "dayGridMonth,timeGridWeek,timeGridDay",
+    };
 
-              <div class="mt-6">
-                <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Enter End Date
-                  </label>
-                  <div class="relative">
-                    <input id="event-end-date" type="date"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                      onclick="this.showPicker()" />
-                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2">
-                      <svg class="fill-gray-700 dark:fill-gray-400" width="14" height="14" viewBox="0 0 14 14"
-                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.33317 0.0830078C4.74738 0.0830078 5.08317 0.418794 5.08317 0.833008V1.24967H8.9165V0.833008C8.9165 0.418794 9.25229 0.0830078 9.6665 0.0830078C10.0807 0.0830078 10.4165 0.418794 10.4165 0.833008V1.24967L11.3332 1.24967C12.2997 1.24967 13.0832 2.03318 13.0832 2.99967V4.99967V11.6663C13.0832 12.6328 12.2997 13.4163 11.3332 13.4163H2.6665C1.70001 13.4163 0.916504 12.6328 0.916504 11.6663V4.99967V2.99967C0.916504 2.03318 1.70001 1.24967 2.6665 1.24967L3.58317 1.24967V0.833008C3.58317 0.418794 3.91896 0.0830078 4.33317 0.0830078ZM4.33317 2.74967H2.6665C2.52843 2.74967 2.4165 2.8616 2.4165 2.99967V4.24967H11.5832V2.99967C11.5832 2.8616 11.4712 2.74967 11.3332 2.74967H9.6665H4.33317ZM11.5832 5.74967H2.4165V11.6663C2.4165 11.8044 2.52843 11.9163 2.6665 11.9163H11.3332C11.4712 11.9163 11.5832 11.8044 11.5832 11.6663V5.74967Z"
-                          fill="" />
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
-            <button type="button"
-              class="btn btn-delete-event flex w-full justify-center rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-100 hover:text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-500 dark:hover:bg-red-900/30 sm:w-auto"
-              style="display: none;">
-              <svg class="fill-current mr-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round"
-                  stroke-linejoin="round" />
-                <path
-                  d="M5.3335 4.00004V2.66671C5.3335 2.31309 5.47397 1.97395 5.72402 1.7239C5.97407 1.47385 6.31321 1.33337 6.66683 1.33337H9.3335C9.68712 1.33337 10.0263 1.47385 10.2763 1.7239C10.5264 1.97395 10.6668 2.31309 10.6668 2.66671V4.00004M12.6668 4.00004V13.3334C12.6668 13.687 12.5264 14.0261 12.2763 14.2762C12.0263 14.5262 11.6871 14.6667 11.3335 14.6667H4.66683C4.31321 14.6667 3.97407 14.5262 3.72402 14.2762C3.47397 14.0261 3.3335 13.687 3.3335 13.3334V4.00004H12.6668Z"
-                  stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              Delete
-            </button>
-            <button type="button"
-              class="btn modal-close-btn bg-danger-subtle text-danger flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
-              data-bs-dismiss="modal">
-              Close
-            </button>
-            <button type="button"
-              class="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
-              data-fc-event-public-id="">
-              Update changes
-            </button>
-            <button type="button"
-              class="btn btn-primary btn-add-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-              Add Event
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    // Initialize Calendar with empty events initially
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      selectable: true,
+      initialView: "dayGridMonth",
+      initialDate: newDate,
+      headerToolbar: calendarHeaderToolbar,
+      events: [], // Start empty, load via fetch
+      select: calendarSelect,
+      eventClick: calendarEventClick,
+      dateClick: calendarAddEvent,
+      customButtons: {
+        addEventButton: {
+          text: "Add Event +",
+          click: calendarAddEvent,
+        },
+      },
+      eventClassNames({ event: calendarEvent }) {
+        const getColorValue =
+          calendarsEvents[calendarEvent._def.extendedProps.calendar];
+        return [`event-fc-color`, `fc-bg-${getColorValue}`];
+      },
+    });
 
-    <!-- <div
-  class="modal fixed left-0 top-0 z-99999 hidden min-h-screen w-full justify-center overflow-y-auto overflow-x-hidden bg-gray-400/50 px-4 py-4 backdrop-blur-[32px] lg:py-[120px]"
-  id="eventModal"
->
-</div> -->
-    <!-- END MODAL -->
-  </div>
+    /*=====================*/
+    // Fetch Events from Backend
+    /*=====================*/
+    function fetchEvents() {
+      if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('read', null, (response) => {
+          if (response.status === 'success') {
+            calendar.removeAllEvents();
+            calendar.addEventSource(response.data);
+            console.log('Events loaded:', response.data);
+          } else {
+            console.error('Failed to load events:', response.message);
+            if (window.showToast) window.showToast('Failed to load events', 'error');
+          }
+        });
+      } else {
+        console.error('sendDataToGoogle function not found. Make sure apps-script.js is loaded.');
+      }
+    }
+
+    /*=====================*/
+    // Modal Functions
+    /*=====================*/
+    const openModal = () => {
+      document.getElementById("eventModal").style.display = "flex";
+      document.getElementById("eventModal").classList.remove("hidden");
+    };
+
+    const closeModal = () => {
+      document.getElementById("eventModal").style.display = "none";
+      document.getElementById("eventModal").classList.add("hidden");
+      resetModalFields();
+    };
+
+    window.onclick = function (event) {
+      const modal = document.getElementById("eventModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    /*=====================*/
+    // Calendar Select fn.
+    /*=====================*/
+    function calendarSelect(info) {
+      resetModalFields();
+      getModalAddBtnEl.style.display = "flex";
+      getModalUpdateBtnEl.style.display = "none";
+      if (getModalDeleteBtnEl) getModalDeleteBtnEl.style.display = "none";
+      openModal();
+      getModalStartDateEl.value = info.startStr;
+      getModalEndDateEl.value = info.endStr || info.startStr;
+      getModalTitleEl.value = "";
+    }
+
+    /*=====================*/
+    // Calendar AddEvent fn.
+    /*=====================*/
+    function calendarAddEvent() {
+      const currentDate = new Date();
+      const dd = String(currentDate.getDate()).padStart(2, "0");
+      const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const yyyy = currentDate.getFullYear();
+      const combineDate = `${yyyy}-${mm}-${dd}`; // Simplified date format
+
+      getModalAddBtnEl.style.display = "flex";
+      getModalUpdateBtnEl.style.display = "none";
+      if (getModalDeleteBtnEl) getModalDeleteBtnEl.style.display = "none";
+      openModal();
+      getModalStartDateEl.value = combineDate;
+    }
+
+    /*=====================*/
+    // Calender Event Function
+    /*=====================*/
+    function calendarEventClick(info) {
+      const eventObj = info.event;
+
+      if (eventObj.url) {
+        window.open(eventObj.url);
+        info.jsEvent.preventDefault();
+      } else {
+        const getModalEventId = eventObj.id; // Use direct ID
+        const getModalEventLevel = eventObj.extendedProps.calendar;
+        const getModalCheckedRadioBtnEl = document.querySelector(
+          `input[value="${getModalEventLevel}"]`,
+        );
+
+        getModalTitleEl.value = eventObj.title;
+        getModalStartDateEl.value = eventObj.startStr.slice(0, 10);
+        getModalEndDateEl.value = eventObj.endStr
+          ? eventObj.endStr.slice(0, 10)
+          : "";
+        if (getModalCheckedRadioBtnEl) {
+          getModalCheckedRadioBtnEl.checked = true;
+        }
+        getModalUpdateBtnEl.dataset.fcEventPublicId = getModalEventId;
+        getModalAddBtnEl.style.display = "none";
+        getModalUpdateBtnEl.style.display = "block";
+        if (getModalDeleteBtnEl) {
+          getModalDeleteBtnEl.style.display = "flex";
+          getModalDeleteBtnEl.dataset.fcEventPublicId = getModalEventId;
+        }
+        openModal();
+      }
+    }
+
+    /*=====================*/
+    // Update Calender Event
+    /*=====================*/
+    getModalUpdateBtnEl.addEventListener("click", () => {
+      const getPublicID = getModalUpdateBtnEl.dataset.fcEventPublicId;
+      const getTitleUpdatedValue = getModalTitleEl.value;
+      const setModalStartDateValue = getModalStartDateEl.value;
+      const setModalEndDateValue = getModalEndDateEl.value;
+      const getModalUpdatedCheckedRadioBtnEl = document.querySelector(
+        'input[name="event-level"]:checked',
+      );
+
+      const getModalUpdatedCheckedRadioBtnValue =
+        getModalUpdatedCheckedRadioBtnEl
+          ? getModalUpdatedCheckedRadioBtnEl.value
+          : "";
+
+      const eventData = {
+        id: getPublicID,
+        title: getTitleUpdatedValue,
+        start: setModalStartDateValue,
+        end: setModalEndDateValue,
+        category: getModalUpdatedCheckedRadioBtnValue, // Send flat for Apps Script
+        allDay: true // Default to all day for simplicity
+      };
+
+      if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('update', eventData, (response) => {
+          if (response.status === 'success') {
+            const getEvent = calendar.getEventById(getPublicID);
+            if (getEvent) {
+              getEvent.setProp("title", getTitleUpdatedValue);
+              getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
+              getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
+            }
+            closeModal();
+            if (window.showToast) window.showToast('Event updated successfully');
+          } else {
+            console.error('Failed to update event:', response.message);
+            if (window.showToast) window.showToast('Failed to update event', 'error');
+          }
+        });
+      }
+    });
+
+    /*=====================*/
+    // Delete Calender Event
+    /*=====================*/
+    if (getModalDeleteBtnEl) {
+      getModalDeleteBtnEl.addEventListener("click", () => {
+        const getPublicID = getModalDeleteBtnEl.dataset.fcEventPublicId;
+        if (confirm("Are you sure you want to delete this event?")) {
+          if (typeof window.sendDataToGoogle === 'function') {
+            window.sendDataToGoogle('delete', { id: getPublicID }, (response) => {
+              if (response.status === 'success') {
+                const getEvent = calendar.getEventById(getPublicID);
+                if (getEvent) {
+                  getEvent.remove();
+                }
+                closeModal();
+                if (window.showToast) window.showToast('Event deleted successfully');
+              } else {
+                console.error('Failed to delete event:', response.message);
+                if (window.showToast) window.showToast('Failed to delete event', 'error');
+              }
+            });
+          }
+        }
+      });
+    }
+
+    /*=====================*/
+    // Add Calender Event
+    /*=====================*/
+    getModalAddBtnEl.addEventListener("click", () => {
+      const getModalCheckedRadioBtnEl = document.querySelector(
+        'input[name="event-level"]:checked',
+      );
+
+      const getTitleValue = getModalTitleEl.value;
+      const setModalStartDateValue = getModalStartDateEl.value;
+      const setModalEndDateValue = getModalEndDateEl.value;
+      const getModalCheckedRadioBtnValue = getModalCheckedRadioBtnEl
+        ? getModalCheckedRadioBtnEl.value
+        : "Primary"; // Default to Primary if none selected
+
+      const tempId = Date.now().toString();
+      const eventData = {
+        id: tempId,
+        title: getTitleValue,
+        start: setModalStartDateValue,
+        end: setModalEndDateValue,
+        allDay: true,
+        category: getModalCheckedRadioBtnValue, // Send flat for Apps Script
+        description: ""
+      };
+
+      if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('create', eventData, (response) => {
+          if (response.status === 'success') {
+            // Use the ID returned from server if available, otherwise tempId
+            const finalId = response.data && response.data.id ? response.data.id : tempId;
+            eventData.id = finalId;
+
+            calendar.addEvent(eventData);
+            closeModal();
+            if (window.showToast) window.showToast('Event created successfully');
+          } else {
+            console.error('Failed to create event:', response.message);
+            if (window.showToast) window.showToast('Failed to create event', 'error');
+          }
+        });
+      }
+    });
+
+    /*=====================*/
+    // Calendar Init
+    /*=====================*/
+    calendar.render();
+    fetchEvents(); // Load events on init
+
+    // Reset modal fields when hidden
+    document.getElementById("eventModal").addEventListener("click", (event) => {
+      if (event.target.classList.contains("modal-close-btn")) {
+        closeModal();
+      }
+    });
+
+    function resetModalFields() {
+      getModalTitleEl.value = "";
+      getModalStartDateEl.value = "";
+      getModalEndDateEl.value = "";
+      const getModalIfCheckedRadioBtnEl = document.querySelector(
+        'input[name="event-level"]:checked',
+      );
+      if (getModalIfCheckedRadioBtnEl) {
+        getModalIfCheckedRadioBtnEl.checked = false;
+      }
+    }
+
+    document.querySelectorAll(".modal-close-btn").forEach((btn) => {
+      btn.addEventListener("click", closeModal);
+    });
+
+    window.addEventListener("click", (event) => {
+      if (event.target === document.getElementById("eventModal")) {
+        closeModal();
+      }
+    });
+  }
+};
