@@ -186,7 +186,7 @@ window.initCalendarPage = function () {
         title: getTitleUpdatedValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
-        extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
+        category: getModalUpdatedCheckedRadioBtnValue, // Send flat for Apps Script
         allDay: true // Default to all day for simplicity
       };
 
@@ -231,7 +231,8 @@ window.initCalendarPage = function () {
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: true,
-        extendedProps: { calendar: getModalCheckedRadioBtnValue },
+        category: getModalCheckedRadioBtnValue, // Send flat for Apps Script
+        description: ""
       };
 
       if (typeof window.sendDataToGoogle === 'function') {
