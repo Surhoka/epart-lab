@@ -35,7 +35,7 @@ window.initCalendarPage = function () {
     const calendarEl = document.querySelector("#calendar");
 
     const calendarHeaderToolbar = {
-      left: "prev,next addEventButton",
+      left: "prev next addEventButton",
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay",
     };
