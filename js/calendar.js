@@ -153,9 +153,9 @@ window.initCalendarPage = function () {
         );
 
         getModalTitleEl.value = eventObj.title;
-        getModalStartDateEl.value = eventObj.startStr.slice(0, 10);
+        getModalStartDateEl.value = eventObj.startStr.slice(0, 16);
         getModalEndDateEl.value = eventObj.endStr
-          ? eventObj.endStr.slice(0, 10)
+          ? eventObj.endStr.slice(0, 16)
           : "";
         if (getModalCheckedRadioBtnEl) {
           getModalCheckedRadioBtnEl.checked = true;
@@ -194,7 +194,6 @@ window.initCalendarPage = function () {
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         category: getModalUpdatedCheckedRadioBtnValue, // Send flat for Apps Script
-        allDay: true // Default to all day for simplicity
       };
 
       if (typeof window.sendDataToGoogle === 'function') {
@@ -263,7 +262,6 @@ window.initCalendarPage = function () {
         title: getTitleValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
-        allDay: false,
         category: getModalCheckedRadioBtnValue, // Send flat for Apps Script
         description: ""
       };
