@@ -263,7 +263,7 @@ window.initCalendarPage = function () {
         title: getTitleValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
-        allDay: true,
+        allDay: false,
         category: getModalCheckedRadioBtnValue, // Send flat for Apps Script
         description: ""
       };
