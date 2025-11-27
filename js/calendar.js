@@ -40,168 +40,13 @@ window.initCalendarPage = function () {
       right: "dayGridMonth,timeGridWeek,timeGridDay",
     };
 
-    const calendarEventsList = [
-      {
-        id: 1,
-        title: "Event Conf.",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-01`,
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: 2,
-        title: "Seminar #4",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
-        end: `${newDate.getFullYear()}-${getDynamicMonth()}-10`,
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        groupId: "999",
-        id: 3,
-        title: "Meeting #5",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-09T16:00:00`,
-        extendedProps: { calendar: "Primary" },
-      },
-      {
-        groupId: "999",
-        id: 4,
-        title: "Submission #1",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-16T16:00:00`,
-        extendedProps: { calendar: "Warning" },
-      },
-      {
-        id: 5,
-        title: "Seminar #6",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-11`,
-        end: `${newDate.getFullYear()}-${getDynamicMonth()}-13`,
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: 6,
-        title: "Meeting 3",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-12T10:30:00`,
-        end: `${newDate.getFullYear()}-${getDynamicMonth()}-12T12:30:00`,
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: 7,
-        title: "Meetup #",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-12T12:00:00`,
-        extendedProps: { calendar: "Primary" },
-      },
-      {
-        id: 8,
-        title: "Submission",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-12T14:30:00`,
-        extendedProps: { calendar: "Warning" },
-      },
-      {
-        id: 9,
-        title: "Attend event",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-13T07:00:00`,
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: 10,
-        title: "Project submission #2",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-28`,
-        extendedProps: { calendar: "Primary" },
-      },
-    ];
-
-    /*=====================*/
-    // Modal Functions
-    /*=====================*/
-    const openModal = () => {
-      document.getElementById("eventModal").style.display = "flex";
-      document.getElementById("eventModal").classList.remove("hidden"); // Ensure hidden class is removed
-    };
-
-    const closeModal = () => {
-      document.getElementById("eventModal").style.display = "none";
-      document.getElementById("eventModal").classList.add("hidden"); // Add hidden class back
-      resetModalFields();
-    };
-
-    // Close modal when clicking outside of it
-    window.onclick = function (event) {
-      const modal = document.getElementById("eventModal");
-      if (event.target === modal) {
-        closeModal();
-      }
-    };
-
-    /*=====================*/
-    // Calendar Select fn.
-    /*=====================*/
-    const calendarSelect = (info) => {
-      resetModalFields();
-
-      getModalAddBtnEl.style.display = "flex";
-      getModalUpdateBtnEl.style.display = "none";
-      openModal();
-      getModalStartDateEl.value = info.startStr;
-      getModalEndDateEl.value = info.endStr || info.startStr;
-      getModalTitleEl.value = "";
-    };
-
-    /*=====================*/
-    // Calendar AddEvent fn.
-    /*=====================*/
-    const calendarAddEvent = () => {
-      const currentDate = new Date();
-      const dd = String(currentDate.getDate()).padStart(2, "0");
-      const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
-      const yyyy = currentDate.getFullYear();
-      const combineDate = `${yyyy}-${mm}-${dd}T00:00:00`;
-
-      getModalAddBtnEl.style.display = "flex";
-      getModalUpdateBtnEl.style.display = "none";
-      openModal();
-      getModalStartDateEl.value = combineDate;
-    };
-
-    /*=====================*/
-    // Calender Event Function
-    /*=====================*/
-    const calendarEventClick = (info) => {
-      const eventObj = info.event;
-
-      if (eventObj.url) {
-        window.open(eventObj.url);
-        info.jsEvent.preventDefault();
-      } else {
-        const getModalEventId = eventObj._def.publicId;
-        const getModalEventLevel = eventObj._def.extendedProps.calendar;
-        const getModalCheckedRadioBtnEl = document.querySelector(
-          `input[value="${getModalEventLevel}"]`,
-        );
-
-        getModalTitleEl.value = eventObj.title;
-        getModalStartDateEl.value = eventObj.startStr.slice(0, 10);
-        getModalEndDateEl.value = eventObj.endStr
-          ? eventObj.endStr.slice(0, 10)
-          : "";
-        if (getModalCheckedRadioBtnEl) {
-          getModalCheckedRadioBtnEl.checked = true;
-        }
-        getModalUpdateBtnEl.dataset.fcEventPublicId = getModalEventId;
-        getModalAddBtnEl.style.display = "none";
-        getModalUpdateBtnEl.style.display = "block";
-        openModal();
-      }
-    };
-
-    /*=====================*/
-    // Active Calender
-    /*=====================*/
-    // Use FullCalendar global
+    // Initialize Calendar with empty events initially
     const calendar = new FullCalendar.Calendar(calendarEl, {
-      // plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin], // Plugins are included in global build
       selectable: true,
       initialView: "dayGridMonth",
-      initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
+      initialDate: newDate,
       headerToolbar: calendarHeaderToolbar,
-      events: calendarEventsList,
+      events: [], // Start empty, load via fetch
       select: calendarSelect,
       eventClick: calendarEventClick,
       dateClick: calendarAddEvent,
@@ -219,6 +64,107 @@ window.initCalendarPage = function () {
     });
 
     /*=====================*/
+    // Fetch Events from Backend
+    /*=====================*/
+    function fetchEvents() {
+      if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('read', null, (response) => {
+          if (response.status === 'success') {
+            calendar.removeAllEvents();
+            calendar.addEventSource(response.data);
+            console.log('Events loaded:', response.data);
+          } else {
+            console.error('Failed to load events:', response.message);
+            if (window.showToast) window.showToast('Failed to load events', 'error');
+          }
+        });
+      } else {
+        console.error('sendDataToGoogle function not found. Make sure apps-script.js is loaded.');
+      }
+    }
+
+    /*=====================*/
+    // Modal Functions
+    /*=====================*/
+    const openModal = () => {
+      document.getElementById("eventModal").style.display = "flex";
+      document.getElementById("eventModal").classList.remove("hidden");
+    };
+
+    const closeModal = () => {
+      document.getElementById("eventModal").style.display = "none";
+      document.getElementById("eventModal").classList.add("hidden");
+      resetModalFields();
+    };
+
+    window.onclick = function (event) {
+      const modal = document.getElementById("eventModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    /*=====================*/
+    // Calendar Select fn.
+    /*=====================*/
+    function calendarSelect(info) {
+      resetModalFields();
+      getModalAddBtnEl.style.display = "flex";
+      getModalUpdateBtnEl.style.display = "none";
+      openModal();
+      getModalStartDateEl.value = info.startStr;
+      getModalEndDateEl.value = info.endStr || info.startStr;
+      getModalTitleEl.value = "";
+    }
+
+    /*=====================*/
+    // Calendar AddEvent fn.
+    /*=====================*/
+    function calendarAddEvent() {
+      const currentDate = new Date();
+      const dd = String(currentDate.getDate()).padStart(2, "0");
+      const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const yyyy = currentDate.getFullYear();
+      const combineDate = `${yyyy}-${mm}-${dd}`; // Simplified date format
+
+      getModalAddBtnEl.style.display = "flex";
+      getModalUpdateBtnEl.style.display = "none";
+      openModal();
+      getModalStartDateEl.value = combineDate;
+    }
+
+    /*=====================*/
+    // Calender Event Function
+    /*=====================*/
+    function calendarEventClick(info) {
+      const eventObj = info.event;
+
+      if (eventObj.url) {
+        window.open(eventObj.url);
+        info.jsEvent.preventDefault();
+      } else {
+        const getModalEventId = eventObj.id; // Use direct ID
+        const getModalEventLevel = eventObj.extendedProps.calendar;
+        const getModalCheckedRadioBtnEl = document.querySelector(
+          `input[value="${getModalEventLevel}"]`,
+        );
+
+        getModalTitleEl.value = eventObj.title;
+        getModalStartDateEl.value = eventObj.startStr.slice(0, 10);
+        getModalEndDateEl.value = eventObj.endStr
+          ? eventObj.endStr.slice(0, 10)
+          : "";
+        if (getModalCheckedRadioBtnEl) {
+          getModalCheckedRadioBtnEl.checked = true;
+        }
+        getModalUpdateBtnEl.dataset.fcEventPublicId = getModalEventId;
+        getModalAddBtnEl.style.display = "none";
+        getModalUpdateBtnEl.style.display = "block";
+        openModal();
+      }
+    }
+
+    /*=====================*/
     // Update Calender Event
     /*=====================*/
     getModalUpdateBtnEl.addEventListener("click", () => {
@@ -226,7 +172,6 @@ window.initCalendarPage = function () {
       const getTitleUpdatedValue = getModalTitleEl.value;
       const setModalStartDateValue = getModalStartDateEl.value;
       const setModalEndDateValue = getModalEndDateEl.value;
-      const getEvent = calendar.getEventById(getPublicID);
       const getModalUpdatedCheckedRadioBtnEl = document.querySelector(
         'input[name="event-level"]:checked',
       );
@@ -236,10 +181,32 @@ window.initCalendarPage = function () {
           ? getModalUpdatedCheckedRadioBtnEl.value
           : "";
 
-      getEvent.setProp("title", getTitleUpdatedValue);
-      getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
-      getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
-      closeModal();
+      const eventData = {
+        id: getPublicID,
+        title: getTitleUpdatedValue,
+        start: setModalStartDateValue,
+        end: setModalEndDateValue,
+        extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
+        allDay: true // Default to all day for simplicity
+      };
+
+      if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('update', eventData, (response) => {
+          if (response.status === 'success') {
+            const getEvent = calendar.getEventById(getPublicID);
+            if (getEvent) {
+              getEvent.setProp("title", getTitleUpdatedValue);
+              getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
+              getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
+            }
+            closeModal();
+            if (window.showToast) window.showToast('Event updated successfully');
+          } else {
+            console.error('Failed to update event:', response.message);
+            if (window.showToast) window.showToast('Failed to update event', 'error');
+          }
+        });
+      }
     });
 
     /*=====================*/
@@ -255,23 +222,41 @@ window.initCalendarPage = function () {
       const setModalEndDateValue = getModalEndDateEl.value;
       const getModalCheckedRadioBtnValue = getModalCheckedRadioBtnEl
         ? getModalCheckedRadioBtnEl.value
-        : "";
+        : "Primary"; // Default to Primary if none selected
 
-      calendar.addEvent({
-        id: Date.now(), // Use unique ID based on timestamp
+      const tempId = Date.now().toString();
+      const eventData = {
+        id: tempId,
         title: getTitleValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: true,
         extendedProps: { calendar: getModalCheckedRadioBtnValue },
-      });
-      closeModal();
+      };
+
+      if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('create', eventData, (response) => {
+          if (response.status === 'success') {
+            // Use the ID returned from server if available, otherwise tempId
+            const finalId = response.data && response.data.id ? response.data.id : tempId;
+            eventData.id = finalId;
+
+            calendar.addEvent(eventData);
+            closeModal();
+            if (window.showToast) window.showToast('Event created successfully');
+          } else {
+            console.error('Failed to create event:', response.message);
+            if (window.showToast) window.showToast('Failed to create event', 'error');
+          }
+        });
+      }
     });
 
     /*=====================*/
     // Calendar Init
     /*=====================*/
     calendar.render();
+    fetchEvents(); // Load events on init
 
     // Reset modal fields when hidden
     document.getElementById("eventModal").addEventListener("click", (event) => {
@@ -292,14 +277,6 @@ window.initCalendarPage = function () {
       }
     }
 
-    // Bootstrap modal event listener replacement (since we might not have BS)
-    // document
-    //   .getElementById("eventModal")
-    //   .addEventListener("hidden.bs.modal", () => {
-    //     resetModalFields();
-    //   });
-
-    // Close modal when clicking on close button or outside modal
     document.querySelectorAll(".modal-close-btn").forEach((btn) => {
       btn.addEventListener("click", closeModal);
     });
