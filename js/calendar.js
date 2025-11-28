@@ -5,7 +5,7 @@ window.initCalendarPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
     window.renderBreadcrumb('Calendar');
   }
-  const calendarWrapper = document.querySelector("#Calendar");
+  const calendarWrapper = document.querySelector("#calendar");
 
   if (calendarWrapper) {
     /*=================*/
@@ -62,7 +62,7 @@ window.initCalendarPage = function () {
     /*=====================*/
     // Calendar Elements and options
     /*=====================*/
-    const calendarEl = document.querySelector("#Calendar");
+    const calendarEl = document.querySelector("#calendar");
 
     const calendarHeaderToolbar = {
       left: "prev next addEventButton",
