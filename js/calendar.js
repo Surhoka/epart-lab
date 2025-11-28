@@ -5,7 +5,7 @@ window.initCalendarPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
     window.renderBreadcrumb('Calendar');
   }
-  const calendarWrapper = document.querySelector("#Calendar");
+  const calendarWrapper = document.querySelector("#calendar");
 
   if (calendarWrapper) {
     /*=================*/
@@ -195,7 +195,7 @@ window.initCalendarPage = function () {
           if (eventObj.end) {
             let endDate = new Date(eventObj.endStr);
             endDate.setDate(endDate.getDate() - 1);
-            getModalEndDateEl.value = endDate.toISOString().slice(0, 10);
+            getModalEndDateEl.value = endDate.toISOString().slice(0,10);
           } else {
             getModalEndDateEl.value = eventObj.startStr;
           }
