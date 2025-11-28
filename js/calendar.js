@@ -5,7 +5,7 @@ window.initCalendarPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
     window.renderBreadcrumb('Calendar');
   }
-  const calendarWrapper = document.querySelector("#calendar");
+  const calendarWrapper = document.querySelector("#Calendar");
 
   if (calendarWrapper) {
     /*=================*/
