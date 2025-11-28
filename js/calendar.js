@@ -3,7 +3,7 @@
 
 window.initCalendarPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
-  window.renderBreadcrumb('Figure');
+  window.renderBreadcrumb('Calendar');
   const calendarWrapper = document.querySelector("#calendar");
 
   if (calendarWrapper) {
