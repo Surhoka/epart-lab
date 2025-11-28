@@ -3,7 +3,8 @@
 
 window.initCalendarPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
-  window.renderBreadcrumb('Calendar');
+    window.renderBreadcrumb('Calendar');
+  }
   const calendarWrapper = document.querySelector("#calendar");
 
   if (calendarWrapper) {
@@ -188,22 +189,22 @@ window.initCalendarPage = function () {
 
         // Use different formatting based on allDay status
         if (eventObj.allDay) {
-            // For all-day events, `startStr` is just the date (YYYY-MM-DD)
-            getModalStartDateEl.value = eventObj.startStr;
-            // FullCalendar's end for all-day is exclusive, subtract one day for display
-            if (eventObj.end) {
-                let endDate = new Date(eventObj.endStr);
-                endDate.setDate(endDate.getDate() - 1);
-                getModalEndDateEl.value = endDate.toISOString().slice(0,10);
-            } else {
-                getModalEndDateEl.value = eventObj.startStr;
-            }
+          // For all-day events, `startStr` is just the date (YYYY-MM-DD)
+          getModalStartDateEl.value = eventObj.startStr;
+          // FullCalendar's end for all-day is exclusive, subtract one day for display
+          if (eventObj.end) {
+            let endDate = new Date(eventObj.endStr);
+            endDate.setDate(endDate.getDate() - 1);
+            getModalEndDateEl.value = endDate.toISOString().slice(0, 10);
+          } else {
+            getModalEndDateEl.value = eventObj.startStr;
+          }
         } else {
-            // For timed events, use the full datetime string up to minutes
-            getModalStartDateEl.value = eventObj.startStr.slice(0, 16);
-            getModalEndDateEl.value = eventObj.endStr
-              ? eventObj.endStr.slice(0, 16)
-              : "";
+          // For timed events, use the full datetime string up to minutes
+          getModalStartDateEl.value = eventObj.startStr.slice(0, 16);
+          getModalEndDateEl.value = eventObj.endStr
+            ? eventObj.endStr.slice(0, 16)
+            : "";
         }
 
         if (getModalCheckedRadioBtnEl) {
