@@ -5,7 +5,7 @@ window.initCalendarPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
     window.renderBreadcrumb('Calendar');
   }
-  const calendarWrapper = document.querySelector("#calendar");
+  const calendarWrapper = document.querySelector("#Calendar");
 
   if (calendarWrapper) {
     /*=================*/
@@ -62,7 +62,7 @@ window.initCalendarPage = function () {
     /*=====================*/
     // Calendar Elements and options
     /*=====================*/
-    const calendarEl = document.querySelector("#calendar");
+    const calendarEl = document.querySelector("#Calendar");
 
     const calendarHeaderToolbar = {
       left: "prev next addEventButton",
@@ -195,7 +195,7 @@ window.initCalendarPage = function () {
           if (eventObj.end) {
             let endDate = new Date(eventObj.endStr);
             endDate.setDate(endDate.getDate() - 1);
-            getModalEndDateEl.value = endDate.toISOString().slice(0,10);
+            getModalEndDateEl.value = endDate.toISOString().slice(0, 10);
           } else {
             getModalEndDateEl.value = eventObj.startStr;
           }
