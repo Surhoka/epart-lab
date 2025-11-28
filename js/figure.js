@@ -1,6 +1,6 @@
 Category: 'ENGINE',
     imageUrl: '' // Placeholder
-        ,
+        },
 {
     ID: '2',
         tittle: 'CYLINDER HEAD',
@@ -41,7 +41,7 @@ Category: 'ENGINE',
                     Category: 'ENGINE',
                         imageUrl: '' // Placeholder
 }
-    ;
+    ];
 
 const gridContainer = document.getElementById('figure-grid');
 if (!gridContainer) return;
@@ -65,4 +65,4 @@ gridContainer.innerHTML = figureData.map(item => `
         </div>
       </div>
     `).join('');
-;
+};
