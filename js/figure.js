@@ -8,15 +8,15 @@ window.initFigurePage = function () {
     const gridContainerWrapper = document.getElementById('figure-grid-container');
     const gridContainer = document.getElementById('figure-grid');
 
-    // Function to fetch vehicle model
-    async function fetchVehicleModel() {
+    // Function to fetch vehicle models
+    async function fetchVehicleModels() {
         try {
-            const response = await fetch(`${window.appsScriptUrl}?action=getVehicleModel`);
+            const response = await fetch(`${window.appsScriptUrl}?action=getVehicleModels`);
             const result = await response.json();
             if (result.status === 'success') {
                 return result.data;
             } else {
-                console.error('Error fetching model:', result.message);
+                console.error('Error fetching models:', result.message);
                 return [];
             }
         } catch (error) {
@@ -78,21 +78,21 @@ window.initFigurePage = function () {
     }
 
     if (searchInput && suggestionsList && gridContainerWrapper) {
-        // Fetch model on init
-        fetchVehicleModel().then(vehicleModel => {
+        // Fetch models on init
+        fetchVehicleModels().then(vehicleModels => {
             searchInput.addEventListener('input', function () {
                 const query = this.value.toLowerCase();
                 suggestionsList.innerHTML = '';
 
                 if (query.length > 0) {
-                    const filteredModel = vehicleModel.filter(item =>
+                    const filteredModels = vehicleModels.filter(item =>
                         item.model.toLowerCase().includes(query) ||
                         item.category.toLowerCase().includes(query)
                     );
 
-                    if (filteredModel.length > 0) {
+                    if (filteredModels.length > 0) {
                         suggestionsList.classList.remove('hidden');
-                        filteredModel.forEach(item => {
+                        filteredModels.forEach(item => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white';
                             li.textContent = `${item.model} : ${item.category}`;
