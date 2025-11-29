@@ -61,7 +61,7 @@ window.initFigurePage = function () {
   <!-- Gambar -->
   <div class="mb-4 w-full overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-800">
     ${item.FigureUrl ? `
-      <img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-auto max-h-64 object-contain" />
+      <img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-auto max-h-96 object-contain" />
     ` : `
       <div class="flex h-64 w-full items-center justify-center">
         <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ window.initFigurePage = function () {
 
   <!-- Judul dan info -->
   <div class="flex flex-col justify-between min-h-[4.5rem]">
-    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90 line-clamp-2">
+    <h3 class="text-base font-semibold text-gray-500 dark:text-white/90 line-clamp-2">
       ${item.Figure} | ${item.Title}
     </h3>
     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
@@ -127,6 +127,7 @@ window.initFigurePage = function () {
         });
     }
 };
+
 
 
 
