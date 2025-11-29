@@ -16,7 +16,7 @@ window.initFigurePage = function () {
             if (result.status === 'success') {
                 return result.data;
             } else {
-                console.error('Error fetching models:', result.message);
+                console.error('Error fetching model:', result.message);
                 return [];
             }
         } catch (error) {
@@ -78,21 +78,21 @@ window.initFigurePage = function () {
     }
 
     if (searchInput && suggestionsList && gridContainerWrapper) {
-        // Fetch models on init
-        fetchVehicleModels().then(vehicleModels => {
+        // Fetch model on init
+        fetchVehicleModel().then(vehicleModel => {
             searchInput.addEventListener('input', function () {
                 const query = this.value.toLowerCase();
                 suggestionsList.innerHTML = '';
 
                 if (query.length > 0) {
-                    const filteredModels = vehicleModels.filter(item =>
+                    const filteredModel = vehicleModel.filter(item =>
                         item.model.toLowerCase().includes(query) ||
                         item.category.toLowerCase().includes(query)
                     );
 
-                    if (filteredModels.length > 0) {
+                    if (filteredModel.length > 0) {
                         suggestionsList.classList.remove('hidden');
-                        filteredModels.forEach(item => {
+                        filteredModel.forEach(item => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white';
                             li.textContent = `${item.model} : ${item.category}`;
