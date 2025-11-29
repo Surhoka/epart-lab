@@ -5,16 +5,20 @@
         <div id="breadcrumb-container"></div>
         <!-- Breadcrumb End -->
         <!-- Filter Start -->
-       <div class="mb-4 flex gap-4">
-        <div>
-            <label for="vehicleModel">Vehicle Model</label>
-            <select id="vehicleModel"></select>
-       </div>
-         <div>
-            <label for="category">Category</label>
-             <select id="category"></select>
-         </div>
-        </div>
+<div class="mb-4 relative">
+  <!-- Search Box -->
+  <input 
+    type="text" 
+    id="searchInput" 
+    placeholder="Cari Model Kendaraan..." 
+    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+  />
+
+  <!-- Dropdown suggestion container -->
+  <ul id="searchDropdown" 
+      class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden">
+  </ul>
+</div>
         <!-- Filter End -->
         <!-- Figure Grid Start -->
         <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
@@ -26,4 +30,5 @@
     </div>
 </main>
 <!-- ===== Main Content End ===== -->
+
 
