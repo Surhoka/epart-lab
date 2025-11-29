@@ -65,7 +65,7 @@ window.initFigurePage = function () {
                 </div>
             </div>
             <div class="flex flex-col justify-between min-h-[4.5rem]">
-              <h3 class="text-lg font-semibold text-gray-500 dark:text-white/90line-clamp-1">
+              <h3 class="text-base font-semibold text-gray-500 dark:text-white/90 line-clamp-1">
                 ${item.Figure} | ${item.Title}
               </h3>
               <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
@@ -118,4 +118,5 @@ window.initFigurePage = function () {
         });
     }
 };
+
 
