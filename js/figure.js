@@ -58,10 +58,10 @@ window.initFigurePage = function () {
 
         gridContainer.innerHTML = data.map(item => `
 <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col">
-  <!-- Gambar -->
-  <div class="mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-800">
+  <!-- Gambar dengan tinggi tetap dan rasio proporsional -->
+  <div class="mb-4 h-48 w-full overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
     ${item.FigureUrl ? `
-      <img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-full object-cover" />
+      <img src="${item.FigureUrl}" alt="${item.Title}" class="object-contain h-full w-full" />
     ` : `
       <div class="flex h-full w-full items-center justify-center">
         <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,12 +72,12 @@ window.initFigurePage = function () {
     `}
   </div>
 
-  <!-- Teks -->
-  <div class="flex flex-col justify-between min-h-[4rem]">
-    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 text-center">
+  <!-- Judul dan info -->
+  <div class="flex flex-col justify-between min-h-[4.5rem]">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90 line-clamp-2">
       ${item.Figure} | ${item.Title}
     </h3>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 text-center">${item.VehicleModel}</p>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
   </div>
 </div>
         `).join('');
@@ -127,4 +127,5 @@ window.initFigurePage = function () {
         });
     }
 };
+
 
