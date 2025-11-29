@@ -59,7 +59,7 @@ window.initFigurePage = function () {
         gridContainer.innerHTML = data.map(item => `
 <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col">
   <!-- Gambar -->
-  <div class="mb-4 w-full overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-50">
+  <div class="mb-4 w-full flex items-center justify-center">
     ${item.FigureUrl ? `
       <img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-auto max-h-96 object-contain" />
     ` : `
@@ -127,6 +127,7 @@ window.initFigurePage = function () {
         });
     }
 };
+
 
 
 
