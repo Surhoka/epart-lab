@@ -57,9 +57,7 @@ window.initFigurePage = function () {
         }
 
         gridContainer.innerHTML = data.map(item => `
-<div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col">
-  <!-- Image -->
-<div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="mb-4 flex justify-center">
                 <div class="flex w-full items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-800">
                     ${item.FigureUrl ? `<img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-auto object-contain rounded-lg" />` :
@@ -67,16 +65,13 @@ window.initFigurePage = function () {
                 </div>
             </div>
             <div>
-
-  <!-- Judul dan info -->
-  <div class="flex flex-col justify-between min-h-[4.5rem]">
-    <h3 class="text-base font-semibold text-gray-500 dark:text-white/90 line-clamp-1">
-      ${item.Figure} | ${item.Title}
-    </h3>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
-  </div>
-</div>
-
+            <div class="flex flex-col justify-between min-h-[4.5rem]">
+              <h3 class="text-lg font-semibold text-gray-500 dark:text-white/90">
+                ${item.Figure} | ${item.Title}
+              </h3>
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
+            </div>
+          </div>
         `).join('');
     }
 
@@ -124,7 +119,3 @@ window.initFigurePage = function () {
         });
     }
 };
-
-
-
-
