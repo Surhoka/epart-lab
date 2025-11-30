@@ -192,48 +192,35 @@ window.initFigurePage = function () {
                     <!-- Main Content -->
                     <div class="lg:col-span-9 p-6 lg:p-8">
                          <div class="mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">FIG. ${params.figure} ${params.title}</h2>
-                            <p class="text-sm text-gray-500">Model: ${params.model || '-'}</p>
-                        </div>
-
-                        <div class="flex justify-center items-center bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-8 min-h-[400px] mb-8">
-                             ${currentFiguresData.find(i => i.Figure === params.figure)?.FigureUrl ? `
-                                <img src="${currentFiguresData.find(i => i.Figure === params.figure).FigureUrl}" alt="${params.title}" class="max-w-full max-h-[600px] object-contain" />
-                             ` : `
-                                <div class="text-center text-gray-400">
-                                    <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <p>No image available</p>
                                 </div>
                              `}
-                        </div>
+                        </div >
 
-                        <!-- Parts Table -->
-                        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 overflow-hidden">
-                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-                                <h3 class="font-semibold text-gray-800 dark:text-white">Parts List</h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-                                    <thead class="bg-gray-50 dark:bg-gray-800 text-xs uppercase text-gray-700 dark:text-gray-300">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3">No</th>
-                                            <th scope="col" class="px-6 py-3">Part Number</th>
-                                            <th scope="col" class="px-6 py-3">Title</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
-                                        <tr>
-                                            <td colspan="3" class="px-6 py-4 text-center">Loading parts...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        < !--Parts Table-- >
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+                <h3 class="font-semibold text-gray-800 dark:text-white">Parts List</h3>
             </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+                    <thead class="bg-gray-50 dark:bg-gray-800 text-xs uppercase text-gray-700 dark:text-gray-300">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">No</th>
+                            <th scope="col" class="px-6 py-3">Part Number</th>
+                            <th scope="col" class="px-6 py-3">Title</th>
+                        </tr>
+                    </thead>
+                    <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <tr>
+                            <td colspan="3" class="px-6 py-4 text-center">Loading parts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+                    </div >
+                </div >
+            </div >
         `;
 
         // Fetch and render parts
@@ -247,12 +234,12 @@ window.initFigurePage = function () {
             }
 
             tbody.innerHTML = parts.map((part, index) => `
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+        < tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50" >
                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${part.No || index + 1}</td>
                     <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
                     <td class="px-6 py-4">${part.Title}</td>
-                </tr>
-            `).join('');
+                </tr >
+        `).join('');
         });
     }
 
@@ -274,7 +261,7 @@ window.initFigurePage = function () {
                         filteredModels.forEach(item => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white';
-                            li.textContent = `${item.model} : ${item.category}`;
+                            li.textContent = `${ item.model } : ${ item.category } `;
                             li.addEventListener('click', function () {
                                 searchInput.value = item.model;
                                 suggestionsList.classList.add('hidden');
