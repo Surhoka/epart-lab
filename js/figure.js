@@ -175,7 +175,7 @@ window.initFigurePage = function () {
                     <!-- Main Content -->
                     <div class="lg:col-span-9 p-6 lg:p-8">
                          <div class="mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">FIG. ${params.figure} ${params.title}</h2>
+                            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-1"> ${params.figure} | ${params.title}</h2>
                             <p class="text-sm text-gray-500">Model: ${params.model || '-'}</p>
                         </div>
 
@@ -249,3 +249,4 @@ window.initFigurePage = function () {
         });
     }
 };
+
