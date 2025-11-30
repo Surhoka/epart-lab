@@ -8,27 +8,22 @@ window.initFigurePage = function () {
     const gridContainerWrapper = document.getElementById('figure-grid-container');
     const gridContainer = document.getElementById('figure-grid');
 
-    // Create or get detail container
-    let detailContainer = document.getElementById('figure-detail-container');
-    if (!detailContainer && gridContainerWrapper) {
-        detailContainer = document.createElement('div');
-        detailContainer.id = 'figure-detail-container';
-        detailContainer.className = 'hidden';
-        gridContainerWrapper.parentNode.insertBefore(detailContainer, gridContainerWrapper.nextSibling);
+    // View Logic
+    if (gridContainerWrapper) {
+        gridContainerWrapper.classList.remove('hidden');
     }
 
-    // View Logic
     if (params.view === 'detail') {
-        // Show Detail
-        if (gridContainerWrapper) gridContainerWrapper.classList.add('hidden');
-        if (detailContainer) {
-            detailContainer.classList.remove('hidden');
-            // If we have data, render immediately. Otherwise, fetchFigures will handle it after fetch.
-            if (currentFiguresData.length > 0) {
-                renderDetailView(params);
-            } else if (params.model && params.category) {
-                fetchFigures(params.model, params.category);
-            }
+        if (gridContainer) {
+            gridContainer.className = ''; // Remove grid classes
+            gridContainer.innerHTML = '<div class="text-center py-8">Loading figure details...</div>'; // Loading indicator
+        }
+
+        // Fetch data or render if already available
+        if (currentFiguresData.length > 0) {
+            renderDetailView(params);
+        } else if (params.model && params.category) {
+            fetchFigures(params.model, params.category);
         }
 
         // Breadcrumb
@@ -41,9 +36,10 @@ window.initFigurePage = function () {
         }
     } else {
         // Show List
-        if (gridContainerWrapper) gridContainerWrapper.classList.remove('hidden');
-        if (detailContainer) detailContainer.classList.add('hidden');
-
+        if (gridContainer) {
+            gridContainer.className = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3';
+            gridContainer.innerHTML = ''; // Clear content
+        }
         // Breadcrumb
         if (typeof window.renderBreadcrumb === 'function') {
             window.renderBreadcrumb('Figure');
@@ -71,11 +67,7 @@ window.initFigurePage = function () {
     async function fetchFigures(model, category) {
         if (!gridContainer) return;
 
-        // Show loading state
-        if (!currentFiguresData.length) {
-            gridContainer.innerHTML = '<div class="col-span-full text-center py-8">Loading figures...</div>';
-            gridContainerWrapper.classList.remove('hidden');
-        }
+
 
         try {
             const response = await fetch(`${window.appsScriptUrl}?action=getFigures&model=${encodeURIComponent(model)}&category=${encodeURIComponent(category)}`);
@@ -102,6 +94,8 @@ window.initFigurePage = function () {
 
     function renderFigures(data) {
         if (!gridContainer) return;
+
+        gridContainer.className = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3';
 
         if (data.length === 0) {
             gridContainer.innerHTML = '<div class="col-span-full text-center py-8">No figures found for this model.</div>';
@@ -136,7 +130,10 @@ window.initFigurePage = function () {
     }
 
     function renderDetailView(params) {
-        if (!detailContainer) return;
+        if (!gridContainer) return;
+
+        // Ensure grid classes are removed for detail view
+        gridContainer.className = '';
 
         const selectedFigure = params.figure;
 
@@ -152,7 +149,7 @@ window.initFigurePage = function () {
             `;
         }).join('');
 
-        detailContainer.innerHTML = `
+        gridContainer.innerHTML = `
             <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-12">
                     <!-- Sidebar -->
@@ -249,4 +246,3 @@ window.initFigurePage = function () {
         });
     }
 };
-
