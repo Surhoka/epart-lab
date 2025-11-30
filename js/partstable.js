@@ -18,9 +18,7 @@ window.renderPartsTable = function (containerId, figure, model) {
                         </tr>
                     </thead>
                     <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-center">Loading parts...</td>
-                        </tr>
+
                     </tbody>
                 </table>
             </div>
