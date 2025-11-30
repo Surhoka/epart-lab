@@ -13,7 +13,7 @@ window.renderPartsTable = function (containerId, figure, model) {
                         <tr>
                             <th scope="col" class="px-6 py-3">No</th>
                             <th scope="col" class="px-6 py-3">Part Number</th>
-                            <th scope="col" class="px-6 py-3">Title</th>
+                            <th scope="col" class="px-6 py-3">Description</th>
                             <th scope="col" class="px-6 py-3">Qty</th>
                         </tr>
                     </thead>
@@ -58,7 +58,7 @@ window.renderPartsTable = function (containerId, figure, model) {
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${part.No || index + 1}</td>
                 <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
-                <td class="px-6 py-4">${part.Title}</td>
+                <td class="px-6 py-4">${part.Description}</td>
                 <td class="px-6 py-4">${part.Qty || '-'}</td>
             </tr>
         `).join('');
