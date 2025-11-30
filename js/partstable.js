@@ -59,6 +59,7 @@ window.renderPartsTable = function (containerId, figure, model) {
                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${part.No || index + 1}</td>
                 <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
                 <td class="px-6 py-4">${part.Title}</td>
+                <td class="px-6 py-4">${part.Qty || '-'}</td>
             </tr>
         `).join('');
     });
