@@ -1,6 +1,7 @@
 window.initFigurePage = function () {
     const app = window.app;
     const params = app ? app.params : {};
+    let currentFiguresData = []; // Store fetched figures
 
     const searchInput = document.getElementById('model-search');
     const suggestionsList = document.getElementById('search-suggestions');
@@ -22,7 +23,12 @@ window.initFigurePage = function () {
         if (gridContainerWrapper) gridContainerWrapper.classList.add('hidden');
         if (detailContainer) {
             detailContainer.classList.remove('hidden');
-            renderDetailView(params);
+            // If we have data, render immediately. Otherwise, fetchFigures will handle it after fetch.
+            if (currentFiguresData.length > 0) {
+                renderDetailView(params);
+            } else if (params.model && params.category) {
+                fetchFigures(params.model, params.category);
+            }
         }
 
         // Breadcrumb
@@ -66,15 +72,25 @@ window.initFigurePage = function () {
         if (!gridContainer) return;
 
         // Show loading state
-        gridContainer.innerHTML = '<div class="col-span-full text-center py-8">Loading figures...</div>';
-        gridContainerWrapper.classList.remove('hidden');
+        if (!currentFiguresData.length) {
+            gridContainer.innerHTML = '<div class="col-span-full text-center py-8">Loading figures...</div>';
+            gridContainerWrapper.classList.remove('hidden');
+        }
 
         try {
             const response = await fetch(`${window.appsScriptUrl}?action=getFigures&model=${encodeURIComponent(model)}&category=${encodeURIComponent(category)}`);
             const result = await response.json();
 
             if (result.status === 'success') {
-                renderFigures(result.data);
+                currentFiguresData = result.data;
+
+                // Check current view state
+                const currentParams = window.app ? window.app.params : {};
+                if (currentParams.view === 'detail') {
+                    renderDetailView(currentParams);
+                } else {
+                    renderFigures(result.data);
+                }
             } else {
                 gridContainer.innerHTML = `<div class="col-span-full text-center py-8 text-red-500">Error: ${result.message}</div>`;
             }
@@ -93,7 +109,7 @@ window.initFigurePage = function () {
         }
 
         gridContainer.innerHTML = data.map(item => `
-<div onclick="window.navigate('figure', { view: 'detail', figure: '${item.Figure}', title: '${item.Title}', model: '${item.VehicleModel}' })" class="cursor-pointer rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col hover:shadow-lg transition-shadow">
+<div onclick="window.navigate('figure', { view: 'detail', figure: '${item.Figure}', title: '${item.Title}', model: '${item.VehicleModel}', category: '${item.Category || ''}' })" class="cursor-pointer rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col hover:shadow-lg transition-shadow">
   <!-- Image -->
   <div class="mb-4 w-full flex items-center justify-center">
     ${item.FigureUrl ? `
@@ -122,22 +138,60 @@ window.initFigurePage = function () {
     function renderDetailView(params) {
         if (!detailContainer) return;
 
+        const selectedFigure = params.figure;
+
+        // Generate Sidebar List
+        const sidebarList = currentFiguresData.map(item => {
+            const isActive = item.Figure === selectedFigure;
+            const activeClass = isActive ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800';
+            return `
+                <li class="cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors ${activeClass}"
+                    onclick="window.navigate('figure', { view: 'detail', figure: '${item.Figure}', title: '${item.Title}', model: '${item.VehicleModel}', category: '${item.Category || ''}' })">
+                    ${item.Figure} ${item.Title}
+                </li>
+            `;
+        }).join('');
+
         detailContainer.innerHTML = `
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-                <div class="mb-6">
-                    <button onclick="window.navigate('figure')" class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Back to List
-                    </button>
-                </div>
-                
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">${params.title || 'Detail'}</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">${params.figure || ''}</p>
-                
-                <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                    <p class="text-sm text-gray-500">Model: <span class="font-medium text-gray-900 dark:text-white">${params.model || '-'}</span></p>
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12">
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-3 border-r border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+                             <button onclick="window.navigate('figure')" class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary font-medium">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Back to List
+                            </button>
+                        </div>
+                        <div class="p-3 h-[calc(100vh-300px)] overflow-y-auto sidebar-scrollbar">
+                            <ul class="space-y-1">
+                                ${sidebarList}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="lg:col-span-9 p-6 lg:p-8">
+                         <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">FIG. ${params.figure} ${params.title}</h2>
+                            <p class="text-sm text-gray-500">Model: ${params.model || '-'}</p>
+                        </div>
+
+                        <div class="flex justify-center items-center bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-8 min-h-[400px]">
+                             ${currentFiguresData.find(i => i.Figure === params.figure)?.FigureUrl ? `
+                                <img src="${currentFiguresData.find(i => i.Figure === params.figure).FigureUrl}" alt="${params.title}" class="max-w-full max-h-[600px] object-contain" />
+                             ` : `
+                                <div class="text-center text-gray-400">
+                                    <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p>No image available</p>
+                                </div>
+                             `}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
