@@ -137,6 +137,11 @@ window.initFigurePage = function () {
 
         const selectedFigure = params.figure;
 
+        // Find current index for back/forward navigation
+        const currentIndex = currentFiguresData.findIndex(item => item.Figure === selectedFigure);
+        const prevFigure = currentIndex > 0 ? currentFiguresData[currentIndex - 1] : null;
+        const nextFigure = currentIndex < currentFiguresData.length - 1 ? currentFiguresData[currentIndex + 1] : null;
+
         // Generate Sidebar List
         const sidebarList = currentFiguresData.map(item => {
             const isActive = item.Figure === selectedFigure;
@@ -155,12 +160,22 @@ window.initFigurePage = function () {
                     <!-- Sidebar -->
                     <div class="lg:col-span-3 border-r border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                         <div class="p-4 border-b border-gray-200 dark:border-gray-800">
-                             <button onclick="window.navigate('figure')" class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary font-medium">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Back to List
-                            </button>
+                             <div class="flex items-center justify-between">
+                                <button onclick="window.navigate('figure')" class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary font-medium">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Back to List
+                                </button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="${prevFigure ? `window.navigate('figure', { view: 'detail', figure: '${prevFigure.Figure}', title: '${prevFigure.Title}', model: '${prevFigure.VehicleModel}', category: '${prevFigure.Category || ''}' })` : ''}" class="flex items-center justify-center rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-primary dark:hover:bg-gray-800 ${!prevFigure ? 'opacity-50 cursor-not-allowed' : ''}" ${!prevFigure ? 'disabled' : ''}>
+                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </button>
+                                    <button onclick="${nextFigure ? `window.navigate('figure', { view: 'detail', figure: '${nextFigure.Figure}', title: '${nextFigure.Title}', model: '${nextFigure.VehicleModel}', category: '${nextFigure.Category || ''}' })` : ''}" class="flex items-center justify-center rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-primary dark:hover:bg-gray-800 ${!nextFigure ? 'opacity-50 cursor-not-allowed' : ''}" ${!nextFigure ? 'disabled' : ''}>
+                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="p-3 h-[calc(100vh-300px)] overflow-y-auto sidebar-scrollbar">
                             <ul class="space-y-1">
