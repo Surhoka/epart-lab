@@ -14,11 +14,12 @@ window.renderPartsTable = function (containerId, figure, model) {
                             <th scope="col" class="px-6 py-3">No</th>
                             <th scope="col" class="px-6 py-3">Part Number</th>
                             <th scope="col" class="px-6 py-3">Title</th>
+                            <th scope="col" class="px-6 py-3">Qty</th>
                         </tr>
                     </thead>
                     <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
                         <tr>
-                            <td colspan="3" class="px-6 py-4 text-center">Loading parts...</td>
+                            <td colspan="4" class="px-6 py-4 text-center">Loading parts...</td>
                         </tr>
                     </tbody>
                 </table>
