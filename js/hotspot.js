@@ -52,3 +52,19 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         container.appendChild(point);
     });
 };
+
+window.fetchHotspots = async function (figure, model) {
+    try {
+        const response = await fetch(`${window.appsScriptUrl}?action=getHotspots&figure=${encodeURIComponent(figure)}&model=${encodeURIComponent(model)}`);
+        const result = await response.json();
+        if (result.status === 'success') {
+            return result.data;
+        } else {
+            console.error('Error fetching hotspots:', result.message);
+            return [];
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return [];
+    }
+};
