@@ -40,7 +40,10 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
 
         // Create Tooltip
         const tooltip = document.createElement('div');
-        tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-auto max-w-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 p-2 pointer-events-none';
+        tooltip.className = 'absolute bottom-full left-1/2 mb-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 p-2 pointer-events-none';
+        // Use inline style for a robust width to prevent vertical text rendering
+        tooltip.style.width = '220px';
+        tooltip.style.transform = 'translateX(-50%)';
         tooltip.innerHTML = `
             <div class="font-semibold mb-1 border-b border-gray-200 dark:border-gray-700 pb-1">${hotspot.partNumber || 'N/A'}</div>
             <div class="text-gray-600 dark:text-gray-300 leading-tight">${hotspot.description || 'No description'}</div>
