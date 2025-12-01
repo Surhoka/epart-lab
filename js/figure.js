@@ -218,7 +218,8 @@ window.initFigurePage = function () {
                 if (typeof window.renderHotspots === 'function') {
                     // Merge parts data into hotspots
                     const hotspotsWithData = hotspots.map(hotspot => {
-                        const part = parts.find(p => String(p.No) === String(hotspot.label));
+                        const part = parts.find(p => String(p.No).trim() === String(hotspot.label).trim());
+
                         return {
                             ...hotspot,
                             title: part ? part.PartNumber : 'Unknown Part',
@@ -283,3 +284,4 @@ window.initFigurePage = function () {
         }
     });
 };
+
