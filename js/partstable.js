@@ -42,23 +42,40 @@ window.renderPartsTable = function (containerId, figure, model) {
         }
     }
 
-    // Fetch and render parts
-    fetchParts(figure, model).then(parts => {
+    // Return a promise that resolves with the parts data
+    return fetchParts(figure, model).then(parts => {
         const tbody = document.getElementById('parts-table-body');
-        if (!tbody) return;
+        if (!tbody) return [];
 
         if (parts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center">No parts found.</td></tr>';
-            return;
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">No parts found.</td></tr>';
+            return [];
         }
 
         tbody.innerHTML = parts.map((part, index) => `
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <tr id="part-row-${part.No}" class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${part.No || index + 1}</td>
                 <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
                 <td class="px-6 py-4">${part.Description}</td>
                 <td class="px-6 py-4">${part.Qty || '-'}</td>
             </tr>
         `).join('');
+
+        return parts; // Resolve with parts data
     });
+};
+
+window.highlightPartRow = function (partNo) {
+    // Remove existing highlights
+    const allRows = document.querySelectorAll('#parts-table-body tr');
+    allRows.forEach(row => {
+        row.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/30');
+    });
+
+    // Find and highlight the target row
+    const targetRow = document.getElementById(`part-row-${partNo}`);
+    if (targetRow) {
+        targetRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 };
