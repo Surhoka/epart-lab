@@ -109,7 +109,7 @@ window.initFigurePage = function () {
                     ` : `
                         <div class="flex h-64 w-full items-center justify-center">
                             <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
                     `}
@@ -208,21 +208,16 @@ window.initFigurePage = function () {
             </div>
         `;
 
-        // Render Parts Table and then Hotspots
-        if (typeof window.renderPartsTable === 'function') {
-            window.renderPartsTable('parts-table-container', params.figure, params.model).then(parts => {
-                // Render Hotspots (Mock Data linked to Parts)
+        // Render Parts Table and Hotspots
+        if (typeof window.renderPartsTable === 'function' && typeof window.fetchHotspots === 'function') {
+            Promise.all([
+                window.renderPartsTable('parts-table-container', params.figure, params.model),
+                window.fetchHotspots(params.figure, params.model)
+            ]).then(([parts, hotspots]) => {
+                // Render Hotspots
                 if (typeof window.renderHotspots === 'function') {
-                    // Example Mock Data - In a real scenario, this might come from a separate API or be merged
-                    // Here we assume 'label' in hotspot matches 'No' in parts table
-                    const mockHotspots = [
-                        { x: 30, y: 40, label: '1' },
-                        { x: 60, y: 25, label: '2' },
-                        { x: 75, y: 60, label: '3' }
-                    ];
-
                     // Merge parts data into hotspots
-                    const hotspotsWithData = mockHotspots.map(hotspot => {
+                    const hotspotsWithData = hotspots.map(hotspot => {
                         const part = parts.find(p => String(p.No) === String(hotspot.label));
                         return {
                             ...hotspot,
@@ -238,6 +233,8 @@ window.initFigurePage = function () {
                         }
                     });
                 }
+            }).catch(error => {
+                console.error('Error loading detail view data:', error);
             });
         }
     }
