@@ -53,9 +53,9 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
     });
 };
 
-window.fetchHotspots = async function (figure, model) {
+window.fetchHotspots = async function (figure, partNumber) {
     try {
-        const response = await fetch(`${window.appsScriptUrl}?action=getHotspots&figure=${encodeURIComponent(figure)}&model=${encodeURIComponent(model)}`);
+        const response = await fetch(`${window.appsScriptUrl}?action=getHotspots&figure=${encodeURIComponent(figure)}&partNumber=${encodeURIComponent(partNumber)}`);
         const result = await response.json();
         if (result.status === 'success') {
             return result.data;
