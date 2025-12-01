@@ -67,8 +67,6 @@ window.initFigurePage = function () {
     async function fetchFigures(model, category) {
         if (!gridContainer) return;
 
-
-
         try {
             const response = await fetch(`${window.appsScriptUrl}?action=getFigures&model=${encodeURIComponent(model)}&category=${encodeURIComponent(category)}`);
             const result = await response.json();
@@ -103,29 +101,28 @@ window.initFigurePage = function () {
         }
 
         gridContainer.innerHTML = data.map(item => `
-<div onclick="window.navigate('figure', { view: 'detail', figure: '${item.Figure}', title: '${item.Title}', model: '${item.VehicleModel}', category: '${item.Category || ''}' })" class="cursor-pointer rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col hover:shadow-lg transition-shadow">
-  <!-- Image -->
-  <div class="mb-4 w-full flex items-center justify-center">
-    ${item.FigureUrl ? `
-      <img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-auto max-h-96 object-contain" />
-    ` : `
-      <div class="flex h-64 w-full items-center justify-center">
-        <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
-    `}
-  </div>
+            <div onclick="window.navigate('figure', { view: 'detail', figure: '${item.Figure}', title: '${item.Title}', model: '${item.VehicleModel}', category: '${item.Category || ''}' })" class="cursor-pointer rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] flex flex-col hover:shadow-lg transition-shadow">
+                <!-- Image -->
+                <div class="mb-4 w-full flex items-center justify-center">
+                    ${item.FigureUrl ? `
+                        <img src="${item.FigureUrl}" alt="${item.Title}" class="w-full h-auto max-h-96 object-contain" />
+                    ` : `
+                        <div class="flex h-64 w-full items-center justify-center">
+                            <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    `}
+                </div>
 
-  <!-- Figure and Title -->
-  <div class="flex flex-col justify-between min-h-[4.5rem]">
-    <h3 class="text-base font-semibold text-gray-500 dark:text-white/90 line-clamp-2">
-      ${item.Figure} | ${item.Title}
-    </h3>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
-  </div>
-</div>
+                <!-- Figure and Title -->
+                <div class="flex flex-col justify-between min-h-[4.5rem]">
+                    <h3 class="text-base font-semibold text-gray-500 dark:text-white/90 line-clamp-2">
+                        ${item.Figure} | ${item.Title}
+                    </h3>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">${item.VehicleModel}</p>
+                </div>
+            </div>
         `).join('');
     }
 
@@ -191,7 +188,7 @@ window.initFigurePage = function () {
                             <p class="text-sm text-gray-500">Model: ${params.model || '-'}</p>
                         </div>
 
-                        <div class="flex justify-center items-center bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-8 min-h-[400px] mb-8">
+                        <div id="figure-image-container" class="relative flex justify-center items-center bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-8 min-h-[400px] mb-8">
                              ${currentFiguresData.find(i => i.Figure === params.figure)?.FigureUrl ? `
                                 <img src="${currentFiguresData.find(i => i.Figure === params.figure).FigureUrl}" alt="${params.title}" class="w-full h-auto object-contain" />
                              ` : `
@@ -211,9 +208,37 @@ window.initFigurePage = function () {
             </div>
         `;
 
-        // Render Parts Table
+        // Render Parts Table and then Hotspots
         if (typeof window.renderPartsTable === 'function') {
-            window.renderPartsTable('parts-table-container', params.figure, params.model);
+            window.renderPartsTable('parts-table-container', params.figure, params.model).then(parts => {
+                // Render Hotspots (Mock Data linked to Parts)
+                if (typeof window.renderHotspots === 'function') {
+                    // Example Mock Data - In a real scenario, this might come from a separate API or be merged
+                    // Here we assume 'label' in hotspot matches 'No' in parts table
+                    const mockHotspots = [
+                        { x: 30, y: 40, label: '1' },
+                        { x: 60, y: 25, label: '2' },
+                        { x: 75, y: 60, label: '3' }
+                    ];
+
+                    // Merge parts data into hotspots
+                    const hotspotsWithData = mockHotspots.map(hotspot => {
+                        const part = parts.find(p => String(p.No) === String(hotspot.label));
+                        return {
+                            ...hotspot,
+                            title: part ? part.PartNumber : 'Unknown Part',
+                            content: part ? part.Description : 'No description available.'
+                        };
+                    });
+
+                    window.renderHotspots('figure-image-container', hotspotsWithData, (clickedHotspot) => {
+                        // Handle Hotspot Click
+                        if (typeof window.highlightPartRow === 'function') {
+                            window.highlightPartRow(clickedHotspot.label);
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -252,12 +277,12 @@ window.initFigurePage = function () {
                 }
             });
         });
-
-        // Hide suggestions when clicking outside
-        document.addEventListener('click', function (e) {
-            if (!searchInput.contains(e.target) && !suggestionsList.contains(e.target)) {
-                suggestionsList.classList.add('hidden');
-            }
-        });
     }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!searchInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+            suggestionsList.classList.add('hidden');
+        }
+    });
 };
