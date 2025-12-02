@@ -87,14 +87,8 @@ window.highlightHotspot = function (label) {
     }
 };
 
-window.enableHotspotDebug = function(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`Debug container with ID '${containerId}' not found.`);
-        return;
-    }
-
-    // Add a debug display box
+window.enableHotspotDebug = function(containerId, maxWaitTime = 5000) {
+    // 1. Create/get the debug box immediately, so the user knows the script is running.
     let debugBox = document.getElementById('hotspot-debug-box');
     if (!debugBox) {
         debugBox = document.createElement('div');
@@ -112,27 +106,62 @@ window.enableHotspotDebug = function(containerId) {
         debugBox.style.pointerEvents = 'none'; // Make it non-interactive
         document.body.appendChild(debugBox);
     }
+    debugBox.innerHTML = `Mencari kontainer: #${containerId}...`;
 
-    container.addEventListener('click', function(e) {
-        // Prevent event from bubbling to hotspot points
-        if (e.target.classList.contains('hotspot-point') || e.target.parentElement.classList.contains('hotspot-point')) {
-            return;
+    const interval = 100; // check every 100ms
+    let elapsedTime = 0;
+
+    const tryToAttachListener = () => {
+        const container = document.getElementById(containerId);
+        if (container) {
+            // Container found, attach the listener
+            debugBox.innerHTML = 'Hotspot debug aktif. Klik pada area gambar untuk melihat koordinat.';
+            
+            // VISUAL DEBUG: Add borders to diagnose layout issues
+            container.style.border = '3px solid red';
+            const imageInside = container.querySelector('img');
+            if (imageInside) {
+                imageInside.style.border = '3px solid blue';
+                debugBox.innerHTML += '<br>Bingkai: Merah=Kontainer, Biru=Gambar';
+            } else {
+                debugBox.innerHTML += '<br>Peringatan: Tag &lt;img&gt; tidak ditemukan di dalam kontainer.';
+            }
+
+
+            container.addEventListener('click', function(e) {
+                // Prevent event from bubbling to hotspot points
+                if (e.target.classList.contains('hotspot-point') || e.target.parentElement.classList.contains('hotspot-point')) {
+                    return;
+                }
+
+                const rect = container.getBoundingClientRect();
+                const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+                const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+                const logMessage = `Clicked: x=${xPct.toFixed(4)}%, y=${yPct.toFixed(4)}%`;
+                console.log(logMessage);
+                
+                // Also show the absolute pixel coordinates relative to the container
+                const x_abs = e.clientX - rect.left;
+                const y_abs = e.clientY - rect.top;
+                
+                debugBox.innerHTML = `${logMessage}<br>Pixels: x=${x_abs.toFixed(2)}, y=${y_abs.toFixed(2)}`;
+                debugBox.innerHTML += '<br>Bingkai: Merah=Kontainer, Biru=Gambar';
+            });
+            console.log(`Hotspot debug terpasang pada #${containerId}.`);
+        } else {
+            // Container not found, check again if time allows
+            elapsedTime += interval;
+            if (elapsedTime < maxWaitTime) {
+                setTimeout(tryToAttachListener, interval);
+            } else {
+                // Timed out
+                debugBox.innerHTML = `Error: Kontainer #${containerId} tidak ditemukan setelah ${maxWaitTime / 1000} detik.`;
+                console.error(`Could not find container with ID '${containerId}' after ${maxWaitTime}ms.`);
+            }
         }
+    };
 
-        const rect = container.getBoundingClientRect();
-        const xPct = ((e.clientX - rect.left) / rect.width) * 100;
-        const yPct = ((e.clientY - rect.top) / rect.height) * 100;
-
-        const logMessage = `Clicked: x=${xPct.toFixed(4)}%, y=${yPct.toFixed(4)}%`;
-        console.log(logMessage);
-        
-        // Also show the absolute pixel coordinates relative to the container
-        const x_abs = e.clientX - rect.left;
-        const y_abs = e.clientY - rect.top;
-        
-        debugBox.innerHTML = `${logMessage}<br>Pixels: x=${x_abs.toFixed(2)}, y=${y_abs.toFixed(2)}`;
-    });
-
-    debugBox.innerHTML = 'Hotspot debug aktif. Klik pada area gambar untuk melihat koordinat.';
-    console.log('Hotspot debug mode enabled. Click on the image container.');
+    // Start the process
+    tryToAttachListener();
 };
