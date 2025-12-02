@@ -53,7 +53,7 @@ window.renderPartsTable = function (containerId, figure, model) {
         }
 
         tbody.innerHTML = parts.map((part, index) => `
-            <tr id="part-row-${part.No}" class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <tr id="part-row-${String(part.No).trim()}" class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${part.No || index + 1}</td>
                 <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
                 <td class="px-6 py-4">${part.Description}</td>
@@ -70,10 +70,11 @@ window.highlightPartRow = function (partNo) {
     const allRows = document.querySelectorAll('#parts-table-body tr');
     allRows.forEach(row => {
         row.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/30');
+        row.removeAttribute('tabindex');
     });
 
     // Find and highlight the target row
-    const targetRow = document.getElementById(`part-row-${partNo}`);
+    const targetRow = document.getElementById(`part-row-${String(partNo).trim()}`);
     if (targetRow) {
         targetRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
         targetRow.setAttribute('tabindex', '-1'); // Make it focusable
