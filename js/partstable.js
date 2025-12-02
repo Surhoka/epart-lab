@@ -55,7 +55,7 @@ window.renderPartsTable = function (containerId, figure, model) {
         tbody.innerHTML = parts.map((part, index) => {
             const displayNo = part.No || (index + 1);
             return `
-            <tr id="part-row-${String(displayNo).trim()}" class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <tr id="part-row-${String(displayNo).trim()}" onclick="window.highlightHotspot('${String(displayNo).trim()}')" class="cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${displayNo}</td>
                 <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
                 <td class="px-6 py-4">${part.Description}</td>
