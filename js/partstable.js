@@ -52,14 +52,16 @@ window.renderPartsTable = function (containerId, figure, model) {
             return [];
         }
 
-        tbody.innerHTML = parts.map((part, index) => `
-            <tr id="part-row-${String(part.No).trim()}" class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${part.No || index + 1}</td>
+        tbody.innerHTML = parts.map((part, index) => {
+            const displayNo = part.No || (index + 1);
+            return `
+            <tr id="part-row-${String(displayNo).trim()}" class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${displayNo}</td>
                 <td class="px-6 py-4 font-mono text-primary">${part.PartNumber}</td>
                 <td class="px-6 py-4">${part.Description}</td>
                 <td class="px-6 py-4">${part.Qty || '-'}</td>
             </tr>
-        `).join('');
+        `}).join('');
 
         return parts; // Resolve with parts data
     });
