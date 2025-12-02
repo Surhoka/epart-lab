@@ -28,6 +28,7 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         // Optional: Add a label or number inside the dot
         if (hotspot.label) {
             point.innerHTML = `<span class="text-[10px] font-bold text-white">${hotspot.label}</span>`;
+            point.dataset.label = String(hotspot.label).trim(); // Store label for reverse lookup
         }
 
         // Add Click Listener
@@ -66,5 +67,22 @@ window.fetchHotspots = async function (figure, model) {
     } catch (error) {
         console.error('Fetch error:', error);
         return [];
+    }
+};
+
+window.highlightHotspot = function (label) {
+    // Remove existing highlights
+    const allHotspots = document.querySelectorAll('.hotspot-point');
+    allHotspots.forEach(point => {
+        point.classList.remove('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+        point.classList.add('z-50'); // Reset z-index
+    });
+
+    // Find target hotspot
+    const targetHotspot = document.querySelector(`.hotspot-point[data-label="${String(label).trim()}"]`);
+    if (targetHotspot) {
+        targetHotspot.classList.remove('z-50');
+        targetHotspot.classList.add('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+        targetHotspot.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 };
