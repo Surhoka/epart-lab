@@ -182,29 +182,6 @@ window.initFigurePage = function () {
                     </div>
 
                     <!-- Main Content -->
-                    <div class="lg:col-span-9 p-6 lg:p-8">
-                         <div class="mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-1"> ${params.figure} | ${params.title}</h2>
-                            <p class="text-sm text-gray-500">Model: ${params.model || '-'}</p>
-                        </div>
-
-                        <div id="figure-image-container" class="relative flex justify-center items-center bg-white dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 p-8 min-h-[400px] mb-8">
-                             ${currentFiguresData.find(i => i.Figure === params.figure)?.FigureUrl ? `
-                                <img src="${currentFiguresData.find(i => i.Figure === params.figure).FigureUrl}" alt="${params.title}" class="w-full h-auto object-contain" />
-                             ` : `
-                                <div class="text-center text-gray-400">
-                                    <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <p>No image available</p>
-                                </div>
-                             `}
-                        </div>
-
-                        <!-- Parts Table Container -->
-                        <div id="parts-table-container"></div>
-                    </div>
-                </div>
             </div>
         `;
 
