@@ -21,7 +21,7 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
     hotspotsData.forEach((hotspot, index) => {
         // Create Hotspot Point
         const point = document.createElement('div');
-        point.className = 'hotspot-point absolute w-6 h-6 -ml-3 -mt-3 bg-blue-500 rounded-full border-2 border-white shadow-lg cursor-pointer transform transition-transform hover:scale-110 z-10 flex items-center justify-center group';
+        point.className = 'hotspot-point absolute w-6 h-6 -ml-3 -mt-3 bg-blue-500 rounded-full border-2 border-white shadow-lg cursor-pointer transform transition-transform hover:scale-110 z-50 flex items-center justify-center group';
         point.style.left = `${hotspot.x}%`;
         point.style.top = `${hotspot.y}%`;
 
@@ -40,7 +40,7 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
 
         // Create Tooltip
         const tooltip = document.createElement('div');
-        tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-[12rem] bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 p-2 pointer-events-none';
+        tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-[12rem] bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2 pointer-events-none';
         tooltip.innerHTML = `
             <div class="font-semibold mb-0.5 border-b border-gray-200 dark:border-gray-700 pb-0.5">${hotspot.partNumber || 'N/A'}</div>
             <div class="text-gray-600 dark:text-gray-300 leading-tight">${hotspot.description || 'No description'}</div>
