@@ -86,3 +86,53 @@ window.highlightHotspot = function (label) {
         targetHotspot.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 };
+
+window.enableHotspotDebug = function(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Debug container with ID '${containerId}' not found.`);
+        return;
+    }
+
+    // Add a debug display box
+    let debugBox = document.getElementById('hotspot-debug-box');
+    if (!debugBox) {
+        debugBox = document.createElement('div');
+        debugBox.id = 'hotspot-debug-box';
+        debugBox.style.position = 'fixed';
+        debugBox.style.bottom = '10px';
+        debugBox.style.left = '10px';
+        debugBox.style.padding = '10px';
+        debugBox.style.backgroundColor = 'rgba(0,0,0,0.75)';
+        debugBox.style.color = 'white';
+        debugBox.style.zIndex = '10000';
+        debugBox.style.fontFamily = 'monospace';
+        debugBox.style.fontSize = '14px';
+        debugBox.style.borderRadius = '5px';
+        debugBox.style.pointerEvents = 'none'; // Make it non-interactive
+        document.body.appendChild(debugBox);
+    }
+
+    container.addEventListener('click', function(e) {
+        // Prevent event from bubbling to hotspot points
+        if (e.target.classList.contains('hotspot-point') || e.target.parentElement.classList.contains('hotspot-point')) {
+            return;
+        }
+
+        const rect = container.getBoundingClientRect();
+        const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+        const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+        const logMessage = `Clicked: x=${xPct.toFixed(4)}%, y=${yPct.toFixed(4)}%`;
+        console.log(logMessage);
+        
+        // Also show the absolute pixel coordinates relative to the container
+        const x_abs = e.clientX - rect.left;
+        const y_abs = e.clientY - rect.top;
+        
+        debugBox.innerHTML = `${logMessage}<br>Pixels: x=${x_abs.toFixed(2)}, y=${y_abs.toFixed(2)}`;
+    });
+
+    debugBox.innerHTML = 'Hotspot debug aktif. Klik pada area gambar untuk melihat koordinat.';
+    console.log('Hotspot debug mode enabled. Click on the image container.');
+};
