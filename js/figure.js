@@ -248,10 +248,7 @@ window.initFigurePage = function () {
                             window.highlightPartRow(targetId);
                         }
                     });
-                    // Activate the debug tool right after rendering hotspots
-                    if (typeof window.enableHotspotDebug === 'function') {
-                        window.enableHotspotDebug('figure-image-container');
-                    }                   
+
                 }
             }).catch(error => {
                 console.error('Error loading detail view data:', error);
