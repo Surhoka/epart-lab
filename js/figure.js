@@ -218,19 +218,21 @@ window.initFigurePage = function () {
                 if (typeof window.renderHotspots === 'function') {
                     // Merge parts data into hotspots
                     const hotspotsWithData = hotspots.map(hotspot => {
-                        const part = parts.find(p => String(p.PartNumber).trim() === String(hotspot.label).trim());
-
+                        const part = parts.find(p => String(p.No).trim() === String(hotspot.label).trim());
                         return {
                             ...hotspot,
                             title: part ? part.PartNumber : 'Unknown Part',
-                            content: part ? part.Description : 'No description available.'
+                            content: part ? part.Description : 'No description available.',
+                            matchedPartNo: part ? String(part.No).trim() : null // Store matched ID
                         };
                     });
 
                     window.renderHotspots('figure-image-container', hotspotsWithData, (clickedHotspot) => {
                         // Handle Hotspot Click
                         if (typeof window.highlightPartRow === 'function') {
-                            window.highlightPartRow(clickedHotspot.label);
+                            // Use matchedPartNo if available, otherwise fallback to label (trimmed)
+                            const targetId = clickedHotspot.matchedPartNo || String(clickedHotspot.label).trim();
+                            window.highlightPartRow(targetId);
                         }
                     });
                 }
@@ -284,5 +286,3 @@ window.initFigurePage = function () {
         }
     });
 };
-
-
