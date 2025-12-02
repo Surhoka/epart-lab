@@ -76,6 +76,8 @@ window.highlightPartRow = function (partNo) {
     const targetRow = document.getElementById(`part-row-${partNo}`);
     if (targetRow) {
         targetRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
+        targetRow.setAttribute('tabindex', '-1'); // Make it focusable
         targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetRow.focus({ preventScroll: true }); // Focus without extra scroll (scrollIntoView handles it)
     }
 };
