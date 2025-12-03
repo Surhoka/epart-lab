@@ -19,4 +19,12 @@ window.initProfilePage = function () {
     if (typeof window.renderBreadcrumb === 'function') {
         window.renderBreadcrumb('Profile');
     }
+
+    // Manually initialize Alpine for the injected content
+    const profileContainer = document.getElementById('profile-page-container');
+    if (profileContainer) {
+        Alpine.initTree(profileContainer);
+    } else {
+        console.warn("Profile page container not found for Alpine initialization.");
+    }
 };
