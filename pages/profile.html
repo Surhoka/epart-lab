@@ -70,7 +70,7 @@
             </div>
           </div>
 
-          <button @click="isProfileInfoModal = true"
+          <button x-on:click="isProfileInfoModal = true"
             class="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto">
             <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none"
               xmlns="http://www.w3.org/2000/svg">
@@ -138,7 +138,7 @@
             </div>
           </div>
 
-          <button @click="isProfileInfoModal = true"
+          <button x-on:click="isProfileInfoModal = true"
             class="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto">
             <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none"
               xmlns="http://www.w3.org/2000/svg">
@@ -196,7 +196,7 @@
             </div>
           </div>
 
-          <button @click="isProfileAddressModal = true"
+          <button x-on:click="isProfileAddressModal = true"
             class="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto">
             <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none"
               xmlns="http://www.w3.org/2000/svg">
@@ -220,10 +220,10 @@
 <!-- BEGIN MODAL -->
 <div x-show="isProfileInfoModal" class="fixed inset-0 flex items-center justify-center p-5 overflow-y-auto z-99999">
   <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"></div>
-  <div @click.outside="isProfileInfoModal = false"
+  <div x-on:click.outside="isProfileInfoModal = false"
     class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
     <!-- close btn -->
-    <button @click="isProfileInfoModal = false"
+    <button x-on:click="isProfileInfoModal = false"
       class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
       <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
         xmlns="http://www.w3.org/2000/svg">
@@ -330,7 +330,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-        <button @click="isProfileInfoModal = false" type="button"
+        <button x-on:click="isProfileInfoModal = false" type="button"
           class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
           Close
         </button>
@@ -344,10 +344,10 @@
 </div>
 <div x-show="isProfileAddressModal" class="fixed inset-0 flex items-center justify-center p-5 overflow-y-auto z-99999">
   <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"></div>
-  <div @click.outside="isProfileAddressModal = false"
+  <div x-on:click.outside="isProfileAddressModal = false"
     class="no-scrollbar relative flex w-full max-w-[700px] flex-col overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-11">
     <!-- close btn -->
-    <button @click="isProfileAddressModal = false"
+    <button x-on:click="isProfileAddressModal = false"
       class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
       <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
         xmlns="http://www.w3.org/2000/svg">
@@ -402,7 +402,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3 mt-6 lg:justify-end">
-        <button @click="isProfileAddressModal = false" type="button"
+        <button x-on:click="isProfileAddressModal = false" type="button"
           class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
           Close
         </button>
