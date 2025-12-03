@@ -9,7 +9,7 @@ window.renderPartsTable = function (containerId, figure, model) {
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-                    <thead class="bg-gray-50 dark:bg-gray-800 text-xs uppercase text-gray-700 dark:text-gray-300">
+                    <thead class="bg-blue-50 dark:bg-blue-800 text-xs uppercase text-gray-700 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-6 py-3">No</th>
                             <th scope="col" class="px-6 py-3">Part Number</th>
@@ -84,3 +84,4 @@ window.highlightPartRow = function (partNo) {
         targetRow.focus({ preventScroll: true }); // Focus without extra scroll (scrollIntoView handles it)
     }
 };
+
