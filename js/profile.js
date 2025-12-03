@@ -1,7 +1,17 @@
-window.initProfilePage = function () {
-    console.log("Profile Page Initialized");
+// Register Alpine component globally when script loads
+if (typeof Alpine !== 'undefined') {
+    Alpine.data('profileLogic', () => ({
+        pageName: 'Profile',
+        isProfileInfoModal: false,
+        isProfileAddressModal: false,
 
-    if (typeof Alpine !== 'undefined') {
+        init() {
+            console.log('Profile Logic Initialized');
+        }
+    }));
+} else {
+    // If Alpine isn't loaded yet, wait for it
+    document.addEventListener('alpine:init', () => {
         Alpine.data('profileLogic', () => ({
             pageName: 'Profile',
             isProfileInfoModal: false,
@@ -11,9 +21,11 @@ window.initProfilePage = function () {
                 console.log('Profile Logic Initialized');
             }
         }));
-    } else {
-        console.error("Alpine.js is not loaded.");
-    }
+    });
+}
+
+window.initProfilePage = function () {
+    console.log("Profile Page Initialized");
 
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
@@ -22,9 +34,9 @@ window.initProfilePage = function () {
 
     // Manually initialize Alpine for the injected content
     const profileContainer = document.getElementById('profile-page-container');
-    if (profileContainer) {
+    if (profileContainer && typeof Alpine !== 'undefined') {
         Alpine.initTree(profileContainer);
-    } else {
+    } else if (!profileContainer) {
         console.warn("Profile page container not found for Alpine initialization.");
     }
 };
