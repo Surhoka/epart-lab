@@ -8,7 +8,7 @@ window.initFigurePage = function () {
     const suggestionsList = document.getElementById('search-suggestions');
     const gridContainerWrapper = document.getElementById('figure-grid-container');
     const gridContainer = document.getElementById('figure-grid');
-
+    
     // New Elements
     const modelSelect = document.getElementById('model-select');
     const categorySelect = document.getElementById('category-select');
@@ -29,8 +29,8 @@ window.initFigurePage = function () {
         if (currentFiguresData.length > 0) {
             renderDetailView(params);
         } else if (params.model) {
-            // If we have model in params, try to fetch figures for it
-            // Note: params.category might be undefined, which is fine (fetches all)
+             // If we have model in params, try to fetch figures for it
+             // Note: params.category might be undefined, which is fine (fetches all)
             fetchFigures(params.model, params.category || '');
         }
 
@@ -74,7 +74,7 @@ window.initFigurePage = function () {
     // Function to fetch figures
     async function fetchFigures(model, category) {
         if (!gridContainer) return;
-
+        
         // Update UI to show loading
         gridContainer.innerHTML = '<div class="col-span-full text-center py-8">Loading figures...</div>';
 
@@ -168,7 +168,7 @@ window.initFigurePage = function () {
                     <!-- Sidebar -->
                     <div class="lg:col-span-3 border-r border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                         <div class="p-4 border-b border-gray-200 dark:border-gray-800">
-                             <div class="flex items-center justify-between mb-3">
+                             <div class="flex items-center justify-between">
                                 <button onclick="window.navigate('figure')" class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary font-medium">
                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -184,14 +184,6 @@ window.initFigurePage = function () {
                                     </button>
                                 </div>
                             </div>
-                            <!-- Reset Button -->
-                            <button onclick="window.navigate('figure')" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors font-medium text-sm">
-                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10 3.125C6.20312 3.125 3.125 6.20312 3.125 10C3.125 11.7734 3.79688 13.3906 4.90625 14.625L3.65625 15.875C2.1875 14.3281 1.25 12.2812 1.25 10C1.25 5.17188 5.17188 1.25 10 1.25C14.8281 1.25 18.75 5.17188 18.75 10C18.75 14.8281 14.8281 18.75 10 18.75C8.82812 18.75 7.70312 18.5156 6.67188 18.0938L8.03125 16.4375C8.64062 16.6875 9.29688 16.875 10 16.875C13.7969 16.875 16.875 13.7969 16.875 10C16.875 6.20312 13.7969 3.125 10 3.125Z" fill="currentColor"/>
-                                    <path d="M2.5 5.625H5.625V2.5H4.375V4.17188L2.5 5.625Z" fill="currentColor"/>
-                                </svg>
-                                Reset to Figure List
-                            </button>
                         </div>
                         <div class="p-3 h-[calc(100vh-300px)] overflow-y-auto sidebar-scrollbar">
                             <ul class="space-y-1">
@@ -279,7 +271,7 @@ window.initFigurePage = function () {
         // Fetch models on init
         fetchVehicleModels().then(data => {
             vehicleData = data; // Store globally
-
+            
             // Populate Model Dropdown
             const uniqueModels = [...new Set(data.map(item => item.model))].sort();
             uniqueModels.forEach(model => {
@@ -290,12 +282,12 @@ window.initFigurePage = function () {
             });
 
             // Handle Model Change
-            modelSelect.addEventListener('change', function () {
+            modelSelect.addEventListener('change', function() {
                 const selectedModel = this.value;
-
+                
                 // Reset Category Dropdown
                 categorySelect.innerHTML = '<option value="">All Categories</option>';
-
+                
                 if (selectedModel) {
                     // Filter categories for this model
                     const categories = data
@@ -303,10 +295,10 @@ window.initFigurePage = function () {
                         .map(item => item.category)
                         .filter(Boolean) // Remove null/undefined
                         .sort();
-
+                    
                     // Deduplicate
                     const uniqueCategories = [...new Set(categories)];
-
+                    
                     uniqueCategories.forEach(cat => {
                         const option = document.createElement('option');
                         option.value = cat;
@@ -323,17 +315,17 @@ window.initFigurePage = function () {
             });
 
             // Handle Category Change
-            categorySelect.addEventListener('change', function () {
+            categorySelect.addEventListener('change', function() {
                 const selectedModel = modelSelect.value;
                 const selectedCategory = this.value;
-
+                
                 if (selectedModel) {
                     fetchFigures(selectedModel, selectedCategory);
                 }
             });
 
             // Handle Reset
-            resetBtn.addEventListener('click', function () {
+            resetBtn.addEventListener('click', function() {
                 modelSelect.value = '';
                 categorySelect.innerHTML = '<option value="">All Categories</option>';
                 categorySelect.value = '';
@@ -363,19 +355,19 @@ window.initFigurePage = function () {
                             li.addEventListener('click', function () {
                                 searchInput.value = item.model;
                                 suggestionsList.classList.add('hidden');
-
+                                
                                 // Sync Dropdowns
                                 modelSelect.value = item.model;
                                 // Trigger change event manually to update categories
                                 modelSelect.dispatchEvent(new Event('change'));
-
+                                
                                 // After categories update, set category if available
                                 setTimeout(() => {
-                                    if (item.category) {
+                                     if (item.category) {
                                         categorySelect.value = item.category;
                                         // Fetch specific category
                                         fetchFigures(item.model, item.category);
-                                    }
+                                     }
                                 }, 100); // Small delay to allow dropdown population
                             });
                             suggestionsList.appendChild(li);
