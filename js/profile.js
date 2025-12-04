@@ -25,7 +25,7 @@ window.initProfilePage = function () {
  */
 function fetchProfileData(userId) {
     if (typeof window.sendDataToGoogle === 'function') {
-        const params = userId ? { userId } : null;
+        const params = userId ? { userId } : {};
         window.sendDataToGoogle('getProfile', params, (response) => {
             if (response.status === 'success' && response.data) {
                 // Store the user ID for future updates
