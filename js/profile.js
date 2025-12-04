@@ -7,5 +7,287 @@ window.initProfilePage = function () {
         window.renderBreadcrumb('Profile');
     }
 
-    console.log('Profile page ready - using inline Alpine data');
+    // Store current user ID globally for this page
+    window.currentProfileUserId = null;
+
+    // Fetch and populate profile data
+    fetchProfileData();
+
+    // Setup event listeners for save buttons
+    setupEventListeners();
+
+    console.log('Profile page ready');
 };
+
+/**
+ * Fetch profile data from Google Sheets
+ * @param {String} userId Optional - ID user yang akan diambil. Jika kosong, ambil user pertama.
+ */
+function fetchProfileData(userId) {
+    if (typeof window.sendDataToGoogle === 'function') {
+        const params = userId ? { userId } : null;
+        window.sendDataToGoogle('getProfile', params, (response) => {
+            if (response.status === 'success' && response.data) {
+                // Store the user ID for future updates
+                window.currentProfileUserId = response.data.id;
+                populateProfileData(response.data);
+                console.log('Profile data loaded:', response.data);
+            } else {
+                console.error('Failed to load profile data:', response.message);
+                if (window.showToast) window.showToast('Failed to load profile data', 'error');
+            }
+        });
+    } else {
+        console.error('sendDataToGoogle function not found. Make sure apps-script.js is loaded.');
+    }
+}
+
+/**
+ * Populate profile data into the HTML
+ */
+function populateProfileData(data) {
+    const { personalInfo, address, socialLinks } = data;
+
+    // Populate Meta Card
+    const profilePhotoDisplay = document.getElementById('profile-photo-display');
+    if (profilePhotoDisplay && personalInfo.profilePhoto) {
+        profilePhotoDisplay.src = personalInfo.profilePhoto;
+    }
+
+    const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim();
+    const nameDisplay = document.getElementById('profile-name-display');
+    if (nameDisplay) nameDisplay.textContent = fullName;
+
+    const bioDisplay = document.getElementById('profile-bio-display');
+    if (bioDisplay) bioDisplay.textContent = personalInfo.bio || '-';
+
+    const locationDisplay = document.getElementById('profile-location-display');
+    if (locationDisplay) locationDisplay.textContent = address.cityState || '-';
+
+    // Populate Personal Information section
+    const personalInfoSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[0];
+    if (personalInfoSection) {
+        const fields = personalInfoSection.querySelectorAll('div');
+        fields.forEach(field => {
+            const label = field.querySelector('p.text-xs');
+            const value = field.querySelector('p.text-sm.font-medium');
+
+            if (label && value) {
+                const labelText = label.textContent.trim();
+                switch (labelText) {
+                    case 'First Name':
+                        value.textContent = personalInfo.firstName || '-';
+                        break;
+                    case 'Last Name':
+                        value.textContent = personalInfo.lastName || '-';
+                        break;
+                    case 'Email address':
+                        value.textContent = personalInfo.email || '-';
+                        break;
+                    case 'Phone':
+                        value.textContent = personalInfo.phone || '-';
+                        break;
+                    case 'Bio':
+                        value.textContent = personalInfo.bio || '-';
+                        break;
+                }
+            }
+        });
+    }
+
+    // Populate Address section
+    const addressSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[1];
+    if (addressSection) {
+        const fields = addressSection.querySelectorAll('div');
+        fields.forEach(field => {
+            const label = field.querySelector('p.text-xs');
+            const value = field.querySelector('p.text-sm.font-medium');
+
+            if (label && value) {
+                const labelText = label.textContent.trim();
+                switch (labelText) {
+                    case 'Country':
+                        value.textContent = address.country || '-';
+                        break;
+                    case 'City/State':
+                        value.textContent = address.cityState || '-';
+                        break;
+                    case 'Postal Code':
+                        value.textContent = address.postalCode || '-';
+                        break;
+                    case 'TAX ID':
+                        value.textContent = address.taxId || '-';
+                        break;
+                }
+            }
+        });
+    }
+
+    // Populate modal form fields
+    populateModalFields(personalInfo, address, socialLinks);
+}
+
+/**
+ * Populate modal form fields with data
+ */
+function populateModalFields(personalInfo, address, socialLinks) {
+    // Personal Info Modal - using IDs
+    const firstNameInput = document.getElementById('input-firstname');
+    const lastNameInput = document.getElementById('input-lastname');
+    const emailInput = document.getElementById('input-email');
+    const phoneInput = document.getElementById('input-phone');
+    const bioInput = document.getElementById('input-bio');
+
+    if (firstNameInput) firstNameInput.value = personalInfo.firstName || '';
+    if (lastNameInput) lastNameInput.value = personalInfo.lastName || '';
+    if (emailInput) emailInput.value = personalInfo.email || '';
+    if (phoneInput) phoneInput.value = personalInfo.phone || '';
+    if (bioInput) bioInput.value = personalInfo.bio || '';
+
+    // Social Links - using IDs
+    const facebookInput = document.getElementById('input-facebook');
+    const twitterInput = document.getElementById('input-twitter');
+    const linkedinInput = document.getElementById('input-linkedin');
+    const instagramInput = document.getElementById('input-instagram');
+
+    if (facebookInput) facebookInput.value = socialLinks.facebook || '';
+    if (twitterInput) twitterInput.value = socialLinks.twitter || '';
+    if (linkedinInput) linkedinInput.value = socialLinks.linkedin || '';
+    if (instagramInput) instagramInput.value = socialLinks.instagram || '';
+
+    // Address Modal - using IDs
+    const countryInput = document.getElementById('input-country');
+    const cityStateInput = document.getElementById('input-citystate');
+    const postalCodeInput = document.getElementById('input-postalcode');
+    const taxIdInput = document.getElementById('input-taxid');
+
+    if (countryInput) countryInput.value = address.country || '';
+    if (cityStateInput) cityStateInput.value = address.cityState || '';
+    if (postalCodeInput) postalCodeInput.value = address.postalCode || '';
+    if (taxIdInput) taxIdInput.value = address.taxId || '';
+}
+
+/**
+ * Setup event listeners for save buttons
+ */
+function setupEventListeners() {
+    // Personal Info Save Button
+    const saveInfoButtons = document.querySelectorAll('button.bg-brand-500');
+    if (saveInfoButtons[0]) {
+        saveInfoButtons[0].addEventListener('click', (e) => {
+            e.preventDefault();
+            savePersonalInfo();
+        });
+    }
+
+    // Address Save Button
+    if (saveInfoButtons[1]) {
+        saveInfoButtons[1].addEventListener('click', (e) => {
+            e.preventDefault();
+            saveAddress();
+        });
+    }
+}
+
+/**
+ * Save personal information
+ */
+function savePersonalInfo() {
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
+        return;
+    }
+
+    // Get values from modal inputs using IDs
+    const firstName = document.getElementById('input-firstname')?.value || '';
+    const lastName = document.getElementById('input-lastname')?.value || '';
+    const email = document.getElementById('input-email')?.value || '';
+    const phone = document.getElementById('input-phone')?.value || '';
+    const bio = document.getElementById('input-bio')?.value || '';
+
+    const facebook = document.getElementById('input-facebook')?.value || '';
+    const twitter = document.getElementById('input-twitter')?.value || '';
+    const linkedin = document.getElementById('input-linkedin')?.value || '';
+    const instagram = document.getElementById('input-instagram')?.value || '';
+
+    const profileData = {
+        personalInfo: {
+            firstName,
+            lastName,
+            email,
+            phone,
+            bio
+        },
+        socialLinks: {
+            facebook,
+            twitter,
+            linkedin,
+            instagram
+        }
+    };
+
+    if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('updateProfile', {
+            profileData,
+            userId: window.currentProfileUserId
+        }, (response) => {
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Profile updated successfully');
+                fetchProfileData(window.currentProfileUserId); // Refresh data
+                // Close modal
+                const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                if (modal) {
+                    Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
+                }
+            } else {
+                console.error('Failed to update profile:', response.message);
+                if (window.showToast) window.showToast('Failed to update profile', 'error');
+            }
+        });
+    }
+}
+
+/**
+ * Save address information
+ */
+function saveAddress() {
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
+        return;
+    }
+
+    // Get values from address modal inputs using IDs
+    const country = document.getElementById('input-country')?.value || '';
+    const cityState = document.getElementById('input-citystate')?.value || '';
+    const postalCode = document.getElementById('input-postalcode')?.value || '';
+    const taxId = document.getElementById('input-taxid')?.value || '';
+
+    const profileData = {
+        address: {
+            country,
+            cityState,
+            postalCode,
+            taxId
+        }
+    };
+
+    if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('updateProfile', {
+            profileData,
+            userId: window.currentProfileUserId
+        }, (response) => {
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Address updated successfully');
+                fetchProfileData(window.currentProfileUserId); // Refresh data
+                // Close modal
+                const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
+                if (modal) {
+                    Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
+                }
+            } else {
+                console.error('Failed to update address:', response.message);
+                if (window.showToast) window.showToast('Failed to update address', 'error');
+            }
+        });
+    }
+}
