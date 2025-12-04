@@ -2,11 +2,17 @@ window.initFigurePage = function () {
     const app = window.app;
     const params = app ? app.params : {};
     let currentFiguresData = []; // Store fetched figures
+    let vehicleData = []; // Store all vehicle model data
 
     const searchInput = document.getElementById('model-search');
     const suggestionsList = document.getElementById('search-suggestions');
     const gridContainerWrapper = document.getElementById('figure-grid-container');
     const gridContainer = document.getElementById('figure-grid');
+    
+    // New Elements
+    const modelSelect = document.getElementById('model-select');
+    const categorySelect = document.getElementById('category-select');
+    const resetBtn = document.getElementById('reset-filters');
 
     // View Logic
     if (gridContainerWrapper) {
@@ -22,8 +28,10 @@ window.initFigurePage = function () {
         // Fetch data or render if already available
         if (currentFiguresData.length > 0) {
             renderDetailView(params);
-        } else if (params.model && params.category) {
-            fetchFigures(params.model, params.category);
+        } else if (params.model) {
+             // If we have model in params, try to fetch figures for it
+             // Note: params.category might be undefined, which is fine (fetches all)
+            fetchFigures(params.model, params.category || '');
         }
 
         // Breadcrumb
@@ -66,6 +74,9 @@ window.initFigurePage = function () {
     // Function to fetch figures
     async function fetchFigures(model, category) {
         if (!gridContainer) return;
+        
+        // Update UI to show loading
+        gridContainer.innerHTML = '<div class="col-span-full text-center py-8">Loading figures...</div>';
 
         try {
             const response = await fetch(`${window.appsScriptUrl}?action=getFigures&model=${encodeURIComponent(model)}&category=${encodeURIComponent(category)}`);
@@ -96,7 +107,7 @@ window.initFigurePage = function () {
         gridContainer.className = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3';
 
         if (data.length === 0) {
-            gridContainer.innerHTML = '<div class="col-span-full text-center py-8">No figures found for this model.</div>';
+            gridContainer.innerHTML = '<div class="col-span-full text-center py-8">No figures found for this selection.</div>';
             return;
         }
 
@@ -258,13 +269,79 @@ window.initFigurePage = function () {
 
     if (searchInput && suggestionsList && gridContainerWrapper) {
         // Fetch models on init
-        fetchVehicleModels().then(vehicleModels => {
+        fetchVehicleModels().then(data => {
+            vehicleData = data; // Store globally
+            
+            // Populate Model Dropdown
+            const uniqueModels = [...new Set(data.map(item => item.model))].sort();
+            uniqueModels.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+
+            // Handle Model Change
+            modelSelect.addEventListener('change', function() {
+                const selectedModel = this.value;
+                
+                // Reset Category Dropdown
+                categorySelect.innerHTML = '<option value="">All Categories</option>';
+                
+                if (selectedModel) {
+                    // Filter categories for this model
+                    const categories = data
+                        .filter(item => item.model === selectedModel)
+                        .map(item => item.category)
+                        .filter(Boolean) // Remove null/undefined
+                        .sort();
+                    
+                    // Deduplicate
+                    const uniqueCategories = [...new Set(categories)];
+                    
+                    uniqueCategories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat;
+                        option.textContent = cat;
+                        categorySelect.appendChild(option);
+                    });
+
+                    // Fetch figures for this model (all categories)
+                    fetchFigures(selectedModel, '');
+                } else {
+                    // Clear grid if no model selected
+                    gridContainer.innerHTML = '';
+                }
+            });
+
+            // Handle Category Change
+            categorySelect.addEventListener('change', function() {
+                const selectedModel = modelSelect.value;
+                const selectedCategory = this.value;
+                
+                if (selectedModel) {
+                    fetchFigures(selectedModel, selectedCategory);
+                }
+            });
+
+            // Handle Reset
+            resetBtn.addEventListener('click', function() {
+                modelSelect.value = '';
+                categorySelect.innerHTML = '<option value="">All Categories</option>';
+                categorySelect.value = '';
+                searchInput.value = '';
+                gridContainer.innerHTML = '';
+                suggestionsList.classList.add('hidden');
+            });
+
+
+            // Search Input Logic (Keep existing logic but maybe sync with dropdowns?)
             searchInput.addEventListener('input', function () {
                 const query = this.value.toLowerCase();
                 suggestionsList.innerHTML = '';
 
                 if (query.length > 0) {
-                    const filteredModels = vehicleModels.filter(item =>
+                    const filteredModels = vehicleData.filter(item =>
                         String(item.model).toLowerCase().includes(query) ||
                         String(item.category).toLowerCase().includes(query)
                     );
@@ -278,8 +355,20 @@ window.initFigurePage = function () {
                             li.addEventListener('click', function () {
                                 searchInput.value = item.model;
                                 suggestionsList.classList.add('hidden');
-                                // Fetch and display figures
-                                fetchFigures(item.model, item.category);
+                                
+                                // Sync Dropdowns
+                                modelSelect.value = item.model;
+                                // Trigger change event manually to update categories
+                                modelSelect.dispatchEvent(new Event('change'));
+                                
+                                // After categories update, set category if available
+                                setTimeout(() => {
+                                     if (item.category) {
+                                        categorySelect.value = item.category;
+                                        // Fetch specific category
+                                        fetchFigures(item.model, item.category);
+                                     }
+                                }, 100); // Small delay to allow dropdown population
                             });
                             suggestionsList.appendChild(li);
                         });
@@ -295,7 +384,7 @@ window.initFigurePage = function () {
 
     // Hide suggestions when clicking outside
     document.addEventListener('click', function (e) {
-        if (!searchInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+        if (searchInput && !searchInput.contains(e.target) && suggestionsList && !suggestionsList.contains(e.target)) {
             suggestionsList.classList.add('hidden');
         }
     });
