@@ -218,7 +218,7 @@ function confirmDeleteProfile() {
 
     if (confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
         if (typeof window.sendDataToGoogle === 'function') {
-            window.sendDataToGoogle('deleteProfile', window.currentProfileUserId, (response) => {
+            window.sendDataToGoogle('deleteProfile', { userId: window.currentProfileUserId }, (response) => {
                 if (response.status === 'success') {
                     if (window.showToast) window.showToast('Profile deleted successfully');
                     // Optional: Redirect or clear data
