@@ -33,8 +33,15 @@ function fetchProfileData(userId) {
                 populateProfileData(response.data);
                 console.log('Profile data loaded:', response.data);
             } else {
-                console.error('Failed to load profile data:', response.message);
-                if (window.showToast) window.showToast('Failed to load profile data', 'error');
+                console.log('No profile data found, prompting creation.');
+                window.currentProfileUserId = null; // Ensure ID is null
+                if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
+
+                // Auto-open Personal Info Modal
+                const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                if (modal) {
+                    Alpine.evaluate(modal, '$data.isProfileInfoModal = true');
+                }
             }
         });
     } else {
@@ -300,10 +307,8 @@ function clearAddress() {
  * Save personal information
  */
 function savePersonalInfo() {
-    if (!window.currentProfileUserId) {
-        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
-        return;
-    }
+    // If no ID, we are creating a new profile
+    const isCreating = !window.currentProfileUserId;
 
     // Get values from modal inputs using IDs
     const firstName = document.getElementById('input-firstname')?.value || '';
@@ -334,12 +339,20 @@ function savePersonalInfo() {
     };
 
     if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('updateProfile', {
+        const action = isCreating ? 'createProfile' : 'updateProfile';
+        const payload = isCreating ? { profileData: JSON.stringify(profileData) } : {
             profileData: JSON.stringify(profileData),
             userId: window.currentProfileUserId
-        }, (response) => {
+        };
+
+        window.sendDataToGoogle(action, payload, (response) => {
             if (response.status === 'success') {
-                if (window.showToast) window.showToast('Profile updated successfully');
+                if (window.showToast) window.showToast(isCreating ? 'Profile created successfully' : 'Profile updated successfully');
+
+                if (isCreating && response.data && response.data.id) {
+                    window.currentProfileUserId = response.data.id;
+                }
+
                 fetchProfileData(window.currentProfileUserId); // Refresh data
                 // Close modal
                 const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
@@ -347,8 +360,8 @@ function savePersonalInfo() {
                     Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
                 }
             } else {
-                console.error('Failed to update profile:', response.message);
-                if (window.showToast) window.showToast('Failed to update profile', 'error');
+                console.error('Failed to save profile:', response.message);
+                if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
             }
         });
     }
@@ -358,10 +371,8 @@ function savePersonalInfo() {
  * Save address information
  */
 function saveAddress() {
-    if (!window.currentProfileUserId) {
-        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
-        return;
-    }
+    // If no ID, we are creating a new profile (though usually personal info comes first)
+    const isCreating = !window.currentProfileUserId;
 
     // Get values from address modal inputs using IDs
     const country = document.getElementById('input-country')?.value || '';
@@ -379,12 +390,20 @@ function saveAddress() {
     };
 
     if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('updateProfile', {
+        const action = isCreating ? 'createProfile' : 'updateProfile';
+        const payload = isCreating ? { profileData: JSON.stringify(profileData) } : {
             profileData: JSON.stringify(profileData),
             userId: window.currentProfileUserId
-        }, (response) => {
+        };
+
+        window.sendDataToGoogle(action, payload, (response) => {
             if (response.status === 'success') {
-                if (window.showToast) window.showToast('Address updated successfully');
+                if (window.showToast) window.showToast(isCreating ? 'Address saved and profile created' : 'Address updated successfully');
+
+                if (isCreating && response.data && response.data.id) {
+                    window.currentProfileUserId = response.data.id;
+                }
+
                 fetchProfileData(window.currentProfileUserId); // Refresh data
                 // Close modal
                 const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
@@ -392,8 +411,8 @@ function saveAddress() {
                     Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
                 }
             } else {
-                console.error('Failed to update address:', response.message);
-                if (window.showToast) window.showToast('Failed to update address', 'error');
+                console.error('Failed to save address:', response.message);
+                if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
             }
         });
     }
