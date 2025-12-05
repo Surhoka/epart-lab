@@ -444,52 +444,120 @@ function handlePhotoFileChange(event) {
         return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        if (window.showToast) window.showToast('Image size must be less than 5MB', 'error');
+    // Validate file size (max 10MB for Drive upload)
+    if (file.size > 10 * 1024 * 1024) {
+        if (window.showToast) window.showToast('Image size must be less than 10MB', 'error');
         return;
     }
 
-    // Preview the image immediately
+    // Show loading toast
+    if (window.showToast) window.showToast('Uploading profile photo...', 'info', 5000);
+
+    // Disable edit button during upload
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
+    if (editPhotoBtn) {
+        editPhotoBtn.disabled = true;
+        editPhotoBtn.style.opacity = '0.5';
+    }
+
+    // Read file as base64
     const reader = new FileReader();
     reader.onload = function (e) {
+        const base64data = e.target.result.split(',')[1];
+        const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
+
+        // Preview the image immediately
         const profilePhotoDisplay = document.getElementById('profile-photo-display');
         if (profilePhotoDisplay) {
             profilePhotoDisplay.src = e.target.result;
         }
 
-        // Upload to backend
-        uploadProfilePhoto(e.target.result);
+        // Upload to Google Drive and get URL
+        uploadProfilePhoto(fileName, base64data, file.type);
     };
     reader.readAsDataURL(file);
 }
 
 /**
- * Upload profile photo to backend
- * @param {String} base64Image - Base64 encoded image data
+ * Upload profile photo to Google Drive and save URL
+ * @param {String} fileName - Name for the uploaded file
+ * @param {String} base64data - Base64 encoded image data (without prefix)
+ * @param {String} mimeType - MIME type of the image
  */
-function uploadProfilePhoto(base64Image) {
+function uploadProfilePhoto(fileName, base64data, mimeType) {
     if (!window.currentProfileUserId) {
         if (window.showToast) window.showToast('Please create a profile first', 'error');
+        resetUploadButton();
         return;
     }
 
+    // Check if uploadImageAndGetUrl function exists
+    if (typeof window.uploadImageAndGetUrl !== 'function') {
+        console.error('uploadImageAndGetUrl function not found');
+        if (window.showToast) window.showToast('Upload function not available', 'error');
+        resetUploadButton();
+        return;
+    }
+
+    // Upload image to Google Drive
+    window.uploadImageAndGetUrl(fileName, base64data, mimeType).then((response) => {
+        if (response.status === 'success' && response.url) {
+            // Save the Drive URL to profile
+            saveProfilePhotoUrl(response.url);
+        } else {
+            console.error('Failed to upload photo:', response.message);
+            if (window.showToast) window.showToast('Failed to upload photo: ' + (response.message || 'Error'), 'error');
+            resetUploadButton();
+        }
+    }).catch((error) => {
+        console.error('Error uploading photo:', error);
+        if (window.showToast) window.showToast('Error uploading photo: ' + error.message, 'error');
+        resetUploadButton();
+    });
+}
+
+/**
+ * Save profile photo URL to backend
+ * @param {String} photoUrl - Google Drive URL of the uploaded photo
+ */
+function saveProfilePhotoUrl(photoUrl) {
     if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('updateProfilePhoto', {
+        window.sendDataToGoogle('updateProfile', {
             userId: window.currentProfileUserId,
-            photoData: base64Image
+            profileData: JSON.stringify({
+                personalInfo: {
+                    profilePhoto: photoUrl
+                }
+            })
         }, (response) => {
             if (response.status === 'success') {
                 if (window.showToast) window.showToast('Profile photo updated successfully');
-                // Optionally refresh profile data
-                // fetchProfileData(window.currentProfileUserId);
+                // Update the display with the new URL
+                const profilePhotoDisplay = document.getElementById('profile-photo-display');
+                if (profilePhotoDisplay) {
+                    profilePhotoDisplay.src = photoUrl;
+                }
             } else {
-                console.error('Failed to upload photo:', response.message);
-                if (window.showToast) window.showToast('Failed to upload photo: ' + response.message, 'error');
+                console.error('Failed to save photo URL:', response.message);
+                if (window.showToast) window.showToast('Failed to save photo: ' + response.message, 'error');
             }
+            resetUploadButton();
         });
     } else {
         console.error('sendDataToGoogle function not found');
-        if (window.showToast) window.showToast('Upload function not available', 'error');
+        if (window.showToast) window.showToast('Save function not available', 'error');
+        resetUploadButton();
     }
 }
+
+/**
+ * Reset upload button state
+ */
+function resetUploadButton() {
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
+    if (editPhotoBtn) {
+        editPhotoBtn.disabled = false;
+        editPhotoBtn.style.opacity = '1';
+    }
+}
+
