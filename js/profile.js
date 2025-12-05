@@ -183,6 +183,8 @@ function setupEventListeners() {
     if (savePersonalInfoBtn) {
         savePersonalInfoBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            // Add loading state
+            setButtonLoading(savePersonalInfoBtn, true);
             savePersonalInfo();
         });
     }
@@ -192,6 +194,8 @@ function setupEventListeners() {
     if (saveAddressBtn) {
         saveAddressBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            // Add loading state
+            setButtonLoading(saveAddressBtn, true);
             saveAddress();
         });
     }
@@ -364,6 +368,8 @@ function savePersonalInfo() {
         };
 
         window.sendDataToGoogle(action, payload, (response) => {
+            const saveBtn = document.getElementById('save-personal-info-btn');
+
             if (response.status === 'success') {
                 if (window.showToast) window.showToast(isCreating ? 'Profile created successfully' : 'Profile updated successfully');
 
@@ -378,10 +384,14 @@ function savePersonalInfo() {
                     if (modal) {
                         Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
                     }
+                    // Remove loading state after modal closes
+                    setButtonLoading(saveBtn, false);
                 }, 200);
             } else {
                 console.error('Failed to save profile:', response.message);
                 if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
+                // Remove loading state on error
+                setButtonLoading(saveBtn, false);
             }
         });
     }
@@ -417,6 +427,8 @@ function saveAddress() {
         };
 
         window.sendDataToGoogle(action, payload, (response) => {
+            const saveBtn = document.getElementById('save-address-btn');
+
             if (response.status === 'success') {
                 if (window.showToast) window.showToast(isCreating ? 'Address saved and profile created' : 'Address updated successfully');
 
@@ -431,10 +443,14 @@ function saveAddress() {
                     if (modal) {
                         Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
                     }
+                    // Remove loading state after modal closes
+                    setButtonLoading(saveBtn, false);
                 }, 200);
             } else {
                 console.error('Failed to save address:', response.message);
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
+                // Remove loading state on error
+                setButtonLoading(saveBtn, false);
             }
         });
     }
@@ -570,3 +586,39 @@ function resetUploadButton() {
     }
 }
 
+/**
+ * Set button loading state
+ * @param {HTMLElement} button - Button element
+ * @param {Boolean} isLoading - Loading state
+ */
+function setButtonLoading(button, isLoading) {
+    if (!button) return;
+
+    if (isLoading) {
+        // Store original text
+        button.dataset.originalText = button.innerHTML;
+
+        // Disable button and add loading class
+        button.disabled = true;
+        button.classList.add('btn-loading');
+
+        // Add spinner and loading text
+        button.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+        `;
+    } else {
+        // Restore original state
+        button.disabled = false;
+        button.classList.remove('btn-loading');
+
+        // Restore original text
+        if (button.dataset.originalText) {
+            button.innerHTML = button.dataset.originalText;
+            delete button.dataset.originalText;
+        }
+    }
+}
