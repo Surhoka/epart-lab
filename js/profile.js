@@ -188,10 +188,19 @@ function setupEventListeners() {
         });
     }
 
-    // Delete Profile Button
+    // Delete Profile Button (Personal Info Modal)
     const deleteBtn = document.getElementById('delete-profile-btn');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            confirmDeleteProfile();
+        });
+    }
+
+    // Delete Profile Button (Address Modal)
+    const deleteBtnAddress = document.getElementById('delete-profile-btn-address');
+    if (deleteBtnAddress) {
+        deleteBtnAddress.addEventListener('click', (e) => {
             e.preventDefault();
             confirmDeleteProfile();
         });
