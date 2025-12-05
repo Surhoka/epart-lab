@@ -193,7 +193,7 @@ function setupEventListeners() {
     if (deleteBtn) {
         deleteBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            confirmDeleteProfile();
+            clearPersonalInfo();
         });
     }
 
@@ -202,36 +202,96 @@ function setupEventListeners() {
     if (deleteBtnAddress) {
         deleteBtnAddress.addEventListener('click', (e) => {
             e.preventDefault();
-            confirmDeleteProfile();
+            clearAddress();
         });
     }
 }
 
 /**
- * Confirm and delete profile
+ * Clear personal information
  */
-function confirmDeleteProfile() {
+function clearPersonalInfo() {
     if (!window.currentProfileUserId) {
         if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
         return;
     }
 
-    if (confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
+    if (confirm('Are you sure you want to clear personal information?')) {
+        const profileData = {
+            personalInfo: {
+                firstName: '',
+                lastName: '',
+                email: '',
+                phone: '',
+                bio: ''
+            },
+            socialLinks: {
+                facebook: '',
+                twitter: '',
+                linkedin: '',
+                instagram: ''
+            }
+        };
+
         if (typeof window.sendDataToGoogle === 'function') {
-            window.sendDataToGoogle('deleteProfile', { userId: window.currentProfileUserId }, (response) => {
+            window.sendDataToGoogle('updateProfile', {
+                profileData: JSON.stringify(profileData),
+                userId: window.currentProfileUserId
+            }, (response) => {
                 if (response.status === 'success') {
-                    if (window.showToast) window.showToast('Profile deleted successfully');
-                    // Optional: Redirect or clear data
-                    // window.location.href = '/'; // Example redirect
-                    // For now, maybe just reload or clear the display
-                    location.reload();
+                    if (window.showToast) window.showToast('Personal information cleared successfully');
+                    fetchProfileData(window.currentProfileUserId); // Refresh data
+                    // Close modal
+                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                    if (modal) {
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
+                    }
                 } else {
-                    console.error('Failed to delete profile:', response.message);
-                    if (window.showToast) window.showToast('Failed to delete profile: ' + response.message, 'error');
+                    console.error('Failed to clear personal info:', response.message);
+                    if (window.showToast) window.showToast('Failed to clear personal info', 'error');
                 }
             });
-        } else {
-            console.error('sendDataToGoogle function not found.');
+        }
+    }
+}
+
+/**
+ * Clear address information
+ */
+function clearAddress() {
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
+        return;
+    }
+
+    if (confirm('Are you sure you want to clear address information?')) {
+        const profileData = {
+            address: {
+                country: '',
+                cityState: '',
+                postalCode: '',
+                taxId: ''
+            }
+        };
+
+        if (typeof window.sendDataToGoogle === 'function') {
+            window.sendDataToGoogle('updateProfile', {
+                profileData: JSON.stringify(profileData),
+                userId: window.currentProfileUserId
+            }, (response) => {
+                if (response.status === 'success') {
+                    if (window.showToast) window.showToast('Address information cleared successfully');
+                    fetchProfileData(window.currentProfileUserId); // Refresh data
+                    // Close modal
+                    const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
+                    if (modal) {
+                        Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
+                    }
+                } else {
+                    console.error('Failed to clear address:', response.message);
+                    if (window.showToast) window.showToast('Failed to clear address', 'error');
+                }
+            });
         }
     }
 }
