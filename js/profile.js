@@ -212,6 +212,19 @@ function setupEventListeners() {
             clearAddress();
         });
     }
+
+    // Profile Photo Edit Button
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
+    const photoInput = document.getElementById('profile-photo-input');
+
+    if (editPhotoBtn && photoInput) {
+        editPhotoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            photoInput.click();
+        });
+
+        photoInput.addEventListener('change', handlePhotoFileChange);
+    }
 }
 
 /**
@@ -415,5 +428,68 @@ function saveAddress() {
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
             }
         });
+    }
+}
+
+/**
+ * Handle profile photo file selection
+ */
+function handlePhotoFileChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        if (window.showToast) window.showToast('Please select an image file', 'error');
+        return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        if (window.showToast) window.showToast('Image size must be less than 5MB', 'error');
+        return;
+    }
+
+    // Preview the image immediately
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const profilePhotoDisplay = document.getElementById('profile-photo-display');
+        if (profilePhotoDisplay) {
+            profilePhotoDisplay.src = e.target.result;
+        }
+
+        // Upload to backend
+        uploadProfilePhoto(e.target.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Upload profile photo to backend
+ * @param {String} base64Image - Base64 encoded image data
+ */
+function uploadProfilePhoto(base64Image) {
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('Please create a profile first', 'error');
+        return;
+    }
+
+    if (typeof window.sendDataToGoogle === 'function') {
+        window.sendDataToGoogle('updateProfilePhoto', {
+            userId: window.currentProfileUserId,
+            photoData: base64Image
+        }, (response) => {
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Profile photo updated successfully');
+                // Optionally refresh profile data
+                // fetchProfileData(window.currentProfileUserId);
+            } else {
+                console.error('Failed to upload photo:', response.message);
+                if (window.showToast) window.showToast('Failed to upload photo: ' + response.message, 'error');
+            }
+        });
+    } else {
+        console.error('sendDataToGoogle function not found');
+        if (window.showToast) window.showToast('Upload function not available', 'error');
     }
 }
