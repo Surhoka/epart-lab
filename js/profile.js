@@ -198,7 +198,7 @@ function setupEventListeners() {
     }
 
     // Delete Profile Button (Address Modal)
-    const deleteBtnAddress = document.getElementById('delete-profile-btn-address');
+    const deleteBtnAddress = document.getElementById('delete-address-btn');
     if (deleteBtnAddress) {
         deleteBtnAddress.addEventListener('click', (e) => {
             e.preventDefault();
@@ -275,7 +275,7 @@ function savePersonalInfo() {
 
     if (typeof window.sendDataToGoogle === 'function') {
         window.sendDataToGoogle('updateProfile', {
-            profileData,
+            profileData: JSON.stringify(profileData),
             userId: window.currentProfileUserId
         }, (response) => {
             if (response.status === 'success') {
@@ -320,7 +320,7 @@ function saveAddress() {
 
     if (typeof window.sendDataToGoogle === 'function') {
         window.sendDataToGoogle('updateProfile', {
-            profileData,
+            profileData: JSON.stringify(profileData),
             userId: window.currentProfileUserId
         }, (response) => {
             if (response.status === 'success') {
