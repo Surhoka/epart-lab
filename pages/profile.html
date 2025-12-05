@@ -70,15 +70,6 @@
                 </svg>
               </button>
 
-              <button id="delete-profile-btn"
-                class="flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-                <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M17.5 4.98332C14.725 4.70832 11.9333 4.56665 9.15 4.56665C7.5 4.56665 5.85 4.64998 4.2 4.81665L2.5 4.98332M6.66667 4.14165L6.88333 3.09165C7.04167 2.32498 7.15833 1.75 8.525 1.75H11.475C12.8417 1.75 12.9667 2.35 13.1167 3.1L13.3333 4.14165M16.0417 7.61665L15.4583 16.6667C15.3583 18.075 15.275 19.1667 12.775 19.1667H7.225C4.725 19.1667 4.64167 18.075 4.54167 16.6667L3.95833 7.61665M8.58333 14.5833H11.4167M7.91667 10.4167H12.0833"
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </button>
             </div>
           </div>
 
@@ -326,6 +317,10 @@
           </div>
         </div>
         <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+          <button id="delete-profile-btn" type="button"
+            class="flex w-full justify-center rounded-lg border border-red-300 bg-white px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-white/[0.03] sm:w-auto">
+            Delete Profile
+          </button>
           <button x-on:click="isProfileInfoModal = false" type="button"
             class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
             Close
