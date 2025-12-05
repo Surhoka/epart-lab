@@ -183,8 +183,8 @@ function setupEventListeners() {
     if (savePersonalInfoBtn) {
         savePersonalInfoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            // Add loading state
-            setButtonLoading(savePersonalInfoBtn, true);
+            // Add loading state (using global function)
+            window.setButtonLoading(savePersonalInfoBtn, true);
             savePersonalInfo();
         });
     }
@@ -194,8 +194,8 @@ function setupEventListeners() {
     if (saveAddressBtn) {
         saveAddressBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            // Add loading state
-            setButtonLoading(saveAddressBtn, true);
+            // Add loading state (using global function)
+            window.setButtonLoading(saveAddressBtn, true);
             saveAddress();
         });
     }
