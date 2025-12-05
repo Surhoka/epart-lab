@@ -225,6 +225,9 @@ window.initCalendarPage = function () {
     // Update Calender Event
     /*=====================*/
     getModalUpdateBtnEl.addEventListener("click", () => {
+      // Start loading state
+      window.setButtonLoading(getModalUpdateBtnEl, true);
+
       const getPublicID = getModalUpdateBtnEl.dataset.fcEventPublicId;
       const getTitleUpdatedValue = getModalTitleEl.value;
       const setModalStartDateValue = getModalStartDateEl.value;
@@ -256,13 +259,24 @@ window.initCalendarPage = function () {
               getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
               getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
             }
-            closeModal();
+
+            // Close modal with delay and remove loading
+            setTimeout(() => {
+              closeModal();
+              window.setButtonLoading(getModalUpdateBtnEl, false);
+            }, 200);
+
             if (window.showToast) window.showToast('Event updated successfully');
           } else {
             console.error('Failed to update event:', response.message);
             if (window.showToast) window.showToast('Failed to update event', 'error');
+            // Remove loading on error
+            window.setButtonLoading(getModalUpdateBtnEl, false);
           }
         });
+      } else {
+        // Remove loading if function not available
+        window.setButtonLoading(getModalUpdateBtnEl, false);
       }
     });
 
@@ -273,6 +287,9 @@ window.initCalendarPage = function () {
       getModalDeleteBtnEl.addEventListener("click", () => {
         const getPublicID = getModalDeleteBtnEl.dataset.fcEventPublicId;
         if (confirm("Are you sure you want to delete this event?")) {
+          // Start loading state
+          window.setButtonLoading(getModalDeleteBtnEl, true);
+
           if (typeof window.sendDataToGoogle === 'function') {
             window.sendDataToGoogle('delete', { id: getPublicID }, (response) => {
               if (response.status === 'success') {
@@ -280,13 +297,24 @@ window.initCalendarPage = function () {
                 if (getEvent) {
                   getEvent.remove();
                 }
-                closeModal();
+
+                // Close modal with delay and remove loading
+                setTimeout(() => {
+                  closeModal();
+                  window.setButtonLoading(getModalDeleteBtnEl, false);
+                }, 200);
+
                 if (window.showToast) window.showToast('Event deleted successfully');
               } else {
                 console.error('Failed to delete event:', response.message);
                 if (window.showToast) window.showToast('Failed to delete event', 'error');
+                // Remove loading on error
+                window.setButtonLoading(getModalDeleteBtnEl, false);
               }
             });
+          } else {
+            // Remove loading if function not available
+            window.setButtonLoading(getModalDeleteBtnEl, false);
           }
         }
       });
@@ -296,6 +324,9 @@ window.initCalendarPage = function () {
     // Add Calender Event
     /*=====================*/
     getModalAddBtnEl.addEventListener("click", () => {
+      // Start loading state
+      window.setButtonLoading(getModalAddBtnEl, true);
+
       const getModalCheckedRadioBtnEl = document.querySelector(
         'input[name="event-level"]:checked',
       );
@@ -326,13 +357,24 @@ window.initCalendarPage = function () {
             eventData.id = finalId;
 
             calendar.addEvent(eventData);
-            closeModal();
+
+            // Close modal with delay and remove loading
+            setTimeout(() => {
+              closeModal();
+              window.setButtonLoading(getModalAddBtnEl, false);
+            }, 200);
+
             if (window.showToast) window.showToast('Event created successfully');
           } else {
             console.error('Failed to create event:', response.message);
             if (window.showToast) window.showToast('Failed to create event', 'error');
+            // Remove loading on error
+            window.setButtonLoading(getModalAddBtnEl, false);
           }
         });
+      } else {
+        // Remove loading if function not available
+        window.setButtonLoading(getModalAddBtnEl, false);
       }
     });
 
