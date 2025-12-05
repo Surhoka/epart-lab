@@ -179,17 +179,18 @@ function populateModalFields(personalInfo, address, socialLinks) {
  */
 function setupEventListeners() {
     // Personal Info Save Button
-    const saveInfoButtons = document.querySelectorAll('button.bg-brand-500');
-    if (saveInfoButtons[0]) {
-        saveInfoButtons[0].addEventListener('click', (e) => {
+    const savePersonalInfoBtn = document.getElementById('save-personal-info-btn');
+    if (savePersonalInfoBtn) {
+        savePersonalInfoBtn.addEventListener('click', (e) => {
             e.preventDefault();
             savePersonalInfo();
         });
     }
 
     // Address Save Button
-    if (saveInfoButtons[1]) {
-        saveInfoButtons[1].addEventListener('click', (e) => {
+    const saveAddressBtn = document.getElementById('save-address-btn');
+    if (saveAddressBtn) {
+        saveAddressBtn.addEventListener('click', (e) => {
             e.preventDefault();
             saveAddress();
         });
