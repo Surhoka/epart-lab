@@ -187,6 +187,44 @@ function setupEventListeners() {
             saveAddress();
         });
     }
+
+    // Delete Profile Button
+    const deleteBtn = document.getElementById('delete-profile-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            confirmDeleteProfile();
+        });
+    }
+}
+
+/**
+ * Confirm and delete profile
+ */
+function confirmDeleteProfile() {
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
+        return;
+    }
+
+    if (confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
+        if (typeof window.sendDataToGoogle === 'function') {
+            window.sendDataToGoogle('deleteProfile', window.currentProfileUserId, (response) => {
+                if (response.status === 'success') {
+                    if (window.showToast) window.showToast('Profile deleted successfully');
+                    // Optional: Redirect or clear data
+                    // window.location.href = '/'; // Example redirect
+                    // For now, maybe just reload or clear the display
+                    location.reload();
+                } else {
+                    console.error('Failed to delete profile:', response.message);
+                    if (window.showToast) window.showToast('Failed to delete profile: ' + response.message, 'error');
+                }
+            });
+        } else {
+            console.error('sendDataToGoogle function not found.');
+        }
+    }
 }
 
 /**
