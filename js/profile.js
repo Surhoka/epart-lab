@@ -262,11 +262,13 @@ function clearPersonalInfo() {
                 if (response.status === 'success') {
                     if (window.showToast) window.showToast('Personal information cleared successfully');
                     fetchProfileData(window.currentProfileUserId); // Refresh data
-                    // Close modal
-                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
-                    if (modal) {
-                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
-                    }
+                    // Close modal with delay to show button click effect
+                    setTimeout(() => {
+                        const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                        if (modal) {
+                            Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
+                        }
+                    }, 200);
                 } else {
                     console.error('Failed to clear personal info:', response.message);
                     if (window.showToast) window.showToast('Failed to clear personal info', 'error');
@@ -303,11 +305,13 @@ function clearAddress() {
                 if (response.status === 'success') {
                     if (window.showToast) window.showToast('Address information cleared successfully');
                     fetchProfileData(window.currentProfileUserId); // Refresh data
-                    // Close modal
-                    const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
-                    if (modal) {
-                        Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
-                    }
+                    // Close modal with delay to show button click effect
+                    setTimeout(() => {
+                        const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
+                        if (modal) {
+                            Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
+                        }
+                    }, 200);
                 } else {
                     console.error('Failed to clear address:', response.message);
                     if (window.showToast) window.showToast('Failed to clear address', 'error');
@@ -368,11 +372,13 @@ function savePersonalInfo() {
                 }
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
-                // Close modal
-                const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
-                if (modal) {
-                    Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
-                }
+                // Close modal with delay to show button click effect
+                setTimeout(() => {
+                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                    if (modal) {
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
+                    }
+                }, 200);
             } else {
                 console.error('Failed to save profile:', response.message);
                 if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
@@ -419,11 +425,13 @@ function saveAddress() {
                 }
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
-                // Close modal
-                const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
-                if (modal) {
-                    Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
-                }
+                // Close modal with delay to show button click effect
+                setTimeout(() => {
+                    const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
+                    if (modal) {
+                        Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
+                    }
+                }, 200);
             } else {
                 console.error('Failed to save address:', response.message);
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
