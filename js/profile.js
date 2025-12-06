@@ -24,23 +24,56 @@ window.initProfilePage = function () {
  * @param {String} userId Optional - ID user yang akan diambil. Jika kosong, ambil user pertama.
  */
 function fetchProfileData(userId) {
+    // 1. CACHE FIRST STRATEGY
+    const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+    const cachedData = localStorage.getItem(cacheKey);
+
+    if (cachedData) {
+        try {
+            const parsedData = JSON.parse(cachedData);
+            console.log('Loading profile from cache...');
+            // Populate UI immediately with cached data
+            window.currentProfileUserId = parsedData.id;
+            populateProfileData(parsedData);
+        } catch (e) {
+            console.error('Error parsing cached profile data', e);
+            localStorage.removeItem(cacheKey);
+        }
+    }
+
+    // 2. NETWORK BACKGROUND FETCH
     if (typeof window.sendDataToGoogle === 'function') {
         const params = userId ? { userId } : {};
+        console.log('Fetching fresh profile data from server...');
+
         window.sendDataToGoogle('getProfile', params, (response) => {
             if (response.status === 'success' && response.data) {
                 // Store the user ID for future updates
                 window.currentProfileUserId = response.data.id;
+
+                // Update UI with fresh data
                 populateProfileData(response.data);
-                console.log('Profile data loaded:', response.data);
+                console.log('Profile data loaded from server:', response.data);
+
+                // Update Cache
+                localStorage.setItem(cacheKey, JSON.stringify(response.data));
+
             } else {
                 console.log('No profile data found, prompting creation.');
                 window.currentProfileUserId = null; // Ensure ID is null
-                if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
 
-                // Auto-open Personal Info Modal
-                const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
-                if (modal) {
-                    Alpine.evaluate(modal, '$data.isProfileInfoModal = true');
+                // Only show toast/modal if we didn't have cached data (to avoid annoying popups if cache was stale but valid-ish)
+                // OR if we want to enforce consistency. 
+                // Let's stick to original behavior but only if NO cache exists or if server explicitly says "error/empty".
+
+                if (!cachedData) {
+                    if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
+
+                    // Auto-open Personal Info Modal
+                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                    if (modal) {
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = true');
+                    }
                 }
             }
         });
@@ -258,27 +291,28 @@ function clearPersonalInfo() {
             }
         };
 
-        if (typeof window.sendDataToGoogle === 'function') {
-            window.sendDataToGoogle('updateProfile', {
-                profileData: JSON.stringify(profileData),
-                userId: window.currentProfileUserId
-            }, (response) => {
-                if (response.status === 'success') {
-                    if (window.showToast) window.showToast('Personal information cleared successfully');
-                    fetchProfileData(window.currentProfileUserId); // Refresh data
-                    // Close modal with delay to show button click effect
-                    setTimeout(() => {
-                        const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
-                        if (modal) {
-                            Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
-                        }
-                    }, 200);
-                } else {
-                    console.error('Failed to clear personal info:', response.message);
-                    if (window.showToast) window.showToast('Failed to clear personal info', 'error');
-                }
-            });
-        }
+        window.sendDataToGoogle('updateProfile', {
+            profileData: JSON.stringify(profileData),
+            userId: window.currentProfileUserId
+        }, (response) => {
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Personal information cleared successfully');
+
+                // Fetch will automatically update cache and UI
+                fetchProfileData(window.currentProfileUserId);
+
+                // Close modal with delay to show button click effect
+                setTimeout(() => {
+                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                    if (modal) {
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
+                    }
+                }, 200);
+            } else {
+                console.error('Failed to clear personal info:', response.message);
+                if (window.showToast) window.showToast('Failed to clear personal info', 'error');
+            }
+        });
     }
 }
 
@@ -308,7 +342,10 @@ function clearAddress() {
             }, (response) => {
                 if (response.status === 'success') {
                     if (window.showToast) window.showToast('Address information cleared successfully');
-                    fetchProfileData(window.currentProfileUserId); // Refresh data
+
+                    // Fetch will automatically update cache and UI
+                    fetchProfileData(window.currentProfileUserId);
+
                     // Close modal with delay to show button click effect
                     setTimeout(() => {
                         const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
@@ -377,7 +414,30 @@ function savePersonalInfo() {
                     window.currentProfileUserId = response.data.id;
                 }
 
+                // Invalidate cache or Update it? 
+                // Since `fetchProfileData` now updates the cache, simply calling it is enough.
+                // However, `fetchProfileData` will ALSO load from cache first (which is old now).
+                // But since we just saved, we know the data on server is "new", but local cache is "old".
+                // Actually, `fetchProfileData` will invoke network call, which will eventually overwrite cache with fresh data.
+                // To avoid "flash of old content", we should ideally update cache HERE with what we just sent + response?
+                // OR, just clear cache so `fetch` has to hit network (but then we lose speed if they reload immediately).
+                // Better approach: `fetchProfileData` will load old cache, THEN network request finishes and updates UI.
+                // To prevent seeing old data for a split second after we *know* we changed it:
+                // We can manually update the cache with the values we just saved.
+
+                // Construct the "new" profile object roughly (or just rely on re-fetch).
+                // Relying on re-fetch is safest but might show reversion.
+                // Let's rely on re-fetch but CLEAR cache first so it forces a wait? 
+                // No, that defeats the purpose.
+                // Best UX: Optimistically update UI (which we can do via fetching).
+                // Since this is a SAVE action, the slight delay of re-fetching is acceptable compared to page load.
+                // NOTE: To fix the "flash of old data", we could delete the cache key before fetching.
+
+                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+                localStorage.removeItem(cacheKey);
+
                 fetchProfileData(window.currentProfileUserId); // Refresh data
+
                 // Close modal with delay to show button click effect
                 setTimeout(() => {
                     const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
@@ -436,7 +496,12 @@ function saveAddress() {
                     window.currentProfileUserId = response.data.id;
                 }
 
+                // Clear cache before refetching to ensure we don't load stale data
+                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+                localStorage.removeItem(cacheKey);
+
                 fetchProfileData(window.currentProfileUserId); // Refresh data
+
                 // Close modal with delay to show button click effect
                 setTimeout(() => {
                     const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
@@ -557,10 +622,27 @@ function saveProfilePhotoUrl(photoUrl) {
         }, (response) => {
             if (response.status === 'success') {
                 if (window.showToast) window.showToast('Profile photo updated successfully');
+
                 // Update the display with the new URL
                 const profilePhotoDisplay = document.getElementById('profile-photo-display');
                 if (profilePhotoDisplay) {
                     profilePhotoDisplay.src = photoUrl;
+                }
+
+                // Update cache locally to reflect the new photo url without needing full re-fetch or invalidation
+                // This is a "surgical" cache update since we know exactly what changed
+                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    try {
+                        const parsedData = JSON.parse(cachedData);
+                        if (parsedData.personalInfo) {
+                            parsedData.personalInfo.profilePhoto = photoUrl;
+                            localStorage.setItem(cacheKey, JSON.stringify(parsedData));
+                        }
+                    } catch (e) {
+                        console.error("Failed to update cache for photo", e);
+                    }
                 }
             } else {
                 console.error('Failed to save photo URL:', response.message);
