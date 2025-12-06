@@ -639,6 +639,23 @@ function saveProfilePhotoUrl(photoUrl) {
                         if (parsedData.personalInfo) {
                             parsedData.personalInfo.profilePhoto = photoUrl;
                             localStorage.setItem(cacheKey, JSON.stringify(parsedData));
+
+                            // ALSO update the loggedInUser session so the header updates immediately
+                            const sessionUser = JSON.parse(localStorage.getItem('loggedInUser'));
+                            if (sessionUser) {
+                                sessionUser.pictureUrl = photoUrl;
+                                localStorage.setItem('loggedInUser', JSON.stringify(sessionUser));
+                                // Function to refresh header if accessible or reload
+                                // Since header is x-data bound to localStorage via appData init, it might not reactively update unless we reload or dispatch event.
+                                // Simplest way is simply update localStorage. Alpine might not catch it if it's already initialized.
+                                // Ideally, we should dispatch an event or reload.
+                                // Given SPA, let's try to update the Alpine component scope if possible, or just accept that it updates on next nav/load.
+                                // But user specific request implies they want to see it.
+                                // We can try to update window.app.currentUser if exposed.
+                                if (window.app && window.app.currentUser) {
+                                    window.app.currentUser.pictureUrl = photoUrl;
+                                }
+                            }
                         }
                     } catch (e) {
                         console.error("Failed to update cache for photo", e);
