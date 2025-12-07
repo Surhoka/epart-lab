@@ -56,7 +56,7 @@ function renderProductsTable() {
             <td class="py-3">
                 <div class="flex items-center gap-3">
                      <div class="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
-                        <img src="src/images/product/${product.image}" alt="${product.name}" class="h-full w-full object-cover"/>
+                        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/${product.image}" alt="${product.name}" class="h-full w-full object-cover"/>
                     </div>
                     <div>
                         <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${product.name}</p>
