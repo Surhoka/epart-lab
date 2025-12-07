@@ -57,24 +57,6 @@ function initProductsPage() {
     tbody.innerHTML = productsData.map(product => `
         <tr>
             <td class="py-3">
-                <div class="flex items-center gap-3">
-                     <div class="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
-                        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/${product.image}" alt="${product.name}" class="h-full w-full object-cover"/>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${product.name}</p>
-                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${product.variants}</span>
-                    </div>
-                </div>
-            </td>
-            <td class="py-3">
-                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${product.category}</p>
-            </td>
-            <td class="py-3">
-                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${product.price}</p>
-            </td>
-            <td class="py-3">
-                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${product.status === 'Active'
             ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
             : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
         }">
