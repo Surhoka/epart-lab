@@ -14,71 +14,81 @@ function renderProductsTable() {
             category: 'Electronics',
             price: '$269',
             status: 'Active',
-            image: 'product-01.png'
+            image: 'product-01.jpg',
+            variants: '1 Variant'
         },
         {
             name: 'Macbook Pro M1',
             category: 'Electronics',
             price: '$1269',
             status: 'Active',
-            image: 'product-02.png'
+            image: 'product-02.jpg',
+            variants: '2 Variants'
         },
         {
             name: 'Dell Inspiron 15',
             category: 'Electronics',
             price: '$669',
             status: 'Out of Stock',
-            image: 'product-03.png'
+            image: 'product-03.jpg',
+            variants: '1 Variant'
         },
         {
             name: 'HP Probook 450',
             category: 'Electronics',
             price: '$869',
             status: 'Active',
-            image: 'product-04.png'
+            image: 'product-04.jpg',
+            variants: '3 Variants'
         },
         {
             name: 'Logitech MX Master 3',
             category: 'Accessories',
             price: '$99',
             status: 'Active',
-            image: 'product-05.png'
+            image: 'product-05.jpg',
+            variants: '1 Variant'
         }
     ];
 
     tbody.innerHTML = products.map(product => `
         <tr>
-            <td class="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                <h5 class="font-medium text-black dark:text-white">${product.name}</h5>
+            <td class="py-3">
+                <div class="flex items-center gap-3">
+                     <div class="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
+                        <img src="src/images/product/${product.image}" alt="${product.name}" class="h-full w-full object-cover"/>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${product.name}</p>
+                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${product.variants}</span>
+                    </div>
+                </div>
             </td>
-            <td class="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                <p class="text-black dark:text-white">${product.category}</p>
+            <td class="py-3">
+                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${product.category}</p>
             </td>
-            <td class="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                <p class="text-black dark:text-white">${product.price}</p>
+            <td class="py-3">
+                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${product.price}</p>
             </td>
-            <td class="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                <p class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${product.status === 'Active' ? 'bg-success text-success' : 'bg-danger text-danger'
+            <td class="py-3">
+                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${product.status === 'Active'
+            ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
+            : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
         }">
                     ${product.status}
                 </p>
             </td>
-            <td class="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                <div class="flex items-center space-x-3.5">
-                    <button class="hover:text-primary">
+            <td class="py-3">
+                <div class="flex items-center gap-2">
+                    <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8.99981 14.8219C3.43106 14.8219 0.674805 9.50624 0.562305 9.28124C0.47793 9.11249 0.47793 8.88749 0.562305 8.71874C0.674805 8.49374 3.43106 3.17812 8.99981 3.17812C14.5686 3.17812 17.3248 8.49374 17.4373 8.71874C17.5217 8.88749 17.5217 9.11249 17.4373 9.28124C17.3248 9.50624 14.5686 14.8219 8.99981 14.8219ZM1.6873 8.99999C2.41856 10.3219 5.24231 13.6969 8.99981 13.6969C12.7573 13.6969 15.5811 10.3219 16.3123 8.99999C15.5811 7.67812 12.7573 4.30312 8.99981 4.30312C5.24231 4.30312 2.41856 7.67812 1.6873 8.99999Z" fill=""/>
                             <path d="M9 11.3906C7.67812 11.3906 6.60938 10.3219 6.60938 9C6.60938 7.67813 7.67812 6.60938 9 6.60938C10.3219 6.60938 11.3906 7.67813 11.3906 9C11.3906 10.3219 10.3219 11.3906 9 11.3906ZM9 7.73438C8.32499 7.73438 7.73438 8.32499 7.73438 9C7.73438 9.675 8.32499 10.2656 9 10.2656C9.675 10.2656 10.2656 9.675 10.2656 9C10.2656 8.32499 9.675 7.73438 9 7.73438Z" fill=""/>
                         </svg>
                     </button>
-                    <button class="hover:text-primary">
+                    <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M16.875 2.16563H12.9375V1.26563C12.9375 0.5625 12.375 0 11.6719 0H6.32812C5.625 0 5.0625 0.5625 5.0625 1.26563V2.16563H1.125C0.50625 2.16563 0 2.67188 0 3.29063V3.43125C0 3.65625 0.196875 3.825 0.421875 3.825H1.4625L2.10938 16.3125C2.16562 17.2688 2.95312 18 3.90938 18H14.1187C15.075 18 15.8625 17.2406 15.9187 16.2844L16.5656 3.825H17.5781C17.8031 3.825 18 3.62813 18 3.43125V3.29063C18 2.67188 17.4937 2.16563 16.875 2.16563ZM14.7937 16.2281C14.7656 16.6219 14.4562 16.875 14.1187 16.875H3.90937C3.57187 16.875 3.2625 16.6219 3.23437 16.2563L2.5875 3.825H15.4406L14.7937 16.2281ZM6.1875 1.26563C6.1875 1.18125 6.24375 1.125 6.32812 1.125H11.6719C11.7562 1.125 11.8125 1.18125 11.8125 1.26563V2.16563H6.1875V1.26563Z" fill=""/>
-                        </svg>
-                    </button>
-                    <button class="hover:text-primary">
-                        <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                           <path d="M13.7531 6.55312L9.61875 10.6875L13.7531 14.8219C14.0625 15.1312 14.0625 15.6375 13.7531 15.9469C13.5844 16.1156 13.3875 16.1719 13.1906 16.1719C12.9937 16.1719 12.7969 16.0875 12.6281 15.9469L8.49375 11.8125L4.35938 15.9469C4.19062 16.1156 3.99375 16.1719 3.79688 16.1719C3.6 16.1719 3.40313 16.0875 3.23438 15.9469C2.925 15.6375 2.925 15.1312 3.23438 14.8219L7.36875 10.6875L3.23438 6.55312C2.925 6.24375 2.925 5.7375 3.23438 5.42812C3.54375 5.11875 4.05 5.11875 4.35938 5.42812L8.49375 9.5625L12.6281 5.42812C12.9375 5.11875 13.4437 5.11875 13.7531 5.42812C14.0625 5.7375 14.0625 6.24375 13.7531 6.55312Z" fill=""/>
                         </svg>
                     </button>
                 </div>
