@@ -1,74 +1,78 @@
 <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
     <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-title-md2 font-bold text-black dark:text-white">
+        <h2 class="text-title-md2 font-bold text-gray-800 dark:text-white/90">
             Products
         </h2>
         <nav>
             <ol class="flex items-center gap-2">
-                <li><a class="font-medium" href="#dashboard">Dashboard /</a></li>
-                <li class="font-medium text-primary">Products</li>
+                <li><a class="font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        href="#dashboard">Dashboard /</a></li>
+                <li class="font-medium text-brand-500">Products</li>
             </ol>
         </nav>
     </div>
 
     <!-- Table Section Start -->
-    <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div class="py-6 px-4 md:px-6 xl:px-7.5 flex justify-between items-center">
-            <h4 class="text-xl font-semibold text-black dark:text-white">
-                All Products
-            </h4>
-            <div class="flex items-center gap-2">
-                <input type="text" placeholder="Search products..."
-                    class="w-full bg-transparent pl-9 pr-4 font-medium focus:outline-none xl:w-125 border border-stroke rounded-md py-2 px-4 dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary">
+    <div
+        class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+        <div class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+                    All Products
+                </h3>
+            </div>
+            <div class="flex items-center gap-3">
+                <input type="text" placeholder="Search..."
+                    class="rounded-lg border border-gray-300 bg-transparent py-2.5 px-4 text-theme-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:focus:border-brand-500">
                 <button
-                    class="inline-flex items-center justify-center rounded-md bg-primary py-2 px-6 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                    class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-theme-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+                    <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4.16666V15.8333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M4.16669 10H15.8334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
                     Add Product
                 </button>
             </div>
         </div>
 
-        <div class="max-w-full overflow-x-auto">
-            <table class="w-full table-auto">
+        <div class="w-full overflow-x-auto">
+            <table class="min-w-full">
                 <thead>
-                    <tr class="bg-gray-2 text-left dark:bg-meta-4">
-                        <th class="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                            Product Name
+                    <tr class="border-gray-100 border-y dark:border-gray-800">
+                        <th class="py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Product Name</p>
                         </th>
-                        <th class="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
-                            Category
+                        <th class="py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Category</p>
                         </th>
-                        <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
-                            Price
+                        <th class="py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Price</p>
                         </th>
-                        <th class="py-4 px-4 font-medium text-black dark:text-white">
-                            Status
+                        <th class="py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</p>
                         </th>
-                        <th class="py-4 px-4 font-medium text-black dark:text-white">
-                            Actions
+                        <th class="py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Actions</p>
                         </th>
                     </tr>
                 </thead>
-                <tbody id="products-table-body">
+                <tbody id="products-table-body" class="divide-y divide-gray-100 dark:divide-gray-800">
                     <!-- Products will be dynamically inserted here -->
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination (Mockup) -->
-        <div
-            class="py-4 px-4 md:px-6 xl:px-7.5 flex justify-between items-center border-t border-stroke dark:border-strokedark">
-            <p class="font-medium text-black dark:text-white">Showing 1-5 of 20</p>
-            <div class="flex gap-2">
+        <!-- Pagination -->
+        <div class="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+            <p class="text-theme-xs font-medium text-gray-500 dark:text-gray-400">Showing 1-5 of 20</p>
+            <div class="flex items-center gap-2">
                 <button
-                    class="flex items-center justify-center rounded bg-primary py-1 px-3 font-medium text-white hover:bg-opacity-90">Prev</button>
+                    class="flex items-center justify-center rounded-lg border border-gray-300 bg-white py-1.5 px-3 text-theme-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]">Prev</button>
                 <button
-                    class="flex items-center justify-center rounded bg-primary py-1 px-3 font-medium text-white hover:bg-opacity-90">1</button>
-                <button
-                    class="flex items-center justify-center rounded hover:bg-primary hover:text-white py-1 px-3 font-medium text-black dark:text-white">2</button>
-                <button
-                    class="flex items-center justify-center rounded hover:bg-primary hover:text-white py-1 px-3 font-medium text-black dark:text-white">3</button>
-                <button
-                    class="flex items-center justify-center rounded bg-primary py-1 px-3 font-medium text-white hover:bg-opacity-90">Next</button>
+                    class="flex items-center justify-center rounded-lg border border-gray-300 bg-white py-1.5 px-3 text-theme-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]">Next</button>
             </div>
         </div>
     </div>
