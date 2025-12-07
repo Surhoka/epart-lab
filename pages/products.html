@@ -1,4 +1,4 @@
-<div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+<div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6" x-data="{ modalOpen: false }">
     <!-- Breadcrumb Start -->
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
@@ -15,7 +15,7 @@
             <div class="flex items-center gap-3">
                 <input type="text" placeholder="Search..."
                     class="rounded-lg border border-gray-300 bg-transparent py-2.5 px-4 text-theme-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:focus:border-brand-500">
-                <button id="addProductBtn"
+                <button @click="modalOpen = true"
                     class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-theme-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
                     <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -70,13 +70,13 @@
     <!-- Table Section End -->
 
     <!-- Add Product Modal -->
-    <div class="fixed left-0 top-0 z-999999 hidden h-full min-h-screen w-full overflow-y-auto overflow-x-hidden bg-black/90 px-4 py-5"
+    <div x-show="modalOpen" x-transition
+        class="fixed left-0 top-0 z-999999 flex h-full min-h-screen w-full items-center justify-center bg-black/90 px-4 py-5"
         id="addProductModal">
-        <div
-            class="w-full max-w-142.5 rounded-lg bg-white px-8 py-12 text-center dark:bg-boxdark md:px-17.5 md:py-15 mx-auto mt-20 relative">
-            <button
-                class="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                id="closeModalBtn">
+        <div @click.outside="modalOpen = false"
+            class="w-full max-w-142.5 rounded-lg bg-white px-8 py-12 text-center dark:bg-boxdark md:px-17.5 md:py-15 relative">
+            <button @click="modalOpen = false"
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
                 <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -135,9 +135,9 @@
                 </div>
 
                 <div class="flex justify-end gap-4.5">
-                    <button
+                    <button @click="modalOpen = false"
                         class="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                        type="button" id="cancelAddProduct">
+                        type="button">
                         Cancel
                     </button>
                     <button
