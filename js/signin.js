@@ -52,7 +52,7 @@ function handleSignin(e) {
 
             // Redirect to dashboard
             setTimeout(() => {
-                window.location.hash = '#ecommerce';
+                window.location.hash = '#dashboard';
             }, 1000);
         } else {
             showToast(response.message || 'Login failed. Please check your credentials.', 'error');
