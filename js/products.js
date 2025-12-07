@@ -42,7 +42,7 @@ let productsData = [
     }
 ];
 
-window.initCalendarPage = function () {
+window.initProductsPage = function () {
   if (typeof window.renderBreadcrumb === 'function') {
     window.renderBreadcrumb('Products');
   }
@@ -139,3 +139,4 @@ function renderProductsTable() {
         </tr>
     `).join('');
 }
+
