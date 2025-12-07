@@ -1,4 +1,4 @@
-  <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+<div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
     <!-- Breadcrumb Start -->
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
@@ -15,7 +15,7 @@
             <div class="flex items-center gap-3">
                 <input type="text" placeholder="Search..."
                     class="rounded-lg border border-gray-300 bg-transparent py-2.5 px-4 text-theme-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:focus:border-brand-500">
-                <button
+                <button id="addProductBtn"
                     class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-theme-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
                     <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -68,5 +68,85 @@
         </div>
     </div>
     <!-- Table Section End -->
-</div>
 
+    <!-- Add Product Modal -->
+    <div class="fixed left-0 top-0 z-999999 hidden h-full min-h-screen w-full overflow-y-auto overflow-x-hidden bg-black/90 px-4 py-5"
+        id="addProductModal">
+        <div
+            class="w-full max-w-142.5 rounded-lg bg-white px-8 py-12 text-center dark:bg-boxdark md:px-17.5 md:py-15 mx-auto mt-20 relative">
+            <button
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                id="closeModalBtn">
+                <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
+                        fill="" />
+                </svg>
+            </button>
+            <h3 class="pb-2 text-xl font-bold text-black dark:text-white sm:text-2xl">
+                Add New Product
+            </h3>
+            <span class="mx-auto mb-6 inline-block h-1 w-22.5 rounded bg-brand-500"></span>
+
+            <form id="addProductForm">
+                <div class="mb-5.5">
+                    <label class="mb-3 block text-sm font-medium text-black dark:text-white text-left"
+                        for="productName">
+                        Product Name
+                    </label>
+                    <input
+                        class="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-brand-500 focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-brand-500"
+                        type="text" name="productName" id="productName" placeholder="Enter product name" required>
+                </div>
+
+                <div class="mb-5.5">
+                    <label class="mb-3 block text-sm font-medium text-black dark:text-white text-left"
+                        for="productCategory">
+                        Category
+                    </label>
+                    <input
+                        class="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-brand-500 focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-brand-500"
+                        type="text" name="productCategory" id="productCategory" placeholder="Enter category" required>
+                </div>
+
+                <div class="mb-5.5">
+                    <label class="mb-3 block text-sm font-medium text-black dark:text-white text-left"
+                        for="productPrice">
+                        Price
+                    </label>
+                    <input
+                        class="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-brand-500 focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-brand-500"
+                        type="text" name="productPrice" id="productPrice" placeholder="Enter price (e.g. $100)"
+                        required>
+                </div>
+
+                <div class="mb-5.5">
+                    <label class="mb-3 block text-sm font-medium text-black dark:text-white text-left"
+                        for="productStatus">
+                        Status
+                    </label>
+                    <select
+                        class="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-brand-500 focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-brand-500"
+                        name="productStatus" id="productStatus">
+                        <option value="Active">Active</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-4.5">
+                    <button
+                        class="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                        type="button" id="cancelAddProduct">
+                        Cancel
+                    </button>
+                    <button
+                        class="flex justify-center rounded bg-brand-500 py-2 px-6 font-medium text-gray hover:bg-opacity-90"
+                        type="submit">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
