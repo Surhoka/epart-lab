@@ -42,16 +42,10 @@ let productsData = [
     }
 ];
 
-window.initProductsPage = function () {
-    console.log('Products Page Initialized');
-
-    // Initialize Breadcrumb - defensive check like calendar.js
-    if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb([
-            { label: 'Dashboard', link: '#dashboard' },
-            { label: 'Products', link: '#products' }
-        ], 'breadcrumb-container');
-    }
+window.initCalendarPage = function () {
+  if (typeof window.renderBreadcrumb === 'function') {
+    window.renderBreadcrumb('Products');
+  }
 
     renderProductsTable();
     setupProductEventListeners();
