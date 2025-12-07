@@ -42,20 +42,20 @@ let productsData = [
     }
 ];
 
-function initProductsPage() {
+window.initProductsPage = function () {
     console.log('Products Page Initialized');
 
     // Initialize Breadcrumb - defensive check like calendar.js
     if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('breadcrumb-container', [
-            { name: 'Dashboard', link: '#dashboard' },
-            { name: 'Products', link: '#products' }
-        ]);
+        window.renderBreadcrumb([
+            { label: 'Dashboard', link: '#dashboard' },
+            { label: 'Products', link: '#products' }
+        ], 'breadcrumb-container');
     }
 
     renderProductsTable();
     setupProductEventListeners();
-}
+};
 
 function setupProductEventListeners() {
     const addProductForm = document.getElementById('addProductForm');
