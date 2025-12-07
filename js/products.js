@@ -6,7 +6,7 @@ let productsData = [
         price: '$269',
         status: 'Active',
         image: 'product-01.jpg',
-        variants: '1 Variant'
+        sku: '11221'
     },
     {
         name: 'Macbook Pro M1',
@@ -14,7 +14,7 @@ let productsData = [
         price: '$1269',
         status: 'Active',
         image: 'product-02.jpg',
-        variants: '2 Variants'
+        sku: '11222'
     },
     {
         name: 'Dell Inspiron 15',
@@ -22,7 +22,7 @@ let productsData = [
         price: '$669',
         status: 'Out of Stock',
         image: 'product-03.jpg',
-        variants: '1 Variant'
+        sku: '11223'
     },
     {
         name: 'HP Probook 450',
@@ -30,7 +30,7 @@ let productsData = [
         price: '$869',
         status: 'Active',
         image: 'product-04.jpg',
-        variants: '3 Variants'
+        sku: '11224'
     },
     {
         name: 'Logitech MX Master 3',
@@ -38,7 +38,7 @@ let productsData = [
         price: '$99',
         status: 'Active',
         image: 'product-05.jpg',
-        variants: '1 Variant'
+        sku: '11225'
     }
 ];
 
@@ -143,5 +143,6 @@ function renderProductsTable() {
         </tr>
     `).join('');
 }
+
 
 
