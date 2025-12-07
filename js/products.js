@@ -42,7 +42,11 @@ let productsData = [
     }
 ];
 
+// Profile page initialization
 window.initProductsPage = function () {
+  console.log("Products Page Initialized");
+    
+  // Initialize Breadcrumb  
   if (typeof window.renderBreadcrumb === 'function') {
     window.renderBreadcrumb('Products');
   }
@@ -139,4 +143,5 @@ function renderProductsTable() {
         </tr>
     `).join('');
 }
+
 
