@@ -77,7 +77,7 @@ function setupProductEventListeners() {
                 price: price,
                 status: status,
                 image: 'product-01.jpg',
-                variants: '1 Variant'
+                sku: '1 SKU'
             };
 
             productsData.unshift(newProduct);
@@ -107,7 +107,7 @@ function renderProductsTable() {
                     </div>
                     <div>
                         <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${product.name}</p>
-                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${product.variants}</span>
+                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${product.sku}</span>
                     </div>
                 </div>
             </td>
@@ -143,6 +143,7 @@ function renderProductsTable() {
         </tr>
     `).join('');
 }
+
 
 
 
