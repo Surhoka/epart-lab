@@ -45,8 +45,8 @@ let productsData = [
 function initProductsPage() {
     console.log('Products Page Initialized');
 
-    // Initialize Breadcrumb
-    if (window.renderBreadcrumb) {
+    // Initialize Breadcrumb - defensive check like calendar.js
+    if (typeof window.renderBreadcrumb === 'function') {
         window.renderBreadcrumb('breadcrumb-container', [
             { name: 'Dashboard', link: '#dashboard' },
             { name: 'Products', link: '#products' }
@@ -78,19 +78,16 @@ function setupProductEventListeners() {
                 category: category,
                 price: price,
                 status: status,
-                image: 'product-01.jpg', // Default image for new products
-                variants: '1 Variant' // Default variant
+                image: 'product-01.jpg',
+                variants: '1 Variant'
             };
 
-            productsData.unshift(newProduct); // Add to beginning
+            productsData.unshift(newProduct);
             renderProductsTable();
 
             // Close modal using Alpine
-            // We search for the element with the x-data attribute that defines isAddProductModal
             const modalContainer = document.querySelector('[x-data*="isAddProductModal"]');
             if (modalContainer && window.Alpine) {
-                // Access the Alpine component data
-                // This acts as a bridge between Vanilla JS and Alpine
                 modalContainer.__x.$data.isAddProductModal = false;
             }
 
