@@ -1,57 +1,60 @@
+// Global state for products (simulated)
+let productsData = [
+    {
+        name: 'Apple Watch Series 7',
+        category: 'Electronics',
+        price: '$269',
+        status: 'Active',
+        image: 'product-01.jpg',
+        variants: '1 Variant'
+    },
+    {
+        name: 'Macbook Pro M1',
+        category: 'Electronics',
+        price: '$1269',
+        status: 'Active',
+        image: 'product-02.jpg',
+        variants: '2 Variants'
+    },
+    {
+        name: 'Dell Inspiron 15',
+        category: 'Electronics',
+        price: '$669',
+        status: 'Out of Stock',
+        image: 'product-03.jpg',
+        variants: '1 Variant'
+    },
+    {
+        name: 'HP Probook 450',
+        category: 'Electronics',
+        price: '$869',
+        status: 'Active',
+        image: 'product-04.jpg',
+        variants: '3 Variants'
+    },
+    {
+        name: 'Logitech MX Master 3',
+        category: 'Accessories',
+        price: '$99',
+        status: 'Active',
+        image: 'product-05.jpg',
+        variants: '1 Variant'
+    }
+];
+
 function initProductsPage() {
     console.log('Products Page Initialized');
-    renderProductsTable();
-}
 
-function renderProductsTable() {
-    const tbody = document.getElementById('products-table-body');
+    // Initialize Breadcrumb
+    if (window.renderBreadcrumb) {
+        window.renderBreadcrumb('breadcrumb-container', [
+            { name: 'Dashboard', link: '#dashboard' },
+            { name: 'Products', link: '#products' }
+        ]);
+    }
     if (!tbody) return;
 
-    // Mock Data
-    const products = [
-        {
-            name: 'Apple Watch Series 7',
-            category: 'Electronics',
-            price: '$269',
-            status: 'Active',
-            image: 'product-01.jpg',
-            variants: '1 Variant'
-        },
-        {
-            name: 'Macbook Pro M1',
-            category: 'Electronics',
-            price: '$1269',
-            status: 'Active',
-            image: 'product-02.jpg',
-            variants: '2 Variants'
-        },
-        {
-            name: 'Dell Inspiron 15',
-            category: 'Electronics',
-            price: '$669',
-            status: 'Out of Stock',
-            image: 'product-03.jpg',
-            variants: '1 Variant'
-        },
-        {
-            name: 'HP Probook 450',
-            category: 'Electronics',
-            price: '$869',
-            status: 'Active',
-            image: 'product-04.jpg',
-            variants: '3 Variants'
-        },
-        {
-            name: 'Logitech MX Master 3',
-            category: 'Accessories',
-            price: '$99',
-            status: 'Active',
-            image: 'product-05.jpg',
-            variants: '1 Variant'
-        }
-    ];
-
-    tbody.innerHTML = products.map(product => `
+    tbody.innerHTML = productsData.map(product => `
         <tr>
             <td class="py-3">
                 <div class="flex items-center gap-3">
