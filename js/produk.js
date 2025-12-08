@@ -67,8 +67,9 @@ function fetchProdukData(page = 1) {
                 renderProdukTable();
                 renderPagination();
             } else {
-                console.error('Failed to load products. The response object was invalid or missing data/pagination.', response);
-                showErrorState(response.message || 'Failed to load products due to an invalid server response.');
+                const version = response.version || 'unknown';
+                console.error(`Failed to load products. The response was invalid (version: ${version}).`, response);
+                showErrorState(response.message || `Invalid server response (v: ${version}).`);
             }
         }, (error) => {
             console.error('Error fetching products:', error);
@@ -102,8 +103,9 @@ function searchProduk(searchTerm, page = 1) {
                 renderProdukTable();
                 renderPagination();
             } else {
-                console.error('Search failed. The response object was invalid or missing data/pagination.', response);
-                showErrorState(response.message || 'Search failed due to an invalid server response.');
+                const version = response.version || 'unknown';
+                console.error(`Search failed. The response was invalid (version: ${version}).`, response);
+                showErrorState(response.message || `Invalid search response (v: ${version}).`);
             }
         }, (error) => {
             console.error('Error searching products:', error);
