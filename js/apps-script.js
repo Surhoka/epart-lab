@@ -155,7 +155,8 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             let normalizedResponse = {
                 status: 'error',
                 message: '',
-                data: []
+                data: [],
+                pagination: null
             };
 
             if (action === 'readProfileDataFromSheet') {
@@ -179,6 +180,7 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
                     normalizedResponse.status = response.status || 'success';
                     normalizedResponse.message = response.message || '';
                     normalizedResponse.data = response.data || [];
+                    normalizedResponse.pagination = response.pagination || null;
                     
                     // Further refine data for specific actions if needed (e.g., getProducts)
                     if (action === 'getProducts') {
