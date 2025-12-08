@@ -1,4 +1,4 @@
-// Produk page initialization
+// Tambah Produk page initialization
 window.initTambahProdukPage = function () {
     console.log("Tambah Produk Page Initialized");
 
@@ -154,4 +154,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
 
