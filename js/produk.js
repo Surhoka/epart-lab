@@ -44,58 +44,18 @@ let produkData = [
 
 // Produk page initialization
 window.initProdukPage = function () {
-  console.log("Produk Page Initialized");
-    
-  // Initialize Breadcrumb  
-  if (typeof window.renderBreadcrumb === 'function') {
-    window.renderBreadcrumb('Produk');
-  }
+    console.log("Produk Page Initialized");
+
+    // Initialize Breadcrumb  
+    if (typeof window.renderBreadcrumb === 'function') {
+        window.renderBreadcrumb('Produk');
+    }
 
     renderProdukTable();
-    setupProdukEventListeners();
 };
 
-function setupProdukEventListeners() {
-    const addProdukForm = document.getElementById('addProdukForm');
-
-    if (addProdukForm) {
-        // Remove existing listener to prevent duplicates if re-initialized
-        const newForm = addProdukForm.cloneNode(true);
-        addProdukForm.parentNode.replaceChild(newForm, addProdukForm);
-
-        newForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const name = document.getElementById('produkName').value;
-            const category = document.getElementById('produkCategory').value;
-            const price = document.getElementById('produkPrice').value;
-            const status = document.getElementById('produkStatus').value;
-
-            const newProduk = {
-                name: name,
-                category: category,
-                price: price,
-                status: status,
-                image: 'product-01.jpg',
-                variants: '1 Variant'
-            };
-
-            produkData.unshift(newProduk);
-            renderProdukTable();
-
-            // Close modal using Alpine
-            const modalContainer = document.querySelector('[x-data*="isAddProdukModal"]');
-            if (modalContainer && window.Alpine) {
-                modalContainer.__x.$data.isAddProdukModal = false;
-            }
-
-            newForm.reset();
-        });
-    }
-}
-
 function renderProdukTable() {
-    const tbody = document.getElementById('produk-table-body');
+    const tbody = document.getElementById('products-table-body');
     if (!tbody) return;
 
     tbody.innerHTML = produkData.map(produk => `
