@@ -177,7 +177,7 @@ function renderProdukTable() {
                     </div>
                     <div>
                         <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${produk.name || '-'}</p>
-                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${produk.id || '-'}</span>
+                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${produk.kodeProduk || '-'}</span>
                     </div>
                 </div>
             </td>
