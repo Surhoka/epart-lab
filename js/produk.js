@@ -2,43 +2,43 @@
 let produkData = [
     {
         name: 'Apple Watch Series 7',
-        category: 'Electronics',
-        price: '$269',
-        status: 'Active',
+        category: 'Elektronik',
+        price: 'Rp 4.500.000',
+        status: 'Aktif',
         image: 'product-01.jpg',
-        variants: '1 Variant'
+        variants: '1 Varian'
     },
     {
         name: 'Macbook Pro M1',
-        category: 'Electronics',
-        price: '$1269',
-        status: 'Active',
+        category: 'Elektronik',
+        price: 'Rp 21.000.000',
+        status: 'Aktif',
         image: 'product-02.jpg',
-        variants: '2 Variants'
+        variants: '2 Varian'
     },
     {
         name: 'Dell Inspiron 15',
-        category: 'Electronics',
-        price: '$669',
-        status: 'Out of Stock',
+        category: 'Elektronik',
+        price: 'Rp 11.000.000',
+        status: 'Stok Habis',
         image: 'product-03.jpg',
-        variants: '1 Variant'
+        variants: '1 Varian'
     },
     {
         name: 'HP Probook 450',
-        category: 'Electronics',
-        price: '$869',
-        status: 'Active',
+        category: 'Elektronik',
+        price: 'Rp 14.500.000',
+        status: 'Aktif',
         image: 'product-04.jpg',
-        variants: '3 Variants'
+        variants: '3 Varian'
     },
     {
         name: 'Logitech MX Master 3',
-        category: 'Accessories',
-        price: '$99',
-        status: 'Active',
+        category: 'Aksesoris',
+        price: 'Rp 1.650.000',
+        status: 'Aktif',
         image: 'product-05.jpg',
-        variants: '1 Variant'
+        variants: '1 Varian'
     }
 ];
 
@@ -63,7 +63,7 @@ function renderProdukTable() {
             <td class="py-3">
                 <div class="flex items-center gap-3">
                      <div class="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
-                        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/${produk.image}" alt="${product.name}" class="h-full w-full object-cover"/>
+                        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/${produk.image}" alt="${produk.name}" class="h-full w-full object-cover"/>
                     </div>
                     <div>
                         <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${produk.name}</p>
@@ -78,7 +78,7 @@ function renderProdukTable() {
                 <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.price}</p>
             </td>
             <td class="py-3">
-                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${produk.status === 'Active'
+                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${produk.status === 'Aktif'
             ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
             : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
         }">
