@@ -128,6 +128,24 @@ function searchProduk(searchTerm) {
 }
 
 /**
+ * Get badge class based on product status
+ * @param {String} status - Product status
+ * @returns {String} - Tailwind CSS classes for the badge
+ */
+function getBadgeClass(status) {
+    switch (status) {
+        case 'Aktif':
+            return 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500';
+        case 'Habis':
+            return 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500';
+        case 'Arsip':
+            return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+        default:
+            return 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500';
+    }
+}
+
+/**
  * Render products table
  */
 function renderProdukTable() {
@@ -159,7 +177,7 @@ function renderProdukTable() {
                     </div>
                     <div>
                         <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${produk.name || '-'}</p>
-                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${produk.variants || '-'}</span>
+                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${produk.id || '-'}</span>
                     </div>
                 </div>
             </td>
@@ -167,16 +185,13 @@ function renderProdukTable() {
                 <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.category || '-'}</p>
             </td>
             <td class="py-3">
-                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.price || '-'}</p>
-            </td>
-            <td class="py-3">
                 <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.stock !== undefined ? produk.stock : '-'}</p>
             </td>
             <td class="py-3">
-                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${produk.status === 'Aktif'
-            ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
-            : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
-        }">
+                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.price || '-'}</p>
+            </td>
+            <td class="py-3">
+                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${getBadgeClass(produk.status)}">
                     ${produk.status || 'Unknown'}
                 </p>
             </td>
