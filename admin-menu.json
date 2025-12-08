@@ -30,23 +30,29 @@
             ]
         },
         {
-            "title": "OPERATIONS",
+            "title": "INVENTORY",
             "items": [
                 {
-                    "label": "Catalog",
+                    "label": "Inventory",
                     "icon": "<svg fill=\"none\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path clip-rule=\"evenodd\" d=\"M7 2.25H17C19.6234 2.25 21.75 4.37665 21.75 7V17C21.75 19.6234 19.6234 21.75 17 21.75H7C4.37665 21.75 2.25 19.6234 2.25 17V7C2.25 4.37665 4.37665 2.25 7 2.25ZM7 3.75C5.20507 3.75 3.75 5.20507 3.75 7V17C3.75 18.7949 5.20507 20.25 7 20.25H17C18.7949 20.25 20.25 18.7949 20.25 17V7C20.25 5.20507 18.7949 3.75 17 3.75H7ZM8.75 7C8.75 6.58579 9.08579 6.25 9.5 6.25H14.5C14.9142 6.25 15.25 6.58579 15.25 7C15.25 7.41421 14.9142 7.75 14.5 7.75H9.5C9.08579 7.75 8.75 7.41421 8.75 7ZM7.25 12C7.25 11.5858 7.58579 11.25 8 11.25H16C16.4142 11.25 16.75 11.5858 16.75 12C16.75 12.4142 16.4142 12.75 16 12.75H8C7.58579 12.75 7.25 12.4142 7.25 12ZM8.75 17C8.75 16.5858 9.08579 16.25 9.5 16.25H14.5C14.9142 16.25 15.25 16.5858 15.25 17C15.25 17.4142 14.9142 17.75 14.5 17.75H9.5C9.08579 17.75 8.75 17.4142 8.75 17Z\" fill=\"currentColor\" fill-rule=\"evenodd\"></path></svg>",
                     "pages": [
-                        "catalog",
-                        "produk",
+                        "inventory",
+                        "daftar produk",
+                        "tambah produk baru",
                         "categories",
                         "collections",
                         "attributes"
                     ],
                     "children": [
                         {
-                            "label": "Produk",
-                            "link": "#produk",
-                            "page": "produk"
+                            "label": "Daftar produk",
+                            "link": "daftar produk",
+                            "page": "daftar produk"
+                        },
+                        {
+                            "label": "Tambah Produk baru",
+                            "link": "#tambah produk baru",
+                            "page": "tambah produk baru"
                         },
                         {
                             "label": "Categories",
@@ -242,5 +248,6 @@
         }
     ]
 }
+
 
 
