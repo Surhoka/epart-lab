@@ -38,7 +38,7 @@
                     "pages": [
                         "inventory",
                         "produk",
-                        "tambah produk",
+                        "tambah-produk",
                         "categories",
                         "collections",
                         "attributes"
@@ -248,6 +248,7 @@
         }
     ]
 }
+
 
 
 
