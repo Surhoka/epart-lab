@@ -38,7 +38,7 @@
                     "pages": [
                         "inventory",
                         "produk",
-                        "tambah-produk-baru",
+                        "tambah produk baru",
                         "categories",
                         "collections",
                         "attributes"
@@ -50,7 +50,7 @@
                             "page": "produk"
                         },
                         {
-                            "label": "Tambah-Produk-Baru",
+                            "label": "Tambah Produk Baru",
                             "link": "#tambah-produk-baru",
                             "page": "tambah-produk-baru"
                         },
@@ -248,6 +248,7 @@
         }
     ]
 }
+
 
 
 
