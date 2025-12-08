@@ -1,4 +1,4 @@
-<div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6" x-data="{ isAddProductModal: false }">
+<div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6" x-data="{ isAddProdukModal: false }">
     <!-- Breadcrumb Start -->
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
@@ -9,7 +9,7 @@
         <div class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
-                    All Products
+                    Daftar Produk
                 </h3>
             </div>
             <div class="flex items-center gap-3">
@@ -24,7 +24,7 @@
                         <path d="M4.16669 10H15.8334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                             stroke-linejoin="round" />
                     </svg>
-                    Add Product
+                    Tambah Product Baru
                 </button>
             </div>
         </div>
@@ -34,19 +34,19 @@
                 <thead>
                     <tr class="border-gray-100 border-y dark:border-gray-800">
                         <th class="py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Product Name</p>
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Nama Produk</p>
                         </th>
                         <th class="py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Category</p>
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Kategori</p>
                         </th>
                         <th class="py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Price</p>
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Harga</p>
                         </th>
                         <th class="py-3 text-left">
                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</p>
                         </th>
                         <th class="py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Actions</p>
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Aksi</p>
                         </th>
                     </tr>
                 </thead>
@@ -69,7 +69,7 @@
     </div>
     <!-- Table Section End -->
 
-    <!-- Add Product Modal -->
+    <!-- Add Produk Modal -->
     <div x-show="isAddProductModal" class="fixed inset-0 flex items-center justify-center p-5 overflow-y-auto z-99999"
         id="addProductModal">
         <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"></div>
@@ -87,7 +87,7 @@
 
             <div class="px-2 pr-14">
                 <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                    Add New Product
+                    Tambah Produk Baru
                 </h4>
                 <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
                     Enter product details to create a new item.
@@ -161,3 +161,4 @@
         </div>
     </div>
 </div>
+
