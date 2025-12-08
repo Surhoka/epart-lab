@@ -151,56 +151,20 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         console.log('Raw response:', JSON.stringify(response, null, 2));  // Debug log
         
         try {
-            // Normalize the response format
-            let normalizedResponse = {
-                status: 'error',
-                message: '',
-                data: [],
-                pagination: null
+            // The response from the server is already in the desired format.
+            // Simply pass it to the callback, ensuring we have default fallbacks.
+            const finalResponse = {
+                status: response.status || 'error',
+                message: response.message || 'No message',
+                data: response.data || [],
+                pagination: response.pagination || null,
+                version: response.version || null,
+                ...response // Spread any other properties from the response
             };
 
-            if (action === 'readProfileDataFromSheet') {
-                // For readProfileDataFromSheet, the raw response IS the data object itself
-                normalizedResponse.status = 'success';
-                normalizedResponse.message = '';
-                normalizedResponse.data = response;
-            } else if (action === 'processLogin') {
-                // For processLogin, map 'success' to 'status' and 'user' to 'data'
-                normalizedResponse.status = response.success ? 'success' : 'error';
-                normalizedResponse.message = response.message || '';
-                normalizedResponse.data = response.user || null;
-            }
-            else if (response) {
-                if (Array.isArray(response)) {
-                    // If response is directly an array (e.g., for some simple list fetches)
-                    normalizedResponse.status = 'success';
-                    normalizedResponse.data = response;
-                } else if (typeof response === 'object') {
-                    // Standard response format with status, message, and data properties
-                    normalizedResponse.status = response.status || 'success';
-                    normalizedResponse.message = response.message || '';
-                    normalizedResponse.data = response.data || [];
-                    normalizedResponse.pagination = response.pagination || null;
-                    
-                    // Further refine data for specific actions if needed (e.g., getProducts)
-                    if (action === 'getProducts') {
-                        if (Array.isArray(response.data)) {
-                            normalizedResponse.data = response.data;
-                        } else if (response.data) {
-                            normalizedResponse.data = [response.data];
-                        } else if (Array.isArray(response)) {
-                            normalizedResponse.data = response;
-                        } else if (response.products) {
-                            normalizedResponse.data = Array.isArray(response.products) ? 
-                                response.products : [response.products];
-                        }
-                    }
-                }
-            }
-
-            console.log('Normalized response:', normalizedResponse);  // Debug log
+            console.log('Normalized response:', finalResponse);  // Debug log
             
-            if (callback) callback(normalizedResponse);
+            if (callback) callback(finalResponse);
         } catch (error) {
             console.error('Error processing response:', error);
             if (errorHandler) {
