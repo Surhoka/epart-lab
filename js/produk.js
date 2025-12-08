@@ -1,12 +1,12 @@
-// Global state for products (simulated)
-let productsData = [
+// Global state for produk (simulated)
+let produkData = [
     {
         name: 'Apple Watch Series 7',
         category: 'Electronics',
         price: '$269',
         status: 'Active',
         image: 'product-01.jpg',
-        sku: '11221'
+        variants: '1 Variant'
     },
     {
         name: 'Macbook Pro M1',
@@ -14,7 +14,7 @@ let productsData = [
         price: '$1269',
         status: 'Active',
         image: 'product-02.jpg',
-        sku: '11222'
+        variants: '2 Variants'
     },
     {
         name: 'Dell Inspiron 15',
@@ -22,7 +22,7 @@ let productsData = [
         price: '$669',
         status: 'Out of Stock',
         image: 'product-03.jpg',
-        sku: '11223'
+        variants: '1 Variant'
     },
     {
         name: 'HP Probook 450',
@@ -30,7 +30,7 @@ let productsData = [
         price: '$869',
         status: 'Active',
         image: 'product-04.jpg',
-        sku: '11224'
+        variants: '3 Variants'
     },
     {
         name: 'Logitech MX Master 3',
@@ -38,55 +38,55 @@ let productsData = [
         price: '$99',
         status: 'Active',
         image: 'product-05.jpg',
-        sku: '11225'
+        variants: '1 Variant'
     }
 ];
 
-// Profile page initialization
-window.initProductsPage = function () {
-  console.log("Products Page Initialized");
+// Produk page initialization
+window.initProdukPage = function () {
+  console.log("Produk Page Initialized");
     
   // Initialize Breadcrumb  
   if (typeof window.renderBreadcrumb === 'function') {
-    window.renderBreadcrumb('Products');
+    window.renderBreadcrumb('Produk');
   }
 
-    renderProductsTable();
-    setupProductEventListeners();
+    renderProdukTable();
+    setupProdukEventListeners();
 };
 
-function setupProductEventListeners() {
-    const addProductForm = document.getElementById('addProductForm');
+function setupProdukEventListeners() {
+    const addProdukForm = document.getElementById('addProdukForm');
 
-    if (addProductForm) {
+    if (addProdukForm) {
         // Remove existing listener to prevent duplicates if re-initialized
-        const newForm = addProductForm.cloneNode(true);
-        addProductForm.parentNode.replaceChild(newForm, addProductForm);
+        const newForm = addProdukForm.cloneNode(true);
+        addProdukForm.parentNode.replaceChild(newForm, addProdukForm);
 
         newForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const name = document.getElementById('productName').value;
-            const category = document.getElementById('productCategory').value;
-            const price = document.getElementById('productPrice').value;
-            const status = document.getElementById('productStatus').value;
+            const name = document.getElementById('produkName').value;
+            const category = document.getElementById('produkCategory').value;
+            const price = document.getElementById('produkPrice').value;
+            const status = document.getElementById('produkStatus').value;
 
-            const newProduct = {
+            const newProduk = {
                 name: name,
                 category: category,
                 price: price,
                 status: status,
                 image: 'product-01.jpg',
-                sku: '1 SKU'
+                variants: '1 Variant'
             };
 
-            productsData.unshift(newProduct);
-            renderProductsTable();
+            produkData.unshift(newProduk);
+            renderProdukTable();
 
             // Close modal using Alpine
-            const modalContainer = document.querySelector('[x-data*="isAddProductModal"]');
+            const modalContainer = document.querySelector('[x-data*="isAddProdukModal"]');
             if (modalContainer && window.Alpine) {
-                modalContainer.__x.$data.isAddProductModal = false;
+                modalContainer.__x.$data.isAddProdukModal = false;
             }
 
             newForm.reset();
@@ -94,35 +94,35 @@ function setupProductEventListeners() {
     }
 }
 
-function renderProductsTable() {
-    const tbody = document.getElementById('products-table-body');
+function renderProdukTable() {
+    const tbody = document.getElementById('produk-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = productsData.map(product => `
+    tbody.innerHTML = produkData.map(produk => `
         <tr>
             <td class="py-3">
                 <div class="flex items-center gap-3">
                      <div class="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
-                        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/${product.image}" alt="${product.name}" class="h-full w-full object-cover"/>
+                        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/${produk.image}" alt="${product.name}" class="h-full w-full object-cover"/>
                     </div>
                     <div>
-                        <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${product.name}</p>
-                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${product.sku}</span>
+                        <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">${produk.name}</p>
+                        <span class="text-gray-500 text-theme-xs dark:text-gray-400">${produk.variants}</span>
                     </div>
                 </div>
             </td>
             <td class="py-3">
-                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${product.category}</p>
+                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.category}</p>
             </td>
             <td class="py-3">
-                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${product.price}</p>
+                <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.price}</p>
             </td>
             <td class="py-3">
-                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${product.status === 'Active'
+                <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${produk.status === 'Active'
             ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
             : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
         }">
-                    ${product.status}
+                    ${produk.status}
                 </p>
             </td>
             <td class="py-3">
@@ -143,7 +143,3 @@ function renderProductsTable() {
         </tr>
     `).join('');
 }
-
-
-
-
