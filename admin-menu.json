@@ -45,12 +45,12 @@
                     ],
                     "children": [
                         {
-                            "label": "Daftar produk",
-                            "link": "daftar produk",
-                            "page": "daftar produk"
+                            "label": "Produk",
+                            "link": "produk",
+                            "page": "produk"
                         },
                         {
-                            "label": "Tambah Produk baru",
+                            "label": "Tambah Produk Baru",
                             "link": "#tambah produk baru",
                             "page": "tambah produk baru"
                         },
@@ -248,6 +248,7 @@
         }
     ]
 }
+
 
 
 
