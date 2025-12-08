@@ -60,15 +60,15 @@ function fetchProdukData(page = 1) {
 
     if (typeof window.sendDataToGoogle === 'function') {
         window.sendDataToGoogle('getProduk', options, (response) => {
-            if (response.status === 'success' && response.data) {
+            if (response.status === 'success' && response.data && response.pagination) {
                 produkData = response.data;
                 paginationInfo = response.pagination;
                 currentPage = paginationInfo.page;
                 renderProdukTable();
                 renderPagination();
             } else {
-                console.error('Failed to load products:', response.message);
-                showErrorState(response.message || 'Failed to load products');
+                console.error('Failed to load products. The response object was invalid or missing data/pagination.', response);
+                showErrorState(response.message || 'Failed to load products due to an invalid server response.');
             }
         }, (error) => {
             console.error('Error fetching products:', error);
@@ -95,15 +95,15 @@ function searchProduk(searchTerm, page = 1) {
 
     if (typeof window.sendDataToGoogle === 'function') {
         window.sendDataToGoogle('searchProduk', options, (response) => {
-            if (response.status === 'success' && response.data) {
+            if (response.status === 'success' && response.data && response.pagination) {
                 produkData = response.data;
                 paginationInfo = response.pagination;
                 currentPage = paginationInfo.page;
                 renderProdukTable();
                 renderPagination();
             } else {
-                console.error('Search failed:', response.message);
-                showErrorState(response.message || 'Search failed');
+                console.error('Search failed. The response object was invalid or missing data/pagination.', response);
+                showErrorState(response.message || 'Search failed due to an invalid server response.');
             }
         }, (error) => {
             console.error('Error searching products:', error);
