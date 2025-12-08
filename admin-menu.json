@@ -46,7 +46,7 @@
                     "children": [
                         {
                             "label": "Produk",
-                            "link": "produk",
+                            "link": "#produk",
                             "page": "produk"
                         },
                         {
@@ -248,6 +248,7 @@
         }
     ]
 }
+
 
 
 
