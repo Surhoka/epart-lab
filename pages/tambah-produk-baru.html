@@ -16,43 +16,147 @@
                     </h3>
                     <div class="grid grid-cols-1 gap-5">
                         <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                                for="namaLengkap">
-                                Nama Lengkap
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                Gambar Produk (Maksimal 5 gambar)
                             </label>
-                            <input
-                                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                                type="text" name="namaLengkap" id="namaLengkap"
-                                placeholder="Masukkan nama lengkap produk" required>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                                for="gambarProduk">
-                                Gambar Produk
-                            </label>
-                            <div class="flex items-center justify-center w-full">
-                                <label for="gambarProduk"
-                                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:hover:border-gray-600">
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <svg class="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                                <!-- Image Slot 1 -->
+                                <div class="relative">
+                                    <input type="file" id="gambarProduk1" name="gambarProduk[]" class="hidden"
+                                        accept="image/png,image/jpeg,image/jpg" onchange="handleImageUpload(event, 0)">
+                                    <label for="gambarProduk1"
+                                        class="block aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
+                                        <div id="imageSlot0"
+                                            class="flex h-full w-full flex-col items-center justify-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload</p>
+                                        </div>
+                                        <img id="imagePreview0" src="" alt="Preview"
+                                            class="hidden h-full w-full object-cover">
+                                    </label>
+                                    <button type="button" id="removeBtn0" onclick="removeImage(0)"
+                                        class="absolute -right-2 -top-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
-                                        <p class="mb-1 text-sm text-gray-500 dark:text-gray-400"><span
-                                                class="font-semibold">Klik untuk upload</span> atau drag and drop</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG atau JPEG (MAX.
-                                            2MB)</p>
-                                    </div>
-                                    <input id="gambarProduk" name="gambarProduk" type="file" class="hidden"
-                                        accept="image/png,image/jpeg,image/jpg" />
-                                </label>
+                                    </button>
+                                </div>
+
+                                <!-- Image Slot 2 -->
+                                <div class="relative">
+                                    <input type="file" id="gambarProduk2" name="gambarProduk[]" class="hidden"
+                                        accept="image/png,image/jpeg,image/jpg" onchange="handleImageUpload(event, 1)">
+                                    <label for="gambarProduk2"
+                                        class="block aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
+                                        <div id="imageSlot1"
+                                            class="flex h-full w-full flex-col items-center justify-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload</p>
+                                        </div>
+                                        <img id="imagePreview1" src="" alt="Preview"
+                                            class="hidden h-full w-full object-cover">
+                                    </label>
+                                    <button type="button" id="removeBtn1" onclick="removeImage(1)"
+                                        class="absolute -right-2 -top-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Image Slot 3 -->
+                                <div class="relative">
+                                    <input type="file" id="gambarProduk3" name="gambarProduk[]" class="hidden"
+                                        accept="image/png,image/jpeg,image/jpg" onchange="handleImageUpload(event, 2)">
+                                    <label for="gambarProduk3"
+                                        class="block aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
+                                        <div id="imageSlot2"
+                                            class="flex h-full w-full flex-col items-center justify-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload</p>
+                                        </div>
+                                        <img id="imagePreview2" src="" alt="Preview"
+                                            class="hidden h-full w-full object-cover">
+                                    </label>
+                                    <button type="button" id="removeBtn2" onclick="removeImage(2)"
+                                        class="absolute -right-2 -top-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Image Slot 4 -->
+                                <div class="relative">
+                                    <input type="file" id="gambarProduk4" name="gambarProduk[]" class="hidden"
+                                        accept="image/png,image/jpeg,image/jpg" onchange="handleImageUpload(event, 3)">
+                                    <label for="gambarProduk4"
+                                        class="block aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
+                                        <div id="imageSlot3"
+                                            class="flex h-full w-full flex-col items-center justify-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload</p>
+                                        </div>
+                                        <img id="imagePreview3" src="" alt="Preview"
+                                            class="hidden h-full w-full object-cover">
+                                    </label>
+                                    <button type="button" id="removeBtn3" onclick="removeImage(3)"
+                                        class="absolute -right-2 -top-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Image Slot 5 -->
+                                <div class="relative">
+                                    <input type="file" id="gambarProduk5" name="gambarProduk[]" class="hidden"
+                                        accept="image/png,image/jpeg,image/jpg" onchange="handleImageUpload(event, 4)">
+                                    <label for="gambarProduk5"
+                                        class="block aspect-[3/4] cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
+                                        <div id="imageSlot4"
+                                            class="flex h-full w-full flex-col items-center justify-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload</p>
+                                        </div>
+                                        <img id="imagePreview4" src="" alt="Preview"
+                                            class="hidden h-full w-full object-cover">
+                                    </label>
+                                    <button type="button" id="removeBtn4" onclick="removeImage(4)"
+                                        class="absolute -right-2 -top-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <div id="imagePreview" class="mt-3 hidden">
-                                <img src="" alt="Preview"
-                                    class="max-h-40 rounded-lg border border-gray-300 dark:border-gray-700">
-                            </div>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">PNG, JPG atau JPEG (MAX. 2MB per
+                                gambar)</p>
                         </div>
                     </div>
                 </div>
@@ -384,32 +488,84 @@
 
     <!-- JavaScript for Live Preview -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('addNewProductForm');
+        // Store uploaded images
+        const uploadedImages = [null, null, null, null, null];
 
-            // Image upload preview
-            const imageInput = document.getElementById('gambarProduk');
-            const imagePreviewContainer = document.getElementById('imagePreview');
+        // Handle image upload for each slot
+        function handleImageUpload(event, index) {
+            const file = event.target.files[0];
+            if (file) {
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB per gambar.');
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    uploadedImages[index] = e.target.result;
+
+                    // Show preview in slot
+                    const imageSlot = document.getElementById(`imageSlot${index}`);
+                    const imagePreview = document.getElementById(`imagePreview${index}`);
+                    const removeBtn = document.getElementById(`removeBtn${index}`);
+
+                    imageSlot.classList.add('hidden');
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    removeBtn.classList.remove('hidden');
+                    removeBtn.classList.add('flex');
+
+                    // Update sidebar preview with first image
+                    updateSidebarPreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove image from slot
+        function removeImage(index) {
+            uploadedImages[index] = null;
+
+            const imageSlot = document.getElementById(`imageSlot${index}`);
+            const imagePreview = document.getElementById(`imagePreview${index}`);
+            const removeBtn = document.getElementById(`removeBtn${index}`);
+            const fileInput = document.getElementById(`gambarProduk${index + 1}`);
+
+            imageSlot.classList.remove('hidden');
+            imagePreview.src = '';
+            imagePreview.classList.add('hidden');
+            removeBtn.classList.add('hidden');
+            removeBtn.classList.remove('flex');
+            fileInput.value = '';
+
+            // Update sidebar preview
+            updateSidebarPreview();
+        }
+
+        // Update sidebar preview with first available image
+        function updateSidebarPreview() {
             const sidebarImagePreview = document.getElementById('sidebarImagePreview');
             const previewImage = document.getElementById('previewImage');
+            const placeholderDiv = sidebarImagePreview.querySelector('div');
 
-            imageInput.addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        // Show in form preview
-                        imagePreviewContainer.classList.remove('hidden');
-                        imagePreviewContainer.querySelector('img').src = e.target.result;
+            // Find first uploaded image
+            const firstImage = uploadedImages.find(img => img !== null);
 
-                        // Show in sidebar preview
-                        previewImage.src = e.target.result;
-                        previewImage.classList.remove('hidden');
-                        sidebarImagePreview.querySelector('div').classList.add('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            if (firstImage) {
+                previewImage.src = firstImage;
+                previewImage.classList.remove('hidden');
+                placeholderDiv.classList.add('hidden');
+            } else {
+                previewImage.src = '';
+                previewImage.classList.add('hidden');
+                placeholderDiv.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('addNewProductForm');
 
             // Live preview updates
             const updatePreview = (inputId, previewId, prefix = '', suffix = '') => {
@@ -439,37 +595,45 @@
             const previewHargaModal = document.getElementById('previewHargaModal');
             const previewHargaJual = document.getElementById('previewHargaJual');
 
-            hargaModalInput.addEventListener('input', function () {
-                const value = this.value ? formatCurrency(this.value) : '0';
-                previewHargaModal.textContent = 'Rp ' + value;
-            });
+            if (hargaModalInput && previewHargaModal) {
+                hargaModalInput.addEventListener('input', function () {
+                    const value = this.value ? formatCurrency(this.value) : '0';
+                    previewHargaModal.textContent = 'Rp ' + value;
+                });
+            }
 
-            hargaJualInput.addEventListener('input', function () {
-                const value = this.value ? formatCurrency(this.value) : '0';
-                previewHargaJual.textContent = 'Rp ' + value;
-            });
+            if (hargaJualInput && previewHargaJual) {
+                hargaJualInput.addEventListener('input', function () {
+                    const value = this.value ? formatCurrency(this.value) : '0';
+                    previewHargaJual.textContent = 'Rp ' + value;
+                });
+            }
 
             // Category preview
             const kategoriSelect = document.getElementById('kategoriProduk');
             const previewKategori = document.getElementById('previewKategori');
-            kategoriSelect.addEventListener('change', function () {
-                previewKategori.textContent = this.value || '-';
-            });
+            if (kategoriSelect && previewKategori) {
+                kategoriSelect.addEventListener('change', function () {
+                    previewKategori.textContent = this.value || '-';
+                });
+            }
 
             // Status preview
             const statusRadios = document.querySelectorAll('input[name="status"]');
             const previewStatus = document.getElementById('previewStatus');
-            statusRadios.forEach(radio => {
-                radio.addEventListener('change', function () {
-                    if (this.value === 'Aktif') {
-                        previewStatus.textContent = 'Aktif';
-                        previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
-                    } else {
-                        previewStatus.textContent = 'Tidak Aktif';
-                        previewStatus.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400';
-                    }
+            if (statusRadios.length > 0 && previewStatus) {
+                statusRadios.forEach(radio => {
+                    radio.addEventListener('change', function () {
+                        if (this.value === 'Aktif') {
+                            previewStatus.textContent = 'Aktif';
+                            previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
+                        } else {
+                            previewStatus.textContent = 'Tidak Aktif';
+                            previewStatus.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400';
+                        }
+                    });
                 });
-            });
+            }
         });
     </script>
 </div>
