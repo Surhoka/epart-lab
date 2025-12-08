@@ -1,11 +1,13 @@
 // Tambah Produk page initialization
 window.initTambahProdukPage = function () {
-    console.log("Tambah-Produk Page Initialized");
+    console.log("Tambah Produk Page Initialized");
 
     // Initialize Breadcrumb  
     if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Tambah-Produk');
+        window.renderBreadcrumb('Tambah Produk');
     }
+};
+
 // Store uploaded images
 const uploadedImages = [null, null, null, null, null];
 
@@ -154,6 +156,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
-
-
