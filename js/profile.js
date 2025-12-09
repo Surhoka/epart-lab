@@ -19,40 +19,7 @@ window.initProfilePage = function () {
     console.log('Profile page ready');
 };
 
-/**
- * Uploads an image to Google Drive via Google Apps Script and returns its public URL.
- * @param {string} fileName - The desired file name for the uploaded image.
- * @param {string} base64Data - The base64 encoded image data (without the data:image/...;base64, prefix).
- * @param {string} mimeType - The MIME type of the image (e.g., 'image/png', 'image/jpeg').
- * @returns {Promise<Object>} A promise that resolves with an object containing `status` and `url` if successful,
- *                            or `status` and `message` if there's an error.
- */
-window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
-    return new Promise((resolve, reject) => {
-        if (typeof window.sendDataToGoogle !== 'function') {
-            const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
-            console.error(errorMessage);
-            return reject({ status: 'error', message: errorMessage });
-        }
 
-        const payload = {
-            action: 'uploadImageAndGetUrl', // Action name for Apps Script
-            fileName: fileName,
-            base64Data: base64Data,
-            mimeType: mimeType
-        };
-
-        window.sendDataToGoogle('uploadImageAndGetUrl', payload, (response) => {
-            if (response.status === 'success') {
-                resolve({ status: 'success', url: response.url });
-            } else {
-                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
-            }
-        }, (error) => {
-            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
-        });
-    });
-};
 
 /**
  * Fetch profile data from Google Sheets
