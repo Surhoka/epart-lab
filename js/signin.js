@@ -28,7 +28,7 @@ function handleSignin(e) {
     btn.innerHTML = '<div class="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></div>';
     btn.disabled = true;
 
-    sendDataToGoogle('loginUser', {
+    sendDataToGoogle('SignInUser', {
         email: email,
         password: password
     }, function (response) {
