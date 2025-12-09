@@ -228,24 +228,24 @@ window.uploadImageAndGetUrl = function(fileName, fileData, fileType) {
 };
 
 window.handleAuthUI = function() {
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    const user = JSON.parse(localStorage.getItem('signedInUser'));
     console.log('handleAuthUI: User object from localStorage:', user); // Added log here
     const profileDropdownToggle = document.getElementById('profile-dropdown-toggle');
     const profilePicture = document.getElementById('profile-picture');
     const usernameDisplay = document.getElementById('username-display');
     const dropdownUsernameDisplay = document.getElementById('dropdown-username-display');
     const profileDropdownMenu = document.getElementById('profile-dropdown-menu');
-    const loginButton = document.getElementById('login-button'); // Assuming a login button exists elsewhere for logged out state
+    const signInButton = document.getElementById('signin-button'); // Assuming a signIn button exists elsewhere for signed out state
 
     if (user && user.isLoggedIn) {
         if (profileDropdownToggle) profileDropdownToggle.classList.remove('hidden');
         if (profilePicture) profilePicture.src = user.pictureUrl || 'https://dummyimage.com/100';
         if (usernameDisplay) usernameDisplay.textContent = user.fullName || user.userName; // Use fullName, fallback to userName
         if (dropdownUsernameDisplay) dropdownUsernameDisplay.textContent = user.fullName || user.userName; // Use fullName, fallback to userName
-        if (loginButton) loginButton.classList.add('hidden'); // Hide login button if logged in
+        if (signInButton) signInButton.classList.add('hidden'); // Hide signIn button if logged in
     } else {
-        // Ensure profileDropdownToggle is always visible, regardless of login status
+        // Ensure profileDropdownToggle is always visible, regardless of signIn status
         if (profileDropdownToggle) profileDropdownToggle.classList.remove('hidden'); 
-        if (loginButton) loginButton.classList.remove('hidden'); // Show login button if logged out
+        if (signInButton) signInButton.classList.remove('hidden'); // Show signIn button if signed out
     }
 };
