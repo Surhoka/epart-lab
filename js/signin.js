@@ -42,16 +42,17 @@ function handleSignin(e) {
             const user = response.data || response.user;
             if (user) {
                 user.isLoggedIn = true;
+                console.log('User object being saved to localStorage:', user);
                 localStorage.setItem('signedInUser', JSON.stringify(user));
 
-                // Update UI state if handleAuthUI exists
-                if (window.handleAuthUI) {
-                    window.handleAuthUI();
-                }
+                // No need to explicitly call handleAuthUI here, Alpine.js reactivity will handle it.
+                // if (window.handleAuthUI) {
+                //     window.handleAuthUI();
+                // }
             }
 
             // Redirect to dashboard
-            window.navigate('#dashboard');
+            window.navigate('dashboard');
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
@@ -64,4 +65,3 @@ if (document.readyState === 'loading') {
 } else {
     initSigninPage();
 }
-
