@@ -52,7 +52,7 @@ function handleSignin(e) {
             }
 
             // Redirect to dashboard
-            window.navigate('dashboard');
+            window.navigate('#dashboard');
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
@@ -65,3 +65,4 @@ if (document.readyState === 'loading') {
 } else {
     initSigninPage();
 }
+
