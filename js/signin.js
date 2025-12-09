@@ -36,7 +36,7 @@ function handleSignin(e) {
         btn.disabled = false;
 
         if (response.status === 'success') {
-            showToast('Login successful!', 'success');
+            showToast('Signin successful!', 'success');
 
             // Store user session
             const user = response.data || response.user;
