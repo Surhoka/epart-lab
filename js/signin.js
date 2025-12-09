@@ -39,7 +39,7 @@ function handleSignin(e) {
             showToast('Signin successful!', 'success');
 
             // Store user session
-            const user = response.data || response.user;
+            const user = response.user;
             if (user) {
                 user.isLoggedIn = true;
                 console.log('User object being saved to localStorage:', user);
@@ -52,7 +52,7 @@ function handleSignin(e) {
             }
 
             // Redirect to dashboard
-            window.navigate('#dashboard');
+            window.location.hash = "#dashboard";
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
@@ -65,4 +65,3 @@ if (document.readyState === 'loading') {
 } else {
     initSigninPage();
 }
-
