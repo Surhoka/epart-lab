@@ -42,7 +42,7 @@ function handleSignin(e) {
             const user = response.data || response.user;
             if (user) {
                 user.isLoggedIn = true;
-                localStorage.setItem('loggedInUser', JSON.stringify(user));
+                localStorage.setItem('signedInUser', JSON.stringify(user));
 
                 // Update UI state if handleAuthUI exists
                 if (window.handleAuthUI) {
@@ -55,7 +55,7 @@ function handleSignin(e) {
                 window.location.hash = '#dashboard';
             }, 1000);
         } else {
-            showToast(response.message || 'Login failed. Please check your credentials.', 'error');
+            showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
     });
 }
