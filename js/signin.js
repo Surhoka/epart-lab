@@ -51,9 +51,7 @@ function handleSignin(e) {
             }
 
             // Redirect to dashboard
-            setTimeout(() => {
-                window.navigate('dashboard');
-            }, 1000);
+            window.navigate('dashboard');
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
