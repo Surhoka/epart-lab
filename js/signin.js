@@ -52,7 +52,7 @@ function handleSignin(e) {
 
             // Redirect to dashboard
             setTimeout(() => {
-                window.location.hash = '#dashboard';
+                window.navigate('dashboard');
             }, 1000);
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
