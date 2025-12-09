@@ -29,18 +29,28 @@ window.initProfilePage = function () {
  */
 window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
     return new Promise((resolve, reject) => {
-        google.script.run
-            .withSuccessHandler(response => {
-                if (response.status === 'success') {
-                    resolve({ status: 'success', url: response.url });
-                } else {
-                    reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
-                }
-            })
-            .withFailureHandler(error => {
-                reject({ status: 'error', message: error.message || 'Script execution failed.' });
-            })
-            .uploadImageAndGetUrl(fileName, base64Data, mimeType);
+        if (typeof window.sendDataToGoogle !== 'function') {
+            const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
+            console.error(errorMessage);
+            return reject({ status: 'error', message: errorMessage });
+        }
+
+        const payload = {
+            action: 'uploadImageAndGetUrl', // Action name for Apps Script
+            fileName: fileName,
+            base64Data: base64Data,
+            mimeType: mimeType
+        };
+
+        window.sendDataToGoogle('uploadImageAndGetUrl', payload, (response) => {
+            if (response.status === 'success') {
+                resolve({ status: 'success', url: response.url });
+            } else {
+                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
+            }
+        }, (error) => {
+            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
+        });
     });
 };
 
