@@ -247,40 +247,50 @@ function makeFetchRequest(action, data, callback, errorHandler) {
     document.body.appendChild(script);
 }
 
-// Function to upload image using fetch (like in EzyParts)
-function uploadImageWithFetch(fileName, fileData, fileType) {
-    const payload = { action: 'uploadFile', fileName: fileName, fileData: fileData, fileType: fileType };
-    return fetch(window.appsScriptUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8', // Important for Apps Script to parse raw JSON
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(uploadResponse => {
-        if (uploadResponse.status === 'success' && uploadResponse.url) {
-            try {
-                const fileId = new URL(uploadResponse.url).searchParams.get("id");
-                if (fileId) {
-                    uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
-                }
-            } catch (e) {
-                console.error('Error parsing URL from uploadImageAndGetUrl:', e);
-            }
-        }
-        return uploadResponse;
-    });
-}
-
 window.sendDataToGoogle = function(action, data, callback, errorHandler) {
-    // Use JSONP approach for all requests like in the working EzyParts implementation
-    makeFetchRequest(action, data, callback, errorHandler);
-};
-
-window.uploadImageAndGetUrl = function(fileName, fileData, fileType) {
-    // Use the fetch approach like in EzyParts for image uploads
-    return uploadImageWithFetch(fileName, fileData, fileType);
+    // Special handling for uploadFile action to send as POST request with JSON payload
+    if (action === 'uploadFile' || action === 'uploadImageAndGetUrl') {
+        // For uploadFile and uploadImageAndGetUrl, use fetch with POST
+        const payload = { action: action, fileName: data.fileName, fileData: data.fileData, fileType: data.fileType };
+        
+        fetch(window.appsScriptUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', // Important for Apps Script to parse raw JSON
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(uploadResponse => {
+            if (uploadResponse.status === 'success' && uploadResponse.url) {
+                try {
+                    const fileId = new URL(uploadResponse.url).searchParams.get("id");
+                    if (fileId) {
+                        uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                    }
+                } catch (e) {
+                    console.error('Error parsing URL from uploadImageAndGetUrl:', e);
+                }
+            }
+            if (callback) callback(uploadResponse);
+        })
+        .catch(error => {
+            console.error('Error in uploadFile fetch:', error);
+            if (errorHandler) {
+                errorHandler(error);
+            } else if (callback) {
+                callback({ status: 'error', message: error.message || 'Upload failed' });
+            }
+        });
+    } else {
+        // For other actions, use the JSONP approach like in EzyParts
+        makeFetchRequest(action, data, callback, errorHandler);
+    }
 };
 
 window.handleAuthUI = function() {
