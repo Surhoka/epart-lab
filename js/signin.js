@@ -38,8 +38,8 @@ function handleSignin(e) {
         if (response.status === 'success') {
             showToast('Signin successful!', 'success');
 
-            // Store user session
-            let user = response.user;
+            // Store user session - now using response.data instead of response.user
+            let user = response.data || response.user;
             if (user) {
                 // Ensure user object has all required properties to prevent undefined errors in the UI
                 user = {
