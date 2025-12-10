@@ -51,8 +51,13 @@ function handleSignin(e) {
                 // }
             }
 
-            // Redirect to dashboard
-            window.location.hash = "#dashboard";
+            // Redirect to dashboard using the proper navigation function
+            if (window.navigate) {
+                window.navigate('dashboard');
+            } else {
+                // Fallback to direct hash change if navigate function is not available
+                window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+            }
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
