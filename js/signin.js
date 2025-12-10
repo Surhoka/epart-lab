@@ -39,9 +39,18 @@ function handleSignin(e) {
             showToast('Signin successful!', 'success');
 
             // Store user session
-            const user = response.user;
+            let user = response.user;
             if (user) {
-                user.isLoggedIn = true;
+                // Ensure user object has all required properties to prevent undefined errors in the UI
+                user = {
+                    ...user,
+                    isLoggedIn: true,
+                    firstName: user.firstName || user.fullName || user.name || 'User',
+                    lastName: user.lastName || '',
+                    email: user.email || '',
+                    pictureUrl: user.pictureUrl || user.avatar || user.profilePicture || 'https://dummyimage.com/100'
+                };
+                
                 console.log('User object being saved to localStorage:', user);
                 localStorage.setItem('signedInUser', JSON.stringify(user));
 
@@ -58,7 +67,7 @@ function handleSignin(e) {
 
             // Update the app state immediately to reflect the user login
             if (window.app) {
-                window.app.currentUser = user;
+                window.app.currentUser = user || {};
                 window.app.isLoggedIn = true;
             }
 
