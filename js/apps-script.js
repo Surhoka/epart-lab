@@ -201,11 +201,13 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
                     normalizedResponse.status = 'success';
                     normalizedResponse.message = '';
                     normalizedResponse.data = response;
-                } else if (action === 'processLogin') {
-                    // For processLogin, map 'success' to 'status' and 'user' to 'data'
-                    normalizedResponse.status = response.success ? 'success' : 'error';
+                } else if (action === 'processLogin' || action === 'SignInUser') {
+                    // For processLogin and SignInUser, map 'success' to 'status' and 'user' to 'data'
+                    normalizedResponse.status = response.status || 'success';
                     normalizedResponse.message = response.message || '';
                     normalizedResponse.data = response.user || null;
+                    // Also preserve the user directly in case it's needed
+                    if (response.user) normalizedResponse.user = response.user;
                 } else if (action === 'saveProfileDataOnServer') {
                     // For saveProfileDataOnServer, use the response as is
                     normalizedResponse.status = response.status || 'success';
