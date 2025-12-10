@@ -36,13 +36,13 @@ window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
         }
 
         const payload = {
-            action: 'uploadImageAndGetUrl', // Action name for Apps Script
+            action: 'uploadFile', // Action name for Apps Script - changed from uploadImageAndGetUrl to uploadFile
             fileName: fileName,
-            base64Data: base64Data,
-            mimeType: mimeType
+            fileData: base64Data, // Changed from base64Data to fileData to match server expectation
+            fileType: mimeType // Changed from mimeType to fileType to match server expectation
         };
 
-        window.sendDataToGoogle('uploadImageAndGetUrl', payload, (response) => {
+        window.sendDataToGoogle('uploadFile', payload, (response) => {
             if (response.status === 'success') {
                 resolve({ status: 'success', url: response.url });
             } else {
