@@ -144,43 +144,10 @@ window.hideToast = function(toast) {
 
 window.sendDataToGoogle = function(action, data, callback, errorHandler) {
     const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-    window[callbackName] = function(response) {
-        delete window[callbackName];
-        document.body.removeChild(script);
-        
-        console.log('Raw response:', JSON.stringify(response, null, 2));  // Debug log
-        
-        try {
-            // The response from the server is already in the desired format.
-            // Simply pass it to the callback, ensuring we have default fallbacks.
-            const finalResponse = {
-                status: response.status || 'error',
-                message: response.message || 'No message',
-                data: response.data || [],
-                pagination: response.pagination || null,
-                version: response.version || null,
-                ...response // Spread any other properties from the response
-            };
-
-            console.log('Normalized response:', finalResponse);  // Debug log
-            
-            if (callback) callback(finalResponse);
-        } catch (error) {
-            console.error('Error processing response:', error);
-            if (errorHandler) {
-                errorHandler(error);
-            } else {
-                callback({
-                    status: 'error',
-                    message: 'Error processing response',
-                    data: []
-                });
-            }
-        }
-    };
-
+    
     // Special handling for uploadImageAndGetUrl action to send as POST request with JSON payload
     if (action === 'uploadImageAndGetUrl') {
+        // For uploadImageAndGetUrl, we don't need the JSONP callback wrapper
         const payload = { action: 'uploadImageAndGetUrl', ...data };
         
         fetch(window.appsScriptUrl, {
@@ -198,8 +165,8 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             return response.json();
         })
         .then(result => {
-            // Call the callback function with the result
-            window[callbackName](result);
+            // Call the callback function with the result directly
+            if (callback) callback(result);
         })
         .catch(error => {
             console.error('Error in uploadImageAndGetUrl fetch:', error);
@@ -208,7 +175,7 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
                 errorHandler(error);
             } else {
                 // Call the callback with an error response to maintain consistency
-                window[callbackName]({
+                if (callback) callback({
                     status: 'error',
                     message: error.message || 'Network error or script execution failed.'
                 });
@@ -216,6 +183,40 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         });
     } else {
         // For other actions, use the JSONP approach
+        window[callbackName] = function(response) {
+            delete window[callbackName];
+            
+            console.log('Raw response:', JSON.stringify(response, null, 2));  // Debug log
+            
+            try {
+                // The response from the server is already in the desired format.
+                // Simply pass it to the callback, ensuring we have default fallbacks.
+                const finalResponse = {
+                    status: response.status || 'error',
+                    message: response.message || 'No message',
+                    data: response.data || [],
+                    pagination: response.pagination || null,
+                    version: response.version || null,
+                    ...response // Spread any other properties from the response
+                };
+
+                console.log('Normalized response:', finalResponse);  // Debug log
+                
+                if (callback) callback(finalResponse);
+            } catch (error) {
+                console.error('Error processing response:', error);
+                if (errorHandler) {
+                    errorHandler(error);
+                } else {
+                    callback({
+                        status: 'error',
+                        message: 'Error processing response',
+                        data: []
+                    });
+                }
+            }
+        };
+
         let url = window.appsScriptUrl + `?action=${action}&callback=${callbackName}`;
         for (const key in data) {
             // Avoid duplicating the 'action' parameter if it's already in the URL
