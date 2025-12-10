@@ -142,14 +142,16 @@ window.hideToast = function(toast) {
     }, { once: true });
 };
 
-window.sendDataToGoogle = function(action, data, callback, errorHandler) {
-    const callbackName = 'jsonp_callback_' + Math.round(1000 * Math.random());
+// Function to make requests with fetch instead of JSONP for better CORS support
+function makeFetchRequest(action, data, callback, errorHandler) {
+    const payload = { action: action, ...data };
     
-    // Special handling for uploadImageAndGetUrl action to send as POST request with JSON payload
-    if (action === 'uploadImageAndGetUrl' || action === 'uploadFile') {
-        // For uploadImageAndGetUrl and uploadFile, we don't need the JSONP callback wrapper
-        const payload = { action: action, ...data };
-        
+    // Determine if this should be a GET or POST request
+    // POST for uploadFile, save operations; GET for read operations
+    const isPostAction = ['uploadFile', 'uploadImageAndGetUrl', 'save', 'saveProfileDataOnServer', 'updateProfile', 'createProfile', 'deleteProfile', 'SignIn', 'SignInUser', 'registerUser', 'loginUser', 'addProduk', 'updateProduk', 'deleteProduk', 'addProduct', 'updateProduct', 'deleteProductBySKU', 'savePurchaseOrder', 'addSupplier', 'updateSupplier', 'deleteSupplier', 'changePassword'].includes(action);
+    
+    if (isPostAction) {
+        // Use POST request for data modification operations
         fetch(window.appsScriptUrl, {
             method: 'POST',
             headers: {
@@ -171,7 +173,7 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             if (callback) callback(result);
         })
         .catch(error => {
-            console.error('Error in uploadFile fetch:', error);
+            console.error(`Error in ${action} fetch:`, error);
             // Call error handler if provided, otherwise call the callback with an error response
             if (errorHandler) {
                 errorHandler(error);
@@ -184,7 +186,16 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             }
         });
     } else {
-        // For other actions, use the JSONP approach similar to EzyParts.xml
+        // Use GET request for read operations, but with fetch instead of JSONP for better CORS support
+        let url = window.appsScriptUrl + `?action=${action}`;
+        for (const key in data) {
+            url += `&${key}=${encodeURIComponent(data[key])}`;
+        }
+        
+        // Using fetch with mode 'no-cors' won't help because we need the response, so we'll stick with the JSONP approach
+        // but with better error handling
+        const callbackName = 'jsonp_callback_' + Math.round(1000 * Math.random());
+        
         window[callbackName] = function(response) {
             delete window[callbackName];
             
@@ -262,27 +273,44 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             }
         };
 
-        let url = window.appsScriptUrl + `?action=${action}&callback=${callbackName}`;
-        for (const key in data) {
-            // Avoid duplicating the 'action' parameter if it's already in the URL
-            if (key !== 'action') {
-                url += `&${key}=${encodeURIComponent(data[key])}`;
-            }
-        }
-
-        console.log('Sending request to:', url);
-        
         const script = document.createElement('script');
-        script.src = url;
+        script.src = url + `&callback=${callbackName}`;
         script.onerror = function(error) {
             console.error('!!! CLINE DEBUG: Script loading error caught in sendDataToGoogle. URL was: ' + url, error);
-            alert('!!! CLINE DEBUG: Script loading error for Apps Script call. Check console for URL and details.');
-            delete window[callbackName];
-            document.body.removeChild(script);
-            if (errorHandler) errorHandler(new Error('Network error or script loading failed. Please check Apps Script deployment and logs.'));
-            else showToast('Network error or script loading failed. Please check Apps Script deployment and logs.', 'error'); // Fallback toast
+            // Try alternative approach using fetch with text response and manual JSON parsing
+            console.log('Attempting fallback to fetch for URL:', url);
+            fetch(url)
+                .then(response => response.text())
+                .then(text => {
+                    // Extract JSON from JSONP response (callback_name({...json...}))
+                    const jsonpRegex = /\w+\((.*)\)/;
+                    const match = text.match(jsonpRegex);
+                    if (match && match[1]) {
+                        const json = JSON.parse(match[1]);
+                        if (callback) callback(json);
+                    } else {
+                        throw new Error('Could not extract JSON from response');
+                    }
+                })
+                .catch(fallbackError => {
+                    console.error('Fallback also failed:', fallbackError);
+                    delete window[callbackName];
+                    if (errorHandler) errorHandler(new Error('Network error or script loading failed. Please check Apps Script deployment and logs.'));
+                    else showToast('Network error or script loading failed. Please check Apps Script deployment and logs.', 'error'); // Fallback toast
+                });
         };
         document.body.appendChild(script);
+    }
+}
+
+window.sendDataToGoogle = function(action, data, callback, errorHandler) {
+    // Special handling for uploadImageAndGetUrl action to send as POST request with JSON payload
+    if (action === 'uploadImageAndGetUrl' || action === 'uploadFile') {
+        // For uploadImageAndGetUrl and uploadFile, we use POST request
+        makeFetchRequest(action, data, callback, errorHandler);
+    } else {
+        // For other actions, try the improved approach
+        makeFetchRequest(action, data, callback, errorHandler);
     }
 };
 
