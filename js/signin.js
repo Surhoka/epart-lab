@@ -45,19 +45,27 @@ function handleSignin(e) {
                 console.log('User object being saved to localStorage:', user);
                 localStorage.setItem('signedInUser', JSON.stringify(user));
 
+                // Force update the Alpine.js app state to reflect the new user
+                if (window.app) {
+                    window.app.currentUser = user;
+                }
+
                 // No need to explicitly call handleAuthUI here, Alpine.js reactivity will handle it.
                 // if (window.handleAuthUI) {
                 //     window.handleAuthUI();
                 // }
             }
 
-            // Redirect to dashboard using the proper navigation function
-            if (window.navigate) {
-                window.navigate('dashboard');
-            } else {
-                // Fallback to direct hash change if navigate function is not available
-                window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
-            }
+            // Small delay to ensure localStorage is updated before navigation
+            setTimeout(() => {
+                // Redirect to dashboard using the proper navigation function
+                if (window.navigate) {
+                    window.navigate('dashboard');
+                } else {
+                    // Fallback to direct hash change if navigate function is not available
+                    window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+                }
+            }, 100); // 100ms delay to ensure localStorage update is processed
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
