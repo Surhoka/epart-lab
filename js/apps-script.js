@@ -152,10 +152,14 @@ function makeFetchRequest(action, data, callback, errorHandler) {
     
     if (isPostAction) {
         // Use POST request for data modification operations
+        // Note: Adding mode: 'cors' and credentials: 'omit' to help with CORS issues
         fetch(window.appsScriptUrl, {
             method: 'POST',
+            mode: 'cors', // Explicitly set CORS mode
+            credentials: 'omit', // Don't send credentials
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8', // Important for Apps Script to parse raw JSON
+                'X-Requested-With': 'XMLHttpRequest', // Common header to identify AJAX requests
             },
             body: JSON.stringify(payload)
         })
@@ -279,7 +283,10 @@ function makeFetchRequest(action, data, callback, errorHandler) {
             console.error('!!! CLINE DEBUG: Script loading error caught in sendDataToGoogle. URL was: ' + url, error);
             // Try alternative approach using fetch with text response and manual JSON parsing
             console.log('Attempting fallback to fetch for URL:', url);
-            fetch(url)
+            fetch(url, {
+                mode: 'cors', // Explicitly set CORS mode
+                credentials: 'omit' // Don't send credentials
+            })
                 .then(response => response.text())
                 .then(text => {
                     // Extract JSON from JSONP response (callback_name({...json...}))
