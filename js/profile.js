@@ -49,6 +49,8 @@ window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
                 reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
             }
         }, (error) => {
+            // Log the error for debugging
+            console.error('Error in uploadImageAndGetUrl:', error);
             reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
         });
     });
