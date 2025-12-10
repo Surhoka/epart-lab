@@ -29,30 +29,25 @@ window.initProfilePage = function () {
  */
 window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
     return new Promise((resolve, reject) => {
-        if (typeof window.sendDataToGoogle !== 'function') {
-            const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
+        if (typeof window.uploadImageWithFetch !== 'function') {
+            const errorMessage = 'uploadImageWithFetch function not found. Make sure apps-script.js is loaded.';
             console.error(errorMessage);
             return reject({ status: 'error', message: errorMessage });
         }
 
-        const payload = {
-            action: 'uploadFile', // Action name for Apps Script - changed from uploadImageAndGetUrl to uploadFile
-            fileName: fileName,
-            fileData: base64Data, // Changed from base64Data to fileData to match server expectation
-            fileType: mimeType // Changed from mimeType to fileType to match server expectation
-        };
-
-        window.sendDataToGoogle('uploadFile', payload, (response) => {
-            if (response.status === 'success') {
-                resolve({ status: 'success', url: response.url });
-            } else {
-                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
-            }
-        }, (error) => {
-            // Log the error for debugging
-            console.error('Error in uploadImageAndGetUrl:', error);
-            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
-        });
+        // Use the uploadImageWithFetch function from apps-script.js which uses fetch
+        window.uploadImageWithFetch(fileName, base64Data, mimeType)
+            .then(response => {
+                if (response.status === 'success' && response.url) {
+                    resolve({ status: 'success', url: response.url });
+                } else {
+                    reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
+                }
+            })
+            .catch(error => {
+                console.error('Error in uploadImageAndGetUrl:', error);
+                reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
+            });
     });
 };
 
