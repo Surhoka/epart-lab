@@ -206,6 +206,13 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
                     normalizedResponse.status = response.success ? 'success' : 'error';
                     normalizedResponse.message = response.message || '';
                     normalizedResponse.data = response.user || null;
+                } else if (action === 'saveProfileDataOnServer') {
+                    // For saveProfileDataOnServer, use the response as is
+                    normalizedResponse.status = response.status || 'success';
+                    normalizedResponse.message = response.message || '';
+                    normalizedResponse.data = response.data || [];
+                    if (response.profilePhotoUrl) normalizedResponse.profilePhotoUrl = response.profilePhotoUrl;
+                    if (response.name) normalizedResponse.name = response.name;
                 }
                 else if (response) {
                     if (Array.isArray(response)) {
