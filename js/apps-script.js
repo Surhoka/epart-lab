@@ -179,27 +179,50 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         }
     };
 
-    let url = window.appsScriptUrl + `?action=${action}&callback=${callbackName}`;
-    for (const key in data) {
-        // Avoid duplicating the 'action' parameter if it's already in the URL
-        if (key !== 'action') {
-            url += `&${key}=${encodeURIComponent(data[key])}`;
+    // Special handling for uploadImageAndGetUrl action to send as POST request with JSON payload
+    if (action === 'uploadImageAndGetUrl') {
+        const payload = { action: 'uploadImageAndGetUrl', ...data };
+        
+        fetch(window.appsScriptUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', // Important for Apps Script to parse raw JSON
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Call the callback function with the result
+            window[callbackName](result);
+        })
+        .catch(error => {
+            console.error('Error in uploadImageAndGetUrl fetch:', error);
+            if (errorHandler) errorHandler(error);
+        });
+    } else {
+        // For other actions, use the JSONP approach
+        let url = window.appsScriptUrl + `?action=${action}&callback=${callbackName}`;
+        for (const key in data) {
+            // Avoid duplicating the 'action' parameter if it's already in the URL
+            if (key !== 'action') {
+                url += `&${key}=${encodeURIComponent(data[key])}`;
+            }
         }
-    }
 
-    console.log('Sending request to:', url);
-    
-    const script = document.createElement('script');
-    script.src = url;
-    script.onerror = function(error) {
-        console.error('!!! CLINE DEBUG: Script loading error caught in sendDataToGoogle. URL was: ' + url, error);
-        alert('!!! CLINE DEBUG: Script loading error for Apps Script call. Check console for URL and details.');
-        delete window[callbackName];
-        document.body.removeChild(script);
-        if (errorHandler) errorHandler(new Error('Network error or script loading failed. Please check Apps Script deployment and logs.'));
-        else showToast('Network error or script loading failed. Please check Apps Script deployment and logs.', 'error'); // Fallback toast
-    };
-    document.body.appendChild(script);
+        console.log('Sending request to:', url);
+        
+        const script = document.createElement('script');
+        script.src = url;
+        script.onerror = function(error) {
+            console.error('!!! CLINE DEBUG: Script loading error caught in sendDataToGoogle. URL was: ' + url, error);
+            alert('!!! CLINE DEBUG: Script loading error for Apps Script call. Check console for URL and details.');
+            delete window[callbackName];
+            document.body.removeChild(script);
+            if (errorHandler) errorHandler(new Error('Network error or script loading failed. Please check Apps Script deployment and logs.'));
+            else showToast('Network error or script loading failed. Please check Apps Script deployment and logs.', 'error'); // Fallback toast
+        };
+        document.body.appendChild(script);
+    }
 };
 
 window.uploadImageAndGetUrl = function(fileName, fileData, fileType) {
