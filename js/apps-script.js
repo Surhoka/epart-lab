@@ -143,12 +143,12 @@ window.hideToast = function(toast) {
 };
 
 window.sendDataToGoogle = function(action, data, callback, errorHandler) {
-    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+    const callbackName = 'jsonp_callback_' + Math.round(1000 * Math.random());
     
     // Special handling for uploadImageAndGetUrl action to send as POST request with JSON payload
-    if (action === 'uploadImageAndGetUrl') {
-        // For uploadImageAndGetUrl, we don't need the JSONP callback wrapper
-        const payload = { action: 'uploadImageAndGetUrl', ...data };
+    if (action === 'uploadImageAndGetUrl' || action === 'uploadFile') {
+        // For uploadImageAndGetUrl and uploadFile, we don't need the JSONP callback wrapper
+        const payload = { action: action, ...data };
         
         fetch(window.appsScriptUrl, {
             method: 'POST',
@@ -160,7 +160,9 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         .then(response => {
             // Check if the response is ok (status 200-299)
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Log the actual status and status text for debugging
+                console.error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
             }
             return response.json();
         })
@@ -169,7 +171,7 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             if (callback) callback(result);
         })
         .catch(error => {
-            console.error('Error in uploadImageAndGetUrl fetch:', error);
+            console.error('Error in uploadFile fetch:', error);
             // Call error handler if provided, otherwise call the callback with an error response
             if (errorHandler) {
                 errorHandler(error);
@@ -285,27 +287,34 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
 };
 
 window.uploadImageAndGetUrl = function(fileName, fileData, fileType) {
-    const payload = { action: 'uploadFile', fileName: fileName, fileData: fileData, fileType: fileType };
-    return fetch(window.appsScriptUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8', // Important for Apps Script to parse raw JSON
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(uploadResponse => {
-        if (uploadResponse.status === 'success' && uploadResponse.url) {
-            try {
-                const fileId = new URL(uploadResponse.url).searchParams.get("id");
-                if (fileId) {
-                    uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
+    return new Promise((resolve, reject) => {
+        // Use the sendDataToGoogle function which handles CORS properly
+        const payload = { 
+            fileName: fileName, 
+            fileData: fileData, 
+            fileType: fileType 
+        };
+        
+        window.sendDataToGoogle('uploadFile', payload, (response) => {
+            if (response.status === 'success' && response.url) {
+                try {
+                    // Try to convert the URL to a direct image URL if it's a Google Drive URL
+                    const urlObj = new URL(response.url);
+                    if (urlObj.hostname.includes('google.com') || urlObj.hostname.includes('googleusercontent.com')) {
+                        const fileId = urlObj.searchParams.get("id");
+                        if (fileId) {
+                            response.url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing URL from uploadImageAndGetUrl:', e);
                 }
-            } catch (e) {
-                console.error('Error parsing URL from uploadImageAndGetUrl:', e);
             }
-        }
-        return uploadResponse;
+            resolve(response);
+        }, (error) => {
+            console.error('Error in uploadImageAndGetUrl:', error);
+            reject(error);
+        });
     });
 };
 
