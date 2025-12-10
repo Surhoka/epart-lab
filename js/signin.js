@@ -56,6 +56,18 @@ function handleSignin(e) {
                 // }
             }
 
+            // Update the app state immediately to reflect the user login
+            if (window.app) {
+                window.app.currentUser = user;
+                window.app.isLoggedIn = true;
+            }
+
+            // Force update localStorage and trigger the hashchange event to ensure proper routing
+            const event = new HashChangeEvent('hashchange', {
+                bubbles: true,
+                cancelable: true,
+            });
+
             // Small delay to ensure localStorage is updated before navigation
             setTimeout(() => {
                 // Redirect to dashboard using the proper navigation function
@@ -65,7 +77,10 @@ function handleSignin(e) {
                     // Fallback to direct hash change if navigate function is not available
                     window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
                 }
-            }, 100); // 100ms delay to ensure localStorage update is processed
+
+                // Trigger the hashchange event to ensure the router processes the new hash
+                window.dispatchEvent(event);
+            }, 50); // Reduced delay to 50ms
         } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
