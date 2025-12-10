@@ -190,14 +190,29 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             },
             body: JSON.stringify(payload)
         })
-        .then(response => response.json())
+        .then(response => {
+            // Check if the response is ok (status 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(result => {
             // Call the callback function with the result
             window[callbackName](result);
         })
         .catch(error => {
             console.error('Error in uploadImageAndGetUrl fetch:', error);
-            if (errorHandler) errorHandler(error);
+            // Call error handler if provided, otherwise call the callback with an error response
+            if (errorHandler) {
+                errorHandler(error);
+            } else {
+                // Call the callback with an error response to maintain consistency
+                window[callbackName]({
+                    status: 'error',
+                    message: error.message || 'Network error or script execution failed.'
+                });
+            }
         });
     } else {
         // For other actions, use the JSONP approach
