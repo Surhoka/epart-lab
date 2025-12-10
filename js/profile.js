@@ -649,13 +649,10 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
  */
 function saveProfilePhotoUrl(photoUrl) {
     if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('updateProfile', {
-            userId: window.currentProfileUserId,
-            profileData: JSON.stringify({
-                personalInfo: {
-                    profilePhoto: photoUrl
-                }
-            })
+        // Use saveProfileDataOnServer action similar to EzyParts
+        window.sendDataToGoogle('saveProfileDataOnServer', {
+            section: 'meta',
+            profilePhotoUrl: photoUrl
         }, (response) => {
             if (response.status === 'success') {
                 if (window.showToast) window.showToast('Profile photo updated successfully');
@@ -678,10 +675,10 @@ function saveProfilePhotoUrl(photoUrl) {
                             localStorage.setItem(cacheKey, JSON.stringify(parsedData));
 
                             // ALSO update the loggedInUser session so the header updates immediately
-                            const sessionUser = JSON.parse(localStorage.getItem('loggedInUser'));
+                            const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
                             if (sessionUser) {
                                 sessionUser.pictureUrl = photoUrl;
-                                localStorage.setItem('loggedInUser', JSON.stringify(sessionUser));
+                                localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
                                 // Function to refresh header if accessible or reload
                                 // Since header is x-data bound to localStorage via appData init, it might not reactively update unless we reload or dispatch event.
                                 // Simplest way is simply update localStorage. Alpine might not catch it if it's already initialized.
