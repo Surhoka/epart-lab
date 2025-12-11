@@ -248,41 +248,52 @@ function makeFetchRequest(action, data, callback, errorHandler) {
 }
 
 window.sendDataToGoogle = function(action, data, callback, errorHandler) {
-    // Reroute upload actions through a GET-based proxy to avoid CORS issues with POST.
+    // Special handling for uploadFile action to send as POST request with urlencoded payload
     if (action === 'uploadFile' || action === 'uploadImageAndGetUrl') {
-        // The original payload that the server-side `handlePost` expects.
-        const postPayload = { 
-            action: action, 
-            fileName: data.fileName, 
-            fileData: data.fileData, 
-            fileType: data.fileType 
-        };
-
-        // The data for the GET request to the `proxyPost` action.
-        // The entire `postPayload` is stringified and sent as a single parameter.
-        const proxyData = {
-            payload: JSON.stringify(postPayload)
-        };
+        const payload = { action: action, fileName: data.fileName, fileData: data.fileData, fileType: data.fileType };
         
-        // Use the existing JSONP-based fetch request, but direct it to the 'proxyPost' action.
-        makeFetchRequest('proxyPost', proxyData, (response) => {
-            // The response from `proxyPost` should be the same as the direct POST would have been.
-            // Add the same URL transformation logic here.
-            if (response.status === 'success' && response.url) {
+        // Use x-www-form-urlencoded to avoid CORS preflight/redirect issues with Apps Script
+        const formData = 'payload=' + encodeURIComponent(JSON.stringify(payload));
+
+        fetch(window.appsScriptUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Try to get more error info from the response body if possible
+                return response.text().then(text => {
+                    throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}, response: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(uploadResponse => {
+            if (uploadResponse.status === 'success' && uploadResponse.url) {
                 try {
-                    const fileId = new URL(response.url).searchParams.get("id");
+                    const fileId = new URL(uploadResponse.url).searchParams.get("id");
                     if (fileId) {
-                        response.url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                        uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
                     }
                 } catch (e) {
-                    console.error('Error parsing URL from upload proxy response:', e);
+                    console.error('Error parsing URL from uploadImageAndGetUrl:', e);
                 }
             }
-            if (callback) callback(response);
-        }, errorHandler);
-
+            if (callback) callback(uploadResponse);
+        })
+        .catch(error => {
+            console.error('Error in uploadFile fetch:', error);
+            if (errorHandler) {
+                errorHandler(error);
+            } else if (callback) {
+                callback({ status: 'error', message: error.message || 'Upload failed' });
+            }
+        });
     } else {
-        // For other actions, use the standard JSONP approach.
+        // For other actions, use the JSONP approach like in EzyParts
         makeFetchRequest(action, data, callback, errorHandler);
     }
 };
