@@ -41,19 +41,16 @@ window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
             fileType: mimeType
         };
 
-        window.sendDataToGoogle('uploadImageAndGetUrl', data, 
-            (response) => { // success callback
-                if (response.status === 'success' && response.url) {
-                    resolve({ status: 'success', url: response.url });
-                } else {
-                    reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
-                }
-            },
-            (error) => { // error handler
-                console.error('Error in uploadImageAndGetUrl:', error);
-                reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
+        window.sendDataToGoogle('uploadImageAndGetUrl', data, (response) => {
+            if (response.status === 'success' && response.url) {
+                resolve({ status: 'success', url: response.url });
+            } else {
+                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
             }
-        );
+        }, (error) => {
+            console.error('Error in uploadImageAndGetUrl:', error);
+            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
+        });
     });
 };
 
@@ -650,7 +647,7 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
  */
 function saveProfilePhotoUrl(photoUrl) {
     if (typeof window.sendDataToGoogle === 'function') {
-        // Use saveProfileDataOnServer to save the photo URL
+        // Use saveProfileDataOnServer action similar to EzyParts
         window.sendDataToGoogle('saveProfileDataOnServer', {
             section: 'meta',
             profilePhotoUrl: photoUrl
