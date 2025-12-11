@@ -248,47 +248,41 @@ function makeFetchRequest(action, data, callback, errorHandler) {
 }
 
 window.sendDataToGoogle = function(action, data, callback, errorHandler) {
-    // Special handling for uploadFile action to send as POST request with JSON payload
+    // Reroute upload actions through a GET-based proxy to avoid CORS issues with POST.
     if (action === 'uploadFile' || action === 'uploadImageAndGetUrl') {
-        // For uploadFile and uploadImageAndGetUrl, use fetch with POST
-        const payload = { action: action, fileName: data.fileName, fileData: data.fileData, fileType: data.fileType };
+        // The original payload that the server-side `handlePost` expects.
+        const postPayload = { 
+            action: action, 
+            fileName: data.fileName, 
+            fileData: data.fileData, 
+            fileType: data.fileType 
+        };
+
+        // The data for the GET request to the `proxyPost` action.
+        // The entire `postPayload` is stringified and sent as a single parameter.
+        const proxyData = {
+            payload: JSON.stringify(postPayload)
+        };
         
-        fetch(window.appsScriptUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // Important for Apps Script to parse raw JSON
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(uploadResponse => {
-            if (uploadResponse.status === 'success' && uploadResponse.url) {
+        // Use the existing JSONP-based fetch request, but direct it to the 'proxyPost' action.
+        makeFetchRequest('proxyPost', proxyData, (response) => {
+            // The response from `proxyPost` should be the same as the direct POST would have been.
+            // Add the same URL transformation logic here.
+            if (response.status === 'success' && response.url) {
                 try {
-                    const fileId = new URL(uploadResponse.url).searchParams.get("id");
+                    const fileId = new URL(response.url).searchParams.get("id");
                     if (fileId) {
-                        uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
+                        response.url = `https://lh3.googleusercontent.com/d/${fileId}`;
                     }
                 } catch (e) {
-                    console.error('Error parsing URL from uploadImageAndGetUrl:', e);
+                    console.error('Error parsing URL from upload proxy response:', e);
                 }
             }
-            if (callback) callback(uploadResponse);
-        })
-        .catch(error => {
-            console.error('Error in uploadFile fetch:', error);
-            if (errorHandler) {
-                errorHandler(error);
-            } else if (callback) {
-                callback({ status: 'error', message: error.message || 'Upload failed' });
-            }
-        });
+            if (callback) callback(response);
+        }, errorHandler);
+
     } else {
-        // For other actions, use the JSONP approach like in EzyParts
+        // For other actions, use the standard JSONP approach.
         makeFetchRequest(action, data, callback, errorHandler);
     }
 };
