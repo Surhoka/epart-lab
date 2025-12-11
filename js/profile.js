@@ -29,25 +29,31 @@ window.initProfilePage = function () {
  */
 window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
     return new Promise((resolve, reject) => {
-        if (typeof window.uploadImageWithFetch !== 'function') {
-            const errorMessage = 'uploadImageWithFetch function not found. Make sure apps-script.js is loaded.';
+        if (typeof window.sendDataToGoogle !== 'function') {
+            const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
             console.error(errorMessage);
             return reject({ status: 'error', message: errorMessage });
         }
 
-        // Use the uploadImageWithFetch function from apps-script.js which uses fetch
-        window.uploadImageWithFetch(fileName, base64Data, mimeType)
-            .then(response => {
+        const data = {
+            fileName: fileName,
+            fileData: base64Data,
+            fileType: mimeType
+        };
+
+        window.sendDataToGoogle('uploadImageAndGetUrl', data, 
+            (response) => { // success callback
                 if (response.status === 'success' && response.url) {
                     resolve({ status: 'success', url: response.url });
                 } else {
                     reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
                 }
-            })
-            .catch(error => {
+            },
+            (error) => { // error handler
                 console.error('Error in uploadImageAndGetUrl:', error);
                 reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
-            });
+            }
+        );
     });
 };
 
@@ -644,7 +650,7 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
  */
 function saveProfilePhotoUrl(photoUrl) {
     if (typeof window.sendDataToGoogle === 'function') {
-        // Use saveProfileDataOnServer action similar to EzyParts
+        // Use saveProfileDataOnServer to save the photo URL
         window.sendDataToGoogle('saveProfileDataOnServer', {
             section: 'meta',
             profilePhotoUrl: photoUrl
