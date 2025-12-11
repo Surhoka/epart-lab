@@ -191,8 +191,10 @@ function makeFetchRequest(action, data, callback, errorHandler) {
                     normalizedResponse.message = response.message || '';
                     normalizedResponse.data = response.data || [];
                     
-                    // Further refine data for specific actions if needed (e.g., getProducts)
-                    if (action === 'getProducts') {
+                    // Further refine data for specific actions if needed (e.g., getProduk)
+                    if (action === 'getProduk' || action === 'searchProduk') {
+                        normalizedResponse.pagination = response.pagination || {};
+                        normalizedResponse.version = response.version || 'unknown';
                         if (Array.isArray(response.data)) {
                             normalizedResponse.data = response.data;
                         } else if (response.data) {
@@ -206,6 +208,14 @@ function makeFetchRequest(action, data, callback, errorHandler) {
                     }
                 }
             }
+            // Ensure pagination and version are always passed if present in the raw response for successful calls
+            if (normalizedResponse.status === 'success' && response.pagination && !normalizedResponse.pagination) {
+                normalizedResponse.pagination = response.pagination;
+            }
+            if (normalizedResponse.status === 'success' && response.version && !normalizedResponse.version) {
+                normalizedResponse.version = response.version;
+            }
+
 
             console.log('Normalized response:', normalizedResponse);  // Debug log
             
