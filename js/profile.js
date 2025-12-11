@@ -93,6 +93,19 @@ function fetchProfileData(userId) {
                 // Update Cache
                 localStorage.setItem(cacheKey, JSON.stringify(response.data));
 
+                // Also update the loggedInUser session so the header updates immediately
+                // This ensures consistency between profile data and header display.
+                const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                if (sessionUser && response.data.personalInfo && response.data.personalInfo.profilePhoto) {
+                    sessionUser.pictureUrl = response.data.personalInfo.profilePhoto;
+                    localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                    
+                    // Force Alpine.js to update the header by re-assigning the currentUser object
+                    if (window.app && typeof window.app.currentUser !== 'undefined') {
+                        window.app.currentUser = sessionUser;
+                    }
+                }
+
             } else {
                 console.log('No profile data found, prompting creation.');
                 window.currentProfileUserId = null; // Ensure ID is null
