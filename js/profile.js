@@ -647,10 +647,10 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
  */
 function saveProfilePhotoUrl(photoUrl) {
     if (typeof window.sendDataToGoogle === 'function') {
-        // Use saveProfileDataOnServer action similar to EzyParts
-        window.sendDataToGoogle('saveProfileDataOnServer', {
-            section: 'meta',
-            profilePhotoUrl: photoUrl
+        // Use the correct 'updateProfilePhoto' action and include the userId
+        window.sendDataToGoogle('updateProfilePhoto', {
+            photoUrl: photoUrl,
+            userId: window.currentProfileUserId
         }, (response) => {
             if (response.status === 'success') {
                 if (window.showToast) window.showToast('Profile photo updated successfully');
