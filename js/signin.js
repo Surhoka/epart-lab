@@ -38,59 +38,98 @@ function handleSignin(e) {
         if (response.status === 'success') {
             showToast('Signin successful!', 'success');
 
-            // Store user session - now using response.data instead of response.user
-            let user = response.data || response.user;
-            if (user) {
-                // Ensure user object has all required properties to prevent undefined errors in the UI
-                user = {
-                    ...user,
-                    isLoggedIn: true,
-                    firstName: user.firstName || user.fullName || user.name || 'User',
-                    lastName: user.lastName || '',
-                    email: user.email || '',
-                    pictureUrl: user.pictureUrl || user.avatar || user.profilePicture || 'https://dummyimage.com/100'
-                };
-                
-                console.log('User object being saved to localStorage:', user);
-                localStorage.setItem('signedInUser', JSON.stringify(user));
-
-                // Force update the Alpine.js app state to reflect the new user
-                if (window.app) {
-                    window.app.currentUser = user;
-                }
-
-                // No need to explicitly call handleAuthUI here, Alpine.js reactivity will handle it.
-                // if (window.handleAuthUI) {
-                //     window.handleAuthUI();
-                // }
-            }
-
-            // Update the app state immediately to reflect the user login
-            if (window.app) {
-                window.app.currentUser = user || {};
-                window.app.isLoggedIn = true;
-            }
-
-            // Force update localStorage and trigger the hashchange event to ensure proper routing
-            const event = new HashChangeEvent('hashchange', {
-                bubbles: true,
-                cancelable: true,
-            });
-
-            // Small delay to ensure localStorage is updated before navigation
-            setTimeout(() => {
-                // Redirect to dashboard using the proper navigation function
-                if (window.navigate) {
-                    window.navigate('dashboard');
-                } else {
-                    // Fallback to direct hash change if navigate function is not available
-                    window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
-                }
-
-                // Trigger the hashchange event to ensure the router processes the new hash
-                window.dispatchEvent(event);
-            }, 50); // Reduced delay to 50ms
-        } else {
+                            // Store user session - now using response.data instead of response.user
+                            let user = response.data || response.user;
+                            if (user && user.id) {
+                                // Fetch full profile data to get pictureUrl
+                                sendDataToGoogle('getProfile', { userId: user.id }, (profileResponse) => {
+                                    if (profileResponse.status === 'success' && profileResponse.data) {
+                                        const fullProfile = profileResponse.data;
+                                        // Update the user object with full profile details including photo
+                                        user = {
+                                            ...user,
+                                            isLoggedIn: true,
+                                            firstName: fullProfile.personalInfo.firstName || user.fullName || user.name || 'User',
+                                            lastName: fullProfile.personalInfo.lastName || '',
+                                            email: fullProfile.personalInfo.email || user.email || '',
+                                            pictureUrl: fullProfile.personalInfo.profilePhoto || 'https://dummyimage.com/100'
+                                        };
+                                        console.log('User object being saved to localStorage (after full profile fetch):', user);
+                                        localStorage.setItem('signedInUser', JSON.stringify(user));
+            
+                                        // Force update the Alpine.js app state to reflect the new user
+                                        if (window.app) {
+                                            window.app.currentUser = user;
+                                        }
+            
+                                        // Proceed with navigation after full profile is fetched and saved
+                                        setTimeout(() => {
+                                            // Redirect to dashboard using the proper navigation function
+                                            if (window.navigate) {
+                                                window.navigate('dashboard');
+                                            } else {
+                                                // Fallback to direct hash change if navigate function is not available
+                                                window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+                                            }
+                                            window.dispatchEvent(event);
+                                        }, 50); // Reduced delay to 50ms
+            
+                                    } else {
+                                        // If fetching full profile fails, proceed with basic user data
+                                        console.error('Failed to fetch full profile after sign-in:', profileResponse.message);
+                                        user = {
+                                            ...user,
+                                            isLoggedIn: true,
+                                            firstName: user.fullName || user.name || 'User',
+                                            lastName: '',
+                                            email: user.email || '',
+                                            pictureUrl: 'https://dummyimage.com/100' // Fallback
+                                        };
+                                        console.log('User object being saved to localStorage (fallback after full profile fetch fail):', user);
+                                        localStorage.setItem('signedInUser', JSON.stringify(user));
+                                        if (window.app) {
+                                            window.app.currentUser = user;
+                                        }
+                                        setTimeout(() => {
+                                            if (window.navigate) {
+                                                window.navigate('dashboard');
+                                            } else {
+                                                window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+                                            }
+                                            window.dispatchEvent(event);
+                                        }, 50);
+                                    }
+                                }, (error) => {
+                                    console.error('Error fetching full profile after sign-in:', error);
+                                    // In case of network error during full profile fetch, proceed with basic user data
+                                    user = {
+                                        ...user,
+                                        isLoggedIn: true,
+                                        firstName: user.fullName || user.name || 'User',
+                                        lastName: '',
+                                        email: user.email || '',
+                                        pictureUrl: 'https://dummyimage.com/100' // Fallback
+                                    };
+                                    console.log('User object being saved to localStorage (fallback after error):', user);
+                                    localStorage.setItem('signedInUser', JSON.stringify(user));
+                                    if (window.app) {
+                                        window.app.currentUser = user;
+                                    }
+                                    setTimeout(() => {
+                                        if (window.navigate) {
+                                            window.navigate('dashboard');
+                                        } else {
+                                            window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+                                        }
+                                        window.dispatchEvent(event);
+                                    }, 50);
+                                });
+                            } else {
+                                // Fallback if initial user object is invalid
+                                showToast('Signin failed: Invalid user data.', 'error');
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                            }        } else {
             showToast(response.message || 'Signin failed. Please check your credentials.', 'error');
         }
     });
