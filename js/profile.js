@@ -23,15 +23,15 @@ window.initProfilePage = function () {
  * Uploads an image to Google Drive via Google Apps Script and returns its public URL.
  * @param {string} fileName - The desired file name for the uploaded image.
  * @param {string} base64Data - The base64 encoded image data (without the data:image/...;base64, prefix).
- * @param {string} mimeType - The MIME type of the image (e.g., '`image/png`', '`image/jpeg`').
+ * @param {string} mimeType - The MIME type of the image (e.g., 'image/png', 'image/jpeg').
  * @returns {Promise<Object>} A promise that resolves with an object containing `status` and `url` if successful,
  *                            or `status` and `message` if there's an error.
  */
-`window.uploadImageAndGetUrl` = function(fileName, base64Data, mimeType) {
+window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
     return new Promise((resolve, reject) => {
-        if (typeof `window.sendDataToGoogle` !== 'function') {
+        if (typeof window.sendDataToGoogle !== 'function') {
             const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
-            `console.error`(errorMessage);
+            console.error(errorMessage);
             return reject({ status: 'error', message: errorMessage });
         }
 
@@ -41,15 +41,15 @@ window.initProfilePage = function () {
             fileType: mimeType
         };
 
-        `window.sendDataToGoogle`('uploadImageAndGetUrl', data, (response) => {
-            if (`response.status` === 'success' && `response.url`) {
-                resolve({ status: 'success', url: `response.url` });
+        window.sendDataToGoogle('uploadImageAndGetUrl', data, (response) => {
+            if (response.status === 'success' && response.url) {
+                resolve({ status: 'success', url: response.url });
             } else {
-                reject({ status: 'error', message: `response.message` || 'Unknown error during upload.' });
+                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
             }
         }, (error) => {
-            `console.error`('Error in uploadImageAndGetUrl:', error);
-            reject({ status: 'error', message: `error.message` || 'Network error or script execution failed.' });
+            console.error('Error in uploadImageAndGetUrl:', error);
+            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
         });
     });
 };
@@ -59,61 +59,61 @@ window.initProfilePage = function () {
  * @param {String} userId Optional - ID user yang akan diambil. Jika kosong, ambil user pertama.
  */
 function fetchProfileData(userId) {
-    /`/ 1. CACHE FIRST STRATEGY`
+    // 1. CACHE FIRST STRATEGY
     const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
-    const cachedData = `localStorage.getItem`(cacheKey);
+    const cachedData = localStorage.getItem(cacheKey);
 
     if (cachedData) {
         try {
-            const parsedData = `JSON.parse`(cachedData);
-            `console.log`('Loading profile from cache...');
-            /`/ Populate UI immediately with cached data`
-            `window.currentProfileUserId` = `parsedData.id`;
+            const parsedData = JSON.parse(cachedData);
+            console.log('Loading profile from cache...');
+            // Populate UI immediately with cached data
+            window.currentProfileUserId = parsedData.id;
             populateProfileData(parsedData);
         } catch (e) {
-            `console.error`('Error parsing cached profile data', e);
-            `localStorage.removeItem`(cacheKey);
+            console.error('Error parsing cached profile data', e);
+            localStorage.removeItem(cacheKey);
         }
     }
 
-    /`/ 2. NETWORK BACKGROUND FETCH`
-    if (typeof `window.sendDataToGoogle` === 'function') {
+    // 2. NETWORK BACKGROUND FETCH
+    if (typeof window.sendDataToGoogle === 'function') {
         const params = userId ? { userId } : {};
-        `console.log`('Fetching fresh profile data from server...');
+        console.log('Fetching fresh profile data from server...');
 
-        `window.sendDataToGoogle`('getProfile', params, (response) => {
-            if (`response.status` === 'success' && `response.data`) {
-                /`/ Store the user ID for future updates`
-                `window.currentProfileUserId` = `response.data.id`;
+        window.sendDataToGoogle('getProfile', params, (response) => {
+            if (response.status === 'success' && response.data) {
+                // Store the user ID for future updates
+                window.currentProfileUserId = response.data.id;
 
-                /`/ Update UI with fresh data`
-                populateProfileData(`response.data`);
-                `console.log`('Profile data loaded from server:', `response.data`);
+                // Update UI with fresh data
+                populateProfileData(response.data);
+                console.log('Profile data loaded from server:', response.data);
 
-                /`/ Update Cache`
-                `localStorage.setItem`(cacheKey, `JSON.stringify`(`response.data`));
+                // Update Cache
+                localStorage.setItem(cacheKey, JSON.stringify(response.data));
 
             } else {
-                `console.log`('No profile data found, prompting creation.');
-                `window.currentProfileUserId` = null; /`/ Ensure ID is null`
+                console.log('No profile data found, prompting creation.');
+                window.currentProfileUserId = null; // Ensure ID is null
 
-                /`/ Only show toast/modal if we didn`'t have cached data (to avoid annoying popups if cache was stale but valid-ish)
+                // Only show toast/modal if we didn't have cached data (to avoid annoying popups if cache was stale but valid-ish)
                 // OR if we want to enforce consistency. 
                 // Let's stick to original behavior but only if NO cache exists or if server explicitly says "error/empty".
 
                 if (!cachedData) {
-                    if (`window.showToast`) `window.showToast`('Welcome! Please create your profile.', 'info');
+                    if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
 
-                    /`/ Auto-open Personal Info Modal`
-                    const modal = `document.querySelectorAll`('[x-show="isProfileInfoModal"]')[0];
+                    // Auto-open Personal Info Modal
+                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
                     if (modal) {
-                        `Alpine.evaluate`(modal, '$data.isProfileInfoModal = true');
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = true');
                     }
                 }
             }
         });
     } else {
-        `console.error`('sendDataToGoogle function not found. Make sure apps-script.js is loaded.');
+        console.error('sendDataToGoogle function not found. Make sure apps-script.js is loaded.');
     }
 }
 
@@ -123,82 +123,82 @@ function fetchProfileData(userId) {
 function populateProfileData(data) {
     const { personalInfo, address, socialLinks } = data;
 
-    /`/ Populate Meta Card`
-    const profilePhotoDisplay = `document.getElementById`('profile-photo-display');
-    if (profilePhotoDisplay && `personalInfo.profilePhoto`) {
-        `profilePhotoDisplay.src` = `personalInfo.profilePhoto`;
+    // Populate Meta Card
+    const profilePhotoDisplay = document.getElementById('profile-photo-display');
+    if (profilePhotoDisplay && personalInfo.profilePhoto) {
+        profilePhotoDisplay.src = personalInfo.profilePhoto;
     }
 
     const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim();
-    const nameDisplay = `document.getElementById`('profile-name-display');
-    if (nameDisplay) `nameDisplay.textContent` = fullName;
+    const nameDisplay = document.getElementById('profile-name-display');
+    if (nameDisplay) nameDisplay.textContent = fullName;
 
-    const bioDisplay = `document.getElementById`('profile-bio-display');
-    if (bioDisplay) `bioDisplay.textContent` = `personalInfo.bio` || '-';
+    const bioDisplay = document.getElementById('profile-bio-display');
+    if (bioDisplay) bioDisplay.textContent = personalInfo.bio || '-';
 
-    const locationDisplay = `document.getElementById`('profile-location-display');
-    if (locationDisplay) `locationDisplay.textContent` = `address.cityState` || '-';
+    const locationDisplay = document.getElementById('profile-location-display');
+    if (locationDisplay) locationDisplay.textContent = address.cityState || '-';
 
-    /`/ Populate Personal Information section`
-    const personalInfoSection = `document.querySelectorAll`('.grid.grid-cols-1.gap-4')[0];
+    // Populate Personal Information section
+    const personalInfoSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[0];
     if (personalInfoSection) {
-        const fields = `personalInfoSection.querySelectorAll`('div');
-        `fields.forEach`(field => {
-            const label = `field.querySelector`('p.text-xs');
-            const value = `field.querySelector`('p.text-sm.font-medium');
+        const fields = personalInfoSection.querySelectorAll('div');
+        fields.forEach(field => {
+            const label = field.querySelector('p.text-xs');
+            const value = field.querySelector('p.text-sm.font-medium');
 
             if (label && value) {
-                const labelText = `label.textContent.trim`();
+                const labelText = label.textContent.trim();
                 switch (labelText) {
                     case 'First Name':
-                        `value.textContent` = `personalInfo.firstName` || '-';
+                        value.textContent = personalInfo.firstName || '-';
                         break;
                     case 'Last Name':
-                        `value.textContent` = `personalInfo.lastName` || '-';
+                        value.textContent = personalInfo.lastName || '-';
                         break;
                     case 'Email address':
-                        `value.textContent` = `personalInfo.email` || '-';
+                        value.textContent = personalInfo.email || '-';
                         break;
                     case 'Phone':
-                        `value.textContent` = `personalInfo.phone` || '-';
+                        value.textContent = personalInfo.phone || '-';
                         break;
                     case 'Bio':
-                        `value.textContent` = `personalInfo.bio` || '-';
+                        value.textContent = personalInfo.bio || '-';
                         break;
                 }
             }
         });
     }
 
-    /`/ Populate Address section`
-    const addressSection = `document.querySelectorAll`('.grid.grid-cols-1.gap-4')[1];
+    // Populate Address section
+    const addressSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[1];
     if (addressSection) {
-        const fields = `addressSection.querySelectorAll`('div');
-        `fields.forEach`(field => {
-            const label = `field.querySelector`('p.text-xs');
-            const value = `field.querySelector`('p.text-sm.font-medium');
+        const fields = addressSection.querySelectorAll('div');
+        fields.forEach(field => {
+            const label = field.querySelector('p.text-xs');
+            const value = field.querySelector('p.text-sm.font-medium');
 
             if (label && value) {
-                const labelText = `label.textContent.trim`();
+                const labelText = label.textContent.trim();
                 switch (labelText) {
                     case 'Country':
-                        `value.textContent` = `address.country` || '-';
+                        value.textContent = address.country || '-';
                         break;
                     case 'City/State':
-                        `value.textContent` = `address.cityState` || '-';
+                        value.textContent = address.cityState || '-';
                         break;
                     case 'Postal Code':
-                        `value.textContent` = `address.postalCode` || '-';
+                        value.textContent = address.postalCode || '-';
                         break;
                     case 'TAX ID':
-                        `value.textContent` = `address.taxId` || '-';
+                        value.textContent = address.taxId || '-';
                         break;
                 }
             }
         });
     }
 
-    /`/ Populate modal form fields`
+    // Populate modal form fields
     populateModalFields(personalInfo, address, socialLinks);
 }
 
@@ -206,97 +206,97 @@ function populateProfileData(data) {
  * Populate modal form fields with data
  */
 function populateModalFields(personalInfo, address, socialLinks) {
-    /`/ Personal Info Modal - using IDs`
-    const firstNameInput = `document.getElementById`('input-firstname');
-    const lastNameInput = `document.getElementById`('input-lastname');
-    const emailInput = `document.getElementById`('input-email');
-    const phoneInput = `document.getElementById`('input-phone');
-    const bioInput = `document.getElementById`('input-bio');
+    // Personal Info Modal - using IDs
+    const firstNameInput = document.getElementById('input-firstname');
+    const lastNameInput = document.getElementById('input-lastname');
+    const emailInput = document.getElementById('input-email');
+    const phoneInput = document.getElementById('input-phone');
+    const bioInput = document.getElementById('input-bio');
 
-    if (firstNameInput) `firstNameInput.value` = `personalInfo.firstName` || '';
-    if (lastNameInput) `lastNameInput.value` = `personalInfo.lastName` || '';
-    if (emailInput) `emailInput.value` = `personalInfo.email` || '';
-    if (phoneInput) `phoneInput.value` = `personalInfo.phone` || '';
-    if (bioInput) `bioInput.value` = `personalInfo.bio` || '';
+    if (firstNameInput) firstNameInput.value = personalInfo.firstName || '';
+    if (lastNameInput) lastNameInput.value = personalInfo.lastName || '';
+    if (emailInput) emailInput.value = personalInfo.email || '';
+    if (phoneInput) phoneInput.value = personalInfo.phone || '';
+    if (bioInput) bioInput.value = personalInfo.bio || '';
 
-    /`/ Social Links - using IDs`
-    const facebookInput = `document.getElementById`('input-facebook');
-    const twitterInput = `document.getElementById`('input-twitter');
-    const linkedinInput = `document.getElementById`('input-linkedin');
-    const instagramInput = `document.getElementById`('input-instagram');
+    // Social Links - using IDs
+    const facebookInput = document.getElementById('input-facebook');
+    const twitterInput = document.getElementById('input-twitter');
+    const linkedinInput = document.getElementById('input-linkedin');
+    const instagramInput = document.getElementById('input-instagram');
 
-    if (facebookInput) `facebookInput.value` = `socialLinks.facebook` || '';
-    if (twitterInput) `twitterInput.value` = `socialLinks.twitter` || '';
-    if (linkedinInput) `linkedinInput.value` = `socialLinks.linkedin` || '';
-    if (instagramInput) `instagramInput.value` = `socialLinks.instagram` || '';
+    if (facebookInput) facebookInput.value = socialLinks.facebook || '';
+    if (twitterInput) twitterInput.value = socialLinks.twitter || '';
+    if (linkedinInput) linkedinInput.value = socialLinks.linkedin || '';
+    if (instagramInput) instagramInput.value = socialLinks.instagram || '';
 
-    /`/ Address Modal - using IDs`
-    const countryInput = `document.getElementById`('input-country');
-    const cityStateInput = `document.getElementById`('input-citystate');
-    const postalCodeInput = `document.getElementById`('input-postalcode');
-    const taxIdInput = `document.getElementById`('input-taxid');
+    // Address Modal - using IDs
+    const countryInput = document.getElementById('input-country');
+    const cityStateInput = document.getElementById('input-citystate');
+    const postalCodeInput = document.getElementById('input-postalcode');
+    const taxIdInput = document.getElementById('input-taxid');
 
-    if (countryInput) `countryInput.value` = `address.country` || '';
-    if (cityStateInput) `cityStateInput.value` = `address.cityState` || '';
-    if (postalCodeInput) `postalCodeInput.value` = `address.postalCode` || '';
-    if (taxIdInput) `taxIdInput.value` = `address.taxId` || '';
+    if (countryInput) countryInput.value = address.country || '';
+    if (cityStateInput) cityStateInput.value = address.cityState || '';
+    if (postalCodeInput) postalCodeInput.value = address.postalCode || '';
+    if (taxIdInput) taxIdInput.value = address.taxId || '';
 }
 
 /**
  * Setup event listeners for save buttons
  */
 function setupEventListeners() {
-    /`/ Personal Info Save Button`
-    const savePersonalInfoBtn = `document.getElementById`('save-personal-info-btn');
+    // Personal Info Save Button
+    const savePersonalInfoBtn = document.getElementById('save-personal-info-btn');
     if (savePersonalInfoBtn) {
-        `savePersonalInfoBtn.addEventListener`('click', (e) => {
-            `e.preventDefault`();
-            /`/ Add loading state `(using global function)
-            `window.setButtonLoading`(savePersonalInfoBtn, true);
+        savePersonalInfoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Add loading state (using global function)
+            window.setButtonLoading(savePersonalInfoBtn, true);
             savePersonalInfo();
         });
     }
 
-    /`/ Address Save Button`
-    const saveAddressBtn = `document.getElementById`('save-address-btn');
+    // Address Save Button
+    const saveAddressBtn = document.getElementById('save-address-btn');
     if (saveAddressBtn) {
-        `saveAddressBtn.addEventListener`('click', (e) => {
-            `e.preventDefault`();
-            /`/ Add loading state `(using global function)
-            `window.setButtonLoading`(saveAddressBtn, true);
+        saveAddressBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Add loading state (using global function)
+            window.setButtonLoading(saveAddressBtn, true);
             saveAddress();
         });
     }
 
-    /`/ Delete Profile Button `(Personal Info Modal)
-    const deleteBtn = `document.getElementById`('delete-profile-btn');
+    // Delete Profile Button (Personal Info Modal)
+    const deleteBtn = document.getElementById('delete-profile-btn');
     if (deleteBtn) {
-        `deleteBtn.addEventListener`('click', (e) => {
-            `e.preventDefault`();
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             clearPersonalInfo();
         });
     }
 
-    /`/ Delete Profile Button `(Address Modal)
-    const deleteBtnAddress = `document.getElementById`('delete-address-btn');
+    // Delete Profile Button (Address Modal)
+    const deleteBtnAddress = document.getElementById('delete-address-btn');
     if (deleteBtnAddress) {
-        `deleteBtnAddress.addEventListener`('click', (e) => {
-            `e.preventDefault`();
+        deleteBtnAddress.addEventListener('click', (e) => {
+            e.preventDefault();
             clearAddress();
         });
     }
 
-    /`/ Profile Photo Edit Button`
-    const editPhotoBtn = `document.getElementById`('edit-photo-btn');
-    const photoInput = `document.getElementById`('profile-photo-input');
+    // Profile Photo Edit Button
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
+    const photoInput = document.getElementById('profile-photo-input');
 
     if (editPhotoBtn && photoInput) {
-        `editPhotoBtn.addEventListener`('click', (e) => {
-            `e.preventDefault`();
-            `photoInput.click`();
+        editPhotoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            photoInput.click();
         });
 
-        `photoInput.addEventListener`('change', handlePhotoFileChange);
+        photoInput.addEventListener('change', handlePhotoFileChange);
     }
 }
 
@@ -304,8 +304,8 @@ function setupEventListeners() {
  * Clear personal information
  */
 function clearPersonalInfo() {
-    if (!`window.currentProfileUserId`) {
-        if (`window.showToast`) `window.showToast`('User ID tidak ditemukan', 'error');
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
         return;
     }
 
@@ -326,26 +326,26 @@ function clearPersonalInfo() {
             }
         };
 
-        `window.sendDataToGoogle`('updateProfile', {
-            profileData: `JSON.stringify`(profileData),
-            userId: `window.currentProfileUserId`
+        window.sendDataToGoogle('updateProfile', {
+            profileData: JSON.stringify(profileData),
+            userId: window.currentProfileUserId
         }, (response) => {
-            if (`response.status` === 'success') {
-                if (`window.showToast`) `window.showToast`('Personal information cleared successfully');
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Personal information cleared successfully');
 
-                /`/ Fetch will automatically update cache and UI`
-                fetchProfileData(`window.currentProfileUserId`);
+                // Fetch will automatically update cache and UI
+                fetchProfileData(window.currentProfileUserId);
 
-                /`/ Close modal with delay to show button click effect`
+                // Close modal with delay to show button click effect
                 setTimeout(() => {
-                    const modal = `document.querySelectorAll`('[x-show="isProfileInfoModal"]')[0];
+                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
                     if (modal) {
-                        `Alpine.evaluate`(modal, '$data.isProfileInfoModal = false');
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
                     }
                 }, 200);
             } else {
-                `console.error`('Failed to clear personal info:', `response.message`);
-                if (`window.showToast`) `window.showToast`('Failed to clear personal info', 'error');
+                console.error('Failed to clear personal info:', response.message);
+                if (window.showToast) window.showToast('Failed to clear personal info', 'error');
             }
         });
     }
@@ -355,8 +355,8 @@ function clearPersonalInfo() {
  * Clear address information
  */
 function clearAddress() {
-    if (!`window.currentProfileUserId`) {
-        if (`window.showToast`) `window.showToast`('User ID tidak ditemukan', 'error');
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
         return;
     }
 
@@ -370,27 +370,27 @@ function clearAddress() {
             }
         };
 
-        if (typeof `window.sendDataToGoogle` === 'function') {
-            `window.sendDataToGoogle`('updateProfile', {
-                profileData: `JSON.stringify`(profileData),
-                userId: `window.currentProfileUserId`
+        if (typeof window.sendDataToGoogle === 'function') {
+            window.sendDataToGoogle('updateProfile', {
+                profileData: JSON.stringify(profileData),
+                userId: window.currentProfileUserId
             }, (response) => {
-                if (`response.status` === 'success') {
-                    if (`window.showToast`) `window.showToast`('Address information cleared successfully');
+                if (response.status === 'success') {
+                    if (window.showToast) window.showToast('Address information cleared successfully');
 
-                    /`/ Fetch will automatically update cache and UI`
-                    fetchProfileData(`window.currentProfileUserId`);
+                    // Fetch will automatically update cache and UI
+                    fetchProfileData(window.currentProfileUserId);
 
-                    /`/ Close modal with delay to show button click effect`
+                    // Close modal with delay to show button click effect
                     setTimeout(() => {
-                        const modal = `document.querySelectorAll`('[x-show="isProfileAddressModal"]')[0];
+                        const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
                         if (modal) {
-                            `Alpine.evaluate`(modal, '$data.isProfileAddressModal = false');
+                            Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
                         }
                     }, 200);
                 } else {
-                    `console.error`('Failed to clear address:', `response.message`);
-                    if (`window.showToast`) `window.showToast`('Failed to clear address', 'error');
+                    console.error('Failed to clear address:', response.message);
+                    if (window.showToast) window.showToast('Failed to clear address', 'error');
                 }
             });
         }
@@ -401,20 +401,20 @@ function clearAddress() {
  * Save personal information
  */
 function savePersonalInfo() {
-    /`/ If no ID`, we are creating a new profile
-    const isCreating = !`window.currentProfileUserId`;
+    // If no ID, we are creating a new profile
+    const isCreating = !window.currentProfileUserId;
 
-    /`/ Get values from modal inputs using IDs`
-    const firstName = `document.getElementById`('input-firstname')?.value || '';
-    const lastName = `document.getElementById`('input-lastname')?.value || '';
-    const email = `document.getElementById`('input-email')?.value || '';
-    const phone = `document.getElementById`('input-phone')?.value || '';
-    const bio = `document.getElementById`('input-bio')?.value || '';
+    // Get values from modal inputs using IDs
+    const firstName = document.getElementById('input-firstname')?.value || '';
+    const lastName = document.getElementById('input-lastname')?.value || '';
+    const email = document.getElementById('input-email')?.value || '';
+    const phone = document.getElementById('input-phone')?.value || '';
+    const bio = document.getElementById('input-bio')?.value || '';
 
-    const facebook = `document.getElementById`('input-facebook')?.value || '';
-    const twitter = `document.getElementById`('input-twitter')?.value || '';
-    const linkedin = `document.getElementById`('input-linkedin')?.value || '';
-    const instagram = `document.getElementById`('input-instagram')?.value || '';
+    const facebook = document.getElementById('input-facebook')?.value || '';
+    const twitter = document.getElementById('input-twitter')?.value || '';
+    const linkedin = document.getElementById('input-linkedin')?.value || '';
+    const instagram = document.getElementById('input-instagram')?.value || '';
 
     const profileData = {
         personalInfo: {
@@ -432,37 +432,37 @@ function savePersonalInfo() {
         }
     };
 
-    if (typeof `window.sendDataToGoogle` === 'function') {
+    if (typeof window.sendDataToGoogle === 'function') {
         const action = isCreating ? 'createProfile' : 'updateProfile';
-        const payload = isCreating ? { profileData: `JSON.stringify`(profileData) } : {
-            profileData: `JSON.stringify`(profileData),
-            userId: `window.currentProfileUserId`
+        const payload = isCreating ? { profileData: JSON.stringify(profileData) } : {
+            profileData: JSON.stringify(profileData),
+            userId: window.currentProfileUserId
         };
 
-        `window.sendDataToGoogle`(action, payload, (response) => {
-            const saveBtn = `document.getElementById`('save-personal-info-btn');
+        window.sendDataToGoogle(action, payload, (response) => {
+            const saveBtn = document.getElementById('save-personal-info-btn');
 
-            if (`response.status` === 'success') {
-                if (`window.showToast`) `window.showToast`(isCreating ? 'Profile created successfully' : 'Profile updated successfully');
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast(isCreating ? 'Profile created successfully' : 'Profile updated successfully');
 
-                if (isCreating && `response.data` && `response.data.id`) {
-                    `window.currentProfileUserId` = `response.data.id`;
+                if (isCreating && response.data && response.data.id) {
+                    window.currentProfileUserId = response.data.id;
                 }
 
-                /`/ Invalidate cache or Update it`? 
-                /`/ Since ``fetchProfileData` now updates the cache, simply calling it is enough.
-                /`/ However`, `fetchProfileData` will ALSO load from cache first (which is old now).
-                /`/ But since we just saved`, we know the data on server is "new", but local cache is "old".
-                /`/ Actually`, `fetchProfileData` will invoke network call, which will eventually overwrite cache with fresh data.
-                /`/ To avoid `"flash of old content", we should ideally update cache HERE with what we just sent + response?
-                /`/ OR`, just clear cache so `fetch` has to hit network (but then we lose speed if they reload immediately).
-                /`/ Better approach`: `fetchProfileData` will load old cache, THEN network request finishes and updates UI.
-                /`/ To prevent seeing old data for a split second after we `*know* we changed it:
-                /`/ We can manually update the cache with the values we just saved.`
+                // Invalidate cache or Update it? 
+                // Since `fetchProfileData` now updates the cache, simply calling it is enough.
+                // However, `fetchProfileData` will ALSO load from cache first (which is old now).
+                // But since we just saved, we know the data on server is "new", but local cache is "old".
+                // Actually, `fetchProfileData` will invoke network call, which will eventually overwrite cache with fresh data.
+                // To avoid "flash of old content", we should ideally update cache HERE with what we just sent + response?
+                // OR, just clear cache so `fetch` has to hit network (but then we lose speed if they reload immediately).
+                // Better approach: `fetchProfileData` will load old cache, THEN network request finishes and updates UI.
+                // To prevent seeing old data for a split second after we *know* we changed it:
+                // We can manually update the cache with the values we just saved.
 
-                /`/ Construct the `"new" profile object roughly (or just rely on re-fetch).
-                /`/ Relying on re-fetch is safest but might show reversion.`
-                /`/ Let`'s rely on re-fetch but CLEAR cache first so it forces a wait? 
+                // Construct the "new" profile object roughly (or just rely on re-fetch).
+                // Relying on re-fetch is safest but might show reversion.
+                // Let's rely on re-fetch but CLEAR cache first so it forces a wait? 
                 // No, that defeats the purpose.
                 // Best UX: Optimistically update UI (which we can do via fetching).
                 // Since this is a SAVE action, the slight delay of re-fetching is acceptable compared to page load.
@@ -477,7 +477,7 @@ function savePersonalInfo() {
                 setTimeout(() => {
                     const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
                     if (modal) {
-                        Alpine.evaluate(modal, '$`data.isProfileInfoModal` = false');
+                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
                     }
                     // Remove loading state after modal closes
                     setButtonLoading(saveBtn, false);
@@ -532,24 +532,24 @@ function saveAddress() {
                 }
 
                 // Clear cache before refetching to ensure we don't load stale data
-                const cacheKey = `window.currentProfileUserId` ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                `localStorage.removeItem`(cacheKey);
+                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+                localStorage.removeItem(cacheKey);
 
-                fetchProfileData(`window.currentProfileUserId`); /`/ Refresh data`
+                fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                /`/ Close modal with delay to show button click effect`
+                // Close modal with delay to show button click effect
                 setTimeout(() => {
-                    const modal = `document.querySelectorAll`('[x-show="isProfileAddressModal"]')[0];
+                    const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
                     if (modal) {
-                        `Alpine.evaluate`(modal, '$data.isProfileAddressModal = false');
+                        Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
                     }
-                    /`/ Remove loading state after modal closes`
+                    // Remove loading state after modal closes
                     setButtonLoading(saveBtn, false);
                 }, 200);
             } else {
-                `console.error`('Failed to save address:', `response.message`);
-                if (`window.showToast`) `window.showToast`('Failed to save address: ' + `response.message`, 'error');
-                /`/ Remove loading state on error`
+                console.error('Failed to save address:', response.message);
+                if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
+                // Remove loading state on error
                 setButtonLoading(saveBtn, false);
             }
         });
@@ -560,47 +560,47 @@ function saveAddress() {
  * Handle profile photo file selection
  */
 function handlePhotoFileChange(event) {
-    const file = `event.target.files`[0];
+    const file = event.target.files[0];
     if (!file) return;
 
-    /`/ Validate file type`
-    if (!`file.type.startsWith`('image/')) {
-        if (`window.showToast`) `window.showToast`('Please select an image file', 'error');
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        if (window.showToast) window.showToast('Please select an image file', 'error');
         return;
     }
 
-    /`/ Validate file size `(max 10MB for Drive upload)
-    if (`file.size` > 10 * 1024 * 1024) {
-        if (`window.showToast`) `window.showToast`('Image size must be less than 10MB', 'error');
+    // Validate file size (max 10MB for Drive upload)
+    if (file.size > 10 * 1024 * 1024) {
+        if (window.showToast) window.showToast('Image size must be less than 10MB', 'error');
         return;
     }
 
-    /`/ Show loading toast`
-    if (`window.showToast`) `window.showToast`('Uploading profile photo...', 'info', 5000);
+    // Show loading toast
+    if (window.showToast) window.showToast('Uploading profile photo...', 'info', 5000);
 
-    /`/ Disable edit button during upload`
-    const editPhotoBtn = `document.getElementById`('edit-photo-btn');
+    // Disable edit button during upload
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
     if (editPhotoBtn) {
-        `editPhotoBtn.disabled` = true;
-        `editPhotoBtn.style.opacity` = '0.5';
+        editPhotoBtn.disabled = true;
+        editPhotoBtn.style.opacity = '0.5';
     }
 
-    /`/ Read file as base64`
+    // Read file as base64
     const reader = new FileReader();
-    `reader.onload` = function (e) {
-        const base64data = `e.target.result.split`(',')[1];
+    reader.onload = function (e) {
+        const base64data = e.target.result.split(',')[1];
         const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
 
-        /`/ Preview the image immediately`
-        const profilePhotoDisplay = `document.getElementById`('profile-photo-display');
+        // Preview the image immediately
+        const profilePhotoDisplay = document.getElementById('profile-photo-display');
         if (profilePhotoDisplay) {
-            `profilePhotoDisplay.src` = `e.target.result`;
+            profilePhotoDisplay.src = e.target.result;
         }
 
-        /`/ Upload to Google Drive and get URL`
-        uploadProfilePhoto(fileName, base64data, `file.type`);
+        // Upload to Google Drive and get URL
+        uploadProfilePhoto(fileName, base64data, file.type);
     };
-    `reader.readAsDataURL`(file);
+    reader.readAsDataURL(file);
 }
 
 /**
@@ -610,33 +610,33 @@ function handlePhotoFileChange(event) {
  * @param {String} mimeType - MIME type of the image
  */
 function uploadProfilePhoto(fileName, base64data, mimeType) {
-    if (!`window.currentProfileUserId`) {
-        if (`window.showToast`) `window.showToast`('Please create a profile first', 'error');
+    if (!window.currentProfileUserId) {
+        if (window.showToast) window.showToast('Please create a profile first', 'error');
         resetUploadButton();
         return;
     }
 
-    /`/ Check if uploadImageAndGetUrl function exists`
-    if (typeof `window.uploadImageAndGetUrl` !== 'function') {
-        `console.error`('uploadImageAndGetUrl function not found');
-        if (`window.showToast`) `window.showToast`('Upload function not available', 'error');
+    // Check if uploadImageAndGetUrl function exists
+    if (typeof window.uploadImageAndGetUrl !== 'function') {
+        console.error('uploadImageAndGetUrl function not found');
+        if (window.showToast) window.showToast('Upload function not available', 'error');
         resetUploadButton();
         return;
     }
 
-    /`/ Upload image to Google Drive`
-    `window.uploadImageAndGetUrl`(fileName, base64data, mimeType).then((response) => {
-        if (`response.status` === 'success' && `response.url`) {
-            /`/ Save the Drive URL to profile`
-            saveProfilePhotoUrl(`response.url`);
+    // Upload image to Google Drive
+    window.uploadImageAndGetUrl(fileName, base64data, mimeType).then((response) => {
+        if (response.status === 'success' && response.url) {
+            // Save the Drive URL to profile
+            saveProfilePhotoUrl(response.url);
         } else {
-            `console.error`('Failed to upload photo:', `response.message`);
-            if (`window.showToast`) `window.showToast`('Failed to upload photo: ' + (`response.message` || 'Error'), 'error');
+            console.error('Failed to upload photo:', response.message);
+            if (window.showToast) window.showToast('Failed to upload photo: ' + (response.message || 'Error'), 'error');
             resetUploadButton();
         }
     }).catch((error) => {
-        `console.error`('Error uploading photo:', error);
-        if (`window.showToast`) `window.showToast`('Error uploading photo: ' + `error.message`, 'error');
+        console.error('Error uploading photo:', error);
+        if (window.showToast) window.showToast('Error uploading photo: ' + error.message, 'error');
         resetUploadButton();
     });
 }
@@ -646,62 +646,62 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
  * @param {String} photoUrl - Google Drive URL of the uploaded photo
  */
 function saveProfilePhotoUrl(photoUrl) {
-    if (typeof `window.sendDataToGoogle` === 'function') {
-        /`/ Use saveProfileDataOnServer action similar to EzyParts`
-        `window.sendDataToGoogle`('saveProfileDataOnServer', {
+    if (typeof window.sendDataToGoogle === 'function') {
+        // Use saveProfileDataOnServer action similar to EzyParts
+        window.sendDataToGoogle('saveProfileDataOnServer', {
             section: 'meta',
             profilePhotoUrl: photoUrl
         }, (response) => {
-            if (`response.status` === 'success') {
-                if (`window.showToast`) `window.showToast`('Profile photo updated successfully');
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Profile photo updated successfully');
 
-                /`/ Update the display with the new URL`
-                const profilePhotoDisplay = `document.getElementById`('profile-photo-display');
+                // Update the display with the new URL
+                const profilePhotoDisplay = document.getElementById('profile-photo-display');
                 if (profilePhotoDisplay) {
-                    `profilePhotoDisplay.src` = photoUrl;
+                    profilePhotoDisplay.src = photoUrl;
                 }
 
-                /`/ Update cache locally to reflect the new photo url without needing full re-fetch or invalidation`
-                /`/ This is a `"surgical" cache update since we know exactly what changed
-                const cacheKey = `window.currentProfileUserId` ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                const cachedData = `localStorage.getItem`(cacheKey);
+                // Update cache locally to reflect the new photo url without needing full re-fetch or invalidation
+                // This is a "surgical" cache update since we know exactly what changed
+                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+                const cachedData = localStorage.getItem(cacheKey);
                 if (cachedData) {
                     try {
-                        const parsedData = `JSON.parse`(cachedData);
-                        if (`parsedData.personalInfo`) {
-                            `parsedData.personalInfo.profilePhoto` = photoUrl;
-                            `localStorage.setItem`(cacheKey, `JSON.stringify`(parsedData));
+                        const parsedData = JSON.parse(cachedData);
+                        if (parsedData.personalInfo) {
+                            parsedData.personalInfo.profilePhoto = photoUrl;
+                            localStorage.setItem(cacheKey, JSON.stringify(parsedData));
 
-                            /`/ ALSO update the loggedInUser session so the header updates immediately`
-                            const sessionUser = `JSON.parse`(`localStorage.getItem`('signedInUser'));
+                            // ALSO update the loggedInUser session so the header updates immediately
+                            const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
                             if (sessionUser) {
-                                `sessionUser.pictureUrl` = photoUrl;
-                                `localStorage.setItem`('signedInUser', `JSON.stringify`(sessionUser));
-                                /`/ Function to refresh header if accessible or reload`
-                                /`/ Since header is x-data bound to localStorage via appData init`, it might not reactively update unless we reload or dispatch event.
-                                /`/ Simplest way is simply update localStorage. Alpine might not catch it if it`'s already initialized.
+                                sessionUser.pictureUrl = photoUrl;
+                                localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                                // Function to refresh header if accessible or reload
+                                // Since header is x-data bound to localStorage via appData init, it might not reactively update unless we reload or dispatch event.
+                                // Simplest way is simply update localStorage. Alpine might not catch it if it's already initialized.
                                 // Ideally, we should dispatch an event or reload.
-                                // Given SPA, let's try to update the Alpine component scope if possible,` or just accept that it updates on next nav/load.`
-                                /`/ But user specific request implies they want to see it.`
-                                /`/ We can try to update window.app.currentUser if exposed.`
-                                if (`window.app` && `window.app.currentUser`) {
-                                    `window.app.currentUser.pictureUrl` = photoUrl;
+                                // Given SPA, let's try to update the Alpine component scope if possible, or just accept that it updates on next nav/load.
+                                // But user specific request implies they want to see it.
+                                // We can try to update window.app.currentUser if exposed.
+                                if (window.app && window.app.currentUser) {
+                                    window.app.currentUser.pictureUrl = photoUrl;
                                 }
                             }
                         }
                     } catch (e) {
-                        `console.error`("Failed to update cache for photo", e);
+                        console.error("Failed to update cache for photo", e);
                     }
                 }
             } else {
-                `console.error`('Failed to save photo URL:', `response.message`);
-                if (`window.showToast`) `window.showToast`('Failed to save photo: ' + `response.message`, 'error');
+                console.error('Failed to save photo URL:', response.message);
+                if (window.showToast) window.showToast('Failed to save photo: ' + response.message, 'error');
             }
             resetUploadButton();
         });
     } else {
-        `console.error`('sendDataToGoogle function not found');
-        if (`window.showToast`) `window.showToast`('Save function not available', 'error');
+        console.error('sendDataToGoogle function not found');
+        if (window.showToast) window.showToast('Save function not available', 'error');
         resetUploadButton();
     }
 }
@@ -710,10 +710,10 @@ function saveProfilePhotoUrl(photoUrl) {
  * Reset upload button state
  */
 function resetUploadButton() {
-    const editPhotoBtn = `document.getElementById`('edit-photo-btn');
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
     if (editPhotoBtn) {
-        `editPhotoBtn.disabled` = false;
-        `editPhotoBtn.style.opacity` = '1';
+        editPhotoBtn.disabled = false;
+        editPhotoBtn.style.opacity = '1';
     }
 }
 
@@ -726,15 +726,15 @@ function setButtonLoading(button, isLoading) {
     if (!button) return;
 
     if (isLoading) {
-        /`/ Store original text`
-        `button.dataset.originalText` = `button.innerHTML`;
+        // Store original text
+        button.dataset.originalText = button.innerHTML;
 
-        /`/ Disable button and add loading class`
-        `button.disabled` = true;
-        `button.classList.add`('btn-loading');
+        // Disable button and add loading class
+        button.disabled = true;
+        button.classList.add('btn-loading');
 
-        /`/ Add spinner and loading text`
-        `button.innerHTML` = `
+        // Add spinner and loading text
+        button.innerHTML = `
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -742,14 +742,14 @@ function setButtonLoading(button, isLoading) {
             Processing...
         `;
     } else {
-        /`/ Restore original state`
-        `button.disabled` = false;
-        `button.classList.remove`('btn-loading');
+        // Restore original state
+        button.disabled = false;
+        button.classList.remove('btn-loading');
 
-        /`/ Restore original text`
-        if (`button.dataset.originalText`) {
-            `button.innerHTML` = `button.dataset.originalText`;
-            delete `button.dataset.originalText`;
+        // Restore original text
+        if (button.dataset.originalText) {
+            button.innerHTML = button.dataset.originalText;
+            delete button.dataset.originalText;
         }
     }
 }
