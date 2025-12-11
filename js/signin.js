@@ -71,7 +71,7 @@ function handleSignin(e) {
                                                 // Fallback to direct hash change if navigate function is not available
                                                 window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
                                             }
-                                            window.dispatchEvent(event);
+                                            window.dispatchEvent(new Event('auth-status-changed'));
                                         }, 50); // Reduced delay to 50ms
             
                                     } else {
@@ -96,7 +96,7 @@ function handleSignin(e) {
                                             } else {
                                                 window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
                                             }
-                                            window.dispatchEvent(event);
+                                            window.dispatchEvent(new Event('auth-status-changed'));
                                         }, 50);
                                     }
                                 }, (error) => {
@@ -121,7 +121,7 @@ function handleSignin(e) {
                                         } else {
                                             window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
                                         }
-                                        window.dispatchEvent(event);
+                                        window.dispatchEvent(new Event('auth-status-changed'));
                                     }, 50);
                                 });
                             } else {
