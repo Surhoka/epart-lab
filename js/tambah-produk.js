@@ -204,46 +204,56 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            console.log("Sending data to Google Apps Script:", productData);
+            console.log("Sending data to Google Apps Script via sendDataToGoogle:", productData);
 
-            // Call Google Apps Script function
-            google.script.run
-                .withSuccessHandler(response => {
-                    console.log('Success:', response);
+            // Define success and error handlers
+            const successCallback = response => {
+                console.log('Success:', response);
+                // Use the global toast utility if it exists
+                if(window.showToast) {
+                    window.showToast(response.message, response.status);
+                } else {
                     alert(response.message);
-                    if (window.resetButtonState) {
-                        window.resetButtonState(saveButton, originalButtonHTML);
-                    } else {
-                        saveButton.disabled = false;
-                        saveButton.innerHTML = originalButtonHTML;
+                }
+
+                if (window.resetButtonState) {
+                    window.resetButtonState(saveButton, originalButtonHTML);
+                } else {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalButtonHTML;
+                }
+                
+                if(response.status === 'success') {
+                    if (form) {
+                        form.reset();
                     }
-                    
-                    if(response.status === 'success') {
-                        if (form) {
-                            form.reset();
-                        }
-                        // Clear image previews and data
-                        for (let i = 0; i < 5; i++) {
-                            removeImage(i);
-                        }
-                        // Redirect to product list page after a short delay
-                        setTimeout(() => {
-                           // Assuming you have a produk.html page to list products
-                           // window.location.href = 'produk.html'; 
-                        }, 1500);
+                    // Clear image previews and data
+                    for (let i = 0; i < 5; i++) {
+                        removeImage(i);
                     }
-                })
-                .withFailureHandler(error => {
-                    console.error('Failure:', error);
+                    // Optional: Redirect after a delay
+                    // setTimeout(() => { window.location.hash = '#produk'; }, 1500);
+                }
+            };
+
+            const errorCallback = error => {
+                console.error('Failure:', error);
+                if(window.showToast) {
+                    window.showToast('Gagal menyimpan produk: ' + error.message, 'error');
+                } else {
                     alert('Gagal menyimpan produk: ' + error.message);
-                    if (window.resetButtonState) {
-                        window.resetButtonState(saveButton, originalButtonHTML);
-                    } else {
-                        saveButton.disabled = false;
-                        saveButton.innerHTML = originalButtonHTML;
-                    }
-                })
-                .simpanProdukBaru(productData);
+                }
+
+                if (window.resetButtonState) {
+                    window.resetButtonState(saveButton, originalButtonHTML);
+                } else {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalButtonHTML;
+                }
+            };
+
+            // Call the global wrapper function
+            window.sendDataToGoogle('simpanProdukBaru', productData, successCallback, errorCallback);
         });
     }
 });
