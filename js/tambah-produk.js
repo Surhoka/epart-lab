@@ -64,17 +64,17 @@ function removeImage(index) {
     updateSidebarPreview();
 }
 
-// Update sidebar preview with first available image
+// Update sidebar preview with the main image (slot 0)
 function updateSidebarPreview() {
     const sidebarImagePreview = document.getElementById('sidebarImagePreview');
     const previewImage = document.getElementById('previewImage');
     const placeholderDiv = sidebarImagePreview.querySelector('div');
 
-    // Find first uploaded image
-    const firstImage = uploadedImages.find(img => img !== null);
+    // Use the first image (main image) for the preview
+    const mainImage = uploadedImages[0];
 
-    if (firstImage) {
-        previewImage.src = firstImage;
+    if (mainImage) {
+        previewImage.src = mainImage;
         previewImage.classList.remove('hidden');
         placeholderDiv.classList.add('hidden');
     } else {
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Update previews
     updatePreview('namaProduk', 'previewNamaProduk');
     updatePreview('kodeProduk', 'previewKodeProduk');
-    updatePreview('stokAwal', 'previewStokAwal');
+
 
     // Currency fields with formatting
     const hargaModalInput = document.getElementById('hargaModal');
