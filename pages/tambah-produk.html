@@ -274,8 +274,8 @@
                         </div>
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                                for="stokMinimal">
-                                Stok Minimal
+                                for="stok">
+                                Stok
                             </label>
                             <input
                                 class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
@@ -346,30 +346,50 @@
                     </div>
                 </div>
 
-                <!-- Jumlah Produksi Section -->
+                <!-- Pengiriman Section -->
                 <div
                     class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-6 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 mb-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-                        Jumlah Produksi
+                        Pengiriman
                     </h3>
                     <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                                for="stokAwal">
-                                Stok Awal
+                                for="berat">
+                                Berat (gram)
                             </label>
                             <input
                                 class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                                type="number" name="stokAwal" id="stokAwal" placeholder="0" required>
+                                type="number" name="berat" id="berat" placeholder="0" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3 mt-5">
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                                for="panjang">
+                                Panjang (cm)
+                            </label>
+                            <input
+                                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                                type="number" name="panjang" id="panjang" placeholder="0">
                         </div>
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                                for="tanggalProduksi">
-                                Tanggal Produksi
+                                for="lebar">
+                                Lebar (cm)
                             </label>
                             <input
                                 class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                                type="date" name="tanggalProduksi" id="tanggalProduksi" required>
+                                type="number" name="lebar" id="lebar" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                                for="tinggi">
+                                Tinggi (cm)
+                            </label>
+                            <input
+                                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                                type="number" name="tinggi" id="tinggi" placeholder="0">
                         </div>
                     </div>
                 </div>
@@ -467,11 +487,7 @@
                                 <p id="previewKategori" class="text-sm font-medium text-gray-800 dark:text-white/90">-
                                 </p>
                             </div>
-                            <div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Stok Awal</p>
-                                <p id="previewStokAwal" class="text-sm font-medium text-gray-800 dark:text-white/90">0
-                                </p>
-                            </div>
+
                             <div>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Status</p>
                                 <span id="previewStatus"
