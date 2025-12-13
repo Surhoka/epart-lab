@@ -155,4 +155,77 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // Form submission handler
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonHTML = submitButton.innerHTML;
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Menyimpan...`;
+
+            // Gather form data explicitly
+            const productData = {
+                namaProduk: document.getElementById('namaProduk').value,
+                kodeProduk: document.getElementById('kodeProduk').value,
+                deskripsi: document.getElementById('deskripsi').value,
+                kategoriProduk: document.getElementById('kategoriProduk').value,
+                subKategori: document.getElementById('subKategori').value,
+                hargaModal: document.getElementById('hargaModal').value,
+                hargaJual: document.getElementById('hargaJual').value,
+                stokMinimal: document.getElementById('stokMinimal').value,
+                satuan: document.getElementById('satuan').value,
+                status: document.querySelector('input[name="status"]:checked') ? document.querySelector('input[name="status"]:checked').value : 'Aktif',
+                produkUnggulan: document.getElementById('produkUnggulan').checked,
+                berat: document.getElementById('berat').value,
+                panjang: document.getElementById('panjang').value,
+                lebar: document.getElementById('lebar').value,
+                tinggi: document.getElementById('tinggi').value,
+                catatan: document.getElementById('catatan').value,
+                images: uploadedImages.filter(img => img !== null)
+            };
+            
+            // Basic validation
+            if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
+                alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonHTML;
+                return;
+            }
+
+            console.log("Sending data to Google Apps Script:", productData);
+
+            // Call Google Apps Script function
+            google.script.run
+                .withSuccessHandler(response => {
+                    console.log('Success:', response);
+                    alert(response.message);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonHTML;
+                    
+                    if(response.status === 'success') {
+                        form.reset();
+                        // Clear image previews and data
+                        for (let i = 0; i < 5; i++) {
+                            removeImage(i);
+                        }
+                        // Redirect to product list page after a short delay
+                        setTimeout(() => {
+                           // Assuming you have a produk.html page to list products
+                           // window.location.href = 'produk.html'; 
+                        }, 1500);
+                    }
+                })
+                .withFailureHandler(error => {
+                    console.error('Failure:', error);
+                    alert('Gagal menyimpan produk: ' + error.message);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonHTML;
+                })
+                .simpanProdukBaru(productData);
+        });
+    }
 });
