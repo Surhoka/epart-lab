@@ -87,152 +87,248 @@ function updateSidebarPreview() {
 window.initTambahProdukPage = function () {
     console.log("Tambah Produk Page Initialized. Setting up event listeners.");
 
-    // Initialize Breadcrumb  
+    const productId = localStorage.getItem('selectedProductId');
+    const isEditMode = productId !== null;
+
+    // Initialize Breadcrumb and titles
     if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Tambah Produk');
+        window.renderBreadcrumb(isEditMode ? 'Edit Produk' : 'Tambah Produk');
+    }
+    const pageTitle = document.querySelector('h2'); // Assuming there is a title element
+    if(pageTitle) pageTitle.textContent = isEditMode ? 'Edit Produk' : 'Tambah Produk';
+
+
+    // Reset form and image previews from previous states
+    const form = document.getElementById('addNewProductForm');
+    if (form) form.reset();
+    for (let i = 0; i < 5; i++) {
+        removeImage(i);
     }
 
-    const form = document.getElementById('addNewProductForm');
-    
-    // --- Live Preview Logic ---
-    const updatePreview = (inputId, previewId, prefix = '', suffix = '') => {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        if (input && preview) {
-            // To prevent duplicate listeners, we can remove any old one, but cloning the node is safer.
-            input.replaceWith(input.cloneNode(true));
-            document.getElementById(inputId).addEventListener('input', function () {
-                const value = this.value || '-';
-                preview.textContent = prefix + (value === '-' ? value : this.value) + suffix;
+    const setupLivePreview = () => {
+        // --- Live Preview Logic ---
+        const updatePreview = (inputId, previewId, prefix = '', suffix = '') => {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.replaceWith(input.cloneNode(true));
+                document.getElementById(inputId).addEventListener('input', function () {
+                    const value = this.value || '-';
+                    preview.textContent = prefix + (value === '-' ? value : this.value) + suffix;
+                });
+            }
+        };
+
+        const formatCurrency = (num) => {
+            return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '0';
+        };
+
+        // Set up all live previews
+        updatePreview('namaProduk', 'previewNamaProduk');
+        updatePreview('kodeProduk', 'previewKodeProduk');
+
+        const hargaModalInput = document.getElementById('hargaModal');
+        const hargaJualInput = document.getElementById('hargaJual');
+        const previewHargaModal = document.getElementById('previewHargaModal');
+        const previewHargaJual = document.getElementById('previewHargaJual');
+
+        if (hargaModalInput && previewHargaModal) {
+            hargaModalInput.replaceWith(hargaModalInput.cloneNode(true));
+            document.getElementById('hargaModal').addEventListener('input', function () {
+                previewHargaModal.textContent = 'Rp ' + formatCurrency(this.value);
             });
+        }
+
+        if (hargaJualInput && previewHargaJual) {
+            hargaJualInput.replaceWith(hargaJualInput.cloneNode(true));
+            document.getElementById('hargaJual').addEventListener('input', function () {
+                previewHargaJual.textContent = 'Rp ' + formatCurrency(this.value);
+            });
+        }
+
+        const kategoriSelect = document.getElementById('kategoriProduk');
+        const previewKategori = document.getElementById('previewKategori');
+        if (kategoriSelect && previewKategori) {
+            kategoriSelect.replaceWith(kategoriSelect.cloneNode(true));
+            document.getElementById('kategoriProduk').addEventListener('change', function () {
+                previewKategori.textContent = this.value || '-';
+            });
+        }
+
+        const statusRadios = document.querySelectorAll('input[name="status"]');
+        const previewStatus = document.getElementById('previewStatus');
+        if (statusRadios.length > 0 && previewStatus) {
+            statusRadios.forEach(radio => {
+                radio.replaceWith(radio.cloneNode(true));
+            });
+            document.querySelectorAll('input[name="status"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (this.checked && this.value === 'Aktif') {
+                        previewStatus.textContent = 'Aktif';
+                        previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
+                    } else if (this.checked) {
+                        previewStatus.textContent = 'Tidak Aktif';
+                        previewStatus.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400';
+                    }
+                });
+            })
         }
     };
 
-    const formatCurrency = (num) => {
-        return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '0';
+    const populateForm = (product) => {
+        if (!product) return;
+        
+        // Populate text and select fields
+        document.getElementById('namaProduk').value = product.name || '';
+        document.getElementById('kodeProduk').value = product.kodeProduk || '';
+        document.getElementById('deskripsi').value = product.deskripsi || '';
+        document.getElementById('kategoriProduk').value = product.kategori || '';
+        document.getElementById('subKategori').value = product.subkategori || '';
+        document.getElementById('hargaModal').value = product.hargamodal || '';
+        // The price from getProdukById is formatted, we need the raw number.
+        // For now, let's just show what we have. This might need a change in the backend.
+        document.getElementById('hargaJual').value = product.hargajual || '';
+        document.getElementById('stokMinimal').value = product.stokminimal || '';
+        document.getElementById('satuan').value = product.satuan || '';
+        document.getElementById('berat').value = product.berat || '';
+        document.getElementById('panjang').value = product.panjang || '';
+        document.getElementById('lebar').value = product.lebar || '';
+        document.getElementById('tinggi').value = product.tinggi || '';
+        document.getElementById('catatan').value = product.catatan || '';
+
+        // Populate status radio
+        if (product.status) {
+            const statusRadio = document.querySelector(`input[name="status"][value="${product.status}"]`);
+            if (statusRadio) statusRadio.checked = true;
+        }
+
+        // Populate checkbox
+        document.getElementById('produkUnggulan').checked = product.produkunggulan === 'Ya';
+
+        // Populate image
+        if (product.produkUrl) {
+            uploadedImages[0] = product.produkUrl;
+            const imageSlot = document.getElementById(`imageSlot0`);
+            const imagePreview = document.getElementById(`imagePreview0`);
+            const removeBtn = document.getElementById(`removeBtn0`);
+
+            if (imageSlot && imagePreview && removeBtn) {
+                imageSlot.classList.add('hidden');
+                imagePreview.src = product.produkUrl;
+                imagePreview.classList.remove('hidden');
+                removeBtn.classList.remove('hidden');
+                removeBtn.classList.add('flex');
+            }
+        }
+        
+        updateSidebarPreview();
+        // Manually trigger input events to update live preview
+        document.getElementById('namaProduk').dispatchEvent(new Event('input'));
+        document.getElementById('kodeProduk').dispatchEvent(new Event('input'));
+        document.getElementById('hargaJual').dispatchEvent(new Event('input'));
+        document.getElementById('kategoriProduk').dispatchEvent(new Event('change'));
     };
 
-    // Set up all live previews
-    updatePreview('namaProduk', 'previewNamaProduk');
-    updatePreview('kodeProduk', 'previewKodeProduk');
+    const setupFormSubmission = () => {
+        const saveButton = document.getElementById('saveProductBtn');
+        if (saveButton) {
+            const newSaveButton = saveButton.cloneNode(true);
+            saveButton.parentNode.replaceChild(newSaveButton, saveButton);
 
-    const hargaModalInput = document.getElementById('hargaModal');
-    const hargaJualInput = document.getElementById('hargaJual');
-    const previewHargaModal = document.getElementById('previewHargaModal');
-    const previewHargaJual = document.getElementById('previewHargaJual');
+            newSaveButton.addEventListener('click', function () {
+                const originalButtonHTML = newSaveButton.innerHTML;
 
-    if (hargaModalInput && previewHargaModal) {
-         hargaModalInput.replaceWith(hargaModalInput.cloneNode(true));
-         document.getElementById('hargaModal').addEventListener('input', function () {
-            previewHargaModal.textContent = 'Rp ' + formatCurrency(this.value);
-        });
-    }
-
-    if (hargaJualInput && previewHargaJual) {
-        hargaJualInput.replaceWith(hargaJualInput.cloneNode(true));
-        document.getElementById('hargaJual').addEventListener('input', function () {
-            previewHargaJual.textContent = 'Rp ' + formatCurrency(this.value);
-        });
-    }
-
-    const kategoriSelect = document.getElementById('kategoriProduk');
-    const previewKategori = document.getElementById('previewKategori');
-    if (kategoriSelect && previewKategori) {
-        kategoriSelect.replaceWith(kategoriSelect.cloneNode(true));
-        document.getElementById('kategoriProduk').addEventListener('change', function () {
-            previewKategori.textContent = this.value || '-';
-        });
-    }
-
-    const statusRadios = document.querySelectorAll('input[name="status"]');
-    const previewStatus = document.getElementById('previewStatus');
-    if (statusRadios.length > 0 && previewStatus) {
-        statusRadios.forEach(radio => {
-            radio.replaceWith(radio.cloneNode(true));
-        });
-        document.querySelectorAll('input[name="status"]').forEach(radio => {
-             radio.addEventListener('change', function () {
-                if (this.checked && this.value === 'Aktif') {
-                    previewStatus.textContent = 'Aktif';
-                    previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
-                } else if (this.checked) {
-                    previewStatus.textContent = 'Tidak Aktif';
-                    previewStatus.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400';
+                if (window.setButtonLoading) {
+                    window.setButtonLoading(newSaveButton, 'Menyimpan...');
+                } else {
+                    newSaveButton.disabled = true;
                 }
-            });
-        })
-    }
 
-    // --- Form Submission Handler ---
-    const saveButton = document.getElementById('saveProductBtn');
-    if (saveButton) {
-        // By cloning and replacing, we ensure no old listeners are attached from previous page loads.
-        const newSaveButton = saveButton.cloneNode(true);
-        saveButton.parentNode.replaceChild(newSaveButton, saveButton);
+                const productData = {
+                    id: isEditMode ? productId : null,
+                    namaProduk: document.getElementById('namaProduk').value,
+                    kodeProduk: document.getElementById('kodeProduk').value,
+                    deskripsi: document.getElementById('deskripsi').value,
+                    kategoriProduk: document.getElementById('kategoriProduk').value,
+                    subKategori: document.getElementById('subKategori').value,
+                    hargaModal: document.getElementById('hargaModal').value,
+                    hargaJual: document.getElementById('hargaJual').value,
+                    stokMinimal: document.getElementById('stokMinimal').value,
+                    satuan: document.getElementById('satuan').value,
+                    status: document.querySelector('input[name="status"]:checked') ? document.querySelector('input[name="status"]:checked').value : 'Aktif',
+                    produkUnggulan: document.getElementById('produkUnggulan').checked,
+                    berat: document.getElementById('berat').value,
+                    panjang: document.getElementById('panjang').value,
+                    lebar: document.getElementById('lebar').value,
+                    tinggi: document.getElementById('tinggi').value,
+                    catatan: document.getElementById('catatan').value,
+                    images: uploadedImages.filter(img => img !== null)
+                };
 
-        newSaveButton.addEventListener('click', function () {
-            const originalButtonHTML = newSaveButton.innerHTML;
+                if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
+                    alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
+                    if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
+                    else newSaveButton.disabled = false;
+                    return;
+                }
 
-            if (window.setButtonLoading) {
-                window.setButtonLoading(newSaveButton, 'Menyimpan...');
-            } else {
-                newSaveButton.disabled = true;
-            }
-
-            const productData = {
-                namaProduk: document.getElementById('namaProduk').value,
-                kodeProduk: document.getElementById('kodeProduk').value,
-                deskripsi: document.getElementById('deskripsi').value,
-                kategoriProduk: document.getElementById('kategoriProduk').value,
-                subKategori: document.getElementById('subKategori').value,
-                hargaModal: document.getElementById('hargaModal').value,
-                hargaJual: document.getElementById('hargaJual').value,
-                stokMinimal: document.getElementById('stokMinimal').value,
-                satuan: document.getElementById('satuan').value,
-                status: document.querySelector('input[name="status"]:checked') ? document.querySelector('input[name="status"]:checked').value : 'Aktif',
-                produkUnggulan: document.getElementById('produkUnggulan').checked,
-                berat: document.getElementById('berat').value,
-                panjang: document.getElementById('panjang').value,
-                lebar: document.getElementById('lebar').value,
-                tinggi: document.getElementById('tinggi').value,
-                catatan: document.getElementById('catatan').value,
-                images: uploadedImages.filter(img => img !== null)
-            };
-            
-            if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
-                alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
-                if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
-                else newSaveButton.disabled = false;
-                return;
-            }
-
-            const successCallback = response => {
-                if (window.showToast) window.showToast(response.message, response.status);
-                else alert(response.message);
-
-                if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
-                else newSaveButton.disabled = false;
+                const apiFunction = isEditMode ? 'updateProduk' : 'simpanProdukBaru';
                 
-                if (response.status === 'success') {
-                    if (form) form.reset();
-                    // Clear image previews and data array
-                    for (let i = 0; i < 5; i++) {
-                        removeImage(i); 
+                const successCallback = response => {
+                    if (window.showToast) window.showToast(response.message, response.status);
+                    else alert(response.message);
+
+                    if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
+                    else newSaveButton.disabled = false;
+                    
+                    if (response.status === 'success') {
+                        if (!isEditMode && form) form.reset();
+                        // Clear image previews and data array
+                        for (let i = 0; i < 5; i++) {
+                            removeImage(i); 
+                        }
                     }
+                };
+
+                const errorCallback = error => {
+                    if (window.showToast) window.showToast(`Gagal ${isEditMode ? 'mengupdate' : 'menyimpan'} produk: ` + error.message, 'error');
+                    else alert(`Gagal ${isEditMode ? 'mengupdate' : 'menyimpan'} produk: ` + error.message);
+                    
+                    if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
+                    else newSaveButton.disabled = false;
+                };
+
+                window.sendDataToGoogle(apiFunction, productData, successCallback, errorCallback);
+            });
+        } else {
+            console.error("Tombol Simpan (saveProductBtn) tidak ditemukan saat inisialisasi.");
+        }
+    };
+
+    // --- Main Logic Flow ---
+    setupLivePreview();
+    setupFormSubmission();
+
+    if (isEditMode) {
+        // Fetch product data for editing
+        if (typeof window.sendDataToGoogle === 'function') {
+            window.sendDataToGoogle('getProdukById', { productId }, (response) => {
+                if (response.status === 'success' && response.data) {
+                    populateForm(response.data);
+                } else {
+                    console.error('Failed to fetch product for editing:', response.message);
+                    if(window.showToast) window.showToast('Gagal memuat data produk: ' + response.message, 'error');
                 }
-            };
-
-            const errorCallback = error => {
-                if (window.showToast) window.showToast('Gagal menyimpan produk: ' + error.message, 'error');
-                else alert('Gagal menyimpan produk: ' + error.message);
-                
-                if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
-                else newSaveButton.disabled = false;
-            };
-
-            window.sendDataToGoogle('simpanProdukBaru', productData, successCallback, errorCallback);
-        });
+                // Clear the ID after attempting to load
+                localStorage.removeItem('selectedProductId');
+            }, (error) => {
+                console.error('Error fetching product by ID:', error);
+                if(window.showToast) window.showToast('Error koneksi saat memuat produk.', 'error');
+                localStorage.removeItem('selectedProductId');
+            });
+        }
     } else {
-        console.error("Tombol Simpan (saveProductBtn) tidak ditemukan saat inisialisasi.");
+        // It's a new product, just make sure previews are cleared
+        updateSidebarPreview();
     }
 };
