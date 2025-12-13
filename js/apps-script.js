@@ -228,8 +228,8 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         'updateSupplier',
         'changePassword',
         'updateProfile',
-        'saveProfileDataOnServer'
-        // Delete actions can also be POST, but are often simple enough for GET
+        'saveProfileDataOnServer',
+        'simpanProdukBaru'
     ];
 
     if (postActions.includes(action)) {
