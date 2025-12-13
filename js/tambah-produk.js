@@ -184,9 +184,13 @@ window.initTambahProdukPage = function () {
         document.getElementById('deskripsi').value = product.deskripsi || '';
         document.getElementById('kategoriProduk').value = product.kategori || '';
         document.getElementById('subKategori').value = product.subkategori || '';
+        document.getElementById('stok').value = product.stok || '';
         document.getElementById('hargaModal').value = product.hargamodal || '';
-        // The price from getProdukById is formatted, we need the raw number.
-        // For now, let's just show what we have. This might need a change in the backend.
+        document.getElementById('berat').value = product.berat || '';
+        document.getElementById('panjang').value = product.panjang || '';
+        document.getElementById('lebar').value = product.lebar || '';
+        document.getElementById('tinggi').value = product.tinggi || '';
+        document.getElementById('kategoriProduk').value = product.kategori || '';
         document.getElementById('hargaJual').value = product.hargajual || '';
         document.getElementById('stokMinimal').value = product.stokminimal || '';
         document.getElementById('satuan').value = product.satuan || '';
