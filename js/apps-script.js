@@ -142,129 +142,103 @@ window.hideToast = function(toast) {
     }, { once: true });
 };
 
-// Function to make requests with JSONP (script injection) like in EzyParts for better CORS support
+// Function to make requests with JSONP (script injection) for GET requests
 function makeFetchRequest(action, data, callback, errorHandler) {
-    // Use JSONP approach (script injection) like in the working EzyParts implementation
     const callbackName = 'jsonp_callback_' + Math.round(1000 * Math.random());
     
     window[callbackName] = function(response) {
         delete window[callbackName];
         
-        console.log('Raw response:', JSON.stringify(response, null, 2));  // Debug log
+        console.log('Raw response (GET):', JSON.stringify(response, null, 2));
         
         try {
-            // Normalize the response format similar to EzyParts.xml
-            let normalizedResponse = {
-                status: 'error',
-                message: '',
-                data: []
-            };
-
-            if (action === 'readProfileDataFromSheet') {
-                // For readProfileDataFromSheet, the raw response IS the data object itself
-                normalizedResponse.status = 'success';
-                normalizedResponse.message = '';
-                normalizedResponse.data = response;
-            } else if (action === 'processLogin' || action === 'SignInUser') {
-                // For processLogin and SignInUser, map 'success' to 'status' and 'user' to 'data'
-                normalizedResponse.status = response.status || 'success';
-                normalizedResponse.message = response.message || '';
-                normalizedResponse.data = response.user || null;
-                // Also preserve the user directly in case it's needed
-                if (response.user) normalizedResponse.user = response.user;
-            } else if (action === 'saveProfileDataOnServer') {
-                // For saveProfileDataOnServer, use the response as is
-                normalizedResponse.status = response.status || 'success';
-                normalizedResponse.message = response.message || '';
-                normalizedResponse.data = response.data || [];
-                if (response.profilePhotoUrl) normalizedResponse.profilePhotoUrl = response.profilePhotoUrl;
-                if (response.name) normalizedResponse.name = response.name;
-            }
-            else if (response) {
-                if (Array.isArray(response)) {
-                    // If response is directly an array (e.g., for some simple list fetches)
-                    normalizedResponse.status = 'success';
-                    normalizedResponse.data = response;
-                } else if (typeof response === 'object') {
-                    // Standard response format with status, message, and data properties
-                    normalizedResponse.status = response.status || 'success';
-                    normalizedResponse.message = response.message || '';
-                    normalizedResponse.data = response.data || [];
-                    
-                    // Further refine data for specific actions if needed (e.g., getProduk)
-                    if (action === 'getProduk' || action === 'searchProduk') {
-                        normalizedResponse.pagination = response.pagination || {};
-                        normalizedResponse.version = response.version || 'unknown';
-                        if (Array.isArray(response.data)) {
-                            normalizedResponse.data = response.data;
-                        } else if (response.data) {
-                            normalizedResponse.data = [response.data];
-                        } else if (Array.isArray(response)) {
-                            normalizedResponse.data = response;
-                        } else if (response.products) {
-                            normalizedResponse.data = Array.isArray(response.products) ? 
-                                response.products : [response.products];
-                        }
-                    }
-                }
-            }
-            // Ensure pagination and version are always passed if present in the raw response for successful calls
-            if (normalizedResponse.status === 'success' && response.pagination && !normalizedResponse.pagination) {
-                normalizedResponse.pagination = response.pagination;
-            }
-            if (normalizedResponse.status === 'success' && response.version && !normalizedResponse.version) {
-                normalizedResponse.version = response.version;
-            }
-
-
-            console.log('Normalized response:', normalizedResponse);  // Debug log
-            
+            const normalizedResponse = normalizeResponse(action, response);
+            console.log('Normalized response (GET):', normalizedResponse);
             if (callback) callback(normalizedResponse);
         } catch (error) {
-            console.error('Error processing response:', error);
-            if (errorHandler) {
-                errorHandler(error);
-            } else {
-                callback({
-                    status: 'error',
-                    message: 'Error processing response',
-                    data: []
-                });
-            }
+            console.error('Error processing GET response:', error);
+            if (errorHandler) errorHandler(error);
         }
     };
 
     let url = window.appsScriptUrl + `?action=${action}&callback=${callbackName}`;
     for (const key in data) {
-        // Avoid duplicating the 'action' parameter if it's already in the URL
         if (key !== 'action') {
             url += `&${key}=${encodeURIComponent(data[key])}`;
         }
     }
 
-    console.log('Sending request to:', url);
+    console.log('Sending GET request to:', url);
     
     const script = document.createElement('script');
     script.src = url;
     script.onerror = function(error) {
-        console.error('!!! CLINE DEBUG: Script loading error caught in sendDataToGoogle. URL was: ' + url, error);
-        alert('!!! CLINE DEBUG: Script loading error for Apps Script call. Check console for URL and details.');
+        console.error('Script loading error:', error);
         delete window[callbackName];
         document.body.removeChild(script);
-        if (errorHandler) errorHandler(new Error('Network error or script loading failed. Please check Apps Script deployment and logs.'));
-        else showToast('Network error or script loading failed. Please check Apps Script deployment and logs.', 'error'); // Fallback toast
+        if (errorHandler) errorHandler(new Error('Network error or script loading failed.'));
+        else showToast('Network error, please try again.', 'error');
     };
     document.body.appendChild(script);
 }
 
+// Function to normalize responses from the server
+function normalizeResponse(action, response) {
+    let normalized = {
+        status: 'error',
+        message: 'Invalid response from server.',
+        data: [],
+        pagination: {},
+        version: 'unknown'
+    };
+
+    if (response) {
+        if (action === 'SignInUser' || action === 'registerUser') {
+            normalized.status = response.status || 'error';
+            normalized.message = response.message || '';
+            normalized.data = response.user || null;
+            if (response.user) normalized.user = response.user; // For backward compatibility
+            if (response.redirectUrl) normalized.redirectUrl = response.redirectUrl;
+            if (response.token) normalized.token = response.token;
+        } else if (response.status) {
+            normalized = { ...normalized, ...response };
+        } else {
+             normalized.status = 'success';
+             normalized.data = response;
+        }
+    }
+    
+    return normalized;
+}
+
+
 window.sendDataToGoogle = function(action, data, callback, errorHandler) {
-    // Special handling for uploadFile action to send as POST request with urlencoded payload
-    if (action === 'uploadFile' || action === 'uploadImageAndGetUrl') {
-        const payload = { action: action, fileName: data.fileName, fileData: data.fileData, fileType: data.fileType };
-        
-        // Use x-www-form-urlencoded to avoid CORS preflight/redirect issues with Apps Script
+    // Actions that must use POST for security or data length reasons
+    const postActions = [
+        'SignInUser',
+        'registerUser',
+        'uploadFile',
+        'uploadImageAndGetUrl',
+        'addProduk',
+        'updateProduk',
+        'addProduct',
+        'updateProduct',
+        'savePurchaseOrder',
+        'addSupplier',
+        'updateSupplier',
+        'changePassword',
+        'updateProfile',
+        'saveProfileDataOnServer'
+        // Delete actions can also be POST, but are often simple enough for GET
+    ];
+
+    if (postActions.includes(action)) {
+        // Use Fetch API for POST requests
+        const payload = { action, ...data };
         const formData = 'payload=' + encodeURIComponent(JSON.stringify(payload));
 
+        console.log(`Sending POST request for action: ${action}`);
+        
         fetch(window.appsScriptUrl, {
             method: 'POST',
             headers: {
@@ -274,36 +248,28 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         })
         .then(response => {
             if (!response.ok) {
-                // Try to get more error info from the response body if possible
                 return response.text().then(text => {
-                    throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}, response: ${text}`);
+                    throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
                 });
             }
             return response.json();
         })
-        .then(uploadResponse => {
-            if (uploadResponse.status === 'success' && uploadResponse.url) {
-                try {
-                    const fileId = new URL(uploadResponse.url).searchParams.get("id");
-                    if (fileId) {
-                        uploadResponse.url = `https://lh3.googleusercontent.com/d/${fileId}`;
-                    }
-                } catch (e) {
-                    console.error('Error parsing URL from uploadImageAndGetUrl:', e);
-                }
-            }
-            if (callback) callback(uploadResponse);
+        .then(jsonResponse => {
+            console.log(`Raw response (POST for ${action}):`, jsonResponse);
+            const normalized = normalizeResponse(action, jsonResponse);
+            console.log(`Normalized response (POST for ${action}):`, normalized);
+            if (callback) callback(normalized);
         })
         .catch(error => {
-            console.error('Error in uploadFile fetch:', error);
+            console.error(`Fetch error for action '${action}':`, error);
             if (errorHandler) {
                 errorHandler(error);
-            } else if (callback) {
-                callback({ status: 'error', message: error.message || 'Upload failed' });
+            } else {
+                showToast(error.message || `An error occurred with action: ${action}`, 'error');
             }
         });
     } else {
-        // For other actions, use the JSONP approach like in EzyParts
+        // Use JSONP for GET requests
         makeFetchRequest(action, data, callback, errorHandler);
     }
 };
