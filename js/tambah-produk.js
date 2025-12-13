@@ -1,14 +1,4 @@
-// Tambah Produk page initialization
-window.initTambahProdukPage = function () {
-    console.log("Tambah Produk Page Initialized");
-
-    // Initialize Breadcrumb  
-    if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Tambah Produk');
-    }
-};
-
-// Store uploaded images
+// Store uploaded images globally for the page
 const uploadedImages = [null, null, null, null, null];
 
 // Handle image upload for each slot
@@ -31,11 +21,13 @@ function handleImageUpload(event, index) {
             const imagePreview = document.getElementById(`imagePreview${index}`);
             const removeBtn = document.getElementById(`removeBtn${index}`);
 
-            imageSlot.classList.add('hidden');
-            imagePreview.src = e.target.result;
-            imagePreview.classList.remove('hidden');
-            removeBtn.classList.remove('hidden');
-            removeBtn.classList.add('flex');
+            if(imageSlot && imagePreview && removeBtn) {
+                imageSlot.classList.add('hidden');
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                removeBtn.classList.remove('hidden');
+                removeBtn.classList.add('flex');
+            }
 
             // Update sidebar preview with first image
             updateSidebarPreview();
@@ -46,19 +38,24 @@ function handleImageUpload(event, index) {
 
 // Remove image from slot
 function removeImage(index) {
+    // Check if the image slot elements exist before proceeding
+    const imageSlot = document.getElementById(`imageSlot${index}`);
+    if (!imageSlot) return; // If elements are not on the page, do nothing
+
     uploadedImages[index] = null;
 
-    const imageSlot = document.getElementById(`imageSlot${index}`);
     const imagePreview = document.getElementById(`imagePreview${index}`);
     const removeBtn = document.getElementById(`removeBtn${index}`);
     const fileInput = document.getElementById(`gambarProduk${index + 1}`);
 
-    imageSlot.classList.remove('hidden');
-    imagePreview.src = '';
-    imagePreview.classList.add('hidden');
-    removeBtn.classList.add('hidden');
-    removeBtn.classList.remove('flex');
-    fileInput.value = '';
+    if(imageSlot && imagePreview && removeBtn && fileInput) {
+        imageSlot.classList.remove('hidden');
+        imagePreview.src = '';
+        imagePreview.classList.add('hidden');
+        removeBtn.classList.add('hidden');
+        removeBtn.classList.remove('flex');
+        fileInput.value = '';
+    }
 
     // Update sidebar preview
     updateSidebarPreview();
@@ -68,9 +65,10 @@ function removeImage(index) {
 function updateSidebarPreview() {
     const sidebarImagePreview = document.getElementById('sidebarImagePreview');
     const previewImage = document.getElementById('previewImage');
-    const placeholderDiv = sidebarImagePreview.querySelector('div');
+    const placeholderDiv = sidebarImagePreview ? sidebarImagePreview.querySelector('div') : null;
 
-    // Use the first image (main image) for the preview
+    if (!sidebarImagePreview || !previewImage || !placeholderDiv) return;
+
     const mainImage = uploadedImages[0];
 
     if (mainImage) {
@@ -84,94 +82,103 @@ function updateSidebarPreview() {
     }
 }
 
-// Initialize live preview functionality
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('addNewProductForm');
 
-    // Live preview updates
+// Main initialization function called by the SPA router
+window.initTambahProdukPage = function () {
+    console.log("Tambah Produk Page Initialized. Setting up event listeners.");
+
+    // Initialize Breadcrumb  
+    if (typeof window.renderBreadcrumb === 'function') {
+        window.renderBreadcrumb('Tambah Produk');
+    }
+
+    const form = document.getElementById('addNewProductForm');
+    
+    // --- Live Preview Logic ---
     const updatePreview = (inputId, previewId, prefix = '', suffix = '') => {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
         if (input && preview) {
-            input.addEventListener('input', function () {
+            // To prevent duplicate listeners, we can remove any old one, but cloning the node is safer.
+            input.replaceWith(input.cloneNode(true));
+            document.getElementById(inputId).addEventListener('input', function () {
                 const value = this.value || '-';
                 preview.textContent = prefix + (value === '-' ? value : this.value) + suffix;
             });
         }
     };
 
-    // Format number with thousand separator
     const formatCurrency = (num) => {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '0';
     };
 
-    // Update previews
+    // Set up all live previews
     updatePreview('namaProduk', 'previewNamaProduk');
     updatePreview('kodeProduk', 'previewKodeProduk');
 
-
-    // Currency fields with formatting
     const hargaModalInput = document.getElementById('hargaModal');
     const hargaJualInput = document.getElementById('hargaJual');
     const previewHargaModal = document.getElementById('previewHargaModal');
     const previewHargaJual = document.getElementById('previewHargaJual');
 
     if (hargaModalInput && previewHargaModal) {
-        hargaModalInput.addEventListener('input', function () {
-            const value = this.value ? formatCurrency(this.value) : '0';
-            previewHargaModal.textContent = 'Rp ' + value;
+         hargaModalInput.replaceWith(hargaModalInput.cloneNode(true));
+         document.getElementById('hargaModal').addEventListener('input', function () {
+            previewHargaModal.textContent = 'Rp ' + formatCurrency(this.value);
         });
     }
 
     if (hargaJualInput && previewHargaJual) {
-        hargaJualInput.addEventListener('input', function () {
-            const value = this.value ? formatCurrency(this.value) : '0';
-            previewHargaJual.textContent = 'Rp ' + value;
+        hargaJualInput.replaceWith(hargaJualInput.cloneNode(true));
+        document.getElementById('hargaJual').addEventListener('input', function () {
+            previewHargaJual.textContent = 'Rp ' + formatCurrency(this.value);
         });
     }
 
-    // Category preview
     const kategoriSelect = document.getElementById('kategoriProduk');
     const previewKategori = document.getElementById('previewKategori');
     if (kategoriSelect && previewKategori) {
-        kategoriSelect.addEventListener('change', function () {
+        kategoriSelect.replaceWith(kategoriSelect.cloneNode(true));
+        document.getElementById('kategoriProduk').addEventListener('change', function () {
             previewKategori.textContent = this.value || '-';
         });
     }
 
-    // Status preview
     const statusRadios = document.querySelectorAll('input[name="status"]');
     const previewStatus = document.getElementById('previewStatus');
     if (statusRadios.length > 0 && previewStatus) {
         statusRadios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                if (this.value === 'Aktif') {
+            radio.replaceWith(radio.cloneNode(true));
+        });
+        document.querySelectorAll('input[name="status"]').forEach(radio => {
+             radio.addEventListener('change', function () {
+                if (this.checked && this.value === 'Aktif') {
                     previewStatus.textContent = 'Aktif';
                     previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
-                } else {
+                } else if (this.checked) {
                     previewStatus.textContent = 'Tidak Aktif';
                     previewStatus.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400';
                 }
             });
-        });
+        })
     }
 
-    // Form submission handler
+    // --- Form Submission Handler ---
     const saveButton = document.getElementById('saveProductBtn');
     if (saveButton) {
-        saveButton.addEventListener('click', function () {
-            const originalButtonHTML = saveButton.innerHTML;
-            const form = document.getElementById('addNewProductForm');
+        // By cloning and replacing, we ensure no old listeners are attached from previous page loads.
+        const newSaveButton = saveButton.cloneNode(true);
+        saveButton.parentNode.replaceChild(newSaveButton, saveButton);
 
-            // Show loading state using global utility
+        newSaveButton.addEventListener('click', function () {
+            const originalButtonHTML = newSaveButton.innerHTML;
+
             if (window.setButtonLoading) {
-                window.setButtonLoading(saveButton, 'Menyimpan...');
+                window.setButtonLoading(newSaveButton, 'Menyimpan...');
             } else {
-                saveButton.disabled = true;
-                saveButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Menyimpan...`;
+                newSaveButton.disabled = true;
             }
 
-            // Gather form data explicitly
             const productData = {
                 namaProduk: document.getElementById('namaProduk').value,
                 kodeProduk: document.getElementById('kodeProduk').value,
@@ -192,68 +199,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 images: uploadedImages.filter(img => img !== null)
             };
             
-            // Basic validation
             if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
                 alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
-                if (window.resetButtonState) {
-                    window.resetButtonState(saveButton, originalButtonHTML);
-                } else {
-                    saveButton.disabled = false;
-                    saveButton.innerHTML = originalButtonHTML;
-                }
+                if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
+                else newSaveButton.disabled = false;
                 return;
             }
 
-            console.log("Sending data to Google Apps Script via sendDataToGoogle:", productData);
-
-            // Define success and error handlers
             const successCallback = response => {
-                console.log('Success:', response);
-                // Use the global toast utility if it exists
-                if(window.showToast) {
-                    window.showToast(response.message, response.status);
-                } else {
-                    alert(response.message);
-                }
+                if (window.showToast) window.showToast(response.message, response.status);
+                else alert(response.message);
 
-                if (window.resetButtonState) {
-                    window.resetButtonState(saveButton, originalButtonHTML);
-                } else {
-                    saveButton.disabled = false;
-                    saveButton.innerHTML = originalButtonHTML;
-                }
+                if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
+                else newSaveButton.disabled = false;
                 
-                if(response.status === 'success') {
-                    if (form) {
-                        form.reset();
-                    }
-                    // Clear image previews and data
+                if (response.status === 'success') {
+                    if (form) form.reset();
+                    // Clear image previews and data array
                     for (let i = 0; i < 5; i++) {
-                        removeImage(i);
+                        removeImage(i); 
                     }
-                    // Optional: Redirect after a delay
-                    // setTimeout(() => { window.location.hash = '#produk'; }, 1500);
                 }
             };
 
             const errorCallback = error => {
-                console.error('Failure:', error);
-                if(window.showToast) {
-                    window.showToast('Gagal menyimpan produk: ' + error.message, 'error');
-                } else {
-                    alert('Gagal menyimpan produk: ' + error.message);
-                }
-
-                if (window.resetButtonState) {
-                    window.resetButtonState(saveButton, originalButtonHTML);
-                } else {
-                    saveButton.disabled = false;
-                    saveButton.innerHTML = originalButtonHTML;
-                }
+                if (window.showToast) window.showToast('Gagal menyimpan produk: ' + error.message, 'error');
+                else alert('Gagal menyimpan produk: ' + error.message);
+                
+                if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
+                else newSaveButton.disabled = false;
             };
 
-            // Call the global wrapper function
             window.sendDataToGoogle('simpanProdukBaru', productData, successCallback, errorCallback);
         });
+    } else {
+        console.error("Tombol Simpan (saveProductBtn) tidak ditemukan saat inisialisasi.");
     }
-});
+};
