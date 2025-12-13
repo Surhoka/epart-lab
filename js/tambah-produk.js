@@ -163,9 +163,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const originalButtonHTML = saveButton.innerHTML;
             const form = document.getElementById('addNewProductForm');
 
-            // Show loading state
-            saveButton.disabled = true;
-            saveButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Menyimpan...`;
+            // Show loading state using global utility
+            if (window.setButtonLoading) {
+                window.setButtonLoading(saveButton, 'Menyimpan...');
+            } else {
+                saveButton.disabled = true;
+                saveButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Menyimpan...`;
+            }
 
             // Gather form data explicitly
             const productData = {
@@ -191,8 +195,12 @@ document.addEventListener('DOMContentLoaded', function () {
             // Basic validation
             if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
                 alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
-                saveButton.disabled = false;
-                saveButton.innerHTML = originalButtonHTML;
+                if (window.resetButtonState) {
+                    window.resetButtonState(saveButton, originalButtonHTML);
+                } else {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalButtonHTML;
+                }
                 return;
             }
 
@@ -203,8 +211,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 .withSuccessHandler(response => {
                     console.log('Success:', response);
                     alert(response.message);
-                    saveButton.disabled = false;
-                    saveButton.innerHTML = originalButtonHTML;
+                    if (window.resetButtonState) {
+                        window.resetButtonState(saveButton, originalButtonHTML);
+                    } else {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalButtonHTML;
+                    }
                     
                     if(response.status === 'success') {
                         if (form) {
@@ -224,8 +236,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 .withFailureHandler(error => {
                     console.error('Failure:', error);
                     alert('Gagal menyimpan produk: ' + error.message);
-                    saveButton.disabled = false;
-                    saveButton.innerHTML = originalButtonHTML;
+                    if (window.resetButtonState) {
+                        window.resetButtonState(saveButton, originalButtonHTML);
+                    } else {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalButtonHTML;
+                    }
                 })
                 .simpanProdukBaru(productData);
         });
