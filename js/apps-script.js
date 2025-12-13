@@ -229,7 +229,7 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         'changePassword',
         'updateProfile',
         'saveProfileDataOnServer',
-        'simpanProdukBaru'
+        'simpanProduk'
     ];
 
     if (postActions.includes(action)) {
@@ -296,3 +296,4 @@ window.handleAuthUI = function() {
         if (signInButton) signInButton.classList.remove('hidden'); // Show signIn button if signed out
     }
 };
+
