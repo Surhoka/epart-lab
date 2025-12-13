@@ -230,7 +230,7 @@ window.initTambahProdukPage = function () {
                 else newSaveButton.disabled = false;
             };
 
-            window.sendDataToGoogle('simpanProduk', productData, successCallback, errorCallback);
+            window.sendDataToGoogle('simpanProdukBaru', productData, successCallback, errorCallback);
         });
     } else {
         console.error("Tombol Simpan (saveProductBtn) tidak ditemukan saat inisialisasi.");
