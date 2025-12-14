@@ -310,11 +310,17 @@ window.initTambahProdukPage = function () {
                     else newSaveButton.disabled = false;
                     
                     if (response.status === 'success') {
+                        // Store the product data that was just saved for later access
+                        window.lastSavedProductData = getProductData();
+                        
                         if (!isEditMode && form) form.reset();
                         // Clear image previews and data array
                         for (let i = 0; i < 5; i++) {
                             removeImage(i); 
                         }
+                        
+                        // Optional: Display a message that product was saved successfully
+                        // This ensures that we still have access to the saved data if needed
                     }
                 };
 
@@ -377,6 +383,13 @@ window.initTambahProdukPage = function () {
         }
         
         // Return new product data (empty)
+        return getProductData();
+    };
+    
+    // Additional function to get product data after saving
+    window.getLastSavedProductData = function() {
+        // This function will be used to get data that was just saved
+        // We store it during the save process
         return getProductData();
     };
 
