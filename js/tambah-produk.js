@@ -193,7 +193,7 @@ window.initTambahProdukPage = function () {
         }
         const kategoriProdukElement = document.getElementById('kategoriProduk');
         if (kategoriProdukElement) {
-            kategoriProdukElement.value = product.kategori || '';
+            kategoriProdukElement.value = product.kategoriProduk || '';
         }
         const subKategoriElement = document.getElementById('subKategori');
         if (subKategoriElement) {
@@ -249,7 +249,7 @@ window.initTambahProdukPage = function () {
         // Populate checkbox
         const produkUnggulanElement = document.getElementById('produkUnggulan');
         if (produkUnggulanElement) {
-            produkUnggulanElement.checked = product.produkunggulan === 'Ya';
+            produkUnggulanElement.checked = product.produkUnggulan;
         }
 
         // Populate image
