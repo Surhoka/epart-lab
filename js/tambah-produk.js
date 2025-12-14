@@ -308,7 +308,7 @@ window.initTambahProdukPage = function () {
                     lebar: document.getElementById('lebar')?.value || '',
                     tinggi: document.getElementById('tinggi')?.value || '',
                     catatan: document.getElementById('catatan')?.value || '',
-                    // Removed subKategori, stokMinimal, and images as per spreadsheet structure
+                    images: uploadedImages.filter(img => img !== null) // Re-added images field
                 };
 
                 if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
