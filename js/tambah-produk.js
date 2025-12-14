@@ -406,8 +406,8 @@ window.initTambahProdukPage = function () {
             kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
             subKategori: document.getElementById('subKategori')?.value || '',
             stok: getNumericValue('stok'),
-            hargamodal: getNumericValue('hargaModal'), // Match backend field name
-            price: getNumericValue('hargaJual'), // Match backend field name
+            hargaModal: getNumericValue('hargaModal'), // Match updateProduk expectation
+            hargaJual: getNumericValue('hargaJual'),  // Match updateProduk expectation
             satuan: document.getElementById('satuan')?.value || '',
             status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
             produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
@@ -415,7 +415,7 @@ window.initTambahProdukPage = function () {
             panjang: getNumericValue('panjang'),
             lebar: getNumericValue('lebar'),
             tinggi: getNumericValue('tinggi'),
-            stokminimal: getNumericValue('stokMinimal'), // Match backend field name
+            stokMinimal: getNumericValue('stokMinimal'), // Match updateProduk expectation
             catatan: document.getElementById('catatan')?.value || ''
         };
 
