@@ -225,7 +225,7 @@ window.initTambahProdukPage = function () {
         }
         const hargaJualElement = document.getElementById('hargaJual');
         if (hargaJualElement) {
-            hargaJualElement.value = product.hargajual || '';
+            hargaJualElement.value = product.price || '';
         }
         const stokMinimalElement = document.getElementById('stokMinimal');
         if (stokMinimalElement) {
