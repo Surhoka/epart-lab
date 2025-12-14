@@ -297,10 +297,9 @@ window.initTambahProdukPage = function () {
                     kodeProduk: document.getElementById('kodeProduk')?.value || '',
                     deskripsi: document.getElementById('deskripsi')?.value || '',
                     kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
-                    subKategori: document.getElementById('subKategori')?.value || '',
+                    stok: document.getElementById('stok')?.value || '', // Added stok field
                     hargaModal: document.getElementById('hargaModal')?.value || '',
                     hargaJual: document.getElementById('hargaJual')?.value || '',
-                    stokMinimal: document.getElementById('stokMinimal')?.value || '',
                     satuan: document.getElementById('satuan')?.value || '',
                     status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
                     produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
@@ -309,7 +308,7 @@ window.initTambahProdukPage = function () {
                     lebar: document.getElementById('lebar')?.value || '',
                     tinggi: document.getElementById('tinggi')?.value || '',
                     catatan: document.getElementById('catatan')?.value || '',
-                    images: uploadedImages.filter(img => img !== null)
+                    // Removed subKategori, stokMinimal, and images as per spreadsheet structure
                 };
 
                 if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
