@@ -272,6 +272,7 @@ window.initTambahProdukPage = function () {
         // Manually trigger input events to update live preview
         document.getElementById('namaProduk').dispatchEvent(new Event('input'));
         document.getElementById('kodeProduk').dispatchEvent(new Event('input'));
+        document.getElementById('hargaModal').dispatchEvent(new Event('input'));
         document.getElementById('hargaJual').dispatchEvent(new Event('input'));
         document.getElementById('kategoriProduk').dispatchEvent(new Event('change'));
     };
@@ -510,3 +511,4 @@ window.initTambahProdukPage = function () {
         updateSidebarPreview();
     }
 };
+
