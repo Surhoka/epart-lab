@@ -183,25 +183,62 @@ window.initTambahProdukPage = function () {
         
         // Populate text and select fields
         document.getElementById('namaProduk').value = product.namaProduk || '';
-        document.getElementById('kodeProduk').value = product.kodeProduk || '';
-        document.getElementById('deskripsi').value = product.deskripsi || '';
-        document.getElementById('kategoriProduk').value = product.kategori || '';
-        document.getElementById('subKategori').value = product.subkategori || '';
-        document.getElementById('stok').value = product.stok || '';
-        document.getElementById('hargaModal').value = product.hargamodal || '';
-        document.getElementById('berat').value = product.berat || '';
-        document.getElementById('panjang').value = product.panjang || '';
-        document.getElementById('lebar').value = product.lebar || '';
-        document.getElementById('tinggi').value = product.tinggi || '';
-        document.getElementById('kategoriProduk').value = product.kategori || '';
-        document.getElementById('hargaJual').value = product.hargajual || '';
-        document.getElementById('stokMinimal').value = product.stokminimal || '';
-        document.getElementById('satuan').value = product.satuan || '';
-        document.getElementById('berat').value = product.berat || '';
-        document.getElementById('panjang').value = product.panjang || '';
-        document.getElementById('lebar').value = product.lebar || '';
-        document.getElementById('tinggi').value = product.tinggi || '';
-        document.getElementById('catatan').value = product.catatan || '';
+        const kodeProdukElement = document.getElementById('kodeProduk');
+        if (kodeProdukElement) {
+            kodeProdukElement.value = product.kodeProduk || '';
+        }
+        const deskripsiElement = document.getElementById('deskripsi');
+        if (deskripsiElement) {
+            deskripsiElement.value = product.deskripsi || '';
+        }
+        const kategoriProdukElement = document.getElementById('kategoriProduk');
+        if (kategoriProdukElement) {
+            kategoriProdukElement.value = product.kategori || '';
+        }
+        const subKategoriElement = document.getElementById('subKategori');
+        if (subKategoriElement) {
+            subKategoriElement.value = product.subkategori || '';
+        }
+        const stokElement = document.getElementById('stok');
+        if (stokElement) {
+            stokElement.value = product.stok || '';
+        }
+        const hargaModalElement = document.getElementById('hargaModal');
+        if (hargaModalElement) {
+            hargaModalElement.value = product.hargamodal || '';
+        }
+        const beratElement = document.getElementById('berat');
+        if (beratElement) {
+            beratElement.value = product.berat || '';
+        }
+        const panjangElement = document.getElementById('panjang');
+        if (panjangElement) {
+            panjangElement.value = product.panjang || '';
+        }
+        const lebarElement = document.getElementById('lebar');
+        if (lebarElement) {
+            lebarElement.value = product.lebar || '';
+        }
+        const tinggiElement = document.getElementById('tinggi');
+        if (tinggiElement) {
+            tinggiElement.value = product.tinggi || '';
+        }
+        const hargaJualElement = document.getElementById('hargaJual');
+        if (hargaJualElement) {
+            hargaJualElement.value = product.hargajual || '';
+        }
+        const stokMinimalElement = document.getElementById('stokMinimal');
+        if (stokMinimalElement) {
+            stokMinimalElement.value = product.stokminimal || '';
+        }
+        const satuanElement = document.getElementById('satuan');
+        if (satuanElement) {
+            satuanElement.value = product.satuan || '';
+        }
+        const catatanElement = document.getElementById('catatan');
+        if (catatanElement) {
+            catatanElement.value = product.catatan || '';
+        }
 
         // Populate status radio
         if (product.status) {
@@ -210,7 +247,10 @@ window.initTambahProdukPage = function () {
         }
 
         // Populate checkbox
-        document.getElementById('produkUnggulan').checked = product.produkunggulan === 'Ya';
+        const produkUnggulanElement = document.getElementById('produkUnggulan');
+        if (produkUnggulanElement) {
+            produkUnggulanElement.checked = product.produkunggulan === 'Ya';
+        }
 
         // Populate image
         if (product.produkUrl) {
