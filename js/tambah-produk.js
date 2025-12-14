@@ -302,7 +302,7 @@ window.initTambahProdukPage = function () {
 
                 const productData = getProductData(); // Get product data using our new function
 
-                if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
+                if (!productData.namaProduk || !productData.kodeProduk || !('price' in productData)) {
                     alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
                     resetSaveButtonState();
                     return;
@@ -404,9 +404,9 @@ window.initTambahProdukPage = function () {
             deskripsi: document.getElementById('deskripsi')?.value || '',
             kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
             subKategori: document.getElementById('subKategori')?.value || '',
-            stok: getNumericValue('stok') ?? 0,
-            hargamodal: getNumericValue('hargaModal') ?? 0, // Match backend field name
-            price: getNumericValue('hargaJual') ?? 0, // Match backend field name
+            stok: getNumericValue('stok'),
+            hargamodal: getNumericValue('hargaModal'), // Match backend field name
+            price: getNumericValue('hargaJual'), // Match backend field name
             satuan: document.getElementById('satuan')?.value || '',
             status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
             produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
