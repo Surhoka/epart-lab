@@ -392,21 +392,21 @@ window.initTambahProdukPage = function () {
     function getProductData() {
         const getNumericValue = (id) => {
             const value = document.getElementById(id)?.value;
-            // Return null if value is empty or not a valid number, otherwise return the number.
             if (value === null || value === undefined || value.trim() === '') return null;
             const num = Number(value);
             return isNaN(num) ? null : num;
         };
 
-        return {
+        const productData = {
             id: isEditMode ? productId : null,
             namaProduk: document.getElementById('namaProduk')?.value || '',
             kodeProduk: document.getElementById('kodeProduk')?.value || '',
             deskripsi: document.getElementById('deskripsi')?.value || '',
             kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
+            subKategori: document.getElementById('subKategori')?.value || '',
             stok: getNumericValue('stok') ?? 0,
-            hargaModal: getNumericValue('hargaModal') ?? 0,
-            hargaJual: getNumericValue('hargaJual') ?? 0,
+            hargamodal: getNumericValue('hargaModal') ?? 0, // Match backend field name
+            price: getNumericValue('hargaJual') ?? 0, // Match backend field name
             satuan: document.getElementById('satuan')?.value || '',
             status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
             produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
@@ -414,11 +414,23 @@ window.initTambahProdukPage = function () {
             panjang: getNumericValue('panjang'),
             lebar: getNumericValue('lebar'),
             tinggi: getNumericValue('tinggi'),
-            stokMinimal: getNumericValue('stokMinimal'),
-            catatan: document.getElementById('catatan')?.value || '',
-            // Only send new images (base64 data), not existing URLs.
-            images: uploadedImages.filter(img => img && img.startsWith('data:image'))
+            stokminimal: getNumericValue('stokMinimal'), // Match backend field name
+            catatan: document.getElementById('catatan')?.value || ''
         };
+
+        const newImages = uploadedImages.filter(img => img && img.startsWith('data:image'));
+        if (newImages.length > 0) {
+            productData.images = newImages;
+        }
+
+        // Remove null value properties for cleaner data
+        Object.keys(productData).forEach(key => {
+            if (productData[key] === null) {
+                delete productData[key];
+            }
+        });
+
+        return productData;
     };
 
     // Setup reset form button functionality
