@@ -424,9 +424,9 @@ window.initTambahProdukPage = function () {
             productData.images = newImages;
         }
 
-        // Remove null value properties for cleaner data
+        // Remove null or empty string value properties for cleaner data
         Object.keys(productData).forEach(key => {
-            if (productData[key] === null) {
+            if (productData[key] === null || productData[key] === '') {
                 delete productData[key];
             }
         });
