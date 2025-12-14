@@ -291,25 +291,7 @@ window.initTambahProdukPage = function () {
                     newSaveButton.disabled = true;
                 }
 
-                const productData = {
-                    id: isEditMode ? productId : null,
-                    namaProduk: document.getElementById('namaProduk')?.value || '',
-                    kodeProduk: document.getElementById('kodeProduk')?.value || '',
-                    deskripsi: document.getElementById('deskripsi')?.value || '',
-                    kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
-                    stok: document.getElementById('stok')?.value || '', // Added stok field
-                    hargaModal: document.getElementById('hargaModal')?.value || '',
-                    hargaJual: document.getElementById('hargaJual')?.value || '',
-                    satuan: document.getElementById('satuan')?.value || '',
-                    status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
-                    produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
-                    berat: document.getElementById('berat')?.value || '',
-                    panjang: document.getElementById('panjang')?.value || '',
-                    lebar: document.getElementById('lebar')?.value || '',
-                    tinggi: document.getElementById('tinggi')?.value || '',
-                    catatan: document.getElementById('catatan')?.value || '',
-                    images: uploadedImages.filter(img => img !== null) // Re-added images field
-                };
+                const productData = getProductData(); // Get product data using our new function
 
                 if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
                     alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
@@ -350,6 +332,80 @@ window.initTambahProdukPage = function () {
             console.error("Tombol Simpan (saveProductBtn) tidak ditemukan saat inisialisasi.");
         }
     };
+
+    // Function to return new product data
+    window.getNewProductData = function() {
+        return getProductData();
+    };
+
+    // Function to get product data from form
+    function getProductData() {
+        return {
+            id: isEditMode ? productId : null,
+            namaProduk: document.getElementById('namaProduk')?.value || '',
+            kodeProduk: document.getElementById('kodeProduk')?.value || '',
+            deskripsi: document.getElementById('deskripsi')?.value || '',
+            kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
+            stok: document.getElementById('stok')?.value || '', // Added stok field
+            hargaModal: document.getElementById('hargaModal')?.value || '',
+            hargaJual: document.getElementById('hargaJual')?.value || '',
+            satuan: document.getElementById('satuan')?.value || '',
+            status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
+            produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
+            berat: document.getElementById('berat')?.value || '',
+            panjang: document.getElementById('panjang')?.value || '',
+            lebar: document.getElementById('lebar')?.value || '',
+            tinggi: document.getElementById('tinggi')?.value || '',
+            catatan: document.getElementById('catatan')?.value || '',
+            images: uploadedImages.filter(img => img !== null) // Re-added images field
+        };
+    };
+
+    // Setup reset form button functionality
+    const resetButton = document.getElementById('resetFormBtn');
+    if (resetButton) {
+        const newResetButton = resetButton.cloneNode(true);
+        resetButton.parentNode.replaceChild(newResetButton, resetButton);
+        
+        newResetButton.addEventListener('click', function() {
+            if (form) form.reset();
+            // Clear image previews and data array
+            for (let i = 0; i < 5; i++) {
+                removeImage(i); 
+            }
+            
+            // Reset preview elements
+            document.getElementById('previewNamaProduk').textContent = '-';
+            document.getElementById('previewKodeProduk').textContent = '-';
+            document.getElementById('previewHargaModal').textContent = 'Rp 0';
+            document.getElementById('previewHargaJual').textContent = 'Rp 0';
+            document.getElementById('previewKategori').textContent = '-';
+            const previewStatus = document.getElementById('previewStatus');
+            if (previewStatus) {
+                previewStatus.textContent = 'Aktif';
+                previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
+            }
+            
+            // Reset radio buttons
+            const statusRadios = document.querySelectorAll('input[name="status"]');
+            if (statusRadios.length > 0) {
+                statusRadios[0].checked = true; // Select first radio (Aktif)
+            }
+            
+            // Reset checkbox
+            const produkUnggulanElement = document.getElementById('produkUnggulan');
+            if (produkUnggulanElement) {
+                produkUnggulanElement.checked = false;
+            }
+            
+            // Show alert to user
+            if (window.showToast) {
+                window.showToast('Form telah direset untuk produk baru', 'info');
+            } else {
+                alert('Form telah direset untuk produk baru');
+            }
+        });
+    }
 
     // --- Main Logic Flow ---
     setupLivePreview();
