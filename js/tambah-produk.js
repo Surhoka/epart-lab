@@ -337,6 +337,48 @@ window.initTambahProdukPage = function () {
     window.getNewProductData = function() {
         return getProductData();
     };
+    
+    // Function to get product data from form (alias for getNewProductData)
+    window.getProductDataFromForm = function() {
+        return getProductData();
+    };
+    
+    // Function to reset form and return new product data
+    window.resetFormAndGetNewProductData = function() {
+        const form = document.getElementById('addNewProductForm');
+        if (form) form.reset();
+        // Clear image previews and data array
+        for (let i = 0; i < 5; i++) {
+            removeImage(i); 
+        }
+        
+        // Reset preview elements
+        document.getElementById('previewNamaProduk').textContent = '-';
+        document.getElementById('previewKodeProduk').textContent = '-';
+        document.getElementById('previewHargaModal').textContent = 'Rp 0';
+        document.getElementById('previewHargaJual').textContent = 'Rp 0';
+        document.getElementById('previewKategori').textContent = '-';
+        const previewStatus = document.getElementById('previewStatus');
+        if (previewStatus) {
+            previewStatus.textContent = 'Aktif';
+            previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
+        }
+        
+        // Reset radio buttons
+        const statusRadios = document.querySelectorAll('input[name="status"]');
+        if (statusRadios.length > 0) {
+            statusRadios[0].checked = true; // Select first radio (Aktif)
+        }
+        
+        // Reset checkbox
+        const produkUnggulanElement = document.getElementById('produkUnggulan');
+        if (produkUnggulanElement) {
+            produkUnggulanElement.checked = false;
+        }
+        
+        // Return new product data (empty)
+        return getProductData();
+    };
 
     // Function to get product data from form
     function getProductData() {
