@@ -390,24 +390,34 @@ window.initTambahProdukPage = function () {
 
     // Function to get product data from form
     function getProductData() {
+        const getNumericValue = (id) => {
+            const value = document.getElementById(id)?.value;
+            // Return null if value is empty or not a valid number, otherwise return the number.
+            if (value === null || value === undefined || value.trim() === '') return null;
+            const num = Number(value);
+            return isNaN(num) ? null : num;
+        };
+
         return {
             id: isEditMode ? productId : null,
             namaProduk: document.getElementById('namaProduk')?.value || '',
             kodeProduk: document.getElementById('kodeProduk')?.value || '',
             deskripsi: document.getElementById('deskripsi')?.value || '',
             kategoriProduk: document.getElementById('kategoriProduk')?.value || '',
-            stok: document.getElementById('stok')?.value || '', // Added stok field
-            hargaModal: document.getElementById('hargaModal')?.value || '',
-            hargaJual: document.getElementById('hargaJual')?.value || '',
+            stok: getNumericValue('stok') ?? 0,
+            hargaModal: getNumericValue('hargaModal') ?? 0,
+            hargaJual: getNumericValue('hargaJual') ?? 0,
             satuan: document.getElementById('satuan')?.value || '',
             status: document.querySelector('input[name="status"]:checked')?.value || 'Aktif',
             produkUnggulan: document.getElementById('produkUnggulan')?.checked || false,
-            berat: document.getElementById('berat')?.value || '',
-            panjang: document.getElementById('panjang')?.value || '',
-            lebar: document.getElementById('lebar')?.value || '',
-            tinggi: document.getElementById('tinggi')?.value || '',
+            berat: getNumericValue('berat'),
+            panjang: getNumericValue('panjang'),
+            lebar: getNumericValue('lebar'),
+            tinggi: getNumericValue('tinggi'),
+            stokMinimal: getNumericValue('stokMinimal'),
             catatan: document.getElementById('catatan')?.value || '',
-            images: uploadedImages.filter(img => img !== null) // Re-added images field
+            // Only send new images (base64 data), not existing URLs.
+            images: uploadedImages.filter(img => img && img.startsWith('data:image'))
         };
     };
 
