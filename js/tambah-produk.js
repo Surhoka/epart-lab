@@ -306,8 +306,7 @@ window.initTambahProdukPage = function () {
                     if (window.showToast) window.showToast(response.message, response.status);
                     else alert(response.message);
 
-                    // Reset button state regardless of success/failure
-                    // Always ensure button is reset properly
+                    // Always ensure button is reset properly - SUCCESS CASE
                     try {
                         if (window.resetButtonState) {
                             window.resetButtonState(newSaveButton, originalButtonHTML);
@@ -319,7 +318,7 @@ window.initTambahProdukPage = function () {
                             }
                         }
                     } catch (e) {
-                        // Fallback: always disable and reset button
+                        // Fallback: always reset button
                         newSaveButton.disabled = false;
                         newSaveButton.innerHTML = originalButtonHTML;
                     }
@@ -337,8 +336,22 @@ window.initTambahProdukPage = function () {
                     if (window.showToast) window.showToast(`Gagal ${isEditMode ? 'mengupdate' : 'menyimpan'} produk: ` + error.message, 'error');
                     else alert(`Gagal ${isEditMode ? 'mengupdate' : 'menyimpan'} produk: ` + error.message);
                     
-                    if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
-                    else newSaveButton.disabled = false;
+                    // Always ensure button is reset properly - ERROR CASE
+                    try {
+                        if (window.resetButtonState) {
+                            window.resetButtonState(newSaveButton, originalButtonHTML);
+                        } else {
+                            newSaveButton.disabled = false;
+                            // Also reset the loading indicator if it exists
+                            if (newSaveButton.innerHTML.includes('loading')) {
+                                newSaveButton.innerHTML = originalButtonHTML;
+                            }
+                        }
+                    } catch (e) {
+                        // Fallback: always reset button
+                        newSaveButton.disabled = false;
+                        newSaveButton.innerHTML = originalButtonHTML;
+                    }
                 };
 
                 window.sendDataToGoogle(apiFunction, productData, successCallback, errorCallback);
