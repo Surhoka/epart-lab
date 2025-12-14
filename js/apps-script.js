@@ -201,16 +201,14 @@ function normalizeResponse(action, response) {
             if (response.redirectUrl) normalized.redirectUrl = response.redirectUrl;
             if (response.token) normalized.token = response.token;
         } else if (response.status) {
-            // For all other actions, if response has a status field, use the entire response
-            // but ensure we preserve the expected structure
+            // For all other actions, if response has a status field, we should accept it as valid
+            // Only override the message if there's a specific error message
             normalized = { 
-                ...normalized, 
-                ...response,
-                // Ensure we have proper defaults for missing fields
-                message: response.message || normalized.message,
-                data: response.data || normalized.data,
-                pagination: response.pagination || normalized.pagination,
-                version: response.version || normalized.version
+                status: response.status,
+                message: response.message || 'Success',
+                data: response.data || [],
+                pagination: response.pagination || {},
+                version: response.version || 'unknown'
             };
         } else {
             // This case should not happen with proper server responses, but for safety
