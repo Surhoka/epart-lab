@@ -252,20 +252,24 @@ window.initTambahProdukPage = function () {
             produkUnggulanElement.checked = product.produkUnggulan;
         }
 
-        // Populate image
-        if (product.produkUrl) {
-            uploadedImages[0] = product.produkUrl;
-            const imageSlot = document.getElementById(`imageSlot0`);
-            const imagePreview = document.getElementById(`imagePreview0`);
-            const removeBtn = document.getElementById(`removeBtn0`);
+        // Populate images
+        if (product.imageUrls && product.imageUrls.length > 0) {
+            product.imageUrls.forEach((url, index) => {
+                if (index < 5) { // Assuming max 5 images
+                    uploadedImages[index] = url;
+                    const imageSlot = document.getElementById(`imageSlot${index}`);
+                    const imagePreview = document.getElementById(`imagePreview${index}`);
+                    const removeBtn = document.getElementById(`removeBtn${index}`);
 
-            if (imageSlot && imagePreview && removeBtn) {
-                imageSlot.classList.add('hidden');
-                imagePreview.src = product.produkUrl;
-                imagePreview.classList.remove('hidden');
-                removeBtn.classList.remove('hidden');
-                removeBtn.classList.add('flex');
-            }
+                    if (imageSlot && imagePreview && removeBtn) {
+                        imageSlot.classList.add('hidden');
+                        imagePreview.src = url;
+                        imagePreview.classList.remove('hidden');
+                        removeBtn.classList.remove('hidden');
+                        removeBtn.classList.add('flex');
+                    }
+                }
+            });
         }
         
         updateSidebarPreview();
@@ -511,4 +515,3 @@ window.initTambahProdukPage = function () {
         updateSidebarPreview();
     }
 };
-
