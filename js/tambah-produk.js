@@ -306,8 +306,12 @@ window.initTambahProdukPage = function () {
                     if (window.showToast) window.showToast(response.message, response.status);
                     else alert(response.message);
 
-                    if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
-                    else newSaveButton.disabled = false;
+                    // Reset button state regardless of success/failure
+                    if (window.resetButtonState) {
+                        window.resetButtonState(newSaveButton, originalButtonHTML);
+                    } else {
+                        newSaveButton.disabled = false;
+                    }
                     
                     if (response.status === 'success') {
                         // Store the product data that was just saved for later access
