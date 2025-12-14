@@ -317,12 +317,6 @@ window.initTambahProdukPage = function () {
                         // Store the product data that was just saved for later access
                         window.lastSavedProductData = getProductData();
                         
-                        if (!isEditMode && form) form.reset();
-                        // Clear image previews and data array
-                        for (let i = 0; i < 5; i++) {
-                            removeImage(i); 
-                        }
-                        
                         // Optional: Display a message that product was saved successfully
                         // This ensures that we still have access to the saved data if needed
                     }
