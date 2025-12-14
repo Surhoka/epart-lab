@@ -205,7 +205,7 @@ window.initTambahProdukPage = function () {
         }
         const hargaModalElement = document.getElementById('hargaModal');
         if (hargaModalElement) {
-            hargaModalElement.value = product.hargamodal || '';
+            hargaModalElement.value = product.hargaModal || '';
         }
         const beratElement = document.getElementById('berat');
         if (beratElement) {
@@ -511,3 +511,4 @@ window.initTambahProdukPage = function () {
         updateSidebarPreview();
     }
 };
+
