@@ -301,6 +301,7 @@ window.initTambahProdukPage = function () {
                 }
 
                 const productData = getProductData(); // Get product data using our new function
+                console.log('Data to be sent:', JSON.stringify(productData, null, 2));
 
                 if (!productData.namaProduk || !productData.kodeProduk || !('price' in productData)) {
                     alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
