@@ -227,10 +227,6 @@ window.initTambahProdukPage = function () {
         if (hargaJualElement) {
             hargaJualElement.value = product.price || '';
         }
-        const stokMinimalElement = document.getElementById('stokMinimal');
-        if (stokMinimalElement) {
-            stokMinimalElement.value = product.stokminimal || '';
-        }
         const satuanElement = document.getElementById('satuan');
         if (satuanElement) {
             satuanElement.value = product.satuan || '';
@@ -419,7 +415,6 @@ window.initTambahProdukPage = function () {
             panjang: getNumericValue('panjang'),
             lebar: getNumericValue('lebar'),
             tinggi: getNumericValue('tinggi'),
-            stokMinimal: getNumericValue('stokMinimal'), // Match updateProduk expectation
             catatan: document.getElementById('catatan')?.value || ''
         };
 
@@ -511,4 +506,5 @@ window.initTambahProdukPage = function () {
         updateSidebarPreview();
     }
 };
+
 
