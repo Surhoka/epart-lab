@@ -423,10 +423,9 @@ window.initTambahProdukPage = function () {
             catatan: document.getElementById('catatan')?.value || ''
         };
 
-        const newImages = uploadedImages.filter(img => img && img.startsWith('data:image'));
-        if (newImages.length > 0) {
-            productData.images = newImages;
-        }
+        // Send the entire state of images for the server to handle.
+        // The list can contain URLs for existing images, base64 for new ones, and null for empty slots.
+        productData.imageList = uploadedImages;
 
         // Remove null or empty string value properties for cleaner data
         Object.keys(productData).forEach(key => {
