@@ -111,8 +111,9 @@ window.initTambahProdukPage = function () {
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
             if (input && preview) {
-                input.replaceWith(input.cloneNode(true));
-                document.getElementById(inputId).addEventListener('input', function () {
+                const newInput = input.cloneNode(true);
+                input.replaceWith(newInput);
+                newInput.addEventListener('input', function () {
                     const value = this.value || '-';
                     preview.textContent = prefix + (value === '-' ? value : this.value) + suffix;
                 });
@@ -133,15 +134,17 @@ window.initTambahProdukPage = function () {
         const previewHargaJual = document.getElementById('previewHargaJual');
 
         if (hargaModalInput && previewHargaModal) {
-            hargaModalInput.replaceWith(hargaModalInput.cloneNode(true));
-            document.getElementById('hargaModal').addEventListener('input', function () {
+            const newHargaModalInput = hargaModalInput.cloneNode(true);
+            hargaModalInput.replaceWith(newHargaModalInput);
+            newHargaModalInput.addEventListener('input', function () {
                 previewHargaModal.textContent = 'Rp ' + formatCurrency(this.value);
             });
         }
 
         if (hargaJualInput && previewHargaJual) {
-            hargaJualInput.replaceWith(hargaJualInput.cloneNode(true));
-            document.getElementById('hargaJual').addEventListener('input', function () {
+            const newHargaJualInput = hargaJualInput.cloneNode(true);
+            hargaJualInput.replaceWith(newHargaJualInput);
+            newHargaJualInput.addEventListener('input', function () {
                 previewHargaJual.textContent = 'Rp ' + formatCurrency(this.value);
             });
         }
@@ -149,8 +152,9 @@ window.initTambahProdukPage = function () {
         const kategoriSelect = document.getElementById('kategoriProduk');
         const previewKategori = document.getElementById('previewKategori');
         if (kategoriSelect && previewKategori) {
-            kategoriSelect.replaceWith(kategoriSelect.cloneNode(true));
-            document.getElementById('kategoriProduk').addEventListener('change', function () {
+            const newKategoriSelect = kategoriSelect.cloneNode(true);
+            kategoriSelect.replaceWith(newKategoriSelect);
+            newKategoriSelect.addEventListener('change', function () {
                 previewKategori.textContent = this.value || '-';
             });
         }
@@ -159,10 +163,9 @@ window.initTambahProdukPage = function () {
         const previewStatus = document.getElementById('previewStatus');
         if (statusRadios.length > 0 && previewStatus) {
             statusRadios.forEach(radio => {
-                radio.replaceWith(radio.cloneNode(true));
-            });
-            document.querySelectorAll('input[name="status"]').forEach(radio => {
-                radio.addEventListener('change', function () {
+                const newRadio = radio.cloneNode(true);
+                radio.replaceWith(newRadio);
+                newRadio.addEventListener('change', function () {
                     if (this.checked && this.value === 'Aktif') {
                         previewStatus.textContent = 'Aktif';
                         previewStatus.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400';
@@ -171,7 +174,7 @@ window.initTambahProdukPage = function () {
                         previewStatus.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400';
                     }
                 });
-            })
+            });
         }
     };
 
@@ -179,7 +182,7 @@ window.initTambahProdukPage = function () {
         if (!product) return;
         
         // Populate text and select fields
-        document.getElementById('namaProduk').value = product.name || '';
+        document.getElementById('namaProduk').value = product.namaProduk || '';
         document.getElementById('kodeProduk').value = product.kodeProduk || '';
         document.getElementById('deskripsi').value = product.deskripsi || '';
         document.getElementById('kategoriProduk').value = product.kategori || '';
