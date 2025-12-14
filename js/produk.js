@@ -260,7 +260,7 @@ function renderProdukTable() {
                     <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.stock !== undefined ? produk.stock : '-'}</p>
                 </td>
                 <td class="py-3">
-                    <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.price || '-'}</p>
+                    <p class="text-gray-500 text-theme-sm dark:text-gray-400">${produk.hargajual || '-'}</p>
                 </td>
                 <td class="py-3">
                     <p class="inline-flex rounded-full px-2 py-0.5 text-theme-xs font-medium ${getBadgeClass(produk.status)}">
