@@ -205,27 +205,22 @@ window.initTambahProdukPage = function () {
         }
         const hargaModalElement = document.getElementById('hargaModal');
         if (hargaModalElement) {
-            console.log('Populating hargaModal:', product.hargamodal);
             hargaModalElement.value = product.hargamodal || '';
         }
         const beratElement = document.getElementById('berat');
         if (beratElement) {
-            console.log('Populating berat:', product.berat);
             beratElement.value = product.berat || '';
         }
         const panjangElement = document.getElementById('panjang');
         if (panjangElement) {
-            console.log('Populating panjang:', product.panjang);
             panjangElement.value = product.panjang || '';
         }
         const lebarElement = document.getElementById('lebar');
         if (lebarElement) {
-            console.log('Populating lebar:', product.lebar);
             lebarElement.value = product.lebar || '';
         }
         const tinggiElement = document.getElementById('tinggi');
         if (tinggiElement) {
-            console.log('Populating tinggi:', product.tinggi);
             tinggiElement.value = product.tinggi || '';
         }
         const hargaJualElement = document.getElementById('hargaJual');
