@@ -285,6 +285,15 @@ window.initTambahProdukPage = function () {
             newSaveButton.addEventListener('click', function () {
                 const originalButtonHTML = newSaveButton.innerHTML;
 
+                const resetSaveButtonState = () => {
+                    if (window.resetButtonState) {
+                        window.resetButtonState(newSaveButton, originalButtonHTML);
+                    } else {
+                        newSaveButton.disabled = false;
+                        newSaveButton.innerHTML = originalButtonHTML;
+                    }
+                };
+
                 if (window.setButtonLoading) {
                     window.setButtonLoading(newSaveButton, 'Menyimpan...');
                 } else {
@@ -295,63 +304,27 @@ window.initTambahProdukPage = function () {
 
                 if (!productData.namaProduk || !productData.kodeProduk || !productData.hargaJual) {
                     alert('Nama Produk, Kode Produk, dan Harga Jual wajib diisi.');
-                    if (window.resetButtonState) window.resetButtonState(newSaveButton, originalButtonHTML);
-                    else newSaveButton.disabled = false;
+                    resetSaveButtonState();
                     return;
                 }
 
                 const apiFunction = isEditMode ? 'updateProduk' : 'simpanProdukBaru';
                 
                 const successCallback = response => {
+                    resetSaveButtonState();
                     if (window.showToast) window.showToast(response.message, response.status);
                     else alert(response.message);
-
-                    // Always ensure button is reset properly - SUCCESS CASE
-                    try {
-                        if (window.resetButtonState) {
-                            window.resetButtonState(newSaveButton, originalButtonHTML);
-                        } else {
-                            newSaveButton.disabled = false;
-                            // Also reset the loading indicator if it exists
-                            if (newSaveButton.innerHTML.includes('loading')) {
-                                newSaveButton.innerHTML = originalButtonHTML;
-                            }
-                        }
-                    } catch (e) {
-                        // Fallback: always reset button
-                        newSaveButton.disabled = false;
-                        newSaveButton.innerHTML = originalButtonHTML;
-                    }
                     
                     if (response.status === 'success') {
                         // Store the product data that was just saved for later access
                         window.lastSavedProductData = getProductData();
-                        
-                        // Optional: Display a message that product was saved successfully
-                        // This ensures that we still have access to the saved data if needed
                     }
                 };
 
                 const errorCallback = error => {
+                    resetSaveButtonState();
                     if (window.showToast) window.showToast(`Gagal ${isEditMode ? 'mengupdate' : 'menyimpan'} produk: ` + error.message, 'error');
                     else alert(`Gagal ${isEditMode ? 'mengupdate' : 'menyimpan'} produk: ` + error.message);
-                    
-                    // Always ensure button is reset properly - ERROR CASE
-                    try {
-                        if (window.resetButtonState) {
-                            window.resetButtonState(newSaveButton, originalButtonHTML);
-                        } else {
-                            newSaveButton.disabled = false;
-                            // Also reset the loading indicator if it exists
-                            if (newSaveButton.innerHTML.includes('loading')) {
-                                newSaveButton.innerHTML = originalButtonHTML;
-                            }
-                        }
-                    } catch (e) {
-                        // Fallback: always reset button
-                        newSaveButton.disabled = false;
-                        newSaveButton.innerHTML = originalButtonHTML;
-                    }
                 };
 
                 window.sendDataToGoogle(apiFunction, productData, successCallback, errorCallback);
