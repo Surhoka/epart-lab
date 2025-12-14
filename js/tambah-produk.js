@@ -307,10 +307,21 @@ window.initTambahProdukPage = function () {
                     else alert(response.message);
 
                     // Reset button state regardless of success/failure
-                    if (window.resetButtonState) {
-                        window.resetButtonState(newSaveButton, originalButtonHTML);
-                    } else {
+                    // Always ensure button is reset properly
+                    try {
+                        if (window.resetButtonState) {
+                            window.resetButtonState(newSaveButton, originalButtonHTML);
+                        } else {
+                            newSaveButton.disabled = false;
+                            // Also reset the loading indicator if it exists
+                            if (newSaveButton.innerHTML.includes('loading')) {
+                                newSaveButton.innerHTML = originalButtonHTML;
+                            }
+                        }
+                    } catch (e) {
+                        // Fallback: always disable and reset button
                         newSaveButton.disabled = false;
+                        newSaveButton.innerHTML = originalButtonHTML;
                     }
                     
                     if (response.status === 'success') {
