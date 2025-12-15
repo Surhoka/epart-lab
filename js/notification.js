@@ -6,7 +6,7 @@ window.initNotification = function () {
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
         window.renderBreadcrumb('Notification');
-    }
+    
 async function initNotificationsPage() {
   const app = window.app; // akses state global dari appData
   app.isLoading = true;
@@ -41,4 +41,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
 
