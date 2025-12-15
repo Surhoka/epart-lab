@@ -6,7 +6,7 @@ window.initNotification = function () {
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
         window.renderBreadcrumb('Notification');
-    
+    }
 async function initNotificationsPage() {
   const app = window.app; // akses state global dari appData
   app.isLoading = true;
@@ -34,12 +34,6 @@ async function initNotificationsPage() {
   }
 }
 
-// Pastikan initNotificationsPage dipanggil saat halaman notifikasi dimuat
-document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.hash.includes("notifications")) {
-    initNotificationsPage();
-  }
 
-});
 
 
