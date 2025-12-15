@@ -1,0 +1,39 @@
+<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+  <!-- Breadcrumb Start -->
+  <div id="breadcrumb-container"></div>
+  <!-- Breadcrumb End -->
+
+  <!-- Card Container -->
+  <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="p-6">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white/90 mb-4">
+        Semua Notifikasi
+      </h2>
+
+      <!-- Loading State -->
+      <div x-show="isLoading" class="text-gray-500">Memuat notifikasi...</div>
+
+      <!-- Error State -->
+      <div x-show="notificationError" class="text-error-500" x-text="notificationError"></div>
+
+      <!-- Notification List -->
+      <div class="grid gap-4">
+        <template x-for="notif in notifications" :key="notif.message">
+          <div
+            class="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-700 dark:bg-gray-900">
+            <div class="flex items-center justify-between">
+              <span
+                class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                x-text="notif.type">
+              </span>
+              <span class="text-xs text-gray-400 dark:text-gray-500">
+                <!-- opsional: tambahkan timestamp -->
+              </span>
+            </div>
+            <p class="mt-2 text-gray-800 dark:text-white/90 text-sm" x-text="notif.message"></p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>
