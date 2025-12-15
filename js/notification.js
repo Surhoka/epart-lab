@@ -2,7 +2,7 @@
 // Notification page initialization
 window.initNotification = function () {
     console.log("Notification Page Initialized");
-
+    }
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
         window.renderBreadcrumb('Notification');
@@ -33,6 +33,7 @@ async function initNotificationsPage() {
     app.isLoading = false;
   }
 }
+
 
 
 
