@@ -206,9 +206,9 @@
                             "page": "reports-traffic"
                         },
                         {
-                            "label": "Notifikasi",
-                            "link": "#notifikasi",
-                            "page": "notifikasi"
+                            "label": "Notification",
+                            "link": "#notification",
+                            "page": "notification"
                         }
                     ]
                 },
@@ -248,6 +248,7 @@
         }
     ]
 }
+
 
 
 
