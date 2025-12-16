@@ -19,27 +19,32 @@ function loadScript(url) {
 
 
 window.initNotification = function () {
-    console.log("Notification Page Initialized");
-    initNotificationsPage();
-    }
-    if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Notification');
-    }
+  console.log("Notification Page Initialized");
+  initNotificationsPage();
+}
+if (typeof window.renderBreadcrumb === 'function') {
+  window.renderBreadcrumb('Notification');
+}
 
 window.initNotificationPage = initNotificationsPage;
 
 async function initNotificationsPage() {
   try {
+    // Initialize Breadcrumb
+    if (typeof window.renderBreadcrumb === 'function') {
+      window.renderBreadcrumb('Notification');
+    }
+
     // Load marked.js library
     await loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
 
     const user = JSON.parse(localStorage.getItem('signedInUser'));
     const userEmail = user ? user.email : null;
-    
+
     // Check if we have cached notifications for today
     const today = new Date().toISOString().split('T')[0];
     const cachedData = JSON.parse(localStorage.getItem('notificationsCache') || '{}');
-    
+
     // If we have cached data for today, use it immediately
     if (cachedData.date === today && Array.isArray(cachedData.notifications)) {
       const processedNotifications = cachedData.notifications.map(notif => {
@@ -74,7 +79,7 @@ async function initNotificationsPage() {
         // Dispatch an event with the notifications
         console.log('Dispatching notifications-loaded event', processedNotifications);
         window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: processedNotifications }));
-        
+
         // Cache the fresh data with today's date
         const cacheData = {
           date: today,
