@@ -193,7 +193,7 @@ function normalizeResponse(action, response) {
     };
 
     if (response) {
-        if (action === 'getApiStatusNotifications' || action === 'getExistingNotifications') {
+        if (action === 'getExistingNotifications') {
             normalized.status = response.status || 'success';
             normalized.message = response.message || 'Notifications fetched';
             normalized.data = response.notifications || [];
