@@ -31,7 +31,10 @@ async function initNotificationsPage() {
     // Load marked.js library
     await loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
 
-    sendDataToGoogle('getApiStatusNotifications', {}, (data) => {
+    const user = JSON.parse(localStorage.getItem('signedInUser'));
+    const userEmail = user ? user.email : null;
+
+    sendDataToGoogle('getApiStatusNotifications', { email: userEmail }, (data) => {
       // data is the normalized response. Notifications are in data.data
       if (data.status === "success" && Array.isArray(data.data)) {
         const processedNotifications = data.data.map(notif => {
