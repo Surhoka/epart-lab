@@ -39,7 +39,7 @@ async function initNotificationsPage() {
     sendDataToGoogle('getApiStatusNotifications', {}, (data) => {
       // data is the normalized response. Notifications are in data.data
       if (data.status === "success" && Array.isArray(data.data)) {
-        app.notifications = data.data.map(notif => {
+        const processedNotifications = data.data.map(notif => {
           if (notif.message && typeof window.marked === 'function') {
             // Ensure message is a string before parsing
             if (typeof notif.message !== 'string') {
@@ -49,6 +49,8 @@ async function initNotificationsPage() {
           }
           return notif;
         });
+        // Dispatch an event with the notifications
+        window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: processedNotifications }));
       } else {
         app.notificationError = data.message || "Tidak ada notifikasi tersedia.";
       }
