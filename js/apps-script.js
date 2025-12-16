@@ -327,5 +327,7 @@ function loadInitialNotifications() {
   });
 }
 
-// Panggil fungsi untuk memuat notifikasi saat skrip ini dijalankan
-loadInitialNotifications();
+// Panggil fungsi untuk memuat notifikasi setelah DOM selesai dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  loadInitialNotifications();
+});
