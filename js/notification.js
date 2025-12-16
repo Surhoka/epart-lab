@@ -36,33 +36,33 @@ async function initNotificationsPage() {
     // Load marked.js library
     await loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
 
-    const response = await fetch(window.appsScriptUrl + "?action=getApiStatusNotifications");
-    const data = await response.json();
+    sendDataToGoogle('getApiStatusNotifications', {}, (data) => {
+      // data is the normalized response. Notifications are in data.data
+      if (data.status === "success" && Array.isArray(data.data)) {
+        app.notifications = data.data.map(notif => {
+          if (notif.message && typeof window.marked === 'function') {
+            // Ensure message is a string before parsing
+            if (typeof notif.message !== 'string') {
+              notif.message = String(notif.message);
+            }
+            notif.message = window.marked.parse(notif.message);
+          }
+          return notif;
+        });
+      } else {
+        app.notificationError = data.message || "Tidak ada notifikasi tersedia.";
+      }
+      app.isLoading = false; // Set loading to false inside the callback
+    }, (error) => {
+      console.error("Error fetching notifications:", error);
+      app.notificationError = "Gagal memuat notifikasi.";
+      app.isLoading = false; // Also here
+    });
 
-    // Validasi response
-    if (data.status === "success" && Array.isArray(data.notifications)) {
-      // Convert message from markdown to HTML
-      app.notifications = data.notifications.map(notif => {
-        if (notif.message && typeof window.marked === 'function') {
-          notif.message = window.marked.parse(notif.message);
-        }
-        return notif;
-      });
-    } else if (Array.isArray(data)) {
-      // fallback jika API langsung return array
-      app.notifications = data.map(notif => {
-        if (notif.message && typeof window.marked === 'function') {
-          notif.message = window.marked.parse(notif.message);
-        }
-        return notif;
-      });
-    } else {
-      app.notificationError = data.message || "Tidak ada notifikasi tersedia.";
-    }
   } catch (error) {
-    console.error("Error fetching notifications:", error);
-    app.notificationError = "Gagal memuat notifikasi.";
-  } finally {
+    // This will only catch errors from loadScript
+    console.error("Error loading dependencies:", error);
+    app.notificationError = "Gagal memuat komponen notifikasi.";
     app.isLoading = false;
   }
 }
