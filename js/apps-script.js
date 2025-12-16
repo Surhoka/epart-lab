@@ -314,11 +314,30 @@ window.handleAuthUI = function() {
  * Memuat notifikasi awal yang ada dari server saat halaman dimuat.
  */
 function loadInitialNotifications() {
+  // Check if we have cached notifications for today
+  const today = new Date().toISOString().split('T')[0];
+  const cachedData = JSON.parse(localStorage.getItem('notificationsCache') || '{}');
+  
+  // If we have cached data for today, dispatch it immediately
+  if (cachedData.date === today && Array.isArray(cachedData.notifications)) {
+    // Dispatch an event with the cached notifications
+    console.log('Dispatching cached notifications-loaded event from initial load', cachedData.notifications);
+    window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: cachedData.notifications }));
+  }
+
+  // Always fetch fresh data from server to update cache
   sendDataToGoogle('getExistingNotifications', {}, (data) => {
     if (data.status === "success" && Array.isArray(data.data)) {
       // Dispatch an event with the notifications
       console.log('Dispatching notifications-loaded event from initial load', data.data);
       window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: data.data }));
+      
+      // Cache the fresh data with today's date
+      const cacheData = {
+        date: today,
+        notifications: data.data
+      };
+      localStorage.setItem('notificationsCache', JSON.stringify(cacheData));
     } else {
       console.warn('Could not load initial notifications:', data.message);
     }
