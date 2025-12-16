@@ -22,10 +22,12 @@ window.initNotification = function () {
     console.log("Notification Page Initialized");
     initNotificationsPage();
     }
-    // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
         window.renderBreadcrumb('Notification');
     }
+
+window.initNotificationPage = initNotificationsPage;
+
 async function initNotificationsPage() {
   try {
     // Load marked.js library
