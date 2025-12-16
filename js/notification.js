@@ -27,11 +27,6 @@ window.initNotification = function () {
         window.renderBreadcrumb('Notification');
     }
 async function initNotificationsPage() {
-  const app = window.app; // akses state global dari appData
-  app.isLoading = true;
-  app.notifications = [];
-  app.notificationError = '';
-
   try {
     // Load marked.js library
     await loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
@@ -52,19 +47,16 @@ async function initNotificationsPage() {
         // Dispatch an event with the notifications
         window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: processedNotifications }));
       } else {
-        app.notificationError = data.message || "Tidak ada notifikasi tersedia.";
+        window.dispatchEvent(new CustomEvent('notifications-error', { detail: data.message || "Tidak ada notifikasi tersedia." }));
       }
-      app.isLoading = false; // Set loading to false inside the callback
     }, (error) => {
       console.error("Error fetching notifications:", error);
-      app.notificationError = "Gagal memuat notifikasi.";
-      app.isLoading = false; // Also here
+      window.dispatchEvent(new CustomEvent('notifications-error', { detail: "Gagal memuat notifikasi." }));
     });
 
   } catch (error) {
     // This will only catch errors from loadScript
     console.error("Error loading dependencies:", error);
-    app.notificationError = "Gagal memuat komponen notifikasi.";
-    app.isLoading = false;
+    window.dispatchEvent(new CustomEvent('notifications-error', { detail: "Gagal memuat komponen notifikasi." }));
   }
 }
