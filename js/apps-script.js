@@ -193,7 +193,7 @@ function normalizeResponse(action, response) {
     };
 
     if (response) {
-        if (action === 'getApiStatusNotifications') {
+        if (action === 'getApiStatusNotifications' || action === 'getExistingNotifications') {
             normalized.status = response.status || 'success';
             normalized.message = response.message || 'Notifications fetched';
             normalized.data = response.notifications || [];
@@ -309,3 +309,23 @@ window.handleAuthUI = function() {
         if (signInButton) signInButton.classList.remove('hidden'); // Show signIn button if signed out
     }
 };
+
+/**
+ * Memuat notifikasi awal yang ada dari server saat halaman dimuat.
+ */
+function loadInitialNotifications() {
+  sendDataToGoogle('getExistingNotifications', {}, (data) => {
+    if (data.status === "success" && Array.isArray(data.data)) {
+      // Dispatch an event with the notifications
+      console.log('Dispatching notifications-loaded event from initial load', data.data);
+      window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: data.data }));
+    } else {
+      console.warn('Could not load initial notifications:', data.message);
+    }
+  }, (error) => {
+    console.error("Error fetching initial notifications:", error);
+  });
+}
+
+// Panggil fungsi untuk memuat notifikasi saat skrip ini dijalankan
+loadInitialNotifications();
