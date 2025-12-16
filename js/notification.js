@@ -20,6 +20,7 @@ function loadScript(url) {
 
 window.initNotification = function () {
     console.log("Notification Page Initialized");
+    initNotificationsPage();
     }
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
