@@ -45,6 +45,7 @@ async function initNotificationsPage() {
           return notif;
         });
         // Dispatch an event with the notifications
+        console.log('Dispatching notifications-loaded event', processedNotifications);
         window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: processedNotifications }));
       } else {
         window.dispatchEvent(new CustomEvent('notifications-error', { detail: data.message || "Tidak ada notifikasi tersedia." }));
