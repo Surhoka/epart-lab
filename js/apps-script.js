@@ -193,7 +193,11 @@ function normalizeResponse(action, response) {
     };
 
     if (response) {
-        if (action === 'SignInUser' || action === 'registerUser') {
+        if (action === 'getApiStatusNotifications') {
+            normalized.status = response.status || 'success';
+            normalized.message = response.message || 'Notifications fetched';
+            normalized.data = response.notifications || [];
+        } else if (action === 'SignInUser' || action === 'registerUser') {
             normalized.status = response.status || 'error';
             normalized.message = response.message || '';
             normalized.data = response.user || null;
