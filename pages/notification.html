@@ -3,32 +3,25 @@
     notifications: [], 
     isLoading: true, 
     notificationError: '',
-    settings: {
-        channel: 'email',
-        frequency: 'daily',
-        time: '07:00',
-        threshold: 5
-    },
     rules: [],
-    // Modal State
-    isRuleModalOpen: false,
+    // Editor State
     editingRuleId: null,
     ruleForm: {
         prompt: '',
         channel: 'email',
         frequency: 'daily',
-        time: '07:00',
+        time: new Date().toTimeString().slice(0, 5), // Set default to current time
         threshold: 5
     },
+    // Helper Data
+    timeOptions: ['07:00', '08:00', '09:00', '12:00', '17:00'],
     
     isSavingSettings: false,
 
     init() {
-        if (window.fetchNotificationSettings) {
-             window.fetchNotificationSettings((data) => {
-                if(data) this.settings = { ...this.settings, ...data };
-            });
-        }
+        // We focus on Rules now, but keeping fetch settings if needed for legacy or defaults
+        // If we strictly move to per-rule, we might not need global settings fetch here.
+        // For now, let's fetch rules.
         if (window.fetchAiRules) {
             this.fetchRulesList();
         }
@@ -40,27 +33,23 @@
         });
     },
 
-    saveMySettings() {
-        this.isSavingSettings = true;
-        window.saveNotificationSettings(this.settings, () => {
-            this.isSavingSettings = false;
-            alert('Preferensi tersimpan.');
-        });
-    },
-
-    openAddRuleModal() {
+    openAddRule() {
         this.editingRuleId = null;
+        // Default values for new rule
+        const now = new Date();
+        const currentTime = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+        
         this.ruleForm = {
             prompt: '',
             channel: 'email',
             frequency: 'daily',
-            time: '07:00',
+            time: currentTime,
             threshold: 5
         };
-        this.isRuleModalOpen = true;
+        this.activeTab = 'setting';
     },
 
-    openEditRuleModal(rule) {
+    openEditRule(rule) {
         this.editingRuleId = rule.id;
         this.ruleForm = {
             prompt: rule.prompt,
@@ -69,44 +58,58 @@
             time: rule.time || '07:00',
             threshold: rule.threshold || 5
         };
-        this.isRuleModalOpen = true;
+        this.activeTab = 'setting';
+    },
+
+    cancelEdit() {
+        this.activeTab = 'rules';
+        this.editingRuleId = null;
     },
 
     saveRule() {
-        if(!this.ruleForm.prompt.trim()) return;
+        if (!this.ruleForm.prompt.trim()) {
+            alert('Prompt is required');
+            return;
+        }
+
+        this.isSavingSettings = true;
         
+        const onComplete = () => {
+            this.isSavingSettings = false;
+            this.fetchRulesList();
+            this.activeTab = 'rules';
+            this.editingRuleId = null;
+        };
+
         if (this.editingRuleId) {
             // Update
-            window.updateAiRule(this.editingRuleId, this.ruleForm, () => {
-                 this.fetchRulesList(); // Refresh list to get updated values
-                 this.isRuleModalOpen = false;
-            });
+            window.updateAiRule(this.editingRuleId, this.ruleForm, onComplete);
         } else {
             // Add
             window.addAiRule(this.ruleForm, (rule) => {
                 this.rules.push(rule);
-                this.isRuleModalOpen = false;
+                onComplete();
             });
         }
     },
 
-    toggleRule(rule) {
-        // Alpine x-model checkbox updates the value first, so rule.isActive is already the new value
-        window.updateAiRuleStatus(rule.id, rule.isActive, () => {
-             console.log('Rule updated');
-        });
-    },
 
-    removeRule(id) {
-        if(confirm('Hapus aturan ini?')) {
-            window.deleteAiRule(id, () => {
-                this.rules = this.rules.filter(r => r.id !== id);
-            });
-        }
-    }
-}"
-  @notifications-loaded.window="console.log('Event notifications-loaded heard', $event.detail); notifications = $event.detail; isLoading = false"
-  @notifications-error.window="notificationError = $event.detail; isLoading = false"
+  toggleRule(rule) {
+  // Alpine x-model checkbox updates the value first, so rule.isActive is already the new value
+  window.updateAiRuleStatus(rule.id, rule.isActive, () => {
+  console.log('Rule updated');
+  });
+  },
+
+  removeRule(id) {
+  if(confirm('Hapus aturan ini?')) {
+  window.deleteAiRule(id, () => {
+  this.rules = this.rules.filter(r => r.id !== id);
+  });
+  }
+  }
+  }" @notifications-loaded.window="console.log('Event notifications-loaded heard', $event.detail); notifications =
+  $event.detail; isLoading = false" @notifications-error.window="notificationError = $event.detail; isLoading = false"
   class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-init="init()">
 
   <style>
@@ -132,20 +135,21 @@
         All Notification
       </button>
 
-      <button @click="activeTab = 'setting'"
-        :class="activeTab === 'setting' 
-                  ? 'border-brand-500 text-brand-600 dark:text-brand-400' 
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
-        class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
-        Setting
-      </button>
-
       <button @click="activeTab = 'rules'"
         :class="activeTab === 'rules' 
                   ? 'border-brand-500 text-brand-600 dark:text-brand-400' 
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
         class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
         AI Rules
+      </button>
+
+      <!-- Setting Tab is now effectively the Editor, showing it only when active or as a generic 'Editor' -->
+      <button @click="activeTab = 'setting'" x-show="activeTab === 'setting'"
+        :class="activeTab === 'setting' 
+                  ? 'border-brand-500 text-brand-600 dark:text-brand-400' 
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+        class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+        <span x-text="editingRuleId ? 'Edit Rule' : 'New Rule'"></span>
       </button>
     </nav>
   </div>
@@ -182,16 +186,33 @@
         </div>
       </div>
 
-      <!-- Tab: Setting -->
+      <!-- Tab: Setting (Now Rule Editor) -->
       <div x-show="activeTab === 'setting'" style="display: none;">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white/90 mb-4">
-          Preferensi Notifikasi
-        </h2>
-        <form @submit.prevent="saveMySettings" class="space-y-4 max-w-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white/90"
+            x-text="editingRuleId ? 'Edit Aturan & Preferensi' : 'Buat Aturan Baru'"></h2>
+          <button @click="cancelEdit"
+            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            &larr; Kembali ke Daftar
+          </button>
+        </div>
+
+        <form @submit.prevent="saveRule" class="space-y-4 max-w-lg">
+
+          <!-- Prompt -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prompt / Instruksi AI</label>
+            <textarea x-model="ruleForm.prompt" rows="3"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+              placeholder="Contoh: Berikan ide tentang fitur loyalitas..."></textarea>
+            <p class="text-xs text-gray-500 mt-1">Instruksi ini akan digunakan oleh AI untuk men-generate ide harian.
+            </p>
+          </div>
+
           <!-- Channel -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Channel Notifikasi</label>
-            <select x-model="settings.channel"
+            <select x-model="ruleForm.channel"
               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
               <option value="email">Email</option>
               <option value="sms">SMS</option>
@@ -202,7 +223,7 @@
           <!-- Frequency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frekuensi</label>
-            <select x-model="settings.frequency"
+            <select x-model="ruleForm.frequency"
               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
               <option value="daily">Harian</option>
               <option value="weekly">Mingguan</option>
@@ -213,15 +234,15 @@
           <!-- Time -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Waktu Notifikasi</label>
-            <input type="time" x-model="settings.time" onclick="this.showPicker()"
+            <input type="time" x-model="ruleForm.time" onclick="this.showPicker()"
               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
 
             <!-- Quick Time Selection Buttons -->
             <div class="mt-2 flex flex-wrap gap-2">
-              <template x-for="t in ['07:00', '08:00', '09:00', '12:00', '17:00']">
-                <button type="button" @click="settings.time = t"
+              <template x-for="t in timeOptions">
+                <button type="button" @click="ruleForm.time = t"
                   class="px-3 py-1 text-xs rounded-full border transition-colors duration-200"
-                  :class="settings.time === t 
+                  :class="ruleForm.time === t 
                                 ? 'bg-brand-50 text-brand-700 border-brand-200 dark:bg-brand-500/10 dark:text-brand-300 dark:border-brand-500/20' 
                                 : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700'">
                   <span x-text="t"></span>
@@ -234,16 +255,20 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Threshold (Batas
               Minimum)</label>
-            <input type="number" x-model="settings.threshold"
+            <input type="number" x-model="ruleForm.threshold"
               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
               min="0">
           </div>
 
-          <div class="pt-2">
+          <div class="pt-4 flex gap-3">
+            <button type="button" @click="cancelEdit"
+              class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+              Batal
+            </button>
             <button type="submit"
               class="rounded-lg bg-brand-500 px-6 py-2 text-white hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/25 disabled:opacity-50"
               :disabled="isSavingSettings">
-              <span x-show="!isSavingSettings">Simpan Pengaturan</span>
+              <span x-show="!isSavingSettings">Simpan Aturan</span>
               <span x-show="isSavingSettings">Menyimpan...</span>
             </button>
           </div>
@@ -258,7 +283,7 @@
 
         <!-- Add New Rule Button -->
         <div class="mb-6">
-          <button @click="openAddRuleModal()"
+          <button @click="openAddRule()"
             class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/25">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -304,7 +329,7 @@
                     </div>
                   </td>
                   <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    <button @click="openEditRuleModal(rule)"
+                    <button @click="openEditRule(rule)"
                       class="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 mr-3">
                       Edit
                     </button>
@@ -326,76 +351,5 @@
     </div>
   </div>
 
-  <!-- Rule Modal -->
-  <div x-show="isRuleModalOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm" x-transition.opacity
-    style="display: none;">
-    <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800"
-      @click.away="isRuleModalOpen = false">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"
-        x-text="editingRuleId ? 'Edit Aturan' : 'Tambah Aturan'"></h3>
-
-      <div class="space-y-4">
-        <!-- Prompt -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prompt / Instruksi AI</label>
-          <textarea x-model="ruleForm.prompt" rows="3"
-            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-            placeholder="Contoh: Berikan ide tentang fitur loyalitas..."></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Channel -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Channel</label>
-            <select x-model="ruleForm.channel"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-              <option value="email">Email</option>
-              <option value="sms">SMS</option>
-              <option value="push">Push Notification</option>
-            </select>
-          </div>
-          <!-- Frequency -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frequency</label>
-            <select x-model="ruleForm.frequency"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-              <option value="daily">Harian</option>
-              <option value="weekly">Mingguan</option>
-              <option value="realtime">Real-time</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Time -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
-            <input type="time" x-model="ruleForm.time" onclick="this.showPicker()"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-          </div>
-          <!-- Threshold -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Threshold</label>
-            <input type="number" x-model="ruleForm.threshold" min="0"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-6 flex justify-end gap-3">
-        <button @click="isRuleModalOpen = false"
-          class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg dark:text-gray-300 dark:hover:bg-gray-700">
-          Batal
-        </button>
-        <button @click="saveRule"
-          class="px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-lg">
-          Simpan
-        </button>
-      </div>
-    </div>
-  </div>
-
 </div>
-</div>
-</div>
+```
