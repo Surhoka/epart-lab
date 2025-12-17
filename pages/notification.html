@@ -65,6 +65,14 @@
   @notifications-error.window="notificationError = $event.detail; isLoading = false"
   class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-init="init()">
 
+  <style>
+    /* Ensure time picker icon is visible in dark mode */
+    .dark input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+  </style>
+
   <!-- Breadcrumb Start -->
   <div id="breadcrumb-container"></div>
   <!-- Breadcrumb End -->
@@ -163,6 +171,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Waktu Notifikasi</label>
             <input type="time" x-model="settings.time"
               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+
+            <!-- Quick Time Selection Buttons -->
+            <div class="mt-2 flex flex-wrap gap-2">
+              <template x-for="t in ['07:00', '08:00', '09:00', '12:00', '17:00']">
+                <button type="button" @click="settings.time = t"
+                  class="px-3 py-1 text-xs rounded-full border transition-colors duration-200"
+                  :class="settings.time === t 
+                                ? 'bg-brand-50 text-brand-700 border-brand-200 dark:bg-brand-500/10 dark:text-brand-300 dark:border-brand-500/20' 
+                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700'">
+                  <span x-text="t"></span>
+                </button>
+              </template>
+            </div>
           </div>
 
           <!-- Threshold -->
