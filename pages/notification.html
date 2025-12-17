@@ -6,6 +6,7 @@
     settings: {
         channel: 'email',
         frequency: 'daily',
+        time: '07:00',
         threshold: 5
     },
     rules: [],
@@ -155,6 +156,13 @@
               <option value="weekly">Mingguan</option>
               <option value="realtime">Real-time</option>
             </select>
+          </div>
+
+          <!-- Time -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Waktu Notifikasi</label>
+            <input type="time" x-model="settings.time"
+              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
           </div>
 
           <!-- Threshold -->
