@@ -120,10 +120,18 @@ window.fetchAiRules = function (callback) {
   }, (err) => console.error("Error fetching rules:", err));
 };
 
-window.addAiRule = function (prompt, callback) {
-  sendDataToGoogle('addAiRule', { prompt: prompt }, (response) => {
+window.addAiRule = function (ruleData, callback) {
+  // ruleData should be { prompt, channel, frequency, time, threshold }
+  sendDataToGoogle('addAiRule', ruleData, (response) => {
     if (response.status === 'success' && callback) callback(response.data);
   }, (err) => console.error("Error adding rule:", err));
+};
+
+window.updateAiRule = function (id, ruleData, callback) {
+  // ruleData: { prompt, channel, frequency, time, threshold }
+  sendDataToGoogle('updateAiRule', { id: id, ...ruleData }, (response) => {
+    if (response.status === 'success' && callback) callback(response.data);
+  }, (err) => console.error("Error updating rule:", err));
 };
 
 window.updateAiRuleStatus = function (id, isActive, callback) {
