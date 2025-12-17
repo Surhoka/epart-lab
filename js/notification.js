@@ -104,7 +104,7 @@ async function initNotificationsPage() {
 // API Functions for Alpine.js
 window.fetchNotificationSettings = function (callback) {
   sendDataToGoogle('getNotificationSettings', {}, (response) => {
-    if (response.status === 'success' && callback) callback(response.settings);
+    if (response.status === 'success' && callback) callback(response.data);
   }, (err) => console.error("Error fetching settings:", err));
 };
 
@@ -116,13 +116,13 @@ window.saveNotificationSettings = function (settings, callback) {
 
 window.fetchAiRules = function (callback) {
   sendDataToGoogle('getAiRules', {}, (response) => {
-    if (response.status === 'success' && callback) callback(response.rules);
+    if (response.status === 'success' && callback) callback(response.data);
   }, (err) => console.error("Error fetching rules:", err));
 };
 
 window.addAiRule = function (prompt, callback) {
   sendDataToGoogle('addAiRule', { prompt: prompt }, (response) => {
-    if (response.status === 'success' && callback) callback(response.rule);
+    if (response.status === 'success' && callback) callback(response.data);
   }, (err) => console.error("Error adding rule:", err));
 };
 
