@@ -100,3 +100,40 @@ async function initNotificationsPage() {
     window.dispatchEvent(new CustomEvent('notifications-error', { detail: "Gagal memuat komponen notifikasi." }));
   }
 }
+
+// API Functions for Alpine.js
+window.fetchNotificationSettings = function (callback) {
+  sendDataToGoogle('getNotificationSettings', {}, (response) => {
+    if (response.status === 'success' && callback) callback(response.settings);
+  }, (err) => console.error("Error fetching settings:", err));
+};
+
+window.saveNotificationSettings = function (settings, callback) {
+  sendDataToGoogle('saveNotificationSettings', { settings: JSON.stringify(settings) }, (response) => {
+    if (response.status === 'success' && callback) callback();
+  }, (err) => console.error("Error saving settings:", err));
+};
+
+window.fetchAiRules = function (callback) {
+  sendDataToGoogle('getAiRules', {}, (response) => {
+    if (response.status === 'success' && callback) callback(response.rules);
+  }, (err) => console.error("Error fetching rules:", err));
+};
+
+window.addAiRule = function (prompt, callback) {
+  sendDataToGoogle('addAiRule', { prompt: prompt }, (response) => {
+    if (response.status === 'success' && callback) callback(response.rule);
+  }, (err) => console.error("Error adding rule:", err));
+};
+
+window.updateAiRuleStatus = function (id, isActive, callback) {
+  sendDataToGoogle('updateAiRuleStatus', { id: id, isActive: isActive }, (response) => {
+    if (response.status === 'success' && callback) callback();
+  }, (err) => console.error("Error updating rule status:", err));
+};
+
+window.deleteAiRule = function (id, callback) {
+  sendDataToGoogle('deleteAiRule', { id: id }, (response) => {
+    if (response.status === 'success' && callback) callback();
+  }, (err) => console.error("Error deleting rule:", err));
+};
