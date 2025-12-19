@@ -6,6 +6,9 @@ html {
 
 :root {
   --font-outfit: Outfit, sans-serif;
+  
+  --color-bg-light: #f9fafb;
+  --color-bg-dark: #101828;
 
   --breakpoint-2xsm: 375px;
   --breakpoint-xsm: 425px;
