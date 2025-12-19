@@ -1,13 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 
+html {
+  color-scheme: light;
+}
+
 :root {
   --font-outfit: Outfit, sans-serif;
 
   --breakpoint-2xsm: 375px;
   --breakpoint-xsm: 425px;
- --breakpoint-3xl: 2000px;
+  --breakpoint-3xl: 2000px;
   --breakpoint-sm: 640px;
- --breakpoint-md: 768px;
+  --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
@@ -37,7 +41,7 @@
   --color-brand-25: #f2f7ff;
   --color-brand-50: #ecf3ff;
   --color-brand-100: #dde9ff;
- --color-brand-200: #c2d6ff;
+  --color-brand-200: #c2d6ff;
   --color-brand-300: #9cb9ff;
   --color-brand-400: #7592ff;
   --color-brand-500: #465fff;
@@ -119,7 +123,7 @@
   --color-warning-200: #fedf89;
   --color-warning-300: #fec84b;
   --color-warning-400: #fdb022;
- --color-warning-500: #f79009;
+  --color-warning-500: #f79009;
   --color-warning-600: #dc6803;
   --color-warning-700: #b54708;
   --color-warning-800: #93370d;
@@ -156,6 +160,34 @@
   --z-index-9999: 9999;
   --z-index-99999: 99999;
   --z-index-999999: 999999;
+
+  /* Semantic Colors for Light Mode */
+  --bg-primary: var(--color-gray-50);
+  --bg-secondary: var(--color-white);
+  --text-primary: var(--color-gray-900);
+  --text-secondary: var(--color-gray-700);
+  --text-placeholder: var(--color-gray-400);
+  --border-primary: var(--color-gray-200);
+  --border-secondary: var(--color-gray-300);
+  --icon-primary: var(--color-gray-500);
+  --color-gridline: var(--color-gray-100);
+  --bg-hover: var(--color-gray-50); /* Light mode hover background */
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Semantic Colors for Dark Mode */
+  --bg-primary: var(--color-gray-900);
+  --bg-secondary: var(--color-gray-dark);
+  --text-primary: var(--color-white);
+  --text-secondary: var(--color-gray-300);
+  --text-placeholder: var(--color-gray-500);
+  --border-primary: var(--color-gray-800);
+  --border-secondary: var(--color-gray-700);
+  --icon-primary: var(--color-gray-400);
+  --color-gridline: var(--color-gray-800);
+  --bg-hover: rgba(255, 255, 255, 0.05); /* Dark mode hover background */
 }
 
 /*
@@ -167,7 +199,7 @@
   color utility to any element that depends on these defaults.
 */
 *, ::after, ::before, ::backdrop, ::file-selector-button {
-  border-color: var(--color-gray-200, currentColor);
+  border-color: var(--border-primary, currentColor);
 }
 
 button:not(:disabled), [role="button"]:not(:disabled) {
@@ -197,21 +229,21 @@ button:not(:disabled), [role="button"]:not(:disabled) {
 }
 
 .menu-item-inactive {
-  color: var(--color-gray-700);
+  color: var(--text-secondary);
 }
 
 .menu-item-inactive:hover {
   background-color: var(--color-gray-100);
-  color: var(--color-gray-700);
+  color: var(--text-primary);
 }
 
 .dark .menu-item-inactive {
-  color: var(--color-gray-300);
+  color: var(--text-secondary);
 }
 
 .dark .menu-item-inactive:hover {
   background-color: rgba(255, 255, 255, 0.05); /* white/5 */
-  color: var(--color-gray-300);
+  color: var(--text-primary);
 }
 
 .menu-item-icon-active {
@@ -223,26 +255,26 @@ button:not(:disabled), [role="button"]:not(:disabled) {
 }
 
 .menu-item-icon-inactive {
-  fill: var(--color-gray-500);
+  fill: var(--icon-primary);
 }
 
 .menu-item-icon-inactive:hover {
-  fill: var(--color-gray-700);
+  fill: var(--text-primary);
 }
 
 .dark .menu-item-icon-inactive {
-  fill: var(--color-gray-400);
+  fill: var(--icon-primary);
 }
 
 .dark .menu-item-icon-inactive:hover {
-  fill: var(--color-gray-300);
+  fill: var(--text-primary);
 }
 
 .menu-item-arrow {
-  position: absolute;
-  top: 50%;
-  right: 0.625rem;
-  transform: translateY(-50%);
+  position: relative;
+  top: 0;
+  right: 0;
+  transform: translateY(0);
 }
 
 .menu-item-arrow-active {
@@ -255,19 +287,19 @@ button:not(:disabled), [role="button"]:not(:disabled) {
 }
 
 .menu-item-arrow-inactive {
-  stroke: var(--color-gray-500);
+  stroke: var(--icon-primary);
 }
 
 .menu-item-arrow-inactive:hover {
-  stroke: var(--color-gray-700);
+  stroke: var(--text-primary);
 }
 
 .dark .menu-item-arrow-inactive {
-  stroke: var(--color-gray-400);
+  stroke: var(--icon-primary);
 }
 
 .dark .menu-item-arrow-inactive:hover {
-  stroke: var(--color-gray-300);
+  stroke: var(--text-primary);
 }
 
 .menu-dropdown-item {
@@ -293,19 +325,21 @@ button:not(:disabled), [role="button"]:not(:disabled) {
 }
 
 .menu-dropdown-item-inactive {
-  color: var(--color-gray-700);
+  color: var(--text-secondary);
 }
 
 .menu-dropdown-item-inactive:hover {
   background-color: var(--color-gray-100);
+  color: var(--text-primary);
 }
 
 .dark .menu-dropdown-item-inactive {
-  color: var(--color-gray-300);
+  color: var(--text-secondary);
 }
 
 .dark .menu-dropdown-item-inactive:hover {
   background-color: rgba(255, 255, 255, 0.05); /* white/5 */
+  color: var(--text-primary);
 }
 
 .menu-dropdown-badge {
@@ -381,7 +415,8 @@ body {
   font-weight: 400;
   font-family: var(--font-outfit);
   z-index: 1;
-  background-color: var(--color-gray-50);
+  background-color: var(--bg-primary);
+  color: var(--text-primary); /* Set default text color */
 }
 
 /* For Remove Date Icon */
@@ -435,32 +470,32 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 /* third-party libraries CSS */
 .apexcharts-legend-text {
-  color: var(--color-gray-700) !important;
+  color: var(--text-secondary) !important;
 }
 
 .dark .apexcharts-legend-text {
-  color: var(--color-gray-400) !important;
+  color: var(--text-secondary) !important;
 }
 
 .apexcharts-text {
-  fill: var(--color-gray-700) !important;
+  fill: var(--text-secondary) !important;
 }
 
 .dark .apexcharts-text {
-  fill: var(--color-gray-400) !important;
+  fill: var(--text-secondary) !important;
 }
 
 .apexcharts-tooltip.apexcharts-theme-light {
   box-shadow: var(--shadow-theme-sm) !important;
   gap: 0.25rem;
  border-radius: 0.5rem !important;
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border-primary) !important;
   padding: 0.75rem !important;
 }
 
 .dark .apexcharts-tooltip.apexcharts-theme-light {
-  border-color: var(--color-gray-800) !important;
-  background-color: var(--color-gray-900) !important;
+  border-color: var(--border-primary) !important;
+  background-color: var(--bg-primary) !important;
 }
 
 .apexcharts-tooltip-marker {
@@ -471,11 +506,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .apexcharts-legend-text {
  padding-left: 1.25rem !important;
-  color: var(--color-gray-700) !important;
+  color: var(--text-secondary) !important;
 }
 
 .dark .apexcharts-legend-text {
-  color: var(--color-gray-400) !important;
+  color: var(--text-secondary) !important;
 }
 
 .apexcharts-tooltip-series-group {
@@ -493,20 +528,20 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   padding: 0 !important;
   font-size: 0.625rem !important;
   line-height: 1rem !important;
-  color: var(--color-gray-800) !important;
+  color: var(--text-primary) !important;
 }
 
 .dark .apexcharts-tooltip-title {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: var(--text-primary) !important;
 }
 
 .apexcharts-tooltip-text {
   font-size: 0.75rem !important;
-  color: var(--color-gray-700) !important;
+  color: var(--text-secondary) !important;
 }
 
 .dark .apexcharts-tooltip-text {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: var(--text-primary) !important;
 }
 
 .apexcharts-tooltip-text-y-value {
@@ -514,11 +549,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .apexcharts-gridline {
-  stroke: var(--color-gray-100) !important;
+  stroke: var(--color-gridline) !important;
 }
 
 .dark .apexcharts-gridline {
-  stroke: var(--color-gray-800) !important;
+  stroke: var(--color-gridline) !important;
 }
 
 #chartTwo .apexcharts-datalabels-group {
@@ -526,12 +561,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 #chartTwo .apexcharts-datalabels-group .apexcharts-text {
-  fill: var(--color-gray-800) !important;
+  fill: var(--text-primary) !important;
   font-weight: 500 !important;
 }
 
 .dark #chartTwo .apexcharts-datalabels-group .apexcharts-text {
-  fill: rgba(255, 255, 25, 0.9) !important;
+  fill: var(--text-primary) !important;
 }
 
 #chartSixteen .apexcharts-legend {
@@ -540,19 +575,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .jvm-container {
-  background-color: var(--color-gray-50) !important;
+  background-color: var(--bg-primary) !important;
 }
 
 .dark .jvm-container {
-  background-color: var(--color-gray-900) !important;
+  background-color: var(--bg-primary) !important;
 }
 
 .jvm-region.jvm-element {
-  fill: var(--color-gray-300) !important;
+  fill: var(--border-secondary) !important;
 }
 
 .dark .jvm-region.jvm-element {
-  fill: var(--color-gray-700) !important;
+  fill: var(--text-secondary) !important;
 }
 
 .jvm-region.jvm-element:hover {
@@ -564,11 +599,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .jvm-marker.jvm-element {
-  stroke: var(--color-gray-200) !important;
+  stroke: var(--border-primary) !important;
 }
 
 .dark .jvm-marker.jvm-element {
-  stroke: var(--color-gray-800) !important;
+  stroke: var(--border-primary) !important;
 }
 
 .stocks-slider-outer .swiper-button-next:after,
@@ -583,8 +618,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   height: 2rem !important;
   width: 2.25rem !important;
   border-radius: 0.5rem !important;
-  border: 1px solid var(--color-gray-200) !important;
-  color: var(--color-gray-700) !important;
+  border: 1px solid var(--border-primary) !important;
+  color: var(--text-secondary) !important;
   transition: background-color 0.15s ease !important;
 }
 
@@ -595,20 +630,20 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .dark .stocks-slider-outer .swiper-button-next,
 .dark .stocks-slider-outer .swiper-button-prev {
-  border-color: var(--color-gray-800) !important;
-  background-color: var(--color-gray-800) !important;
-  color: var(--color-gray-400) !important;
+  border-color: var(--border-primary) !important;
+  background-color: var(--bg-secondary) !important;
+  color: var(--icon-primary) !important;
 }
 
 .stocks-slider-outer .swiper-button-next.swiper-button-disabled,
 .stocks-slider-outer .swiper-button-prev.swiper-button-disabled {
-  background-color: var(--color-white) !important;
+  background-color: var(--bg-secondary) !important;
   opacity: 1 !important;
 }
 
 .dark .stocks-slider-outer .swiper-button-next.swiper-button-disabled,
 .dark .stocks-slider-outer .swiper-button-prev.swiper-button-disabled {
-  background-color: var(--color-gray-900) !important;
+  background-color: var(--bg-primary) !important;
 }
 
 .stocks-slider-outer .swiper-button-next svg,
@@ -626,13 +661,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   margin-top: 0.5rem !important;
   border-radius: 0.75rem !important;
   padding: 1.25rem !important;
-  color: var(--color-gray-500) !important;
+  color: var(--icon-primary) !important;
 }
 
 .dark .flatpickr-calendar {
-  background-color: var(--color-gray-dark) !important;
+  background-color: var(--bg-secondary) !important;
   box-shadow: var(--shadow-theme-xl) !important;
-  color: var(--color-gray-400) !important;
+  color: var(--icon-primary) !important;
 }
 
 .flatpickr-months .flatpickr-prev-month:hover svg,
@@ -651,12 +686,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   padding-top: 0 !important;
   font-size: 1.125rem !important;
   font-weight: 500 !important;
-  color: var(--color-gray-800) !important;
+  color: var(--text-primary) !important;
 }
 
 .dark .flatpickr-current-month .cur-month,
 .dark .flatpickr-current-month input.cur-year {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: var(--text-primary) !important;
 }
 
 .flatpickr-prev-month,
@@ -673,11 +708,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .flatpickr-weekday {
   font-size: 0.875rem !important;
   font-weight: 500 !important;
-  color: var(--color-gray-500) !important;
+  color: var(--icon-primary) !important;
 }
 
 .dark .flatpickr-weekday {
-  color: var(--color-gray-400) !important;
+  color: var(--icon-primary) !important;
 }
 
 .flatpickr-day {
@@ -685,27 +720,27 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   display: flex !important;
   align-items: center !important;
   font-weight: 500 !important;
-  color: var(--color-gray-800) !important;
+  color: var(--text-primary) !important;
 }
 
 .flatpickr-day:hover,
 .flatpickr-day:focus {
-  border-color: var(--color-gray-50) !important;
-  background-color: var(--color-gray-50) !important;
+  border-color: var(--bg-hover) !important;
+  background-color: var(--bg-hover) !important;
 }
 
 .dark .flatpickr-day {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: var(--text-primary) !important;
 }
 
 .dark .flatpickr-day:hover {
-  border-color: var(--color-gray-300) !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--border-secondary) !important;
+  background-color: var(--bg-hover) !important;
 }
 
 .flatpickr-day.nextMonthDay,
 .flatpickr-day.prevMonthDay {
-  color: var(--color-gray-400) !important;
+  color: var(--icon-primary) !important;
 }
 
 .flatpickr-months .flatpickr-prev-month,
@@ -715,8 +750,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .dark .flatpickr-months .flatpickr-prev-month,
 .dark .flatpickr-months .flatpickr-next-month {
-  fill: var(--color-white) !important;
-  color: var(--color-white) !important;
+  fill: var(--text-primary) !important;
+  color: var(--text-primary) !important;
 }
 
 .flatpickr-months .flatpickr-prev-month.flatpickr-prev-month,
@@ -731,14 +766,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 span.flatpickr-weekday,
 .flatpickr-months .flatpickr-month {
-  fill: var(--color-white) !important;
-  color: var(--color-white) !important;
+  fill: var(--text-primary) !important;
+  color: var(--text-primary) !important;
 }
 
 .flatpickr-day.inRange {
   box-shadow:
-    -5px 0 0 #f9fafb,
-    5px 0 0 #f9fafb !important;
+    -5px 0 0 var(--bg-primary),
+    5px 0 0 var(--bg-primary) !important;
 }
 
 .dark .flatpickr-day.inRange {
@@ -757,8 +792,8 @@ span.flatpickr-weekday,
 .flatpickr-day:focus,
 .flatpickr-day.prevMonthDay:focus,
 .flatpickr-day.nextMonthDay:focus {
-  border-color: var(--color-gray-50) !important;
-  background-color: var(--color-gray-50) !important;
+  border-color: var(--bg-hover) !important;
+  background-color: var(--bg-hover) !important;
 }
 
 .dark .flatpickr-day.inRange,
@@ -774,22 +809,22 @@ span.flatpickr-weekday,
 .dark .flatpickr-day.prevMonthDay:focus,
 .dark .flatpickr-day.nextMonthDay:focus {
   border-width: 0 !important;
-  border-color: rgba(255, 255, 255, 0.05) !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--bg-hover) !important;
+  background-color: var(--bg-hover) !important;
 }
 
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.selected,
 .flatpickr-day.endRange {
-  color: var(--color-white) !important;
+  color: var(--bg-secondary) !important;
 }
 
 .dark .flatpickr-day.selected,
 .dark .flatpickr-day.startRange,
 .dark .flatpickr-day.selected,
 .dark .flatpickr-day.endRange {
-  color: var(--color-white) !important;
+  color: var(--text-primary) !important;
 }
 
 .flatpickr-day.selected,
@@ -914,14 +949,14 @@ span.flatpickr-weekday,
   align-items: center;
   justify-content: center;
   border-radius: 0.5rem !important;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--border-primary);
   background-color: transparent;
   box-shadow: none !important;
 }
 
 .fc-button-group .fc-button:hover {
-  border-color: var(--color-gray-200);
-  background-color: var(--color-gray-50);
+  border-color: var(--border-primary);
+  background-color: var(--bg-hover);
 }
 
 .fc-button-group .fc-button:focus {
@@ -929,22 +964,22 @@ span.flatpickr-weekday,
 }
 
 .fc-button-group .fc-button:active {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border-primary) !important;
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
 .dark .fc-button-group .fc-button {
-  border-color: var(--color-gray-800);
+  border-color: var(--border-primary);
 }
 
 .dark .fc-button-group .fc-button:hover {
-  border-color: var(--color-gray-800);
-  background-color: var(--color-gray-900);
+  border-color: var(--border-primary);
+  background-color: var(--bg-primary);
 }
 
 .dark .fc-button-group .fc-button:active {
-  border-color: var(--color-gray-800) !important;
+  border-color: var(--border-primary) !important;
 }
 
 .fc-button-group .fc-button.fc-prev-button:before {
@@ -988,21 +1023,21 @@ span.flatpickr-weekday,
 .fc-toolbar-title {
   font-size: 1.125rem !important;
   font-weight: 500 !important;
-  color: var(--color-gray-800);
+  color: var(--text-primary);
 }
 
 .dark .fc-toolbar-title {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
 
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child {
   border-radius: 0.5rem;
-  background-color: var(--color-gray-100);
+  background-color: var(--bg-hover);
   padding: 0.125rem;
 }
 
 .dark .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child {
-  background-color: var(--color-gray-900);
+  background-color: var(--bg-primary);
 }
 
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button {
@@ -1014,54 +1049,54 @@ span.flatpickr-weekday,
   padding: 0.5rem 1.25rem !important;
   font-size: 0.875rem !important;
   font-weight: 500;
-  color: var(--color-gray-500);
+  color: var(--icon-primary);
   box-shadow: none !important;
 }
 
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button:hover {
-  color: var(--color-gray-700);
+  color: var(--text-secondary);
 }
 
 .dark .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button {
-  color: var(--color-gray-400);
+  color: var(--icon-primary);
 }
 
 .dark .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button:hover {
-  color: var(--color-gray-300);
+  color: var(--text-secondary);
 }
 
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button.fc-button-active {
-  color: var(--color-gray-900);
-  background-color: var(--color-white);
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
 }
 
 .dark .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button.fc-button-active {
-  background-color: var(--color-gray-800);
-  color: var(--color-white);
+  background-color: var(--border-primary);
+  color: var(--text-primary);
 }
 
 .fc-theme-standard th {
   border-left-width: 0 !important;
   border-right-width: 0 !important;
   border-top-width: 1px;
-  border-color: var(--color-gray-200) !important;
-  background-color: var(--color-gray-50);
+  border-color: var(--border-primary) !important;
+  background-color: var(--bg-primary);
   text-align: left !important;
 }
 
 .dark .fc-theme-standard th {
-  border-color: var(--color-gray-800) !important;
-  background-color: var(--color-gray-900);
+  border-color: var(--border-primary) !important;
+  background-color: var(--bg-primary);
 }
 
 .fc-theme-standard td,
 .fc-theme-standard .fc-scrollgrid {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border-primary) !important;
 }
 
 .dark .fc-theme-standard td,
 .dark .fc-theme-standard .fc-scrollgrid {
-  border-color: var(--color-gray-800) !important;
+  border-color: var(--border-primary) !important;
 }
 
 .fc .fc-col-header-cell-cushion {
@@ -1071,7 +1106,7 @@ span.flatpickr-weekday,
   padding-bottom: 1rem !important;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-400);
+  color: var(--text-placeholder);
   text-transform: uppercase;
 }
 
@@ -1085,7 +1120,7 @@ span.flatpickr-weekday,
 
 .fc .fc-daygrid-day.fc-day-today .fc-scrollgrid-sync-inner {
   border-radius: 0.25rem;
-  background-color: var(--color-gray-100);
+  background-color: var(--bg-hover);
 }
 
 .dark .fc .fc-daygrid-day.fc-day-today .fc-scrollgrid-sync-inner {
@@ -1096,11 +1131,11 @@ span.flatpickr-weekday,
   padding: 0.75rem !important;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--text-secondary);
 }
 
 .dark .fc .fc-daygrid-day-number {
-  color: var(--color-gray-400);
+  color: var(--icon-primary);
 }
 
 .fc .fc-daygrid-day-top {
@@ -1112,7 +1147,7 @@ span.flatpickr-weekday,
 }
 
 .fc .fc-day-other .fc-daygrid-day-top .fc-daygrid-day-number {
-  color: var(--color-gray-400);
+  color: var(--text-placeholder);
 }
 
 .dark .fc .fc-day-other .fc-daygrid-day-top .fc-daygrid-day-number {
@@ -1131,7 +1166,7 @@ span.flatpickr-weekday,
   padding: 0;
   font-size: 0.875rem;
   font-weight: 400;
-  color: var(--color-gray-700);
+  color: var(--text-secondary);
 }
 
 .fc-daygrid-event-dot {
@@ -1337,7 +1372,7 @@ span.flatpickr-weekday,
 }
 
 .taskCheckbox:checked ~ p {
-  color: var(--color-gray-400);
+  color: var(--text-placeholder);
   text-decoration-line: line-through;
 }
 
