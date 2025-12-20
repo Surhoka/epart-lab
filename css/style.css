@@ -1596,3 +1596,70 @@ span.flatpickr-weekday,
   opacity: 0.3;
   width: 100%;
 }
+
+/* Premium Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.badge::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Success / Aktif */
+.badge-success {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.dark .badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+}
+
+/* Warning / Habis */
+.badge-warning {
+  background-color: #fffbeb;
+  color: #f59e0b;
+}
+
+.dark .badge-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+}
+
+/* Gray / Arsip */
+.badge-gray {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.dark .badge-gray {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #9ca3af;
+}
+
+/* Error / Default */
+.badge-error {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+.dark .badge-error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
