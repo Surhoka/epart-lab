@@ -430,9 +430,9 @@ body {
   font-size: 1rem;
   font-weight: 400;
   font-family: var(--font-outfit);
+  z-index: 1;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
   /* Set default text color */
 }
 
@@ -1144,11 +1144,13 @@ span.flatpickr-weekday,
 
 .fc .fc-daygrid-day.fc-day-today .fc-scrollgrid-sync-inner {
   border-radius: 0.25rem;
-  background-color: var(--bg-hover);
+  background-color: var(--color-brand-25);
+  border: 1px solid var(--color-brand-200);
 }
 
 .dark .fc .fc-daygrid-day.fc-day-today .fc-scrollgrid-sync-inner {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(70, 95, 255, 0.08);
+  border: 1px solid rgba(70, 95, 255, 0.2);
 }
 
 .fc .fc-daygrid-day-number {
@@ -1188,9 +1190,13 @@ span.flatpickr-weekday,
 
 .event-fc-color .fc-event-title {
   padding: 0;
-  font-size: 0.875rem;
-  font-weight: 400;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--text-secondary);
+}
+
+.dark .event-fc-color .fc-event-title {
+  color: var(--color-white);
 }
 
 .fc-daygrid-event-dot {
@@ -1211,23 +1217,43 @@ span.flatpickr-weekday,
 }
 
 .event-fc-color.fc-bg-success {
-  border-color: var(--color-success-50);
+  border-color: var(--color-success-100);
   background-color: var(--color-success-50);
 }
 
+.dark .event-fc-color.fc-bg-success {
+  background-color: rgba(18, 183, 106, 0.15);
+  border-color: rgba(18, 183, 106, 0.3);
+}
+
 .event-fc-color.fc-bg-danger {
-  border-color: var(--color-error-50);
+  border-color: var(--color-error-100);
   background-color: var(--color-error-50);
 }
 
+.dark .event-fc-color.fc-bg-danger {
+  background-color: rgba(240, 68, 56, 0.15);
+  border-color: rgba(240, 68, 56, 0.3);
+}
+
 .event-fc-color.fc-bg-primary {
-  border-color: var(--color-brand-50);
+  border-color: var(--color-brand-100);
   background-color: var(--color-brand-50);
 }
 
+.dark .event-fc-color.fc-bg-primary {
+  background-color: rgba(70, 95, 255, 0.15);
+  border-color: rgba(70, 95, 255, 0.3);
+}
+
 .event-fc-color.fc-bg-warning {
-  border-color: var(--color-orange-50);
+  border-color: var(--color-orange-100);
   background-color: var(--color-orange-50);
+}
+
+.dark .event-fc-color.fc-bg-warning {
+  background-color: rgba(253, 133, 58, 0.15);
+  border-color: rgba(253, 133, 58, 0.3);
 }
 
 .event-fc-color.fc-bg-success .fc-daygrid-event-dot {
