@@ -207,13 +207,13 @@ window.changeProdukPage = function (page) {
 function getBadgeClass(status) {
     switch (status) {
         case 'Aktif':
-            return 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500';
+            return 'badge-success';
         case 'Habis':
-            return 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500';
+            return 'badge-warning';
         case 'Arsip':
-            return 'bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-400';
+            return 'badge-gray';
         default:
-            return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-500';
+            return 'badge-error';
     }
 }
 
@@ -273,9 +273,9 @@ function renderProdukTable() {
                     <p class="text-brand-600 text-sm dark:text-brand-400 font-bold">${produk.hargaJual || '-'}</p>
                 </td>
                 <td class="px-6 py-4">
-                    <p class="inline-flex rounded-lg px-2.5 py-1 text-xs font-bold uppercase tracking-wider ${getBadgeClass(produk.status)}">
+                    <span class="badge ${getBadgeClass(produk.status)}">
                         ${produk.status || 'Unknown'}
-                    </p>
+                    </span>
                 </td>
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
