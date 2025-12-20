@@ -220,18 +220,13 @@
     </div>
   </div>
   <!-- BEGIN MODAL PERSONAL INFO -->
-  <div x-show="isProfileInfoModal" x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 flex justify-center items-start md:items-center p-4 md:p-5 overflow-y-auto z-[99999]" x-cloak>
+  <div :class="{ 'show': isProfileInfoModal }"
+    class="fixed inset-0 flex justify-center items-start md:items-center p-4 md:p-5 overflow-y-auto z-[99999] modal"
+    x-cloak>
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isProfileInfoModal = false"></div>
-    <div x-show="isProfileInfoModal" x-transition:enter="transition ease-out duration-300"
-      x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-      x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
-      x-transition:leave-end="opacity-0 scale-95"
-      class="relative w-full max-w-[640px] flex flex-col max-h-full my-auto rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
+    <div
+      class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-full my-auto rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
       <!-- close btn -->
       <button x-on:click="isProfileInfoModal = false"
         class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
@@ -361,19 +356,13 @@
     </div>
 
     <!-- BEGIN MODAL ADDRESS -->
-    <div x-show="isProfileAddressModal" x-transition:enter="transition ease-out duration-300"
-      x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-      x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
-      x-transition:leave-end="opacity-0"
-      class="fixed inset-0 flex justify-center items-start md:items-center p-4 md:p-5 overflow-y-auto z-[99999]"
+    <div :class="{ 'show': isProfileAddressModal }"
+      class="fixed inset-0 flex justify-center items-start md:items-center p-4 md:p-5 overflow-y-auto z-[99999] modal"
       x-cloak>
       <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
         x-on:click="isProfileAddressModal = false"></div>
-      <div x-show="isProfileAddressModal" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-        class="relative w-full max-w-[640px] flex flex-col max-h-full my-auto rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
+      <div
+        class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-full my-auto rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
         <!-- close btn -->
         <button x-on:click="isProfileAddressModal = false"
           class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
