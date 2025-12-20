@@ -123,7 +123,7 @@ function searchProduk(searchTerm, page = 1) {
 function renderPagination() {
     const container = document.getElementById('pagination-container');
     if (!container || !paginationInfo || paginationInfo.total === 0) {
-        if (container) container.innerHTML = ''; // Clear if no products
+        if (container) container.innerHTML = '';
         return;
     }
 
@@ -132,26 +132,31 @@ function renderPagination() {
     const endItem = Math.min(startItem + pageSize - 1, total);
 
     let paginationHTML = `
-        <p class="text-theme-xs font-medium text-gray-500 dark:text-gray-400">
-            Showing ${startItem}-${endItem} of ${total}
-        </p>
-        <div class="flex items-center gap-2">
-            <button
-                onclick="changeProdukPage(${page - 1})"
-                class="flex items-center justify-center rounded-lg border border-gray-300 bg-white py-1.5 px-3 text-theme-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-                ${page === 1 ? 'disabled' : ''}>
-                Prev
-            </button>
-            <div class="flex items-center gap-1">
+        <div class="px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between w-full">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Showing <span class="text-gray-800 dark:text-white">${startItem}</span> to <span class="text-gray-800 dark:text-white">${endItem}</span> of <span class="text-gray-800 dark:text-white">${total}</span> results
+            </p>
+            <div class="flex items-center gap-2">
+                <button
+                    onclick="changeProdukPage(${page - 1})"
+                    class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:text-brand-500 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 dark:hover:bg-white/[0.08]"
+                    ${page === 1 ? 'disabled' : ''}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Prev
+                </button>
+                
+                <div class="hidden sm:flex items-center gap-1.5">
     `;
 
-    // Page number logic
+    // Page number logic (simplified for now but styled)
     for (let i = 1; i <= totalPages; i++) {
         const isActive = i === page;
         paginationHTML += `
             <button
                 onclick="changeProdukPage(${i})"
-                class="flex items-center justify-center rounded-lg border ${isActive ? 'border-brand-500 bg-brand-50 text-brand-600' : 'border-gray-300 bg-white'} py-1.5 px-3 text-theme-xs font-medium shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] ${isActive ? 'dark:bg-brand-500/10 dark:text-brand-400' : ''}"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-all ${isActive ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25 ring-4 ring-brand-500/10' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/[0.05]'}"
                 ${isActive ? 'disabled' : ''}>
                 ${i}
             </button>
@@ -159,13 +164,18 @@ function renderPagination() {
     }
 
     paginationHTML += `
+                </div>
+
+                <button
+                    onclick="changeProdukPage(${page + 1})"
+                    class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:text-brand-500 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 dark:hover:bg-white/[0.08]"
+                    ${page === totalPages ? 'disabled' : ''}>
+                    Next
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
             </div>
-            <button
-                onclick="changeProdukPage(${page + 1})"
-                class="flex items-center justify-center rounded-lg border border-gray-300 bg-white py-1.5 px-3 text-theme-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-                ${page === totalPages ? 'disabled' : ''}>
-                Next
-            </button>
         </div>
     `;
 
