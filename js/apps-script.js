@@ -1,12 +1,12 @@
 // Global modal functions
-window.openProductModal = function(mode, productId = null) {
+window.openProductModal = function (mode, productId = null) {
     const modal = document.getElementById('productModal');
     const modalTitle = document.getElementById('modalTitle');
     const submitBtn = document.getElementById('submitProduct');
-    
+
     modalTitle.textContent = mode === 'add' ? 'Tambah Produk Baru' : 'Edit Produk';
     submitBtn.textContent = mode === 'add' ? 'Tambah' : 'Update';
-    
+
     if (mode === 'edit' && productId) {
         // Load product data for editing
         sendDataToGoogle('getProduct', { productId: productId }, (response) => {
@@ -23,20 +23,20 @@ window.openProductModal = function(mode, productId = null) {
             }
         });
     }
-    
+
     modal.classList.remove('hidden');
 };
 
-window.closeProductModal = function() {
+window.closeProductModal = function () {
     const modal = document.getElementById('productModal');
     const form = document.getElementById('productForm');
     form.reset();
     modal.classList.add('hidden');
 };
 
-window.setupModalClose = function() {
+window.setupModalClose = function () {
     // Close modal when clicking outside
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modal = document.getElementById('productModal');
         if (event.target === modal) {
             closeProductModal();
@@ -51,15 +51,15 @@ window.setupModalClose = function() {
 };
 
 // Helper function for rendering product table
-window.renderProductTable = function(products) {
+window.renderProductTable = function (products) {
     console.log('Rendering products:', products); // Debug log
-    
+
     // Ensure products is an array
     if (!Array.isArray(products)) {
         console.error('Products must be an array:', products);
         products = [];
     }
-    
+
     // Additional validation
     products = products.filter(product => product && typeof product === 'object');
 
@@ -70,7 +70,7 @@ window.renderProductTable = function(products) {
     }
 
     tableBody.innerHTML = '';
-    
+
     if (products.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -108,7 +108,7 @@ window.renderProductTable = function(products) {
 };
 
 // Global utility functions
-window.showToast = function(message, type = 'success', duration = 3000) {
+window.showToast = function (message, type = 'success', duration = 3000) {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
         console.error('Toast container not found.');
@@ -116,26 +116,62 @@ window.showToast = function(message, type = 'success', duration = 3000) {
     }
 
     const toast = document.createElement('div');
-    toast.classList.add('toast', `toast-${type}`);
+    toast.className = `toast toast-${type}`;
+
+    // Get Icon based on type
+    let icon = '';
+    switch (type) {
+        case 'success':
+            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5l-8 8-4-4"/></svg>';
+            break;
+        case 'error':
+            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-10 10M5 5l10 10"/></svg>';
+            break;
+        case 'warning':
+            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v10M10 16h.01"/></svg>';
+            break;
+        case 'info':
+        default:
+            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4M10 14h.01"/></svg>';
+            break;
+    }
+
     toast.innerHTML = `
-        <span class="toast-message">${message}</span>
-        <button class="toast-close-btn">&times;</button>
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4l-8 8M4 4l8 8"/>
+            </svg>
+        </button>
+        <div class="toast-progress" style="animation: toast-progress ${duration}ms linear forwards"></div>
     `;
-    
+
     toastContainer.appendChild(toast);
 
-    void toast.offsetWidth; 
-    toast.classList.add('show');
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
 
     const closeBtn = toast.querySelector('.toast-close-btn');
     closeBtn.addEventListener('click', () => {
         hideToast(toast);
     });
 
-    setTimeout(() => hideToast(toast), duration);
+    // Auto close
+    const timeoutId = setTimeout(() => hideToast(toast), duration);
+
+    // Cleanup timeout if closed manually
+    closeBtn.dataset.timeoutId = timeoutId;
 };
 
-window.hideToast = function(toast) {
+window.hideToast = function (toast) {
+    if (!toast) return;
+
+    const closeBtn = toast.querySelector('.toast-close-btn');
+    if (closeBtn && closeBtn.dataset.timeoutId) {
+        clearTimeout(parseInt(closeBtn.dataset.timeoutId));
+    }
+
     toast.classList.remove('show');
     toast.addEventListener('transitionend', () => {
         toast.remove();
@@ -145,12 +181,12 @@ window.hideToast = function(toast) {
 // Function to make requests with JSONP (script injection) for GET requests
 function makeFetchRequest(action, data, callback, errorHandler) {
     const callbackName = 'jsonp_callback_' + Math.round(1000 * Math.random());
-    
-    window[callbackName] = function(response) {
+
+    window[callbackName] = function (response) {
         delete window[callbackName];
-        
+
         console.log('Raw response (GET):', JSON.stringify(response, null, 2));
-        
+
         try {
             const normalizedResponse = normalizeResponse(action, response);
             console.log('Normalized response (GET):', normalizedResponse);
@@ -169,10 +205,10 @@ function makeFetchRequest(action, data, callback, errorHandler) {
     }
 
     console.log('Sending GET request to:', url);
-    
+
     const script = document.createElement('script');
     script.src = url;
-    script.onerror = function(error) {
+    script.onerror = function (error) {
         console.error('Script loading error:', error);
         delete window[callbackName];
         document.body.removeChild(script);
@@ -207,7 +243,7 @@ function normalizeResponse(action, response) {
         } else if (response.status) {
             // For all other actions, if response has a status field, we should accept it as valid
             // Only override the message if there's a specific error message
-            normalized = { 
+            normalized = {
                 status: response.status,
                 message: response.message || 'Success',
                 data: response.data || [],
@@ -220,12 +256,12 @@ function normalizeResponse(action, response) {
             normalized.data = response;
         }
     }
-    
+
     return normalized;
 }
 
 
-window.sendDataToGoogle = function(action, data, callback, errorHandler) {
+window.sendDataToGoogle = function (action, data, callback, errorHandler) {
     // Actions that must use POST for security or data length reasons
     const postActions = [
         'SignInUser',
@@ -251,7 +287,7 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
         const formData = 'payload=' + encodeURIComponent(JSON.stringify(payload));
 
         console.log(`Sending POST request for action: ${action}`);
-        
+
         fetch(window.appsScriptUrl, {
             method: 'POST',
             headers: {
@@ -259,35 +295,35 @@ window.sendDataToGoogle = function(action, data, callback, errorHandler) {
             },
             body: formData
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
-                });
-            }
-            return response.json();
-        })
-        .then(jsonResponse => {
-            console.log(`Raw response (POST for ${action}):`, jsonResponse);
-            const normalized = normalizeResponse(action, jsonResponse);
-            console.log(`Normalized response (POST for ${action}):`, normalized);
-            if (callback) callback(normalized);
-        })
-        .catch(error => {
-            console.error(`Fetch error for action '${action}':`, error);
-            if (errorHandler) {
-                errorHandler(error);
-            } else {
-                showToast(error.message || `An error occurred with action: ${action}`, 'error');
-            }
-        });
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(jsonResponse => {
+                console.log(`Raw response (POST for ${action}):`, jsonResponse);
+                const normalized = normalizeResponse(action, jsonResponse);
+                console.log(`Normalized response (POST for ${action}):`, normalized);
+                if (callback) callback(normalized);
+            })
+            .catch(error => {
+                console.error(`Fetch error for action '${action}':`, error);
+                if (errorHandler) {
+                    errorHandler(error);
+                } else {
+                    showToast(error.message || `An error occurred with action: ${action}`, 'error');
+                }
+            });
     } else {
         // Use JSONP for GET requests
         makeFetchRequest(action, data, callback, errorHandler);
     }
 };
 
-window.handleAuthUI = function() {
+window.handleAuthUI = function () {
     const user = JSON.parse(localStorage.getItem('signedInUser'));
     console.log('handleAuthUI: User object from localStorage:', user); // Added log here
     const profileDropdownToggle = document.getElementById('profile-dropdown-toggle');
@@ -305,7 +341,7 @@ window.handleAuthUI = function() {
         if (signInButton) signInButton.classList.add('hidden'); // Hide signIn button if logged in
     } else {
         // Ensure profileDropdownToggle is always visible, regardless of signIn status
-        if (profileDropdownToggle) profileDropdownToggle.classList.remove('hidden'); 
+        if (profileDropdownToggle) profileDropdownToggle.classList.remove('hidden');
         if (signInButton) signInButton.classList.remove('hidden'); // Show signIn button if signed out
     }
 };
@@ -314,39 +350,39 @@ window.handleAuthUI = function() {
  * Memuat notifikasi awal yang ada dari server saat halaman dimuat.
  */
 function loadInitialNotifications() {
-  // Check if we have cached notifications for today
-  const today = new Date().toISOString().split('T')[0];
-  const cachedData = JSON.parse(localStorage.getItem('notificationsCache') || '{}');
-  
-  // If we have cached data for today, dispatch it immediately
-  if (cachedData.date === today && Array.isArray(cachedData.notifications)) {
-    // Dispatch an event with the cached notifications
-    console.log('Dispatching cached notifications-loaded event from initial load', cachedData.notifications);
-    window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: cachedData.notifications }));
-  }
+    // Check if we have cached notifications for today
+    const today = new Date().toISOString().split('T')[0];
+    const cachedData = JSON.parse(localStorage.getItem('notificationsCache') || '{}');
 
-  // Always fetch fresh data from server to update cache
-  sendDataToGoogle('getExistingNotifications', {}, (data) => {
-    if (data.status === "success" && Array.isArray(data.data)) {
-      // Dispatch an event with the notifications
-      console.log('Dispatching notifications-loaded event from initial load', data.data);
-      window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: data.data }));
-      
-      // Cache the fresh data with today's date
-      const cacheData = {
-        date: today,
-        notifications: data.data
-      };
-      localStorage.setItem('notificationsCache', JSON.stringify(cacheData));
-    } else {
-      console.warn('Could not load initial notifications:', data.message);
+    // If we have cached data for today, dispatch it immediately
+    if (cachedData.date === today && Array.isArray(cachedData.notifications)) {
+        // Dispatch an event with the cached notifications
+        console.log('Dispatching cached notifications-loaded event from initial load', cachedData.notifications);
+        window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: cachedData.notifications }));
     }
-  }, (error) => {
-    console.error("Error fetching initial notifications:", error);
-  });
+
+    // Always fetch fresh data from server to update cache
+    sendDataToGoogle('getExistingNotifications', {}, (data) => {
+        if (data.status === "success" && Array.isArray(data.data)) {
+            // Dispatch an event with the notifications
+            console.log('Dispatching notifications-loaded event from initial load', data.data);
+            window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: data.data }));
+
+            // Cache the fresh data with today's date
+            const cacheData = {
+                date: today,
+                notifications: data.data
+            };
+            localStorage.setItem('notificationsCache', JSON.stringify(cacheData));
+        } else {
+            console.warn('Could not load initial notifications:', data.message);
+        }
+    }, (error) => {
+        console.error("Error fetching initial notifications:", error);
+    });
 }
 
 // Panggil fungsi untuk memuat notifikasi setelah DOM selesai dimuat
-document.addEventListener('DOMContentLoaded', function() {
-  loadInitialNotifications();
+document.addEventListener('DOMContentLoaded', function () {
+    loadInitialNotifications();
 });
