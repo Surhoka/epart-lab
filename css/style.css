@@ -1808,6 +1808,44 @@ span.flatpickr-weekday,
   max-width: var(--breakpoint-2xl);
 }
 
+/* Alpine.js Dynamic Classes for Blogger */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 0.375rem;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  border-radius: 9999px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-200);
+  border-radius: 9999px;
+}
+
+.dark .sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #344054;
+}
+
+/* Additional responsive utilities for Alpine */
+@media (min-width: 1024px) {
+  .lg\:w-\[90px\] {
+    width: 90px;
+  }
+}
+
+/* Grid utilities */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Padding */
 .p-0 {
   padding: 0;
