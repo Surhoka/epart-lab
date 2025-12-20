@@ -117,14 +117,16 @@ window.initCalendarPage = function () {
     // Modal Functions
     /*=====================*/
     const openModal = () => {
-      document.getElementById("eventModal").style.display = "flex";
-      document.getElementById("eventModal").classList.remove("hidden");
+      const modal = document.getElementById("eventModal");
+      if (modal) modal.classList.add("show");
     };
 
     const closeModal = () => {
-      document.getElementById("eventModal").style.display = "none";
-      document.getElementById("eventModal").classList.add("hidden");
-      resetModalFields();
+      const modal = document.getElementById("eventModal");
+      if (modal) {
+        modal.classList.remove("show");
+        resetModalFields();
+      }
     };
 
     window.onclick = function (event) {
