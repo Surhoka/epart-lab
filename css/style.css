@@ -461,6 +461,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   justify-content: space-between;
 }
 
+.sidebar:hover .sidebar-title {
+  display: block !important;
+}
+
 .sidebar:hover .menu-group-title {
   display: block;
 }
