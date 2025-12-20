@@ -27,7 +27,7 @@ window.initProfilePage = function () {
  * @returns {Promise<Object>} A promise that resolves with an object containing `status` and `url` if successful,
  *                            or `status` and `message` if there's an error.
  */
-window.uploadImageAndGetUrl = function(fileName, base64Data, mimeType) {
+window.uploadImageAndGetUrl = function (fileName, base64Data, mimeType) {
     return new Promise((resolve, reject) => {
         if (typeof window.sendDataToGoogle !== 'function') {
             const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
@@ -99,7 +99,7 @@ function fetchProfileData(userId) {
                 if (sessionUser && response.data.personalInfo && response.data.personalInfo.profilePhoto) {
                     sessionUser.pictureUrl = response.data.personalInfo.profilePhoto;
                     localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
-                    
+
                     // Force Alpine.js to update the header by re-assigning the currentUser object
                     if (window.app && typeof window.app.currentUser !== 'undefined') {
                         window.app.currentUser = sessionUser;
@@ -118,9 +118,13 @@ function fetchProfileData(userId) {
                     if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
 
                     // Auto-open Personal Info Modal
-                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
+                    const modal = document.querySelector('.modal');
                     if (modal) {
-                        Alpine.evaluate(modal, '$data.isProfileInfoModal = true');
+                        // We check the nearest component since Alpine might be on a parent
+                        // In this app, the main data is usually on the body or a main wrapper
+                        if (window.app) {
+                            window.app.isProfileInfoModal = true;
+                        }
                     }
                 }
             }
@@ -349,13 +353,8 @@ function clearPersonalInfo() {
                 // Fetch will automatically update cache and UI
                 fetchProfileData(window.currentProfileUserId);
 
-                // Close modal with delay to show button click effect
-                setTimeout(() => {
-                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
-                    if (modal) {
-                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
-                    }
-                }, 200);
+                // Close modal
+                if (window.app) window.app.isProfileInfoModal = false;
             } else {
                 console.error('Failed to clear personal info:', response.message);
                 if (window.showToast) window.showToast('Failed to clear personal info', 'error');
@@ -394,13 +393,8 @@ function clearAddress() {
                     // Fetch will automatically update cache and UI
                     fetchProfileData(window.currentProfileUserId);
 
-                    // Close modal with delay to show button click effect
-                    setTimeout(() => {
-                        const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
-                        if (modal) {
-                            Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
-                        }
-                    }, 200);
+                    // Close modal
+                    if (window.app) window.app.isProfileAddressModal = false;
                 } else {
                     console.error('Failed to clear address:', response.message);
                     if (window.showToast) window.showToast('Failed to clear address', 'error');
@@ -486,15 +480,9 @@ function savePersonalInfo() {
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                // Close modal with delay to show button click effect
-                setTimeout(() => {
-                    const modal = document.querySelectorAll('[x-show="isProfileInfoModal"]')[0];
-                    if (modal) {
-                        Alpine.evaluate(modal, '$data.isProfileInfoModal = false');
-                    }
-                    // Remove loading state after modal closes
-                    setButtonLoading(saveBtn, false);
-                }, 200);
+                // Close modal
+                if (window.app) window.app.isProfileInfoModal = false;
+                setButtonLoading(saveBtn, false);
             } else {
                 console.error('Failed to save profile:', response.message);
                 if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
@@ -550,15 +538,9 @@ function saveAddress() {
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                // Close modal with delay to show button click effect
-                setTimeout(() => {
-                    const modal = document.querySelectorAll('[x-show="isProfileAddressModal"]')[0];
-                    if (modal) {
-                        Alpine.evaluate(modal, '$data.isProfileAddressModal = false');
-                    }
-                    // Remove loading state after modal closes
-                    setButtonLoading(saveBtn, false);
-                }, 200);
+                // Close modal
+                if (window.app) window.app.isProfileAddressModal = false;
+                setButtonLoading(saveBtn, false);
             } else {
                 console.error('Failed to save address:', response.message);
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
@@ -690,7 +672,7 @@ function saveProfilePhotoUrl(photoUrl) {
                             if (sessionUser) {
                                 sessionUser.pictureUrl = photoUrl;
                                 localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
-                                
+
                                 // Force Alpine.js to update the header by re-assigning the currentUser object
                                 if (window.app && typeof window.app.currentUser !== 'undefined') {
                                     window.app.currentUser = sessionUser;
