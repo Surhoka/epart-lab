@@ -221,11 +221,11 @@
   </div>
   <!-- BEGIN MODAL PERSONAL INFO -->
   <div :class="{ 'show': isProfileInfoModal }"
-    class="fixed inset-0 flex justify-center items-start p-4 md:p-8 overflow-y-auto z-[99999] modal" x-cloak>
+    class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isProfileInfoModal = false"></div>
     <div
-      class="modal-dialog relative w-full max-w-[640px] flex flex-col rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12 my-8">
+      class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
       <!-- close btn -->
       <button x-on:click="isProfileInfoModal = false"
         class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
@@ -235,7 +235,7 @@
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-      <div class="flex flex-col modal-content custom-scrollbar">
+      <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
         <div class="modal-header border-b border-theme-primary pb-6 mb-8">
           <h4 class="font-bold text-theme-primary text-2xl lg:text-3xl">
             Edit Information
@@ -355,11 +355,11 @@
 
       <!-- BEGIN MODAL ADDRESS -->
       <div :class="{ 'show': isProfileAddressModal }"
-        class="fixed inset-0 flex justify-center items-start p-4 md:p-8 overflow-y-auto z-[99999] modal" x-cloak>
+        class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
         <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
           x-on:click="isProfileAddressModal = false"></div>
         <div
-          class="modal-dialog relative w-full max-w-[640px] flex flex-col rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12 my-8">
+          class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12 my-8">
           <!-- close btn -->
           <button x-on:click="isProfileAddressModal = false"
             class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
@@ -370,7 +370,7 @@
             </svg>
           </button>
 
-          <div class="flex flex-col modal-content custom-scrollbar">
+          <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
             <div class="modal-header border-b border-theme-primary pb-6 mb-8">
               <h4 class="font-bold text-theme-primary text-2xl lg:text-3xl">
                 Edit Address
