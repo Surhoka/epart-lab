@@ -144,12 +144,21 @@ window.setButtonSuccess = function (button, options = {}) {
             const modal = button.closest('.modal, [id*="modal"], [class*="modal"]');
 
             if (modal) {
-                // A. Alpine.js Close Logic
+                // A. Direct Alpine Global Access (Primary for SPA)
+                if (window.app) {
+                    Object.keys(window.app).forEach(key => {
+                        if (key.toLowerCase().includes('modal') && typeof window.app[key] === 'boolean') {
+                            console.log(`Setting global window.app.${key} to false`);
+                            window.app[key] = false;
+                        }
+                    });
+                }
+
+                // B. Alpine.js Component Search (Fallback)
                 const alpineEl = modal.closest('[x-data]');
                 if (alpineEl && window.Alpine) {
                     try {
                         const data = window.Alpine.$data(alpineEl);
-                        // Specifically look for variables that control visibility
                         Object.keys(data).forEach(key => {
                             if (key.toLowerCase().includes('modal') && typeof data[key] === 'boolean') {
                                 data[key] = false;
@@ -160,12 +169,12 @@ window.setButtonSuccess = function (button, options = {}) {
                     }
                 }
 
-                // B. Special case for Product Modal
+                // C. Special case for Product Modal (Classic)
                 if (modal.id === 'productModal' && typeof window.closeProductModal === 'function') {
                     window.closeProductModal();
                 }
 
-                // C. Forced Fallback
+                // D. Forced Fallback
                 modal.classList.add('hidden');
                 modal.classList.remove('show', 'flex');
                 modal.style.setProperty('display', 'none', 'important');
