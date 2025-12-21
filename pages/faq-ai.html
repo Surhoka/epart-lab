@@ -3,26 +3,6 @@
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
 
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">AI FAQ Assistant</h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Temukan jawaban cepat atau tanyakan langsung pada asisten AI kami.
-            </p>
-        </div>
-        <div class="flex items-center gap-3">
-            <button id="ask-ai-trigger"
-                class="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 active:scale-95">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
-                </svg>
-                Tanya AI Sekarang
-            </button>
-        </div>
-    </div>
-
     <!-- Primary Card Wrapper -->
     <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
 
@@ -38,11 +18,11 @@
                         </svg>
                     </span>
                     <input type="text" id="faq-search"
-                        placeholder="Cari pertanyaan... (contoh: 'resi' atau 'pembayaran')"
+                        placeholder="Halo! Saya asisten AI Ezyparts. Ada yang bisa saya bantu terkait layanan kami?"
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-300 focus:ring-4 focus:ring-brand-500/5 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-800">
                 </div>
                 <button id="search-ask-ai"
-                    class="flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 dark:bg-brand-500 dark:hover:bg-brand-600">
+                    class="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 dark:bg-brand-500 dark:hover:bg-brand-600">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
@@ -234,35 +214,7 @@
                     </svg>
                 </button>
             </div>
-
-            <!-- Chat Body -->
-            <div id="ai-chat-body" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar min-h-[400px]">
-                <div class="flex gap-3">
-                    <div
-                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white text-xs font-bold">
-                        AI</div>
-                    <div
-                        class="rounded-2xl bg-gray-100 p-4 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300 max-w-[80%]">
-                        Halo! Saya asisten AI Ezyparts. Ada yang bisa saya bantu terkait layanan kami?
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chat Input -->
-            <div class="border-t border-theme-primary bg-theme-secondary p-6">
-                <form id="ai-chat-form" class="flex gap-3">
-                    <input type="text" id="ai-chat-input" placeholder="Ketik pertanyaan Anda..."
-                        class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                    <button type="submit"
-                        class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500 text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95">
-                        <svg class="h-5 w-5 rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 </div>
+
