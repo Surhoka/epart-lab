@@ -33,7 +33,7 @@ window.setButtonLoading = function (button, isLoading) {
         button.disabled = true;
         button.classList.add('btn-loading');
 
-        // Reset success/hide styles if any (to ensure button reappears correctly)
+        // Reset success/hide styles if any
         button.classList.remove('btn-success');
         button.style.display = '';
         button.style.opacity = '';
@@ -55,17 +55,25 @@ window.setButtonLoading = function (button, isLoading) {
         // Stop tracking
         window.activeLoadingButtons.delete(button);
 
-        // Restore original state if it wasn't hidden or successed
-        if (!button.classList.contains('btn-success')) {
-            button.disabled = button.dataset.originalDisabled === 'true';
-            button.classList.remove('btn-loading');
+        // Restore original state
+        button.disabled = button.dataset.originalDisabled === 'true';
+        button.classList.remove('btn-loading');
+        button.classList.remove('btn-success');
 
-            // Restore original text
-            if (button.dataset.originalText) {
-                button.innerHTML = button.dataset.originalText;
-                delete button.dataset.originalText;
-                delete button.dataset.originalDisabled;
-            }
+        // Reset styles
+        button.style.display = '';
+        button.style.opacity = '';
+        button.style.transform = '';
+        if (button.dataset.oldBg) {
+            button.style.backgroundColor = button.dataset.oldBg;
+            delete button.dataset.oldBg;
+        }
+
+        // Restore original text
+        if (button.dataset.originalText) {
+            button.innerHTML = button.dataset.originalText;
+            delete button.dataset.originalText;
+            delete button.dataset.originalDisabled;
         }
     }
 };
@@ -132,39 +140,38 @@ window.setButtonSuccess = function (button, options = {}) {
     // Logic to close modal
     if (settings.closeModal) {
         setTimeout(() => {
-            // 1. Try to find nearest modal container
+            // Find modal container
             const modal = button.closest('.modal, [id*="modal"], [class*="modal"]');
 
             if (modal) {
-                // A. Check for Alpine.js (standard in this app)
-                if (window.Alpine) {
+                // A. Alpine.js Close Logic
+                const alpineEl = modal.closest('[x-data]');
+                if (alpineEl && window.Alpine) {
                     try {
-                        const alpineData = window.Alpine.$data(modal) || window.Alpine.$data(button.closest('[x-data]'));
-                        if (alpineData) {
-                            // Find any boolean variable that looks like a modal toggle
-                            Object.keys(alpineData).forEach(key => {
-                                if (key.toLowerCase().includes('modal') && typeof alpineData[key] === 'boolean') {
-                                    alpineData[key] = false;
-                                }
-                            });
-                        }
+                        const data = window.Alpine.$data(alpineEl);
+                        // Specifically look for variables that control visibility
+                        Object.keys(data).forEach(key => {
+                            if (key.toLowerCase().includes('modal') && typeof data[key] === 'boolean') {
+                                data[key] = false;
+                            }
+                        });
                     } catch (e) {
-                        console.warn('Alpine modal close failed:', e);
+                        console.warn('Alpine close failed:', e);
                     }
                 }
 
-                // B. Check for classic Product Modal in apps-script.js
+                // B. Special case for Product Modal
                 if (modal.id === 'productModal' && typeof window.closeProductModal === 'function') {
                     window.closeProductModal();
                 }
 
-                // C. Fallback: hide by class
+                // C. Forced Fallback
                 modal.classList.add('hidden');
                 modal.classList.remove('show', 'flex');
-                if (modal.style.display === 'flex') modal.style.display = 'none';
+                modal.style.setProperty('display', 'none', 'important');
             }
 
-            // Restore button after modal is closed (or after delay)
+            // Restore button text and state
             window.setButtonLoading(button, false);
         }, settings.delay);
     } else {
