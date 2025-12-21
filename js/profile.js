@@ -357,6 +357,9 @@ function clearPersonalInfo() {
                 // Fetch will automatically update cache and UI
                 fetchProfileData(window.currentProfileUserId);
 
+                // Reset button loading state
+                window.setButtonLoading(deleteBtn, false);
+
                 // Close modal
                 if (window.app) {
                     window.app.isProfileInfoModal = false;
@@ -411,6 +414,9 @@ function clearAddress() {
 
                     // Fetch will automatically update cache and UI
                     fetchProfileData(window.currentProfileUserId);
+
+                    // Reset button loading state
+                    window.setButtonLoading(deleteBtnAddress, false);
 
                     // Close modal
                     if (window.app) {
@@ -488,29 +494,14 @@ function savePersonalInfo() {
                     window.currentProfileUserId = response.data.id;
                 }
 
-                // Invalidate cache or Update it? 
-                // Since `fetchProfileData` now updates the cache, simply calling it is enough.
-                // However, `fetchProfileData` will ALSO load from cache first (which is old now).
-                // But since we just saved, we know the data on server is "new", but local cache is "old".
-                // Actually, `fetchProfileData` will invoke network call, which will eventually overwrite cache with fresh data.
-                // To avoid "flash of old content", we should ideally update cache HERE with what we just sent + response?
-                // OR, just clear cache so `fetch` has to hit network (but then we lose speed if they reload immediately).
-                // Better approach: `fetchProfileData` will load old cache, THEN network request finishes and updates UI.
-                // To prevent seeing old data for a split second after we *know* we changed it:
-                // We can manually update the cache with the values we just saved.
-
-                // Construct the "new" profile object roughly (or just rely on re-fetch).
-                // Relying on re-fetch is safest but might show reversion.
-                // Let's rely on re-fetch but CLEAR cache first so it forces a wait? 
-                // No, that defeats the purpose.
-                // Best UX: Optimistically update UI (which we can do via fetching).
-                // Since this is a SAVE action, the slight delay of re-fetching is acceptable compared to page load.
-                // NOTE: To fix the "flash of old data", we could delete the cache key before fetching.
-
+                // Clear cache before refetching to ensure we don't load stale data
                 const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
                 localStorage.removeItem(cacheKey);
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
+
+                // Reset button loading state
+                window.setButtonLoading(saveBtn, false);
 
                 // Close modal
                 if (window.app) {
@@ -576,6 +567,9 @@ function saveAddress() {
                 localStorage.removeItem(cacheKey);
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
+
+                // Reset button loading state
+                window.setButtonLoading(saveBtn, false);
 
                 // Close modal
                 if (window.app) {
