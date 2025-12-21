@@ -97,16 +97,16 @@ window.initFaqAiPage = function () {
         }
     }
 
-    function typeEffect(element, text, speed = 20) {
-        if (!text) return; // Prevent TypeError if text is undefined
+    function typeEffect(element, text, speed = 15, callback = null) {
+        if (!text) return;
         element.innerHTML = "";
 
         // Convert Markdown-like syntax to HTML
         const formattedText = text
             .replace(/\n/g, '<br>')
-            .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono text-xs">$1</code>')
-            .replace(/\[([^\]]+)\]\((#[^\)]+)\)/g, '<a href="$2" class="text-brand-500 font-bold hover:underline">$1</a>')
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono text-xs text-brand-600 dark:text-brand-400">$1</code>')
+            .replace(/\[([^\]]+)\]\((#[^\)]+)\)/g, '<a href="$2" class="text-brand-500 font-extrabold hover:underline">$1</a>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>');
 
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = formattedText;
@@ -122,6 +122,7 @@ window.initFaqAiPage = function () {
                     if (charIndex < node.textContent.length) {
                         element.innerHTML += node.textContent.charAt(charIndex);
                         charIndex++;
+                        if (callback) callback();
                         setTimeout(type, speed);
                     } else {
                         nodeIndex++;
@@ -129,11 +130,14 @@ window.initFaqAiPage = function () {
                         type();
                     }
                 } else {
-                    // Supported elements: <br>, <strong>, <a>, <code>
+                    // Element node (br, strong, a, etc)
                     element.appendChild(node.cloneNode(true));
                     nodeIndex++;
+                    if (callback) callback();
                     type();
                 }
+            } else if (callback) {
+                callback();
             }
         }
         type();
@@ -148,7 +152,6 @@ window.initFaqAiPage = function () {
         if (modal) {
             modal.classList.add('flex');
             modal.classList.remove('hidden');
-            // Reset chat if needed
         }
     };
 
@@ -162,7 +165,7 @@ window.initFaqAiPage = function () {
     if (modalTrigger) modalTrigger.addEventListener('click', openModal);
     closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
 
-    // --- AI Chat Simulation ---
+    // --- AI Chat Logic ---
     const chatForm = document.querySelector('#ai-chat-form');
     const chatInput = document.querySelector('#ai-chat-input');
     const chatBody = document.querySelector('#ai-chat-body');
@@ -181,7 +184,6 @@ window.initFaqAiPage = function () {
             const thinkingId = 'thinking-' + Date.now();
             addChatMessage('...', 'ai', thinkingId);
 
-            // Call Google Apps Script backend using the project's callback-based function
             if (typeof window.sendDataToGoogle === 'function') {
                 window.sendDataToGoogle(
                     'askAiFAQ',
@@ -190,35 +192,26 @@ window.initFaqAiPage = function () {
                         const thinkingMsg = document.getElementById(thinkingId);
                         if (thinkingMsg) {
                             if (response.status === 'success') {
-                                // Support simple Markdown like backticks and newlines
-                                let formattedAnswer = response.answer
-                                    .replace(/\n/g, '<br>')
-                                    .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono">$1</code>');
-
-                                thinkingMsg.innerHTML = formattedAnswer;
+                                // Enable typing effect for chat modal
+                                typeEffect(thinkingMsg, response.answer, 15, () => {
+                                    chatBody.scrollTop = chatBody.scrollHeight;
+                                });
                             } else {
-                                thinkingMsg.textContent = "Maaf, terjadi kesalahan: " + (response.message || "Gagal mendapatkan jawaban.");
+                                thinkingMsg.textContent = "Maaf: " + (response.message || "Gagal mendapatkan jawaban.");
                                 thinkingMsg.classList.add('text-red-500');
+                                chatBody.scrollTop = chatBody.scrollHeight;
                             }
                         }
-                        chatBody.scrollTop = chatBody.scrollHeight;
                     },
                     (error) => {
-                        console.error("AI Error:", error);
                         const thinkingMsg = document.getElementById(thinkingId);
                         if (thinkingMsg) {
-                            thinkingMsg.textContent = "Terjadi gangguan koneksi. Harap coba beberapa saat lagi.";
+                            thinkingMsg.textContent = "Terjadi gangguan koneksi.";
                             thinkingMsg.classList.add('text-red-500');
                         }
                         chatBody.scrollTop = chatBody.scrollHeight;
                     }
                 );
-            } else {
-                const thinkingMsg = document.getElementById(thinkingId);
-                if (thinkingMsg) {
-                    thinkingMsg.textContent = "Error: Sistem komunikasi backend tidak tersedia.";
-                    thinkingMsg.classList.add('text-red-500');
-                }
             }
         });
     }
