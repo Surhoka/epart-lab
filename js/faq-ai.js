@@ -77,7 +77,7 @@ window.initFaqAiPage = function () {
     const chatBody = document.querySelector('#ai-chat-body');
 
     if (chatForm) {
-        chatForm.addEventListener('submit', async (e) => {
+        chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const message = chatInput.value.trim();
             if (!message) return;
@@ -90,36 +90,45 @@ window.initFaqAiPage = function () {
             const thinkingId = 'thinking-' + Date.now();
             addChatMessage('...', 'ai', thinkingId);
 
-            try {
-                // Call Google Apps Script backend
-                const response = await window.sendDataToGoogle({
-                    action: 'askAiFAQ',
-                    question: message
-                });
+            // Call Google Apps Script backend using the project's callback-based function
+            if (typeof window.sendDataToGoogle === 'function') {
+                window.sendDataToGoogle(
+                    'askAiFAQ',
+                    { question: message },
+                    (response) => {
+                        const thinkingMsg = document.getElementById(thinkingId);
+                        if (thinkingMsg) {
+                            if (response.status === 'success') {
+                                // Support simple Markdown like backticks and newlines
+                                let formattedAnswer = response.answer
+                                    .replace(/\n/g, '<br>')
+                                    .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono">$1</code>');
 
-                const thinkingMsg = document.getElementById(thinkingId);
-                if (thinkingMsg) {
-                    if (response.status === 'success') {
-                        // Support simple Markdown like backticks and newlines
-                        let formattedAnswer = response.answer
-                            .replace(/\n/g, '<br>')
-                            .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">$1</code>');
-
-                        thinkingMsg.innerHTML = formattedAnswer;
-                    } else {
-                        thinkingMsg.textContent = "Maaf, terjadi kesalahan: " + (response.message || "Gagal mendapatkan jawaban.");
-                        thinkingMsg.classList.add('text-red-500');
+                                thinkingMsg.innerHTML = formattedAnswer;
+                            } else {
+                                thinkingMsg.textContent = "Maaf, terjadi kesalahan: " + (response.message || "Gagal mendapatkan jawaban.");
+                                thinkingMsg.classList.add('text-red-500');
+                            }
+                        }
+                        chatBody.scrollTop = chatBody.scrollHeight;
+                    },
+                    (error) => {
+                        console.error("AI Error:", error);
+                        const thinkingMsg = document.getElementById(thinkingId);
+                        if (thinkingMsg) {
+                            thinkingMsg.textContent = "Terjadi gangguan koneksi. Harap coba beberapa saat lagi.";
+                            thinkingMsg.classList.add('text-red-500');
+                        }
+                        chatBody.scrollTop = chatBody.scrollHeight;
                     }
-                }
-            } catch (error) {
-                console.error("AI Error:", error);
+                );
+            } else {
                 const thinkingMsg = document.getElementById(thinkingId);
                 if (thinkingMsg) {
-                    thinkingMsg.textContent = "Terjadi gangguan koneksi. Harap coba beberapa saat lagi.";
+                    thinkingMsg.textContent = "Error: Sistem komunikasi backend tidak tersedia.";
                     thinkingMsg.classList.add('text-red-500');
                 }
             }
-            chatBody.scrollTop = chatBody.scrollHeight;
         });
     }
 
