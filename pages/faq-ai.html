@@ -26,18 +26,52 @@
     <!-- Primary Card Wrapper -->
     <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
 
-         <!-- Search Section (Consistent with Profile spacing) -->
+        <!-- Search Section -->
         <div class="mb-8 p-1">
-            <div class="relative group">
-                <span
-                    class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-brand-500">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            <div class="relative group flex gap-3">
+                <div class="relative flex-1">
+                    <span
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-brand-500">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input type="text" id="faq-search"
+                        placeholder="Cari pertanyaan... (contoh: 'resi' atau 'pembayaran')"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-300 focus:ring-4 focus:ring-brand-500/5 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-800">
+                </div>
+                <button id="search-ask-ai"
+                    class="flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 dark:bg-brand-500 dark:hover:bg-brand-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
                     </svg>
-                </span>
-                <input type="text" id="faq-search" placeholder="Cari pertanyaan... (contoh: 'resi' atau 'pembayaran')"
-                    class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-300 focus:ring-4 focus:ring-brand-500/5 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-800">
+                    Tanya AI
+                </button>
+            </div>
+
+            <!-- AI Search Result Container (Hidden by default) -->
+            <div id="ai-search-result"
+                class="mt-6 hidden animate-fadeIn overflow-hidden rounded-2xl border border-brand-100 bg-brand-50/30 p-6 dark:border-brand-500/20 dark:bg-brand-500/5">
+                <div class="mb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-brand-600 dark:text-brand-400">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">AI Insight</span>
+                    </div>
+                    <button id="close-ai-result" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l18 18"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="ai-result-content" class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    <!-- Typing content goes here -->
+                </div>
             </div>
         </div>
 
@@ -232,4 +266,3 @@
         </div>
     </div>
 </div>
-
