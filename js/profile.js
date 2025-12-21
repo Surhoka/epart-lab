@@ -360,11 +360,11 @@ function clearPersonalInfo() {
                 // Fetch will automatically update cache and UI
                 fetchProfileData(window.currentProfileUserId);
 
-                // Close modal and reset button using Alpine.js with slight delay
-                setTimeout(() => {
-                    // Reset button loading state
-                    window.setButtonLoading(deleteBtn, false);
+                // Reset button first, then close modal with proper timing
+                window.setButtonLoading(deleteBtn, false);
 
+                // Wait a bit for button to restore, then close modal
+                setTimeout(() => {
                     const profileContainer = document.getElementById('profile-page-container');
                     if (profileContainer && window.Alpine) {
                         try {
@@ -376,7 +376,7 @@ function clearPersonalInfo() {
                             console.error('Error closing modal:', e);
                         }
                     }
-                }, 300);
+                }, 100);
             } else {
                 console.error('Failed to clear personal info:', response.message);
                 if (window.showToast) window.showToast('Failed to clear personal info', 'error');
@@ -420,11 +420,11 @@ function clearAddress() {
                     // Fetch will automatically update cache and UI
                     fetchProfileData(window.currentProfileUserId);
 
-                    // Close modal and reset button using Alpine.js with slight delay
-                    setTimeout(() => {
-                        // Reset button loading state
-                        window.setButtonLoading(deleteBtnAddress, false);
+                    // Reset button first, then close modal with proper timing
+                    window.setButtonLoading(deleteBtnAddress, false);
 
+                    // Wait a bit for button to restore, then close modal
+                    setTimeout(() => {
                         const profileContainer = document.getElementById('profile-page-container');
                         if (profileContainer && window.Alpine) {
                             try {
@@ -436,7 +436,7 @@ function clearAddress() {
                                 console.error('Error closing modal:', e);
                             }
                         }
-                    }, 300);
+                    }, 100);
                 } else {
                     console.error('Failed to clear address:', response.message);
                     if (window.showToast) window.showToast('Failed to clear address', 'error');
@@ -508,11 +508,11 @@ function savePersonalInfo() {
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                // Close modal and reset button using Alpine.js with slight delay
-                setTimeout(() => {
-                    // Reset button loading state
-                    window.setButtonLoading(saveBtn, false);
+                // Reset button first, then close modal with proper timing
+                window.setButtonLoading(saveBtn, false);
 
+                // Wait a bit for button to restore, then close modal
+                setTimeout(() => {
                     const profileContainer = document.getElementById('profile-page-container');
                     if (profileContainer && window.Alpine) {
                         try {
@@ -524,7 +524,7 @@ function savePersonalInfo() {
                             console.error('Error closing modal:', e);
                         }
                     }
-                }, 300);
+                }, 100);
             } else {
                 console.error('Failed to save profile:', response.message);
                 if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
@@ -579,11 +579,11 @@ function saveAddress() {
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                // Close modal and reset button using Alpine.js with slight delay
-                setTimeout(() => {
-                    // Reset button loading state
-                    window.setButtonLoading(saveBtn, false);
+                // Reset button first, then close modal with proper timing
+                window.setButtonLoading(saveBtn, false);
 
+                // Wait a bit for button to restore, then close modal
+                setTimeout(() => {
                     const profileContainer = document.getElementById('profile-page-container');
                     if (profileContainer && window.Alpine) {
                         try {
@@ -595,7 +595,7 @@ function saveAddress() {
                             console.error('Error closing modal:', e);
                         }
                     }
-                }, 300);
+                }, 100);
             } else {
                 console.error('Failed to save address:', response.message);
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
