@@ -33,6 +33,16 @@ window.setButtonLoading = function (button, isLoading) {
         button.disabled = true;
         button.classList.add('btn-loading');
 
+        // Reset success/hide styles if any (to ensure button reappears correctly)
+        button.classList.remove('btn-success');
+        button.style.display = '';
+        button.style.opacity = '';
+        button.style.transform = '';
+        if (button.dataset.oldBg) {
+            button.style.backgroundColor = button.dataset.oldBg;
+            delete button.dataset.oldBg;
+        }
+
         // Add spinner and loading text
         button.innerHTML = `
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
