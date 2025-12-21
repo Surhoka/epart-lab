@@ -77,7 +77,7 @@ window.initFaqAiPage = function () {
     const chatBody = document.querySelector('#ai-chat-body');
 
     if (chatForm) {
-        chatForm.addEventListener('submit', (e) => {
+        chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const message = chatInput.value.trim();
             if (!message) return;
@@ -90,29 +90,51 @@ window.initFaqAiPage = function () {
             const thinkingId = 'thinking-' + Date.now();
             addChatMessage('...', 'ai', thinkingId);
 
-            // Simulate AI delay
-            setTimeout(() => {
+            try {
+                // Call Google Apps Script backend
+                const response = await window.sendDataToGoogle({
+                    action: 'askAiFAQ',
+                    question: message
+                });
+
                 const thinkingMsg = document.getElementById(thinkingId);
                 if (thinkingMsg) {
-                    thinkingMsg.innerHTML = getAIResponse(message);
+                    if (response.status === 'success') {
+                        // Support simple Markdown like backticks and newlines
+                        let formattedAnswer = response.answer
+                            .replace(/\n/g, '<br>')
+                            .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">$1</code>');
+
+                        thinkingMsg.innerHTML = formattedAnswer;
+                    } else {
+                        thinkingMsg.textContent = "Maaf, terjadi kesalahan: " + (response.message || "Gagal mendapatkan jawaban.");
+                        thinkingMsg.classList.add('text-red-500');
+                    }
                 }
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }, 1500);
+            } catch (error) {
+                console.error("AI Error:", error);
+                const thinkingMsg = document.getElementById(thinkingId);
+                if (thinkingMsg) {
+                    thinkingMsg.textContent = "Terjadi gangguan koneksi. Harap coba beberapa saat lagi.";
+                    thinkingMsg.classList.add('text-red-500');
+                }
+            }
+            chatBody.scrollTop = chatBody.scrollHeight;
         });
     }
 
     function addChatMessage(text, sender, id = null) {
         const msgDiv = document.createElement('div');
-        msgDiv.className = 'flex gap-3 ' + (sender === 'user' ? 'flex-row-reverse' : '');
+        msgDiv.className = 'flex gap-3 mb-4 ' + (sender === 'user' ? 'flex-row-reverse' : '');
 
         const avatar = document.createElement('div');
-        avatar.className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ' +
+        avatar.className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold shadow-sm ' +
             (sender === 'user' ? 'bg-gray-200 text-gray-700' : 'bg-brand-500 text-white');
         avatar.textContent = sender === 'user' ? 'ME' : 'AI';
 
         const content = document.createElement('div');
-        content.className = 'rounded-2xl p-4 text-sm max-w-[80%] ' +
-            (sender === 'user' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/10' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300');
+        content.className = 'rounded-2xl p-4 text-sm max-w-[85%] leading-relaxed ' +
+            (sender === 'user' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/10 rounded-tr-none' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded-tl-none');
         if (id) content.id = id;
         content.textContent = text;
 
@@ -120,18 +142,5 @@ window.initFaqAiPage = function () {
         msgDiv.appendChild(content);
         chatBody.appendChild(msgDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
-    }
-
-    function getAIResponse(query) {
-        query = query.toLowerCase();
-        if (query.includes('resi') || query.includes('track') || query.includes('lacaka')) {
-            return "Untuk melacak pesanan, silakan buka menu Dashboard > Pesanan, lalu klik nomor resi yang tersedia. Apakah ada nomor pesanan spesifik yang ingin saya bantu cek?";
-        } else if (query.includes('bayar') || query.includes('pembayaran') || query.includes('metode')) {
-            return "Kami menerima Transfer Bank (VA), Kartu Kredit, serta dompet digital (OVO, GoPay, Dana). Klik ikon Keranjang di pojok kanan atas untuk melihat detail pembayaran Anda.";
-        } else if (query.includes('halo') || query.includes('hi')) {
-            return "Halo! Saya asisten AI Ezyparts. Saya siap membantu menjawab pertanyaan Anda seputar pesanan, pembayaran, atau fitur dashboard ini.";
-        } else {
-            return "Pertanyaan yang bagus! Saya sedang mencari informasi lebih detail tentang '" + query + "'. Secara umum, Anda dapat menemukan informasi tersebut di halaman dokumentasi kami atau hubungi bantuan teknis jika sangat mendesak.";
-        }
     }
 };
