@@ -25,6 +25,11 @@ window.initFaqAiPage = function () {
 
     // --- Search Logic ---
     const searchInput = document.querySelector('#faq-search');
+    const searchBtn = document.querySelector('#search-ask-ai');
+    const aiResultContainer = document.querySelector('#ai-search-result');
+    const aiResultContent = document.querySelector('#ai-result-content');
+    const closeAiResult = document.querySelector('#close-ai-result');
+
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
@@ -46,6 +51,92 @@ window.initFaqAiPage = function () {
                 cat.style.display = hasVisibleItems ? 'flex' : 'none';
             });
         });
+
+        // Trigger AI search on Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && searchInput.value.trim()) {
+                handleInlineAiSearch();
+            }
+        });
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            if (searchInput.value.trim()) {
+                handleInlineAiSearch();
+            }
+        });
+    }
+
+    if (closeAiResult) {
+        closeAiResult.addEventListener('click', () => {
+            aiResultContainer.classList.add('hidden');
+        });
+    }
+
+    function handleInlineAiSearch() {
+        const query = searchInput.value.trim();
+        aiResultContainer.classList.remove('hidden');
+        aiResultContent.innerHTML = '<div class="flex items-center gap-2"><span class="h-2 w-2 animate-bounce rounded-full bg-brand-500"></span><span class="h-2 w-2 animate-bounce rounded-full bg-brand-500 [animation-delay:0.2s]"></span><span class="h-2 w-2 animate-bounce rounded-full bg-brand-500 [animation-delay:0.4s]"></span></div>';
+
+        if (typeof window.sendDataToGoogle === 'function') {
+            window.sendDataToGoogle(
+                'askAiFAQ',
+                { question: query },
+                (response) => {
+                    if (response.status === 'success') {
+                        typeEffect(aiResultContent, response.answer);
+                    } else {
+                        aiResultContent.innerHTML = '<span class="text-red-500">Gagal mendapatkan jawaban: ' + (response.message || "Error server") + '</span>';
+                    }
+                },
+                (error) => {
+                    aiResultContent.innerHTML = '<span class="text-red-500">Gangguan koneksi sistem.</span>';
+                }
+            );
+        }
+    }
+
+    function typeEffect(element, text, speed = 20) {
+        element.innerHTML = "";
+        let i = 0;
+        // Basic Markdown to HTML conversion before typing to avoid tag breaking
+        const formattedText = text
+            .replace(/\n/g, '<br>')
+            .replace(/`([^`]+)`/g, '<strong>$1</strong>');
+
+        // Simplified typing by character (non-HTML safe for complex tags, but okay for basic <br>)
+        // For better results with HTML tags, we'd need a more complex strategy, 
+        // but for <br> and <strong>, we'll use a hidden temp div.
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = formattedText;
+        const nodes = Array.from(tempDiv.childNodes);
+
+        let nodeIndex = 0;
+        let charIndex = 0;
+
+        function type() {
+            if (nodeIndex < nodes.length) {
+                const node = nodes[nodeIndex];
+                if (node.nodeType === Node.TEXT_NODE) {
+                    if (charIndex < node.textContent.length) {
+                        element.innerHTML += node.textContent.charAt(charIndex);
+                        charIndex++;
+                        setTimeout(type, speed);
+                    } else {
+                        nodeIndex++;
+                        charIndex = 0;
+                        type();
+                    }
+                } else {
+                    // It's an element like <br> or <strong>
+                    element.appendChild(node.cloneNode(true));
+                    nodeIndex++;
+                    type();
+                }
+            }
+        }
+        type();
     }
 
     // --- AI Chat Modal Logic ---
