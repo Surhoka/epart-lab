@@ -248,9 +248,13 @@ function normalizeResponse(action, response) {
             if (response.user) normalized.user = response.user; // For backward compatibility
             if (response.redirectUrl) normalized.redirectUrl = response.redirectUrl;
             if (response.token) normalized.token = response.token;
+        } else if (action === 'askAiFAQ') {
+            normalized.status = response.status || 'success';
+            normalized.message = response.message || 'Success';
+            normalized.answer = response.answer || '';
+            normalized.data = response.data || [];
         } else if (response.status) {
             // For all other actions, if response has a status field, we should accept it as valid
-            // Only override the message if there's a specific error message
             normalized = {
                 status: response.status,
                 message: response.message || 'Success',
@@ -258,10 +262,13 @@ function normalizeResponse(action, response) {
                 pagination: response.pagination || {},
                 version: response.version || 'unknown'
             };
+            // Preserve 'answer' if it exists in any other action
+            if (response.answer) normalized.answer = response.answer;
         } else {
             // This case should not happen with proper server responses, but for safety
             normalized.status = 'success';
             normalized.data = response;
+            if (response.answer) normalized.answer = response.answer;
         }
     }
 
