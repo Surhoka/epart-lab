@@ -140,10 +140,13 @@ window.setButtonSuccess = function (button, options = {}) {
     // Logic to close modal
     if (settings.closeModal) {
         setTimeout(() => {
+            console.log('Searching for modal to close for button:', button);
             // Find modal container
             const modal = button.closest('.modal, [id*="modal"], [class*="modal"]');
+            console.log('Found modal container:', modal);
 
             if (modal) {
+                console.log('Attempting to close modal. window.app exists:', !!window.app);
                 // A. Direct Alpine Global Access (Primary for SPA)
                 if (window.app) {
                     Object.keys(window.app).forEach(key => {
