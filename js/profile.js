@@ -118,12 +118,15 @@ function fetchProfileData(userId) {
                     if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
 
                     // Auto-open Personal Info Modal
-                    const modal = document.querySelector('.modal');
-                    if (modal) {
-                        // We check the nearest component since Alpine might be on a parent
-                        // In this app, the main data is usually on the body or a main wrapper
-                        if (window.app) {
-                            window.app.isProfileInfoModal = true;
+                    const profileContainer = document.getElementById('profile-page-container');
+                    if (profileContainer && window.Alpine) {
+                        try {
+                            const alpineData = window.Alpine.$data(profileContainer);
+                            if (alpineData) {
+                                alpineData.isProfileInfoModal = true;
+                            }
+                        } catch (e) {
+                            console.error('Error opening modal:', e);
                         }
                     }
                 }
@@ -360,18 +363,20 @@ function clearPersonalInfo() {
                 // Reset button loading state
                 window.setButtonLoading(deleteBtn, false);
 
-                // Close modal
-                if (window.app) {
-                    window.app.isProfileInfoModal = false;
-                } else {
-                    // Fallback to searching the DOM if window.app is not found
-                    const modal = document.querySelector('[x-data]');
-                    if (modal && window.Alpine) {
+                // Close modal using Alpine.js with slight delay to ensure all processes complete
+                setTimeout(() => {
+                    const profileContainer = document.getElementById('profile-page-container');
+                    if (profileContainer && window.Alpine) {
                         try {
-                            window.Alpine.$data(modal).isProfileInfoModal = false;
-                        } catch (e) { }
+                            const alpineData = window.Alpine.$data(profileContainer);
+                            if (alpineData) {
+                                alpineData.isProfileInfoModal = false;
+                            }
+                        } catch (e) {
+                            console.error('Error closing modal:', e);
+                        }
                     }
-                }
+                }, 300);
             } else {
                 console.error('Failed to clear personal info:', response.message);
                 if (window.showToast) window.showToast('Failed to clear personal info', 'error');
@@ -418,17 +423,20 @@ function clearAddress() {
                     // Reset button loading state
                     window.setButtonLoading(deleteBtnAddress, false);
 
-                    // Close modal
-                    if (window.app) {
-                        window.app.isProfileAddressModal = false;
-                    } else {
-                        const modal = document.querySelector('[x-data]');
-                        if (modal && window.Alpine) {
+                    // Close modal using Alpine.js with slight delay to ensure all processes complete
+                    setTimeout(() => {
+                        const profileContainer = document.getElementById('profile-page-container');
+                        if (profileContainer && window.Alpine) {
                             try {
-                                window.Alpine.$data(modal).isProfileAddressModal = false;
-                            } catch (e) { }
+                                const alpineData = window.Alpine.$data(profileContainer);
+                                if (alpineData) {
+                                    alpineData.isProfileAddressModal = false;
+                                }
+                            } catch (e) {
+                                console.error('Error closing modal:', e);
+                            }
                         }
-                    }
+                    }, 300);
                 } else {
                     console.error('Failed to clear address:', response.message);
                     if (window.showToast) window.showToast('Failed to clear address', 'error');
@@ -503,17 +511,20 @@ function savePersonalInfo() {
                 // Reset button loading state
                 window.setButtonLoading(saveBtn, false);
 
-                // Close modal
-                if (window.app) {
-                    window.app.isProfileInfoModal = false;
-                } else {
-                    const modal = document.querySelector('[x-data]');
-                    if (modal && window.Alpine) {
+                // Close modal using Alpine.js with slight delay to ensure all processes complete
+                setTimeout(() => {
+                    const profileContainer = document.getElementById('profile-page-container');
+                    if (profileContainer && window.Alpine) {
                         try {
-                            window.Alpine.$data(modal).isProfileInfoModal = false;
-                        } catch (e) { }
+                            const alpineData = window.Alpine.$data(profileContainer);
+                            if (alpineData) {
+                                alpineData.isProfileInfoModal = false;
+                            }
+                        } catch (e) {
+                            console.error('Error closing modal:', e);
+                        }
                     }
-                }
+                }, 300);
             } else {
                 console.error('Failed to save profile:', response.message);
                 if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
@@ -571,17 +582,20 @@ function saveAddress() {
                 // Reset button loading state
                 window.setButtonLoading(saveBtn, false);
 
-                // Close modal
-                if (window.app) {
-                    window.app.isProfileAddressModal = false;
-                } else {
-                    const modal = document.querySelector('[x-data]');
-                    if (modal && window.Alpine) {
+                // Close modal using Alpine.js with slight delay to ensure all processes complete
+                setTimeout(() => {
+                    const profileContainer = document.getElementById('profile-page-container');
+                    if (profileContainer && window.Alpine) {
                         try {
-                            window.Alpine.$data(modal).isProfileAddressModal = false;
-                        } catch (e) { }
+                            const alpineData = window.Alpine.$data(profileContainer);
+                            if (alpineData) {
+                                alpineData.isProfileAddressModal = false;
+                            }
+                        } catch (e) {
+                            console.error('Error closing modal:', e);
+                        }
                     }
-                }
+                }, 300);
             } else {
                 console.error('Failed to save address:', response.message);
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
