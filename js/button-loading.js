@@ -158,6 +158,7 @@ window.setButtonSuccess = function (button, options = {}) {
                 }
 
                 // B. Alpine.js Component Search (Fallback)
+                let handledByAlpine = false;
                 const alpineEl = modal.closest('[x-data]');
                 if (alpineEl && window.Alpine) {
                     try {
@@ -165,6 +166,7 @@ window.setButtonSuccess = function (button, options = {}) {
                         Object.keys(data).forEach(key => {
                             if (key.toLowerCase().includes('modal') && typeof data[key] === 'boolean') {
                                 data[key] = false;
+                                handledByAlpine = true;
                             }
                         });
                     } catch (e) {
@@ -175,12 +177,20 @@ window.setButtonSuccess = function (button, options = {}) {
                 // C. Special case for Product Modal (Classic)
                 if (modal.id === 'productModal' && typeof window.closeProductModal === 'function') {
                     window.closeProductModal();
+                    handledByAlpine = true; // Use this to skip forced fallback
                 }
 
-                // D. Forced Fallback
-                modal.classList.add('hidden');
-                modal.classList.remove('show', 'flex');
-                modal.style.setProperty('display', 'none', 'important');
+                // D. Forced Fallback (Only use if not handled by Alpine/Custom function)
+                if (!handledByAlpine) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('show', 'flex');
+                    modal.style.display = 'none';
+                } else {
+                    // Even if handled by Alpine, ensure we remove any previous forced "hidden" or styles 
+                    // from earlier versions or sessions to prevent "stuck" modals
+                    modal.classList.remove('hidden');
+                    modal.style.display = '';
+                }
             }
 
             // Restore button text and state
