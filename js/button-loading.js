@@ -72,17 +72,12 @@ window.setButtonLoading = function (button, isLoading) {
 
 /**
  * Global Success Handler
- * Automatically finds buttons that were loading and marks them as success/hides them
+ * Automatically finds buttons that were loading and marks them as success.
+ * If the button is inside a modal, it will attempt to close the modal.
  */
 window.markActiveButtonsAsSuccess = function (options = {}) {
     window.activeLoadingButtons.forEach(button => {
-        // By default, hide buttons that were processed, 
-        // unless they have data-no-auto-hide="true"
-        if (button.dataset.noAutoHide !== 'true') {
-            window.setButtonSuccess(button, options);
-        } else {
-            window.setButtonLoading(button, false);
-        }
+        window.setButtonSuccess(button, options);
     });
     window.activeLoadingButtons.clear();
 };
@@ -99,17 +94,17 @@ window.resetButtonState = function (button, originalHTML) {
 
 /**
  * Global Button Success Utility
- * Sets button to success state and automatically hides it
+ * Sets button to success state and automatically closes parent modal if exists
  * 
  * @param {HTMLElement} button - The button element
- * @param {Object} options - { hide: true, delay: 1000, message: 'Berhasil' }
+ * @param {Object} options - { closeModal: true, delay: 500, message: 'Berhasil' }
  */
 window.setButtonSuccess = function (button, options = {}) {
     if (!button) return;
 
     const settings = {
-        hide: true,
-        delay: 1000,
+        closeModal: true,
+        delay: 500,
         message: 'Berhasil',
         ...options
     };
@@ -134,15 +129,49 @@ window.setButtonSuccess = function (button, options = {}) {
     button.style.borderColor = '#10B981';
     button.style.color = '#FFFFFF';
 
-    if (settings.hide) {
-        button.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    // Logic to close modal
+    if (settings.closeModal) {
         setTimeout(() => {
-            button.style.opacity = '0';
-            button.style.transform = 'translateY(-10px) scale(0.95)';
-            setTimeout(() => {
-                button.style.display = 'none';
-            }, 500);
+            // 1. Try to find nearest modal container
+            const modal = button.closest('.modal, [id*="modal"], [class*="modal"]');
+
+            if (modal) {
+                // A. Check for Alpine.js (standard in this app)
+                if (window.Alpine) {
+                    try {
+                        const alpineData = window.Alpine.$data(modal) || window.Alpine.$data(button.closest('[x-data]'));
+                        if (alpineData) {
+                            // Find any boolean variable that looks like a modal toggle
+                            Object.keys(alpineData).forEach(key => {
+                                if (key.toLowerCase().includes('modal') && typeof alpineData[key] === 'boolean') {
+                                    alpineData[key] = false;
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('Alpine modal close failed:', e);
+                    }
+                }
+
+                // B. Check for classic Product Modal in apps-script.js
+                if (modal.id === 'productModal' && typeof window.closeProductModal === 'function') {
+                    window.closeProductModal();
+                }
+
+                // C. Fallback: hide by class
+                modal.classList.add('hidden');
+                modal.classList.remove('show', 'flex');
+                if (modal.style.display === 'flex') modal.style.display = 'none';
+            }
+
+            // Restore button after modal is closed (or after delay)
+            window.setButtonLoading(button, false);
         }, settings.delay);
+    } else {
+        // If not closing modal, just restore after a bit so user sees the success
+        setTimeout(() => {
+            window.setButtonLoading(button, false);
+        }, 1500);
     }
 };
 
