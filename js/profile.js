@@ -358,7 +358,17 @@ function clearPersonalInfo() {
                 fetchProfileData(window.currentProfileUserId);
 
                 // Close modal
-                if (window.app) window.app.isProfileInfoModal = false;
+                if (window.app) {
+                    window.app.isProfileInfoModal = false;
+                } else {
+                    // Fallback to searching the DOM if window.app is not found
+                    const modal = document.querySelector('[x-data]');
+                    if (modal && window.Alpine) {
+                        try {
+                            window.Alpine.$data(modal).isProfileInfoModal = false;
+                        } catch (e) { }
+                    }
+                }
             } else {
                 console.error('Failed to clear personal info:', response.message);
                 if (window.showToast) window.showToast('Failed to clear personal info', 'error');
@@ -403,7 +413,16 @@ function clearAddress() {
                     fetchProfileData(window.currentProfileUserId);
 
                     // Close modal
-                    if (window.app) window.app.isProfileAddressModal = false;
+                    if (window.app) {
+                        window.app.isProfileAddressModal = false;
+                    } else {
+                        const modal = document.querySelector('[x-data]');
+                        if (modal && window.Alpine) {
+                            try {
+                                window.Alpine.$data(modal).isProfileAddressModal = false;
+                            } catch (e) { }
+                        }
+                    }
                 } else {
                     console.error('Failed to clear address:', response.message);
                     if (window.showToast) window.showToast('Failed to clear address', 'error');
@@ -494,7 +513,16 @@ function savePersonalInfo() {
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
                 // Close modal
-                if (window.app) window.app.isProfileInfoModal = false;
+                if (window.app) {
+                    window.app.isProfileInfoModal = false;
+                } else {
+                    const modal = document.querySelector('[x-data]');
+                    if (modal && window.Alpine) {
+                        try {
+                            window.Alpine.$data(modal).isProfileInfoModal = false;
+                        } catch (e) { }
+                    }
+                }
             } else {
                 console.error('Failed to save profile:', response.message);
                 if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
@@ -550,7 +578,16 @@ function saveAddress() {
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
                 // Close modal
-                if (window.app) window.app.isProfileAddressModal = false;
+                if (window.app) {
+                    window.app.isProfileAddressModal = false;
+                } else {
+                    const modal = document.querySelector('[x-data]');
+                    if (modal && window.Alpine) {
+                        try {
+                            window.Alpine.$data(modal).isProfileAddressModal = false;
+                        } catch (e) { }
+                    }
+                }
             } else {
                 console.error('Failed to save address:', response.message);
                 if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
