@@ -98,16 +98,16 @@ window.initFaqAiPage = function () {
     }
 
     function typeEffect(element, text, speed = 20) {
+        if (!text) return; // Prevent TypeError if text is undefined
         element.innerHTML = "";
-        let i = 0;
-        // Basic Markdown to HTML conversion before typing to avoid tag breaking
+
+        // Convert Markdown-like syntax to HTML
         const formattedText = text
             .replace(/\n/g, '<br>')
-            .replace(/`([^`]+)`/g, '<strong>$1</strong>');
+            .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono text-xs">$1</code>')
+            .replace(/\[([^\]]+)\]\((#[^\)]+)\)/g, '<a href="$2" class="text-brand-500 font-bold hover:underline">$1</a>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-        // Simplified typing by character (non-HTML safe for complex tags, but okay for basic <br>)
-        // For better results with HTML tags, we'd need a more complex strategy, 
-        // but for <br> and <strong>, we'll use a hidden temp div.
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = formattedText;
         const nodes = Array.from(tempDiv.childNodes);
@@ -129,7 +129,7 @@ window.initFaqAiPage = function () {
                         type();
                     }
                 } else {
-                    // It's an element like <br> or <strong>
+                    // Supported elements: <br>, <strong>, <a>, <code>
                     element.appendChild(node.cloneNode(true));
                     nodeIndex++;
                     type();
