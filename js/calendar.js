@@ -118,7 +118,11 @@ window.initCalendarPage = function () {
     /*=====================*/
     const openModal = () => {
       const modal = document.getElementById("eventModal");
-      if (modal) modal.classList.add("show");
+      if (modal) {
+        modal.classList.add("show");
+        modal.classList.remove("hidden");
+        modal.style.display = "";
+      }
     };
 
     const closeModal = () => {
@@ -262,12 +266,6 @@ window.initCalendarPage = function () {
               getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
             }
 
-            // Close modal with delay and remove loading
-            setTimeout(() => {
-              closeModal();
-              window.setButtonLoading(getModalUpdateBtnEl, false);
-            }, 200);
-
             if (window.showToast) window.showToast('Event updated successfully');
           } else {
             console.error('Failed to update event:', response.message);
@@ -299,12 +297,6 @@ window.initCalendarPage = function () {
                 if (getEvent) {
                   getEvent.remove();
                 }
-
-                // Close modal with delay and remove loading
-                setTimeout(() => {
-                  closeModal();
-                  window.setButtonLoading(getModalDeleteBtnEl, false);
-                }, 200);
 
                 if (window.showToast) window.showToast('Event deleted successfully');
               } else {
@@ -359,12 +351,6 @@ window.initCalendarPage = function () {
             eventData.id = finalId;
 
             calendar.addEvent(eventData);
-
-            // Close modal with delay and remove loading
-            setTimeout(() => {
-              closeModal();
-              window.setButtonLoading(getModalAddBtnEl, false);
-            }, 200);
 
             if (window.showToast) window.showToast('Event created successfully');
           } else {
