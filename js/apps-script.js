@@ -115,6 +115,14 @@ window.showToast = function (message, type = 'success', duration = 3000) {
         return;
     }
 
+    // --- GLOBAL AUTO-HIDE BUTTON LOGIC ---
+    // If this is a success toast and there are buttons in loading state,
+    // mark them as successful (which will hide buttons tagged with data-hide-on-success)
+    if (type === 'success' && typeof window.markActiveButtonsAsSuccess === 'function') {
+        window.markActiveButtonsAsSuccess();
+    }
+    // -------------------------------------
+
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
 
