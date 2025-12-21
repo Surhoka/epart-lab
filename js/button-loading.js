@@ -146,55 +146,63 @@ window.setButtonSuccess = function (button, options = {}) {
             console.log('Found modal container:', modal);
 
             if (modal) {
-                console.log('Attempting to close modal. window.app exists:', !!window.app);
-                // A. Direct Alpine Global Access (Primary for SPA)
+                // B. Better approach: Try to find and click an actual Close button first
+                // This is the most reliable way as it triggers all native/Alpine/transition listeners
+                let closedByButton = false;
+                const closeBtn = modal.querySelector('.modal-close-btn, .close-modal, [x-on\\:click*="false"], [x-on\\:click*="Modal = false"]');
+                if (closeBtn && typeof closeBtn.click === 'function') {
+                    console.log('Clicking found close button:', closeBtn);
+                    closeBtn.click();
+                    closedByButton = true;
+                }
+
+                // C. Fallback: Alpine.js Component Search
+                let handledByAlpine = closedByButton;
+                if (!closedByButton) {
+                    const alpineEl = modal.closest('[x-data]');
+                    if (alpineEl && window.Alpine) {
+                        try {
+                            const data = window.Alpine.$data(alpineEl);
+                            Object.keys(data).forEach(key => {
+                                if (key.toLowerCase().includes('modal') && typeof data[key] === 'boolean') {
+                                    data[key] = false;
+                                    handledByAlpine = true;
+                                }
+                            });
+                        } catch (e) {
+                            console.warn('Alpine close failed:', e);
+                        }
+                    }
+                }
+
+                // D. Extra Safety: Clear Global app modal states
                 if (window.app) {
                     Object.keys(window.app).forEach(key => {
                         if (key.toLowerCase().includes('modal') && typeof window.app[key] === 'boolean') {
-                            console.log(`Setting global window.app.${key} to false`);
                             window.app[key] = false;
                         }
                     });
                 }
 
-                // B. Alpine.js Component Search (Fallback)
-                let handledByAlpine = false;
-                const alpineEl = modal.closest('[x-data]');
-                if (alpineEl && window.Alpine) {
-                    try {
-                        const data = window.Alpine.$data(alpineEl);
-                        Object.keys(data).forEach(key => {
-                            if (key.toLowerCase().includes('modal') && typeof data[key] === 'boolean') {
-                                data[key] = false;
-                                handledByAlpine = true;
-                            }
-                        });
-                    } catch (e) {
-                        console.warn('Alpine close failed:', e);
-                    }
-                }
-
-                // C. Special case for Product Modal (Classic)
-                if (modal.id === 'productModal' && typeof window.closeProductModal === 'function') {
-                    window.closeProductModal();
-                    handledByAlpine = true; // Use this to skip forced fallback
-                }
-
-                // D. Forced Fallback (Only use if not handled by Alpine/Custom function)
-                if (!handledByAlpine) {
+                // E. Final Forced Fallback (Only use if not handled above)
+                if (!handledByAlpine && !closedByButton) {
                     modal.classList.add('hidden');
                     modal.classList.remove('show', 'flex');
                     modal.style.display = 'none';
                 } else {
-                    // Even if handled by Alpine, ensure we remove any previous forced "hidden" or styles 
-                    // from earlier versions or sessions to prevent "stuck" modals
+                    // Cleanup forced styles just in case
                     modal.classList.remove('hidden');
                     modal.style.display = '';
                 }
+
+                // Blur focus to prevent keyboard "stuck" states
+                if (document.activeElement) document.activeElement.blur();
             }
 
-            // Restore button text and state
-            window.setButtonLoading(button, false);
+            // Restore button text and state - MUST ALWAYS RUN
+            setTimeout(() => {
+                window.setButtonLoading(button, false);
+            }, 100);
         }, settings.delay);
     } else {
         // If not closing modal, just restore after a bit so user sees the success
