@@ -360,11 +360,11 @@ function clearPersonalInfo() {
                 // Fetch will automatically update cache and UI
                 fetchProfileData(window.currentProfileUserId);
 
-                // Reset button loading state
-                window.setButtonLoading(deleteBtn, false);
-
-                // Close modal using Alpine.js with slight delay to ensure all processes complete
+                // Close modal and reset button using Alpine.js with slight delay
                 setTimeout(() => {
+                    // Reset button loading state
+                    window.setButtonLoading(deleteBtn, false);
+
                     const profileContainer = document.getElementById('profile-page-container');
                     if (profileContainer && window.Alpine) {
                         try {
@@ -420,11 +420,11 @@ function clearAddress() {
                     // Fetch will automatically update cache and UI
                     fetchProfileData(window.currentProfileUserId);
 
-                    // Reset button loading state
-                    window.setButtonLoading(deleteBtnAddress, false);
-
-                    // Close modal using Alpine.js with slight delay to ensure all processes complete
+                    // Close modal and reset button using Alpine.js with slight delay
                     setTimeout(() => {
+                        // Reset button loading state
+                        window.setButtonLoading(deleteBtnAddress, false);
+
                         const profileContainer = document.getElementById('profile-page-container');
                         if (profileContainer && window.Alpine) {
                             try {
@@ -508,11 +508,11 @@ function savePersonalInfo() {
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                // Reset button loading state
-                window.setButtonLoading(saveBtn, false);
-
-                // Close modal using Alpine.js with slight delay to ensure all processes complete
+                // Close modal and reset button using Alpine.js with slight delay
                 setTimeout(() => {
+                    // Reset button loading state
+                    window.setButtonLoading(saveBtn, false);
+
                     const profileContainer = document.getElementById('profile-page-container');
                     if (profileContainer && window.Alpine) {
                         try {
@@ -579,11 +579,11 @@ function saveAddress() {
 
                 fetchProfileData(window.currentProfileUserId); // Refresh data
 
-                // Reset button loading state
-                window.setButtonLoading(saveBtn, false);
-
-                // Close modal using Alpine.js with slight delay to ensure all processes complete
+                // Close modal and reset button using Alpine.js with slight delay
                 setTimeout(() => {
+                    // Reset button loading state
+                    window.setButtonLoading(saveBtn, false);
+
                     const profileContainer = document.getElementById('profile-page-container');
                     if (profileContainer && window.Alpine) {
                         try {
