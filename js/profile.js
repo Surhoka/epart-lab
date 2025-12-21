@@ -20,6 +20,31 @@ window.initProfilePage = function () {
 };
 
 /**
+ * Force reset button to original state
+ * This ensures button is fully restored even if setButtonLoading fails
+ */
+function forceResetButton(buttonId, originalText) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.disabled = false;
+        button.classList.remove('btn-loading', 'btn-success');
+        button.style.display = '';
+        button.style.opacity = '';
+        button.style.transform = '';
+        button.style.backgroundColor = '';
+        button.style.borderColor = '';
+        button.style.color = '';
+        if (originalText) {
+            button.innerHTML = originalText;
+        }
+        // Clean up any data attributes
+        delete button.dataset.originalText;
+        delete button.dataset.originalDisabled;
+        delete button.dataset.oldBg;
+    }
+}
+
+/**
  * Uploads an image to Google Drive via Google Apps Script and returns its public URL.
  * @param {string} fileName - The desired file name for the uploaded image.
  * @param {string} base64Data - The base64 encoded image data (without the data:image/...;base64, prefix).
@@ -362,6 +387,7 @@ function clearPersonalInfo() {
 
                 // Reset button first, then close modal with proper timing
                 window.setButtonLoading(deleteBtn, false);
+                forceResetButton('delete-profile-btn', 'Delete Account');
 
                 // Wait a bit for button to restore, then close modal
                 setTimeout(() => {
@@ -422,6 +448,7 @@ function clearAddress() {
 
                     // Reset button first, then close modal with proper timing
                     window.setButtonLoading(deleteBtnAddress, false);
+                    forceResetButton('delete-address-btn', 'Delete Address');
 
                     // Wait a bit for button to restore, then close modal
                     setTimeout(() => {
@@ -510,6 +537,7 @@ function savePersonalInfo() {
 
                 // Reset button first, then close modal with proper timing
                 window.setButtonLoading(saveBtn, false);
+                forceResetButton('save-personal-info-btn', 'Save Changes');
 
                 // Wait a bit for button to restore, then close modal
                 setTimeout(() => {
@@ -581,6 +609,7 @@ function saveAddress() {
 
                 // Reset button first, then close modal with proper timing
                 window.setButtonLoading(saveBtn, false);
+                forceResetButton('save-address-btn', 'Save Changes');
 
                 // Wait a bit for button to restore, then close modal
                 setTimeout(() => {
