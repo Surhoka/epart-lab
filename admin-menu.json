@@ -192,7 +192,8 @@
                     "pages": [
                         "reports-sales",
                         "reports-traffic",
-                        "notifikasi"
+                        "notifikasi",
+                        "faq-ai"
                     ],
                     "children": [
                         {
@@ -209,6 +210,10 @@
                             "label": "Notification",
                             "link": "#notification",
                             "page": "notification"
+                        {
+                            "label": "FAQ AI",
+                            "link": "#faq-ai",
+                            "page": "faq-ai"
                         }
                     ]
                 },
@@ -248,6 +253,7 @@
         }
     ]
 }
+
 
 
 
