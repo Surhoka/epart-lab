@@ -170,7 +170,19 @@ document.addEventListener('alpine:init', () => {
             return window.app?.blogTitle || document.title || 'Admin Dashboard';
         },
         get blogFavicon() {
-            return window.app?.blogFavicon || document.querySelector('link[rel="icon"], link[rel="shortcut icon"]')?.href || 'https://www.blogger.com/img/blogger_logo_round_35.png';
+            // Try to get from main app first
+            if (window.app?.blogFavicon) {
+                return window.app.blogFavicon;
+            }
+            
+            // Try to find Blogger's favicon (URL or data URI)
+            const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+            if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
+                return faviconLink.href;
+            }
+            
+            // Fallback to Blogger default
+            return 'https://www.blogger.com/img/blogger_logo_round_35.png';
         }
     }));
 });
