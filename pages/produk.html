@@ -1,4 +1,4 @@
-<div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+<div class="p-3 mx-auto max-w-7xl sm:p-4 md:p-6">
     <!-- Breadcrumb Start -->
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
@@ -6,73 +6,80 @@
     <!-- Header Section -->
     <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90 lg:text-3xl">
+            <h1 class="text-xl font-bold text-gray-800 dark:text-white/90 sm:text-2xl lg:text-3xl">
                 Product <span class="text-brand-500">Inventory</span>
             </h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
                 Manage and track your products across all categories.
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="relative flex-1 sm:flex-none">
-                <span class="absolute -translate-y-1/2 left-4 top-1/2 text-gray-400">
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="relative w-full sm:w-auto">
+                <span class="absolute -translate-y-1/2 left-3 top-1/2 text-gray-400">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="sm:w-[18px] sm:h-[18px]">
                         <circle cx="9" cy="9" r="7"></circle>
                         <path d="M19 19l-4-4"></path>
                     </svg>
                 </span>
                 <input type="text" placeholder="Search products..."
-                    class="h-11 w-full pl-11 pr-4 rounded-xl border border-gray-200 bg-white/50 backdrop-blur-md text-sm transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 sm:w-64">
+                    class="h-10 w-full pl-10 pr-4 rounded-xl border border-gray-200 bg-white/50 backdrop-blur-md text-sm transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 sm:h-11 sm:pl-11 sm:w-64">
             </div>
             <a href="#tambah-produk"
-                class="inline-flex h-11 items-center gap-2 rounded-xl bg-brand-500 px-5 text-sm font-bold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-600 hover:scale-[1.02] active:scale-95 transition-all duration-200">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
+                class="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 text-sm font-bold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-600 hover:scale-[1.02] active:scale-95 transition-all duration-200 sm:h-11 sm:px-5">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" class="sm:w-5 sm:h-5">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                Add Product
+                <span class="hidden xs:inline sm:inline">Add Product</span>
+                <span class="xs:hidden sm:hidden">Add</span>
             </a>
         </div>
     </div>
 
     <!-- Table Section Start -->
     <div
-        class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-        <div class="p-6 border-b border-gray-100 dark:border-gray-800">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white/90">
+        class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03] sm:rounded-3xl">
+        <div class="p-4 border-b border-gray-100 dark:border-gray-800 sm:p-6">
+            <h3 class="text-base font-bold text-gray-800 dark:text-white/90 sm:text-lg">
                 Daftar Produk
             </h3>
         </div>
 
-        <div class="w-full overflow-x-auto">
+        <!-- Mobile Card View (visible on small screens) -->
+        <div id="products-mobile-view" class="block divide-y divide-gray-100 dark:divide-gray-800 md:hidden">
+            <!-- Mobile cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Desktop Table View (hidden on small screens) -->
+        <div class="hidden w-full overflow-x-auto md:block">
             <table class="min-w-full">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-white/[0.01]">
-                        <th class="px-6 py-4 text-left">
+                        <th class="px-4 py-3 text-left lg:px-6 lg:py-4">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Product
                                 Name</span>
                         </th>
-                        <th class="px-6 py-4 text-left">
+                        <th class="px-4 py-3 text-left lg:px-6 lg:py-4">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</span>
                         </th>
-                        <th class="px-6 py-4 text-left">
+                        <th class="px-4 py-3 text-left lg:px-6 lg:py-4">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Stock</span>
                         </th>
-                        <th class="px-6 py-4 text-left">
+                        <th class="px-4 py-3 text-left lg:px-6 lg:py-4">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Selling
                                 Price</span>
                         </th>
-                        <th class="px-6 py-4 text-left">
+                        <th class="px-4 py-3 text-left lg:px-6 lg:py-4">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</span>
                         </th>
-                        <th class="px-6 py-4 text-left">
+                        <th class="px-4 py-3 text-left lg:px-6 lg:py-4">
                             <span
                                 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</span>
                         </th>
@@ -85,7 +92,7 @@
         </div>
 
         <!-- Pagination -->
-        <div id="pagination-container" class="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+        <div id="pagination-container" class="flex flex-col gap-3 p-4 sm:gap-4 md:flex-row md:items-center md:justify-between">
             <!-- Pagination will be dynamically inserted here -->
         </div>
     </div>
