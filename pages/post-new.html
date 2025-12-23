@@ -65,16 +65,13 @@
     <div class="space-y-4" id="block-editor">
       <!-- Dynamic Blocks -->
       <template x-for="(block, index) in blocks" :key="block.id">
-        <div class="group relative block-wrapper" x-data="{ showControls: false }" 
+        <div class="group relative block-wrapper" 
+             x-data="{ showControls: false }" 
              x-on:mouseenter="showControls = true" 
              x-on:mouseleave="showControls = false"
-             :data-block-index="index">
+             :data-block-index="index"
+             :data-block-id="block.id">
           
-          <!-- Block Controls -->
-          <div class="absolute -left-12 top-2 z-10 transition-opacity duration-200" 
-               :class="showControls ? 'opacity-100' : 'opacity-0'"
-               x-show="true"
-               style="pointer-events: auto;"></div>
           <!-- Block Controls -->
           <div class="block-controls">
             <div class="flex flex-col gap-1">
@@ -83,6 +80,42 @@
                 class="block-control-btn"
                 x-on:click="addBlockAbove(index)"
                 title="Add block above"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </button>
+              
+              <!-- Move Up -->
+              <button 
+                class="block-control-btn"
+                x-on:click="moveBlockUp(index)"
+                x-show="index > 0"
+                title="Move up"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                </svg>
+              </button>
+              
+              <!-- Move Down -->
+              <button 
+                class="block-control-btn"
+                x-on:click="moveBlockDown(index)"
+                x-show="index < blocks.length - 1"
+                title="Move down"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Block Content -->
+          <div class="relative border-2 border-transparent hover:border-brand-200 rounded-lg transition-colors" 
+               :class="{ 'border-brand-400': block.selected }"
+               x-on:click="selectBlock(index)">
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
