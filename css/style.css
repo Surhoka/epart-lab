@@ -1970,6 +1970,52 @@ span.flatpickr-weekday,
   }
 }
 
+/* Global Tooltip Styles */
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  color: white;
+  background-color: #1f2937;
+  border-radius: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 9999;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid #1f2937;
+}
+
+.dark .tooltip {
+  background-color: #374151;
+}
+
+.dark .tooltip::before {
+  border-bottom-color: #374151;
+}
+
+.group:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
