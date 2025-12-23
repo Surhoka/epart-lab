@@ -253,6 +253,18 @@ function normalizeResponse(action, response) {
             normalized.message = response.message || 'Success';
             normalized.answer = response.answer || '';
             normalized.data = response.data || [];
+        } else if (action === 'getPosts') {
+            normalized.status = response.status || 'success';
+            normalized.message = response.message || 'Posts retrieved';
+            normalized.data = response.data || { posts: [], total: 0, page: 1, totalPages: 0 };
+        } else if (action === 'getPost') {
+            normalized.status = response.status || 'success';
+            normalized.message = response.message || 'Post retrieved';
+            normalized.data = response.data || null;
+        } else if (action === 'savePost' || action === 'deletePost') {
+            normalized.status = response.status || 'success';
+            normalized.message = response.message || 'Operation completed';
+            normalized.data = response.data || null;
         } else if (response.status) {
             // For all other actions, if response has a status field, we should accept it as valid
             normalized = {
@@ -293,7 +305,9 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
         'changePassword',
         'updateProfile',
         'saveProfileDataOnServer',
-        'simpanProdukBaru'
+        'simpanProdukBaru',
+        'savePost',
+        'deletePost'
     ];
 
     if (postActions.includes(action)) {
