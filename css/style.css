@@ -1717,19 +1717,6 @@ span.flatpickr-weekday,
   opacity: 1 !important;
 }
 
-.block-actions {
-  position: absolute;
-  right: -48px;
-  top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: auto;
-  z-index: 10;
-}
-
 /* Control Buttons */
 .block-control-btn {
   width: 32px;
@@ -1762,6 +1749,19 @@ span.flatpickr-weekday,
   background: #4b5563;
   color: #f3f4f6;
   border-color: #6b7280;
+}
+
+/* Specific tooltip behavior for block controls */
+.block-controls .block-control-btn:hover + .tooltip,
+.block-actions .block-control-btn:hover + .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Prevent tooltip from showing when hovering on block wrapper */
+.block-wrapper:hover .tooltip {
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Block Selection */
@@ -2011,9 +2011,23 @@ span.flatpickr-weekday,
   border-bottom-color: #374151;
 }
 
-.group:hover .tooltip {
+/* Only show tooltip when hovering directly on the button, not the parent group */
+button:hover + .tooltip,
+a:hover + .tooltip {
   opacity: 1;
   visibility: visible;
+}
+
+/* Fallback for group hover (for header icons) */
+.group:hover > .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Prevent tooltip from showing when hovering on nested elements */
+.group .group:hover > .tooltip {
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Custom Scrollbar */
