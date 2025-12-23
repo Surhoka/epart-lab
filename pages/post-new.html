@@ -1,0 +1,349 @@
+<!-- Post Editor Page - Gutenberg Style -->
+<div class="min-h-screen bg-theme-primary" x-data="postEditor()">
+  <!-- Header -->
+  <div class="sticky top-0 z-50 bg-theme-secondary border-b border-theme-primary shadow-sm">
+    <div class="flex items-center justify-between px-6 py-4">
+      <!-- Left: Back Button & Title -->
+      <div class="flex items-center gap-4">
+        <button 
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+          x-on:click="window.history.back()"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back
+        </button>
+        <h1 class="text-xl font-semibold text-theme-primary">Create New Post</h1>
+      </div>
+
+      <!-- Right: Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Save Draft -->
+        <button 
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
+          x-on:click="saveDraft()"
+          :disabled="saving"
+        >
+          <span x-show="!saving">Save Draft</span>
+          <span x-show="saving" class="flex items-center gap-2">
+            <div class="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+            Saving...
+          </span>
+        </button>
+
+        <!-- Publish -->
+        <button 
+          class="px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:opacity-50"
+          x-on:click="publishPost()"
+          :disabled="saving || !canPublish"
+        >
+          <span x-show="!publishing">Publish</span>
+          <span x-show="publishing" class="flex items-center gap-2">
+            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Publishing...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Editor Container -->
+  <div class="max-w-4xl mx-auto px-6 py-8">
+    <!-- Post Title -->
+    <div class="mb-8">
+      <input 
+        type="text" 
+        placeholder="Add title"
+        class="w-full text-4xl font-bold bg-transparent border-none outline-none placeholder-gray-400 text-theme-primary resize-none"
+        x-model="post.title"
+        x-on:input="updateCanPublish()"
+      />
+    </div>
+
+    <!-- Block Editor Container -->
+    <div class="space-y-4" id="block-editor">
+      <!-- Dynamic Blocks -->
+      <template x-for="(block, index) in blocks" :key="block.id">
+        <div class="group relative" x-data="{ showControls: false }" x-on:mouseenter="showControls = true" x-on:mouseleave="showControls = false">
+          
+          <!-- Block Controls -->
+          <div class="absolute -left-12 top-2 opacity-0 group-hover:opacity-100 transition-opacity" x-show="showControls">
+            <div class="flex flex-col gap-1">
+              <!-- Add Block Above -->
+              <button 
+                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-800"
+                x-on:click="addBlockAbove(index)"
+                title="Add block above"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </button>
+              
+              <!-- Move Up -->
+              <button 
+                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-800"
+                x-on:click="moveBlockUp(index)"
+                x-show="index > 0"
+                title="Move up"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                </svg>
+              </button>
+              
+              <!-- Move Down -->
+              <button 
+                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-800"
+                x-on:click="moveBlockDown(index)"
+                x-show="index < blocks.length - 1"
+                title="Move down"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Block Content -->
+          <div class="relative border-2 border-transparent hover:border-brand-200 rounded-lg transition-colors" :class="{ 'border-brand-400': block.selected }">
+            
+            <!-- Paragraph Block -->
+            <template x-if="block.type === 'paragraph'">
+              <div class="p-4">
+                <div 
+                  contenteditable="true"
+                  class="min-h-[1.5rem] outline-none text-theme-primary"
+                  x-html="block.content"
+                  x-on:input="updateBlockContent(index, $event.target.innerHTML)"
+                  x-on:focus="selectBlock(index)"
+                  x-on:keydown.enter.prevent="handleEnter(index, $event)"
+                  x-on:keydown.backspace="handleBackspace(index, $event)"
+                  placeholder="Type / to choose a block"
+                ></div>
+              </div>
+            </template>
+
+            <!-- Heading Block -->
+            <template x-if="block.type === 'heading'">
+              <div class="p-4">
+                <div 
+                  contenteditable="true"
+                  class="min-h-[1.5rem] outline-none font-bold text-theme-primary"
+                  :class="{
+                    'text-3xl': block.level === 1,
+                    'text-2xl': block.level === 2,
+                    'text-xl': block.level === 3,
+                    'text-lg': block.level === 4
+                  }"
+                  x-html="block.content"
+                  x-on:input="updateBlockContent(index, $event.target.innerHTML)"
+                  x-on:focus="selectBlock(index)"
+                  x-on:keydown.enter.prevent="handleEnter(index, $event)"
+                  x-on:keydown.backspace="handleBackspace(index, $event)"
+                  placeholder="Write heading..."
+                ></div>
+              </div>
+            </template>
+
+            <!-- Image Block -->
+            <template x-if="block.type === 'image'">
+              <div class="p-4">
+                <div x-show="!block.src" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="mt-4">
+                    <button 
+                      class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
+                      x-on:click="$refs.imageInput.click()"
+                    >
+                      Upload Image
+                    </button>
+                    <input type="file" x-ref="imageInput" class="hidden" accept="image/*" x-on:change="handleImageUpload(index, $event)">
+                  </div>
+                </div>
+                <div x-show="block.src" class="relative">
+                  <img :src="block.src" :alt="block.alt" class="w-full rounded-lg">
+                  <input 
+                    type="text" 
+                    placeholder="Write caption..."
+                    class="w-full mt-2 p-2 text-sm text-gray-600 bg-transparent border-none outline-none"
+                    x-model="block.caption"
+                  >
+                </div>
+              </div>
+            </template>
+
+            <!-- Quote Block -->
+            <template x-if="block.type === 'quote'">
+              <div class="p-4 border-l-4 border-brand-500 bg-brand-50 dark:bg-brand-900/20">
+                <div 
+                  contenteditable="true"
+                  class="min-h-[1.5rem] outline-none text-lg italic text-theme-primary"
+                  x-html="block.content"
+                  x-on:input="updateBlockContent(index, $event.target.innerHTML)"
+                  x-on:focus="selectBlock(index)"
+                  placeholder="Write quote..."
+                ></div>
+                <div 
+                  contenteditable="true"
+                  class="mt-2 text-sm text-gray-600 outline-none"
+                  x-html="block.citation"
+                  x-on:input="block.citation = $event.target.innerHTML"
+                  placeholder="Add citation..."
+                ></div>
+              </div>
+            </template>
+
+            <!-- List Block -->
+            <template x-if="block.type === 'list'">
+              <div class="p-4">
+                <ul x-show="block.style === 'unordered'" class="list-disc list-inside space-y-1">
+                  <template x-for="(item, itemIndex) in block.items" :key="itemIndex">
+                    <li>
+                      <span 
+                        contenteditable="true"
+                        class="outline-none text-theme-primary"
+                        x-html="item"
+                        x-on:input="updateListItem(index, itemIndex, $event.target.innerHTML)"
+                        x-on:keydown.enter.prevent="addListItem(index, itemIndex)"
+                        x-on:keydown.backspace="handleListBackspace(index, itemIndex, $event)"
+                      ></span>
+                    </li>
+                  </template>
+                </ul>
+                <ol x-show="block.style === 'ordered'" class="list-decimal list-inside space-y-1">
+                  <template x-for="(item, itemIndex) in block.items" :key="itemIndex">
+                    <li>
+                      <span 
+                        contenteditable="true"
+                        class="outline-none text-theme-primary"
+                        x-html="item"
+                        x-on:input="updateListItem(index, itemIndex, $event.target.innerHTML)"
+                        x-on:keydown.enter.prevent="addListItem(index, itemIndex)"
+                        x-on:keydown.backspace="handleListBackspace(index, itemIndex, $event)"
+                      ></span>
+                    </li>
+                  </template>
+                </ol>
+              </div>
+            </template>
+
+            <!-- Block Actions -->
+            <div class="absolute -right-12 top-2 opacity-0 group-hover:opacity-100 transition-opacity" x-show="showControls">
+              <div class="flex flex-col gap-1">
+                <!-- Block Settings -->
+                <button 
+                  class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-800"
+                  x-on:click="openBlockSettings(index)"
+                  title="Block settings"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </button>
+                
+                <!-- Delete Block -->
+                <button 
+                  class="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors dark:hover:bg-red-900/20"
+                  x-on:click="deleteBlock(index)"
+                  title="Delete block"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Add Block Button -->
+      <div class="flex justify-center py-4">
+        <button 
+          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+          x-on:click="showBlockInserter = true"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Add Block
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block Inserter Modal -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-show="showBlockInserter" x-cloak>
+    <div class="bg-theme-secondary rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-theme-primary mb-4">Add Block</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button 
+            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-700 dark:hover:bg-gray-800"
+            x-on:click="addBlock('paragraph'); showBlockInserter = false"
+          >
+            <svg class="w-6 h-6 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+            <span class="text-sm font-medium text-theme-primary">Paragraph</span>
+          </button>
+          
+          <button 
+            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-700 dark:hover:bg-gray-800"
+            x-on:click="addBlock('heading'); showBlockInserter = false"
+          >
+            <svg class="w-6 h-6 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            <span class="text-sm font-medium text-theme-primary">Heading</span>
+          </button>
+          
+          <button 
+            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-700 dark:hover:bg-gray-800"
+            x-on:click="addBlock('image'); showBlockInserter = false"
+          >
+            <svg class="w-6 h-6 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-sm font-medium text-theme-primary">Image</span>
+          </button>
+          
+          <button 
+            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-700 dark:hover:bg-gray-800"
+            x-on:click="addBlock('quote'); showBlockInserter = false"
+          >
+            <svg class="w-6 h-6 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <span class="text-sm font-medium text-theme-primary">Quote</span>
+          </button>
+          
+          <button 
+            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-700 dark:hover:bg-gray-800"
+            x-on:click="addBlock('list'); showBlockInserter = false"
+          >
+            <svg class="w-6 h-6 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            <span class="text-sm font-medium text-theme-primary">List</span>
+          </button>
+        </div>
+        
+        <div class="flex justify-end mt-6">
+          <button 
+            class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+            x-on:click="showBlockInserter = false"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,243 @@
+<!-- Posts List Page -->
+<div class="p-6" x-data="postsPage()">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-theme-primary">Posts</h1>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Manage your blog posts</p>
+    </div>
+    <a 
+      href="#post-new" 
+      class="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+      </svg>
+      Add New Post
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-theme-secondary rounded-lg border border-theme-primary p-4 mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+      <!-- Status Filter -->
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-theme-primary">Status:</label>
+        <select 
+          class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-theme-primary text-theme-primary focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600"
+          x-model="filters.status"
+          x-on:change="loadPosts()"
+        >
+          <option value="">All</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+
+      <!-- Search -->
+      <div class="flex items-center gap-2 flex-1 max-w-md">
+        <label class="text-sm font-medium text-theme-primary">Search:</label>
+        <input 
+          type="text" 
+          placeholder="Search posts..."
+          class="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-theme-primary text-theme-primary focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600"
+          x-model="filters.search"
+          x-on:input.debounce.500ms="loadPosts()"
+        />
+      </div>
+
+      <!-- Refresh Button -->
+      <button 
+        class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+        x-on:click="loadPosts()"
+        :disabled="loading"
+      >
+        <svg class="w-4 h-4" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="flex justify-center items-center py-12" x-show="loading">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+  </div>
+
+  <!-- Posts Table -->
+  <div class="bg-theme-secondary rounded-lg border border-theme-primary overflow-hidden" x-show="!loading">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-800/50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <template x-for="post in posts" :key="post.id">
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+              <td class="px-6 py-4">
+                <div>
+                  <div class="text-sm font-medium text-theme-primary" x-text="post.title"></div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400 mt-1" x-text="post.excerpt"></div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span 
+                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                  :class="{
+                    'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': post.status === 'published',
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': post.status === 'draft'
+                  }"
+                  x-text="post.status.charAt(0).toUpperCase() + post.status.slice(1)"
+                ></span>
+              </td>
+              <td class="px-6 py-4 text-sm text-theme-primary" x-text="post.author"></td>
+              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400" x-text="formatDate(post.updatedAt)"></td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <!-- Edit Button -->
+                  <button 
+                    class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors dark:hover:bg-blue-900/20"
+                    x-on:click="editPost(post.id)"
+                    title="Edit post"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+
+                  <!-- View Button -->
+                  <button 
+                    class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors dark:hover:bg-green-900/20"
+                    x-on:click="viewPost(post.slug)"
+                    title="View post"
+                    x-show="post.status === 'published'"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+
+                  <!-- Delete Button -->
+                  <button 
+                    class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors dark:hover:bg-red-900/20"
+                    x-on:click="confirmDelete(post)"
+                    title="Delete post"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="text-center py-12" x-show="!loading && posts.length === 0">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No posts found</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating your first post.</p>
+      <div class="mt-6">
+        <a 
+          href="#post-new" 
+          class="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Create New Post
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-6" x-show="!loading && totalPages > 1">
+    <div class="text-sm text-gray-700 dark:text-gray-300">
+      Showing <span x-text="((currentPage - 1) * 10) + 1"></span> to <span x-text="Math.min(currentPage * 10, totalPosts)"></span> of <span x-text="totalPosts"></span> posts
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <button 
+        class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+        x-on:click="changePage(currentPage - 1)"
+        :disabled="currentPage <= 1"
+      >
+        Previous
+      </button>
+      
+      <template x-for="page in visiblePages" :key="page">
+        <button 
+          class="px-3 py-2 text-sm rounded-lg transition-colors"
+          :class="page === currentPage ? 'bg-brand-600 text-white' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'"
+          x-on:click="changePage(page)"
+          x-text="page"
+        ></button>
+      </template>
+      
+      <button 
+        class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+        x-on:click="changePage(currentPage + 1)"
+        :disabled="currentPage >= totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-show="showDeleteModal" x-cloak>
+    <div class="bg-theme-secondary rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center dark:bg-red-900/20">
+            <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-theme-primary">Delete Post</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Are you sure you want to delete this post?</p>
+          </div>
+        </div>
+        
+        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 mb-4" x-show="postToDelete">
+          <p class="text-sm font-medium text-theme-primary" x-text="postToDelete?.title"></p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This action cannot be undone.</p>
+        </div>
+        
+        <div class="flex justify-end gap-3">
+          <button 
+            class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+            x-on:click="showDeleteModal = false; postToDelete = null"
+          >
+            Cancel
+          </button>
+          <button 
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+            x-on:click="deletePost()"
+            :disabled="deleting"
+          >
+            <span x-show="!deleting">Delete</span>
+            <span x-show="deleting" class="flex items-center gap-2">
+              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Deleting...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
