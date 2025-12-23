@@ -1678,11 +1678,15 @@ span.flatpickr-weekday,
   outline: none;
 }
 
-.block-editor .group:hover .opacity-0 {
-  opacity: 1;
+/* Block Controls - Improved Hover Behavior */
+.block-wrapper {
+  position: relative;
 }
 
-/* Block Controls */
+.block-wrapper:hover .block-controls {
+  opacity: 1 !important;
+}
+
 .block-controls {
   position: absolute;
   left: -48px;
@@ -1692,10 +1696,59 @@ span.flatpickr-weekday,
   gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
+  pointer-events: auto;
+  z-index: 10;
 }
 
-.block-wrapper:hover .block-controls {
-  opacity: 1;
+.block-actions {
+  position: absolute;
+  right: -48px;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.block-wrapper:hover .block-actions {
+  opacity: 1 !important;
+}
+
+/* Control Buttons */
+.block-control-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.block-control-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.dark .block-control-btn {
+  background: #374151;
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+.dark .block-control-btn:hover {
+  background: #4b5563;
+  color: #f3f4f6;
+  border-color: #6b7280;
 }
 
 /* Block Selection */
@@ -1783,6 +1836,17 @@ span.flatpickr-weekday,
   margin: 1rem 0;
 }
 
+/* Separator Styles */
+.block-editor hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+.dark .block-editor hr {
+  border-top-color: #4b5563;
+}
+
 /* Drag and Drop Styles */
 .block-dragging {
   opacity: 0.5;
@@ -1807,6 +1871,10 @@ span.flatpickr-weekday,
     left: -40px;
   }
   
+  .block-actions {
+    right: -40px;
+  }
+  
   .block-editor {
     padding: 0 1rem;
   }
@@ -1826,6 +1894,11 @@ span.flatpickr-weekday,
 
 .block-insert {
   animation: blockInsert 0.3s ease-out;
+}
+
+/* Modal Improvements */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
 }
 
 /* Toast Notifications */
