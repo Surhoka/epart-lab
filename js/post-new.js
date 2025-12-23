@@ -63,7 +63,9 @@ window.postEditor = function() {
 
         // Block management
         addBlock(type, position = null) {
+            console.log('Adding block:', type, 'at position:', position);
             const newBlock = this.createBlock(type);
+            console.log('Created block:', newBlock);
             
             if (position !== null) {
                 this.blocks.splice(position, 0, newBlock);
@@ -71,11 +73,13 @@ window.postEditor = function() {
                 this.blocks.push(newBlock);
             }
             
+            console.log('Blocks after add:', this.blocks.length);
             this.updateCanPublish();
             
-            // Focus the new block
+            // Focus the new block after DOM update
             this.$nextTick(() => {
                 const blockIndex = position !== null ? position : this.blocks.length - 1;
+                console.log('Attempting to focus block at index:', blockIndex);
                 this.focusBlock(blockIndex);
             });
         },
@@ -170,9 +174,30 @@ window.postEditor = function() {
         focusBlock(index) {
             this.selectBlock(index);
             this.$nextTick(() => {
-                const blockElement = document.querySelector(`[data-block-index="${index}"] [contenteditable]`);
+                // Try multiple selectors to find the contenteditable element
+                const selectors = [
+                    `[data-block-index="${index}"] [contenteditable]`,
+                    `.block-wrapper:nth-child(${index + 1}) [contenteditable]`,
+                    `#block-editor > div:nth-child(${index + 1}) [contenteditable]`
+                ];
+                
+                let blockElement = null;
+                for (const selector of selectors) {
+                    blockElement = document.querySelector(selector);
+                    if (blockElement) break;
+                }
+                
                 if (blockElement) {
                     blockElement.focus();
+                    // Move cursor to end
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+                    range.selectNodeContents(blockElement);
+                    range.collapse(false);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                } else {
+                    console.warn('Could not find contenteditable element for block', index);
                 }
             });
         },
@@ -313,6 +338,8 @@ window.postEditor = function() {
                         return block.src && block.src.trim() !== '';
                     case 'list':
                         return block.items && block.items.some(item => item.trim() !== '');
+                    case 'separator':
+                        return true; // Separator always counts as content
                     default:
                         return false;
                 }
