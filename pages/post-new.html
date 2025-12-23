@@ -116,41 +116,6 @@
           <div class="relative border-2 border-transparent hover:border-brand-200 rounded-lg transition-colors" 
                :class="{ 'border-brand-400': block.selected }"
                x-on:click="selectBlock(index)">
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-              </button>
-              
-              <!-- Move Up -->
-              <button 
-                class="block-control-btn"
-                x-on:click="moveBlockUp(index)"
-                x-show="index > 0"
-                title="Move up"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                </svg>
-              </button>
-              
-              <!-- Move Down -->
-              <button 
-                class="block-control-btn"
-                x-on:click="moveBlockDown(index)"
-                x-show="index < blocks.length - 1"
-                title="Move down"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-          </div>
-
-          <!-- Block Content -->
-          <div class="relative border-2 border-transparent hover:border-brand-200 rounded-lg transition-colors" :class="{ 'border-brand-400': block.selected }">
             
             <!-- Paragraph Block -->
             <template x-if="block.type === 'paragraph'">
@@ -299,16 +264,6 @@
                 <!-- Delete Block -->
                 <button 
                   class="block-control-btn text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                  x-on:click="deleteBlock(index)"
-                  title="Delete block"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
-              </div>
-            </div> 
-                  class="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors dark:hover:bg-red-900/20"
                   x-on:click="deleteBlock(index)"
                   title="Delete block"
                 >
