@@ -76,11 +76,19 @@ window.postEditor = function() {
             console.log('Blocks after add:', this.blocks.length);
             this.updateCanPublish();
             
-            // Focus the new block after DOM update
+            // Calculate the index where the block was inserted
+            const blockIndex = position !== null ? position : this.blocks.length - 1;
+            console.log('Will attempt to focus block at index:', blockIndex);
+            
+            // Use multiple $nextTick calls and a timeout to ensure DOM is fully rendered
             this.$nextTick(() => {
-                const blockIndex = position !== null ? position : this.blocks.length - 1;
-                console.log('Attempting to focus block at index:', blockIndex);
-                this.focusBlock(blockIndex);
+                this.$nextTick(() => {
+                    // Add a small delay to ensure Alpine.js has fully processed the template
+                    setTimeout(() => {
+                        console.log('DOM should be ready, attempting focus...');
+                        this.focusBlock(blockIndex);
+                    }, 50);
+                });
             });
         },
 
@@ -89,7 +97,7 @@ window.postEditor = function() {
         },
 
         createBlock(type) {
-            const id = 'block-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const id = 'block-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
             
             const baseBlock = {
                 id: id,
@@ -171,34 +179,121 @@ window.postEditor = function() {
             this.selectedBlockIndex = index;
         },
 
+        // Debug helper function
+        debugDOMState() {
+            console.log('=== DOM Debug State ===');
+            console.log('Total blocks in data:', this.blocks.length);
+            console.log('Block wrappers in DOM:', document.querySelectorAll('.block-wrapper').length);
+            console.log('Contenteditable elements in DOM:', document.querySelectorAll('[contenteditable]').length);
+            console.log('Elements with data-block-index:', document.querySelectorAll('[data-block-index]').length);
+            
+            // Log each block's DOM presence
+            this.blocks.forEach((block, index) => {
+                const wrapper = document.querySelector(`[data-block-index="${index}"]`);
+                const contenteditable = document.querySelector(`[data-block-index="${index}"] [contenteditable]`);
+                console.log(`Block ${index} (${block.type}):`, {
+                    hasWrapper: !!wrapper,
+                    hasContenteditable: !!contenteditable,
+                    blockId: block.id
+                });
+            });
+            console.log('=====================');
+        },
+
         focusBlock(index) {
             this.selectBlock(index);
+            
+            // Use a more aggressive retry strategy with longer delays
+            const attemptFocus = (attempt = 0) => {
+                const maxAttempts = 8;
+                const delay = attempt * 100; // 0ms, 100ms, 200ms, 300ms, etc.
+                
+                setTimeout(() => {
+                    console.log(`Focus attempt ${attempt + 1} for block ${index}`);
+                    
+                    // Debug DOM state on first attempt
+                    if (attempt === 0) {
+                        this.debugDOMState();
+                    }
+                    
+                    // Try multiple selectors to find the contenteditable element
+                    const selectors = [
+                        `[data-block-index="${index}"] [contenteditable]`,
+                        `[data-block-id="${this.blocks[index]?.id}"] [contenteditable]`,
+                        `.block-wrapper:nth-child(${index + 1}) [contenteditable]`,
+                        `#block-editor > div:nth-child(${index + 1}) [contenteditable]`,
+                        `#block-editor [contenteditable]:nth-of-type(${index + 1})`,
+                        // Additional fallback selectors
+                        `#block-editor .block-wrapper:nth-of-type(${index + 1}) [contenteditable]`,
+                        `[data-block-index="${index}"] div[contenteditable]`,
+                        `[data-block-index="${index}"] span[contenteditable]`
+                    ];
+                    
+                    let blockElement = null;
+                    for (const selector of selectors) {
+                        blockElement = document.querySelector(selector);
+                        if (blockElement) {
+                            console.log('Found element with selector:', selector);
+                            break;
+                        }
+                    }
+                    
+                    if (blockElement) {
+                        try {
+                            // Ensure element is visible and focusable
+                            if (blockElement.offsetParent === null) {
+                                console.warn('Element is not visible, retrying...');
+                                if (attempt < maxAttempts - 1) {
+                                    attemptFocus(attempt + 1);
+                                }
+                                return;
+                            }
+                            
+                            blockElement.focus();
+                            
+                            // Move cursor to end for text elements
+                            if (blockElement.textContent !== undefined) {
+                                const range = document.createRange();
+                                const selection = window.getSelection();
+                                range.selectNodeContents(blockElement);
+                                range.collapse(false);
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                            }
+                            
+                            console.log('Successfully focused and positioned cursor');
+                            return; // Success, exit retry loop
+                        } catch (error) {
+                            console.warn('Error focusing element:', error);
+                        }
+                    } else {
+                        console.warn(`Attempt ${attempt + 1}: Could not find contenteditable element for block ${index}`);
+                        
+                        // Log available elements for debugging
+                        const allContentEditable = document.querySelectorAll('[contenteditable]');
+                        const allBlockWrappers = document.querySelectorAll('.block-wrapper');
+                        console.log('Available contenteditable elements:', allContentEditable.length);
+                        console.log('Available block wrappers:', allBlockWrappers.length);
+                        
+                        // Retry if we haven't reached max attempts
+                        if (attempt < maxAttempts - 1) {
+                            attemptFocus(attempt + 1);
+                        } else {
+                            console.error('Failed to focus block after all attempts');
+                            // Final debug attempt
+                            this.debugDOMState();
+                        }
+                    }
+                }, delay);
+            };
+            
+            // Start the focus attempts with multiple $nextTick calls for better DOM sync
             this.$nextTick(() => {
-                // Try multiple selectors to find the contenteditable element
-                const selectors = [
-                    `[data-block-index="${index}"] [contenteditable]`,
-                    `.block-wrapper:nth-child(${index + 1}) [contenteditable]`,
-                    `#block-editor > div:nth-child(${index + 1}) [contenteditable]`
-                ];
-                
-                let blockElement = null;
-                for (const selector of selectors) {
-                    blockElement = document.querySelector(selector);
-                    if (blockElement) break;
-                }
-                
-                if (blockElement) {
-                    blockElement.focus();
-                    // Move cursor to end
-                    const range = document.createRange();
-                    const selection = window.getSelection();
-                    range.selectNodeContents(blockElement);
-                    range.collapse(false);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                } else {
-                    console.warn('Could not find contenteditable element for block', index);
-                }
+                this.$nextTick(() => {
+                    this.$nextTick(() => {
+                        attemptFocus();
+                    });
+                });
             });
         },
 
