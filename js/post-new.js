@@ -129,6 +129,11 @@ window.postEditor = function() {
                         items: ['']
                     };
                 
+                case 'separator':
+                    return {
+                        ...baseBlock
+                    };
+                
                 default:
                     return baseBlock;
             }
@@ -366,6 +371,10 @@ window.postEditor = function() {
                             });
                             html += `</${tag}>\n`;
                         }
+                        break;
+                    
+                    case 'separator':
+                        html += `<hr class="my-4">\n`;
                         break;
                 }
             });
