@@ -2,6 +2,34 @@ window.renderPartsTable = function (containerId, figure, model) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
+    // Helper function to convert text to title case
+    const toTitleCase = (str) => {
+        if (!str) return '';
+        return str.toLowerCase().split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    };
+
+    // Helper function to truncate text and add tooltip if needed
+    const truncateWithTooltip = (text, maxLength = 60) => {
+        if (!text) return '';
+        const titleCaseText = toTitleCase(text);
+        
+        if (titleCaseText.length <= maxLength) {
+            return titleCaseText;
+        }
+        
+        const truncated = titleCaseText.substring(0, maxLength) + '...';
+        return `<span class="relative group cursor-help">
+            ${truncated}
+            <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 w-80 p-3 text-xs text-white bg-gray-900 rounded-lg shadow-lg dark:bg-gray-700">
+                <div class="font-medium mb-1">Full Description:</div>
+                <div class="leading-relaxed">${titleCaseText}</div>
+                <div class="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+            </div>
+        </span>`;
+    };
+
     container.innerHTML = `
         <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 overflow-hidden">
             <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 dark:border-gray-800">
@@ -14,13 +42,13 @@ window.renderPartsTable = function (containerId, figure, model) {
                 </div>
                 
                 <!-- Desktop Table Layout -->
-                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400 hidden md:table">
+                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400 hidden md:table table-fixed">
                     <thead class="bg-blue-50 dark:bg-blue-800 text-xs uppercase text-gray-700 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3">No</th>
-                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3">Part Number</th>
-                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3">Description</th>
-                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3">Qty</th>
+                            <th scope="col" class="w-16 px-4 md:px-6 py-2 md:py-3 truncate">No</th>
+                            <th scope="col" class="w-48 px-4 md:px-6 py-2 md:py-3 truncate">Part Number</th>
+                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3 truncate">Description</th>
+                            <th scope="col" class="w-20 px-4 md:px-6 py-2 md:py-3 truncate">Qty</th>
                         </tr>
                     </thead>
                     <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -69,10 +97,14 @@ window.renderPartsTable = function (containerId, figure, model) {
                 const displayNo = part.No || (index + 1);
                 return `
                 <tr id="part-row-${String(displayNo).trim()}" onclick="window.highlightHotspot('${String(displayNo).trim()}')" class="cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 active:bg-gray-100 dark:active:bg-gray-700/50">
-                    <td class="px-4 md:px-6 py-2 font-medium text-gray-900 dark:text-white text-xs md:text-sm">${displayNo}</td>
-                    <td class="px-4 md:px-6 py-2 font-mono text-blue-600 dark:text-blue-400 text-xs md:text-sm">${part.PartNumber}</td>
-                    <td class="px-4 md:px-6 py-2 text-xs md:text-sm">${part.Description}</td>
-                    <td class="px-4 md:px-6 py-2 text-xs md:text-sm">${part.Qty || '-'}</td>
+                    <td class="w-16 px-4 md:px-6 py-2 font-medium text-gray-900 dark:text-white text-xs md:text-sm truncate">${displayNo}</td>
+                    <td class="w-48 px-4 md:px-6 py-2 text-xs md:text-sm truncate">
+                        <span class="font-mono text-blue-600 dark:text-blue-400 font-medium">${part.PartNumber}</span>
+                    </td>
+                    <td class="px-4 md:px-6 py-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                        ${truncateWithTooltip(part.Description)}
+                    </td>
+                    <td class="w-20 px-4 md:px-6 py-2 text-xs md:text-sm text-center truncate">${part.Qty || '-'}</td>
                 </tr>
             `}).join('');
         }
@@ -90,7 +122,7 @@ window.renderPartsTable = function (containerId, figure, model) {
                         </div>
                         <span class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Qty: ${part.Qty || '-'}</span>
                     </div>
-                    <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed pl-8">${part.Description}</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed pl-8">${toTitleCase(part.Description)}</p>
                 </div>
             `}).join('');
         }
