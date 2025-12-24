@@ -1,7 +1,41 @@
 // Post Editor JavaScript - Gutenberg Style
 window.initPostNewPage = function() {
     console.log('Post Editor page initialized');
+    
+    // Initialize tooltip handling for block controls
+    initBlockTooltips();
 };
+
+// Tooltip handling for block controls
+function initBlockTooltips() {
+    // Use event delegation to handle dynamically added tooltips
+    document.addEventListener('mouseenter', function(e) {
+        if (e.target.classList.contains('tooltip-trigger')) {
+            // Hide all other tooltips first
+            document.querySelectorAll('.tooltip').forEach(tooltip => {
+                tooltip.style.opacity = '0';
+                tooltip.style.visibility = 'hidden';
+            });
+            
+            // Show this tooltip
+            const tooltip = e.target.nextElementSibling;
+            if (tooltip && tooltip.classList.contains('tooltip')) {
+                tooltip.style.opacity = '1';
+                tooltip.style.visibility = 'visible';
+            }
+        }
+    }, true);
+    
+    document.addEventListener('mouseleave', function(e) {
+        if (e.target.classList.contains('tooltip-trigger')) {
+            const tooltip = e.target.nextElementSibling;
+            if (tooltip && tooltip.classList.contains('tooltip')) {
+                tooltip.style.opacity = '0';
+                tooltip.style.visibility = 'hidden';
+            }
+        }
+    }, true);
+}
 
 window.postEditor = function() {
     return {
