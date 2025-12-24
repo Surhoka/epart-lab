@@ -102,9 +102,13 @@
 
             <!-- Paragraph Block -->
             <template x-if="block.type === 'paragraph'">
-              <div class="p-4">
-                <div contenteditable="true" class="min-h-[1.5rem] outline-none text-theme-primary"
-                  x-html="block.content" x-on:input="updateBlockContent(index, $event.target.innerHTML)"
+              <div class="p-4" :class="'text-' + (block.align || 'left')">
+                <div contenteditable="true" class="min-h-[1.5rem] outline-none text-theme-primary" :class="{
+                      'text-sm': block.size === 'sm',
+                      'text-base': !block.size || block.size === 'base',
+                      'text-lg': block.size === 'lg',
+                      'text-xl': block.size === 'xl'
+                  }" x-html="block.content" x-on:input="updateBlockContent(index, $event.target.innerHTML)"
                   x-on:focus="selectBlock(index)" x-on:keydown.enter.prevent="handleEnter(index, $event)"
                   x-on:keydown.backspace="handleBackspace(index, $event)" placeholder="Type / to choose a block"></div>
               </div>
@@ -112,7 +116,7 @@
 
             <!-- Heading Block -->
             <template x-if="block.type === 'heading'">
-              <div class="p-4">
+              <div class="p-4" :class="'text-' + (block.align || 'left')">
                 <div contenteditable="true" class="min-h-[1.5rem] outline-none font-bold text-theme-primary" :class="{
                     'text-3xl': block.level === 1,
                     'text-2xl': block.level === 2,
@@ -271,17 +275,98 @@
           </div>
 
           <div class="space-y-6">
-            <!-- Heading Level Settings -->
+            <!-- Paragraph Settings -->
+            <template x-if="blocks[activeBlockIndex].type === 'paragraph'">
+              <div class="space-y-4">
+                <!-- Typography Size -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Text Size</label>
+                  <div class="flex gap-2">
+                    <template x-for="size in ['sm', 'base', 'lg', 'xl']">
+                      <button class="px-3 py-2 text-sm font-medium rounded-md border transition-colors capitalize"
+                        :class="(blocks[activeBlockIndex].size || 'base') === size ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                        x-text="size" x-on:click="blocks[activeBlockIndex].size = size; updateCanPublish()">
+                      </button>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Alignment -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Alignment</label>
+                  <div class="flex gap-2">
+                    <template x-for="align in ['left', 'center', 'right', 'justify']">
+                      <button class="p-2 text-sm font-medium rounded-md border transition-colors capitalize"
+                        :class="(blocks[activeBlockIndex].align || 'left') === align ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                        x-on:click="blocks[activeBlockIndex].align = align; updateCanPublish()" :title="align">
+                        <svg x-show="align === 'left'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h10M4 18h16"></path>
+                        </svg>
+                        <svg x-show="align === 'center'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M7 12h10M4 18h16"></path>
+                        </svg>
+                        <svg x-show="align === 'right'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M10 12h10M4 18h16"></path>
+                        </svg>
+                        <svg x-show="align === 'justify'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Heading Settings -->
             <template x-if="blocks[activeBlockIndex].type === 'heading'">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Heading Level</label>
-                <div class="flex gap-2">
-                  <template x-for="level in [1, 2, 3, 4, 5, 6]">
-                    <button class="px-3 py-2 text-sm font-medium rounded-md border transition-colors"
-                      :class="blocks[activeBlockIndex].level === level ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
-                      x-text="'H' + level" x-on:click="blocks[activeBlockIndex].level = level; updateCanPublish()">
-                    </button>
-                  </template>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Heading Level</label>
+                  <div class="flex gap-2">
+                    <template x-for="level in [1, 2, 3, 4, 5, 6]">
+                      <button class="px-3 py-2 text-sm font-medium rounded-md border transition-colors"
+                        :class="blocks[activeBlockIndex].level === level ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                        x-text="'H' + level" x-on:click="blocks[activeBlockIndex].level = level; updateCanPublish()">
+                      </button>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Alignment for Heading -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Alignment</label>
+                  <div class="flex gap-2">
+                    <template x-for="align in ['left', 'center', 'right']">
+                      <button class="p-2 text-sm font-medium rounded-md border transition-colors capitalize"
+                        :class="(blocks[activeBlockIndex].align || 'left') === align ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                        x-on:click="blocks[activeBlockIndex].align = align; updateCanPublish()" :title="align">
+                        <svg x-show="align === 'left'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h10M4 18h16"></path>
+                        </svg>
+                        <svg x-show="align === 'center'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M7 12h10M4 18h16"></path>
+                        </svg>
+                        <svg x-show="align === 'right'" class="w-4 h-4" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M10 12h10M4 18h16"></path>
+                        </svg>
+                      </button>
+                    </template>
+                  </div>
                 </div>
               </div>
             </template>
