@@ -288,28 +288,65 @@ window.initFigurePage = function () {
                             
                             // Debug: Check what hotspots are available
                             const allHotspots = document.querySelectorAll('.hotspot-point[data-label]');
-                            console.log('Available hotspots:');
-                            allHotspots.forEach(hotspot => {
-                                const label = hotspot.getAttribute('data-label');
-                                console.log(`  Hotspot label: "${label}"`);
-                            });
+                            console.log('Available hotspots:', allHotspots.length);
+                            if (allHotspots.length === 0) {
+                                console.log('⚠️ No hotspots found! Checking for hotspot container...');
+                                const hotspotContainer = document.querySelector('.hotspot-overlay-wrapper');
+                                console.log('Hotspot container found:', !!hotspotContainer);
+                                if (hotspotContainer) {
+                                    console.log('Hotspot container content:', hotspotContainer.innerHTML.substring(0, 200) + '...');
+                                }
+                            } else {
+                                allHotspots.forEach(hotspot => {
+                                    const label = hotspot.getAttribute('data-label');
+                                    console.log(`  Hotspot label: "${label}"`);
+                                });
+                            }
                             
                             // Try multiple highlighting strategies
                             const highlightPart = String(params.highlightPart).trim();
                             
                             // Strategy 1: Direct ID match
                             console.log('Strategy 1: Direct ID match for:', highlightPart);
+                            
+                            // Call both highlighting functions explicitly
                             if (typeof window.highlightHotspot === 'function') {
+                                console.log('Calling window.highlightHotspot...');
                                 window.highlightHotspot(highlightPart);
+                            } else {
+                                console.log('window.highlightHotspot function not available');
                             }
+                            
                             if (typeof window.highlightPartRow === 'function') {
+                                console.log('Calling window.highlightPartRow...');
                                 window.highlightPartRow(highlightPart);
+                            } else {
+                                console.log('window.highlightPartRow function not available');
                             }
                             
                             // Strategy 2: Try with different formats if direct match fails
                             setTimeout(() => {
                                 const targetRow = document.getElementById(`part-row-${highlightPart}`);
                                 const targetHotspot = document.querySelector(`.hotspot-point[data-label="${highlightPart}"]`);
+                                
+                                console.log('Strategy 2 check:', { 
+                                    targetRow: !!targetRow, 
+                                    targetHotspot: !!targetHotspot,
+                                    totalHotspots: document.querySelectorAll('.hotspot-point').length
+                                });
+                                
+                                // If hotspots still not found, try again after more delay
+                                if (!targetHotspot && document.querySelectorAll('.hotspot-point').length === 0) {
+                                    console.log('Strategy 3: Hotspots not ready, trying again in 1 second...');
+                                    setTimeout(() => {
+                                        console.log('Strategy 3: Retry hotspot highlighting');
+                                        const retryHotspots = document.querySelectorAll('.hotspot-point');
+                                        console.log('Hotspots available on retry:', retryHotspots.length);
+                                        if (retryHotspots.length > 0 && typeof window.highlightHotspot === 'function') {
+                                            window.highlightHotspot(highlightPart);
+                                        }
+                                    }, 1000);
+                                }
                                 
                                 if (!targetRow && !targetHotspot) {
                                     console.log('Strategy 2: Direct match failed, trying alternative approaches');
@@ -330,7 +367,8 @@ window.initFigurePage = function () {
                                     });
                                     
                                     // Try to find hotspot by content
-                                    allHotspots.forEach(hotspot => {
+                                    const currentHotspots = document.querySelectorAll('.hotspot-point');
+                                    currentHotspots.forEach(hotspot => {
                                         const label = hotspot.getAttribute('data-label');
                                         if (label && (label.includes(highlightPart) || highlightPart.includes(label))) {
                                             console.log(`Found matching hotspot by content: ${label}`);
