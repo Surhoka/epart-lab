@@ -243,6 +243,31 @@ window.highlightPartRow = function (partNo) {
 window.testHighlight = function(partNo) {
     console.log('=== MANUAL TEST HIGHLIGHT ===');
     console.log('Testing highlight for:', partNo);
+    
+    // Check if elements exist
+    const targetRow = document.getElementById(`part-row-${partNo}`);
+    const targetHotspot = document.querySelector(`.hotspot-point[data-label="${partNo}"]`);
+    const allHotspots = document.querySelectorAll('.hotspot-point');
+    
+    console.log('Elements check:', {
+        targetRow: !!targetRow,
+        targetHotspot: !!targetHotspot,
+        totalHotspots: allHotspots.length
+    });
+    
+    // Test both functions
     window.highlightPartRow(partNo);
     window.highlightHotspot(partNo);
+    
+    // If no hotspots, wait and try again
+    if (allHotspots.length === 0) {
+        console.log('No hotspots found, retrying in 2 seconds...');
+        setTimeout(() => {
+            const retryHotspots = document.querySelectorAll('.hotspot-point');
+            console.log('Retry - hotspots found:', retryHotspots.length);
+            if (retryHotspots.length > 0) {
+                window.highlightHotspot(partNo);
+            }
+        }, 2000);
+    }
 };
