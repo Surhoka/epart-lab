@@ -272,41 +272,97 @@ window.initFigurePage = function () {
                     // Auto-highlight part if specified in params (from search)
                     if (params.highlightPart) {
                         setTimeout(() => {
+                            console.log('=== AUTO-HIGHLIGHT DEBUG ===');
                             console.log('Attempting to highlight part:', params.highlightPart);
+                            console.log('Type of highlightPart:', typeof params.highlightPart);
                             
-                            // Try to highlight both hotspot and table row
+                            // Debug: Check what parts are available in the table
+                            const allRows = document.querySelectorAll('#parts-table-body tr[id^="part-row-"]');
+                            console.log('Available part rows:');
+                            allRows.forEach(row => {
+                                const id = row.id.replace('part-row-', '');
+                                const partNumberCell = row.querySelector('td:nth-child(2) span');
+                                const partNumber = partNumberCell ? partNumberCell.textContent.trim() : 'N/A';
+                                console.log(`  Row ID: "${id}", Part Number: "${partNumber}"`);
+                            });
+                            
+                            // Debug: Check what hotspots are available
+                            const allHotspots = document.querySelectorAll('.hotspot-point[data-label]');
+                            console.log('Available hotspots:');
+                            allHotspots.forEach(hotspot => {
+                                const label = hotspot.getAttribute('data-label');
+                                console.log(`  Hotspot label: "${label}"`);
+                            });
+                            
+                            // Try multiple highlighting strategies
+                            const highlightPart = String(params.highlightPart).trim();
+                            
+                            // Strategy 1: Direct ID match
+                            console.log('Strategy 1: Direct ID match for:', highlightPart);
                             if (typeof window.highlightHotspot === 'function') {
-                                window.highlightHotspot(params.highlightPart);
-                                console.log('Hotspot highlight attempted for:', params.highlightPart);
+                                window.highlightHotspot(highlightPart);
                             }
                             if (typeof window.highlightPartRow === 'function') {
-                                window.highlightPartRow(params.highlightPart);
-                                console.log('Table row highlight attempted for:', params.highlightPart);
+                                window.highlightPartRow(highlightPart);
                             }
                             
-                            // Also try to scroll to the highlighted part
-                            const targetRow = document.getElementById(`part-row-${String(params.highlightPart).trim()}`);
-                            const targetCard = document.getElementById(`part-card-${String(params.highlightPart).trim()}`);
-                            
-                            if (targetRow) {
-                                targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                console.log('Scrolled to table row for part:', params.highlightPart);
-                            } else if (targetCard) {
-                                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                console.log('Scrolled to card for part:', params.highlightPart);
-                            }
+                            // Strategy 2: Try with different formats if direct match fails
+                            setTimeout(() => {
+                                const targetRow = document.getElementById(`part-row-${highlightPart}`);
+                                const targetHotspot = document.querySelector(`.hotspot-point[data-label="${highlightPart}"]`);
+                                
+                                if (!targetRow && !targetHotspot) {
+                                    console.log('Strategy 2: Direct match failed, trying alternative approaches');
+                                    
+                                    // Try to find by part number content
+                                    allRows.forEach(row => {
+                                        const partNumberCell = row.querySelector('td:nth-child(2) span');
+                                        if (partNumberCell) {
+                                            const partNumber = partNumberCell.textContent.trim();
+                                            if (partNumber.includes(highlightPart) || highlightPart.includes(partNumber)) {
+                                                console.log(`Found matching part by content: ${partNumber}`);
+                                                row.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
+                                                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                row.style.animation = 'pulse 2s ease-in-out 3';
+                                                setTimeout(() => row.style.animation = '', 6000);
+                                            }
+                                        }
+                                    });
+                                    
+                                    // Try to find hotspot by content
+                                    allHotspots.forEach(hotspot => {
+                                        const label = hotspot.getAttribute('data-label');
+                                        if (label && (label.includes(highlightPart) || highlightPart.includes(label))) {
+                                            console.log(`Found matching hotspot by content: ${label}`);
+                                            const isMobile = window.innerWidth < 768;
+                                            if (isMobile) {
+                                                hotspot.classList.add('ring-2', 'ring-yellow-300', 'scale-110', 'z-[60]');
+                                            } else {
+                                                hotspot.classList.add('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+                                            }
+                                            hotspot.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                                            hotspot.style.animation = 'pulse 2s ease-in-out 3';
+                                            setTimeout(() => hotspot.style.animation = '', 6000);
+                                        }
+                                    });
+                                } else {
+                                    console.log('Strategy 1 succeeded - found elements:', { targetRow: !!targetRow, targetHotspot: !!targetHotspot });
+                                }
+                            }, 500);
                             
                             // Show a brief notification
                             if (params.searchQuery) {
                                 const notification = document.createElement('div');
                                 notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
-                                notification.innerHTML = `🔍 Found part: "${params.searchQuery}"`;
+                                notification.innerHTML = `🔍 Found part: "${params.searchQuery}" (ID: ${highlightPart})`;
                                 document.body.appendChild(notification);
                                 
                                 setTimeout(() => {
                                     notification.remove();
-                                }, 3000);
+                                }, 5000);
                             }
+                            
+                            console.log('=== END AUTO-HIGHLIGHT DEBUG ===');
                         }, 1500); // Increased delay to ensure everything is fully rendered
                     }
                 }
