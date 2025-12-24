@@ -1751,19 +1751,6 @@ span.flatpickr-weekday,
   border-color: #6b7280;
 }
 
-/* Specific tooltip behavior for block controls */
-.block-controls .block-control-btn:hover + .tooltip,
-.block-actions .block-control-btn:hover + .tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Prevent tooltip from showing when hovering on block wrapper */
-.block-wrapper:hover .tooltip {
-  opacity: 0;
-  visibility: hidden;
-}
-
 /* Block Selection */
 .block-selected {
   border: 2px solid var(--color-brand-400) !important;
@@ -2011,24 +1998,14 @@ span.flatpickr-weekday,
   border-bottom-color: #374151;
 }
 
-/* Only show tooltip when hovering directly on the button, not the parent group */
-button:hover + .tooltip,
-a:hover + .tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Fallback for group hover (for header icons) */
+/* Header tooltips - use group hover */
 .group:hover > .tooltip {
   opacity: 1;
   visibility: visible;
 }
 
-/* Prevent tooltip from showing when hovering on nested elements */
-.group .group:hover > .tooltip {
-  opacity: 0;
-  visibility: hidden;
-}
+/* Block editor tooltips will be handled by JavaScript */
+/* Remove CSS hover to prevent conflicts */
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
