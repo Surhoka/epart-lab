@@ -26,10 +26,24 @@ window.postEditor = function () {
         ],
         selectedBlockIndex: -1,
         showBlockInserter: false,
+        showSettingsModal: false,
+        activeBlockIndex: -1,
 
         // Saving state
         saving: false,
         publishing: false,
+        // ... (existing code) ...
+
+        // Block settings
+        openBlockSettings(index) {
+            this.activeBlockIndex = index;
+            this.showSettingsModal = true;
+        },
+
+        closeBlockSettings() {
+            this.showSettingsModal = false;
+            this.activeBlockIndex = -1;
+        },
         canPublish: false,
 
         init() {
@@ -413,8 +427,12 @@ window.postEditor = function () {
 
         // Block settings
         openBlockSettings(index) {
-            // TODO: Implement block settings modal
-            console.log('Open settings for block', index);
+            this.activeBlockIndex = index;
+            this.showSettingsModal = true;
+        },
+
+        closeBlockSettings() {
+            this.showSettingsModal = false;
         },
 
         // Publishing
@@ -604,9 +622,9 @@ window.postEditor = function () {
 window.showToast = function (message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white transition-all duration-300 transform translate-x-full ${type === 'success' ? 'bg-green-500' :
-            type === 'error' ? 'bg-red-500' :
-                type === 'warning' ? 'bg-yellow-500' :
-                    'bg-blue-500'
+        type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-yellow-500' :
+                'bg-blue-500'
         }`;
     toast.textContent = message;
 
