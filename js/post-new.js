@@ -21,6 +21,8 @@ window.postEditor = function () {
                 id: 'block-1',
                 type: 'paragraph',
                 content: '',
+                align: 'left',
+                size: 'base',
                 selected: false
             }
         ],
@@ -123,14 +125,17 @@ window.postEditor = function () {
                 case 'paragraph':
                     return {
                         ...baseBlock,
-                        content: ''
+                        content: '',
+                        align: 'left',
+                        size: 'base'
                     };
 
                 case 'heading':
                     return {
                         ...baseBlock,
                         content: '',
-                        level: 2
+                        level: 2,
+                        align: 'left'
                     };
 
                 case 'image':
@@ -471,13 +476,18 @@ window.postEditor = function () {
                 switch (block.type) {
                     case 'paragraph':
                         if (block.content.trim()) {
-                            html += `<p>${block.content}</p>\n`;
+                            const classes = [];
+                            if (block.align && block.align !== 'left') classes.push(`text-${block.align}`);
+                            if (block.size && block.size !== 'base') classes.push(`text-${block.size}`);
+                            const classAttr = classes.length ? ` class="${classes.join(' ')}"` : '';
+                            html += `<p${classAttr}>${block.content}</p>\n`;
                         }
                         break;
 
                     case 'heading':
                         if (block.content.trim()) {
-                            html += `<h${block.level}>${block.content}</h${block.level}>\n`;
+                            const alignClass = (block.align && block.align !== 'left') ? ` class="text-${block.align}"` : '';
+                            html += `<h${block.level}${alignClass}>${block.content}</h${block.level}>\n`;
                         }
                         break;
 
