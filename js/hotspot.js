@@ -89,8 +89,8 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
             }
 
             tooltip.innerHTML = `
-                <div class="font-semibold mb-0.5 border-b border-gray-200 dark:border-gray-700 pb-0.5 text-[9px] md:text-xs">${hotspot.partNumber || 'N/A'}</div>
-                <div class="text-gray-600 dark:text-gray-300 leading-tight text-[8px] md:text-[10px]">${toTitleCase(hotspot.description) || 'No description'}</div>
+                <div class="font-semibold mb-0.5 border-b border-gray-200 dark:border-gray-700 pb-0.5 text-[9px] md:text-xs">${hotspot.partNumber || hotspot.title || 'N/A'}</div>
+                <div class="text-gray-600 dark:text-gray-300 leading-tight text-[8px] md:text-[10px]">${toTitleCase(hotspot.description || hotspot.content) || 'No description'}</div>
                 <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white dark:border-t-gray-800"></div>
             `;
 
