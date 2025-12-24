@@ -1,43 +1,9 @@
 // Post Editor JavaScript - Gutenberg Style
-window.initPostNewPage = function() {
+window.initPostNewPage = function () {
     console.log('Post Editor page initialized');
-    
-    // Initialize tooltip handling for block controls
-    initBlockTooltips();
 };
 
-// Tooltip handling for block controls
-function initBlockTooltips() {
-    // Use event delegation to handle dynamically added tooltips
-    document.addEventListener('mouseenter', function(e) {
-        if (e.target.classList.contains('tooltip-trigger')) {
-            // Hide all other tooltips first
-            document.querySelectorAll('.tooltip').forEach(tooltip => {
-                tooltip.style.opacity = '0';
-                tooltip.style.visibility = 'hidden';
-            });
-            
-            // Show this tooltip
-            const tooltip = e.target.nextElementSibling;
-            if (tooltip && tooltip.classList.contains('tooltip')) {
-                tooltip.style.opacity = '1';
-                tooltip.style.visibility = 'visible';
-            }
-        }
-    }, true);
-    
-    document.addEventListener('mouseleave', function(e) {
-        if (e.target.classList.contains('tooltip-trigger')) {
-            const tooltip = e.target.nextElementSibling;
-            if (tooltip && tooltip.classList.contains('tooltip')) {
-                tooltip.style.opacity = '0';
-                tooltip.style.visibility = 'hidden';
-            }
-        }
-    }, true);
-}
-
-window.postEditor = function() {
+window.postEditor = function () {
     return {
         // Post data
         post: {
@@ -60,7 +26,7 @@ window.postEditor = function() {
         ],
         selectedBlockIndex: -1,
         showBlockInserter: false,
-        
+
         // Saving state
         saving: false,
         publishing: false,
@@ -69,7 +35,7 @@ window.postEditor = function() {
         init() {
             // Initialize editor
             this.updateCanPublish();
-            
+
             // Auto-save every 30 seconds
             setInterval(() => {
                 if (this.hasChanges()) {
@@ -84,7 +50,7 @@ window.postEditor = function() {
                     e.preventDefault();
                     this.saveDraft();
                 }
-                
+
                 // Ctrl/Cmd + Enter for publish
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
@@ -100,20 +66,20 @@ window.postEditor = function() {
             console.log('Adding block:', type, 'at position:', position);
             const newBlock = this.createBlock(type);
             console.log('Created block:', newBlock);
-            
+
             if (position !== null) {
                 this.blocks.splice(position, 0, newBlock);
             } else {
                 this.blocks.push(newBlock);
             }
-            
+
             console.log('Blocks after add:', this.blocks.length);
             this.updateCanPublish();
-            
+
             // Calculate the index where the block was inserted
             const blockIndex = position !== null ? position : this.blocks.length - 1;
             console.log('Will attempt to focus block at index:', blockIndex);
-            
+
             // Use multiple $nextTick calls and a timeout to ensure DOM is fully rendered
             this.$nextTick(() => {
                 this.$nextTick(() => {
@@ -132,7 +98,7 @@ window.postEditor = function() {
 
         createBlock(type) {
             const id = 'block-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
-            
+
             const baseBlock = {
                 id: id,
                 type: type,
@@ -145,14 +111,14 @@ window.postEditor = function() {
                         ...baseBlock,
                         content: ''
                     };
-                
+
                 case 'heading':
                     return {
                         ...baseBlock,
                         content: '',
                         level: 2
                     };
-                
+
                 case 'image':
                     return {
                         ...baseBlock,
@@ -160,26 +126,26 @@ window.postEditor = function() {
                         alt: '',
                         caption: ''
                     };
-                
+
                 case 'quote':
                     return {
                         ...baseBlock,
                         content: '',
                         citation: ''
                     };
-                
+
                 case 'list':
                     return {
                         ...baseBlock,
                         style: 'unordered',
                         items: ['']
                     };
-                
+
                 case 'separator':
                     return {
                         ...baseBlock
                     };
-                
+
                 default:
                     return baseBlock;
             }
@@ -220,7 +186,7 @@ window.postEditor = function() {
             console.log('Block wrappers in DOM:', document.querySelectorAll('.block-wrapper').length);
             console.log('Contenteditable elements in DOM:', document.querySelectorAll('[contenteditable]').length);
             console.log('Elements with data-block-index:', document.querySelectorAll('[data-block-index]').length);
-            
+
             // Log each block's DOM presence
             this.blocks.forEach((block, index) => {
                 const wrapper = document.querySelector(`[data-block-index="${index}"]`);
@@ -236,20 +202,20 @@ window.postEditor = function() {
 
         focusBlock(index) {
             this.selectBlock(index);
-            
+
             // Use a more aggressive retry strategy with longer delays
             const attemptFocus = (attempt = 0) => {
                 const maxAttempts = 8;
                 const delay = attempt * 100; // 0ms, 100ms, 200ms, 300ms, etc.
-                
+
                 setTimeout(() => {
                     console.log(`Focus attempt ${attempt + 1} for block ${index}`);
-                    
+
                     // Debug DOM state on first attempt
                     if (attempt === 0) {
                         this.debugDOMState();
                     }
-                    
+
                     // Try multiple selectors to find the contenteditable element
                     const selectors = [
                         `[data-block-index="${index}"] [contenteditable]`,
@@ -262,7 +228,7 @@ window.postEditor = function() {
                         `[data-block-index="${index}"] div[contenteditable]`,
                         `[data-block-index="${index}"] span[contenteditable]`
                     ];
-                    
+
                     let blockElement = null;
                     for (const selector of selectors) {
                         blockElement = document.querySelector(selector);
@@ -271,7 +237,7 @@ window.postEditor = function() {
                             break;
                         }
                     }
-                    
+
                     if (blockElement) {
                         try {
                             // Ensure element is visible and focusable
@@ -282,9 +248,9 @@ window.postEditor = function() {
                                 }
                                 return;
                             }
-                            
+
                             blockElement.focus();
-                            
+
                             // Move cursor to end for text elements
                             if (blockElement.textContent !== undefined) {
                                 const range = document.createRange();
@@ -294,7 +260,7 @@ window.postEditor = function() {
                                 selection.removeAllRanges();
                                 selection.addRange(range);
                             }
-                            
+
                             console.log('Successfully focused and positioned cursor');
                             return; // Success, exit retry loop
                         } catch (error) {
@@ -302,13 +268,13 @@ window.postEditor = function() {
                         }
                     } else {
                         console.warn(`Attempt ${attempt + 1}: Could not find contenteditable element for block ${index}`);
-                        
+
                         // Log available elements for debugging
                         const allContentEditable = document.querySelectorAll('[contenteditable]');
                         const allBlockWrappers = document.querySelectorAll('.block-wrapper');
                         console.log('Available contenteditable elements:', allContentEditable.length);
                         console.log('Available block wrappers:', allBlockWrappers.length);
-                        
+
                         // Retry if we haven't reached max attempts
                         if (attempt < maxAttempts - 1) {
                             attemptFocus(attempt + 1);
@@ -320,7 +286,7 @@ window.postEditor = function() {
                     }
                 }, delay);
             };
-            
+
             // Start the focus attempts with multiple $nextTick calls for better DOM sync
             this.$nextTick(() => {
                 this.$nextTick(() => {
@@ -349,7 +315,7 @@ window.postEditor = function() {
         addListItem(blockIndex, afterIndex) {
             if (this.blocks[blockIndex] && this.blocks[blockIndex].items) {
                 this.blocks[blockIndex].items.splice(afterIndex + 1, 0, '');
-                
+
                 // Focus the new item
                 this.$nextTick(() => {
                     const newItemElement = document.querySelector(`[data-block-index="${blockIndex}"] li:nth-child(${afterIndex + 2}) span[contenteditable]`);
@@ -365,7 +331,7 @@ window.postEditor = function() {
             const block = this.blocks[index];
             const selection = window.getSelection();
             const range = selection.getRangeAt(0);
-            
+
             // If at the end of an empty block, convert to paragraph
             if (block.content.trim() === '') {
                 if (block.type !== 'paragraph') {
@@ -374,7 +340,7 @@ window.postEditor = function() {
                     return;
                 }
             }
-            
+
             // Create new paragraph block
             this.addBlock('paragraph', index + 1);
         },
@@ -382,11 +348,11 @@ window.postEditor = function() {
         handleBackspace(index, event) {
             const block = this.blocks[index];
             const selection = window.getSelection();
-            
+
             // If at the beginning of an empty block, merge with previous or delete
             if (selection.anchorOffset === 0 && block.content.trim() === '') {
                 event.preventDefault();
-                
+
                 if (index > 0) {
                     // Merge with previous block or delete current
                     const prevBlock = this.blocks[index - 1];
@@ -405,7 +371,7 @@ window.postEditor = function() {
         handleListBackspace(blockIndex, itemIndex, event) {
             const block = this.blocks[blockIndex];
             const item = block.items[itemIndex];
-            
+
             if (event.target.textContent.trim() === '' && itemIndex === 0) {
                 // Convert to paragraph if first item is empty
                 event.preventDefault();
@@ -482,7 +448,7 @@ window.postEditor = function() {
 
         generatePostContent() {
             let html = '';
-            
+
             this.blocks.forEach(block => {
                 switch (block.type) {
                     case 'paragraph':
@@ -490,13 +456,13 @@ window.postEditor = function() {
                             html += `<p>${block.content}</p>\n`;
                         }
                         break;
-                    
+
                     case 'heading':
                         if (block.content.trim()) {
                             html += `<h${block.level}>${block.content}</h${block.level}>\n`;
                         }
                         break;
-                    
+
                     case 'image':
                         if (block.src) {
                             html += `<figure><img src="${block.src}" alt="${block.alt || ''}">`;
@@ -506,7 +472,7 @@ window.postEditor = function() {
                             html += `</figure>\n`;
                         }
                         break;
-                    
+
                     case 'quote':
                         if (block.content.trim()) {
                             html += `<blockquote><p>${block.content}</p>`;
@@ -516,7 +482,7 @@ window.postEditor = function() {
                             html += `</blockquote>\n`;
                         }
                         break;
-                    
+
                     case 'list':
                         const validItems = block.items.filter(item => item.trim() !== '');
                         if (validItems.length > 0) {
@@ -528,21 +494,21 @@ window.postEditor = function() {
                             html += `</${tag}>\n`;
                         }
                         break;
-                    
+
                     case 'separator':
                         html += `<hr class="my-4">\n`;
                         break;
                 }
             });
-            
+
             return html;
         },
 
         async saveDraft() {
             if (this.saving) return;
-            
+
             this.saving = true;
-            
+
             try {
                 const postData = {
                     title: this.post.title,
@@ -569,7 +535,7 @@ window.postEditor = function() {
                         }
                     );
                 });
-                
+
             } catch (error) {
                 console.error('Save draft error:', error);
                 window.showToast('Failed to save draft: ' + error.message, 'error');
@@ -580,9 +546,9 @@ window.postEditor = function() {
 
         async publishPost() {
             if (this.publishing || !this.canPublish) return;
-            
+
             this.publishing = true;
-            
+
             try {
                 const postData = {
                     title: this.post.title,
@@ -613,7 +579,7 @@ window.postEditor = function() {
                         }
                     );
                 });
-                
+
             } catch (error) {
                 console.error('Publish error:', error);
                 window.showToast('Failed to publish post: ' + error.message, 'error');
@@ -624,7 +590,7 @@ window.postEditor = function() {
 
         async autoSave() {
             if (!this.hasChanges() || this.saving) return;
-            
+
             try {
                 await this.saveDraft();
             } catch (error) {
@@ -635,23 +601,22 @@ window.postEditor = function() {
 };
 
 // Toast notification helper
-window.showToast = function(message, type = 'info') {
+window.showToast = function (message, type = 'info') {
     const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white transition-all duration-300 transform translate-x-full ${
-        type === 'success' ? 'bg-green-500' :
-        type === 'error' ? 'bg-red-500' :
-        type === 'warning' ? 'bg-yellow-500' :
-        'bg-blue-500'
-    }`;
+    toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white transition-all duration-300 transform translate-x-full ${type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+                type === 'warning' ? 'bg-yellow-500' :
+                    'bg-blue-500'
+        }`;
     toast.textContent = message;
-    
+
     document.body.appendChild(toast);
-    
+
     // Animate in
     setTimeout(() => {
         toast.classList.remove('translate-x-full');
     }, 100);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         toast.classList.add('translate-x-full');
