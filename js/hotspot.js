@@ -49,12 +49,14 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         // Now, create and append hotspots to the correctly sized and positioned overlay
         hotspotsData.forEach((hotspot, index) => {
             const point = document.createElement('div');
-            point.className = 'hotspot-point absolute w-6 h-6 -ml-3 -mt-3 bg-blue-500 rounded-full border-2 border-white shadow-lg cursor-pointer transform transition-transform hover:scale-110 z-50 flex items-center justify-center group';
+            // Responsive hotspot size: smaller on mobile, larger on desktop
+            point.className = 'hotspot-point absolute w-5 h-5 md:w-6 md:h-6 -ml-2.5 -mt-2.5 md:-ml-3 md:-mt-3 bg-blue-500 rounded-full border-2 border-white shadow-lg cursor-pointer transform transition-transform hover:scale-110 active:scale-95 z-50 flex items-center justify-center group';
             point.style.left = `${hotspot.x}%`;
             point.style.top = `${hotspot.y}%`;
 
             if (hotspot.label) {
-                point.innerHTML = `<span class="text-[10px] font-bold text-white">${hotspot.label}</span>`;
+                // Responsive text size
+                point.innerHTML = `<span class="text-[8px] md:text-[10px] font-bold text-white">${hotspot.label}</span>`;
                 point.dataset.label = String(hotspot.label).trim();
             }
 
@@ -63,13 +65,32 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                     e.stopPropagation();
                     onHotspotClick(hotspot);
                 });
+
+                // Add touch support for mobile
+                point.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onHotspotClick(hotspot);
+                });
             }
 
             const tooltip = document.createElement('div');
-            tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-[12rem] bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2 pointer-events-none';
+            // Mobile-responsive tooltip
+            tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 md:mb-2 w-max max-w-[10rem] md:max-w-[12rem] bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-[10px] md:text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-1.5 md:p-2 pointer-events-none';
+            
+            // Check if tooltip would go off-screen on mobile and adjust position
+            const isMobile = window.innerWidth < 768;
+            if (isMobile && hotspot.x > 70) {
+                // If hotspot is on the right side, show tooltip on the left
+                tooltip.className = tooltip.className.replace('left-1/2 transform -translate-x-1/2', 'right-0');
+            } else if (isMobile && hotspot.x < 30) {
+                // If hotspot is on the left side, show tooltip on the right
+                tooltip.className = tooltip.className.replace('left-1/2 transform -translate-x-1/2', 'left-0');
+            }
+
             tooltip.innerHTML = `
-                <div class="font-semibold mb-0.5 border-b border-gray-200 dark:border-gray-700 pb-0.5">${hotspot.partNumber || 'N/A'}</div>
-                <div class="text-gray-600 dark:text-gray-300 leading-tight">${toTitleCase(hotspot.description) || 'No description'}</div>
+                <div class="font-semibold mb-0.5 border-b border-gray-200 dark:border-gray-700 pb-0.5 text-[9px] md:text-xs">${hotspot.partNumber || 'N/A'}</div>
+                <div class="text-gray-600 dark:text-gray-300 leading-tight text-[8px] md:text-[10px]">${toTitleCase(hotspot.description) || 'No description'}</div>
                 <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white dark:border-t-gray-800"></div>
             `;
 
@@ -106,7 +127,7 @@ window.highlightHotspot = function (label) {
     // Remove existing highlights
     const allHotspots = document.querySelectorAll('.hotspot-point');
     allHotspots.forEach(point => {
-        point.classList.remove('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+        point.classList.remove('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]', 'ring-2', 'ring-yellow-300', 'scale-110');
         point.classList.add('z-50'); // Reset z-index
     });
 
@@ -114,7 +135,23 @@ window.highlightHotspot = function (label) {
     const targetHotspot = document.querySelector(`.hotspot-point[data-label="${String(label).trim()}"]`);
     if (targetHotspot) {
         targetHotspot.classList.remove('z-50');
-        targetHotspot.classList.add('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+        
+        // Responsive highlight: smaller ring on mobile
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            targetHotspot.classList.add('ring-2', 'ring-yellow-300', 'scale-110', 'z-[60]');
+        } else {
+            targetHotspot.classList.add('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+        }
+        
         targetHotspot.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        
+        // Add a brief pulse effect for better visibility on mobile
+        if (isMobile) {
+            targetHotspot.style.animation = 'pulse 1s ease-in-out 2';
+            setTimeout(() => {
+                targetHotspot.style.animation = '';
+            }, 2000);
+        }
     }
 };
