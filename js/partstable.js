@@ -132,6 +132,8 @@ window.renderPartsTable = function (containerId, figure, model) {
 };
 
 window.highlightPartRow = function (partNo) {
+    console.log('highlightPartRow called with:', partNo);
+    
     // Remove existing highlights from both table rows and mobile cards
     const allRows = document.querySelectorAll('#parts-table-body tr');
     const allCards = document.querySelectorAll('[id^="part-card-"]');
@@ -149,15 +151,48 @@ window.highlightPartRow = function (partNo) {
     // Find and highlight the target row (desktop)
     const targetRow = document.getElementById(`part-row-${String(partNo).trim()}`);
     if (targetRow) {
+        console.log('Found target row:', targetRow);
         targetRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
         targetRow.setAttribute('tabindex', '-1'); // Make it focusable
         targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         targetRow.focus({ preventScroll: true }); // Focus without extra scroll
+        
+        // Add a pulsing effect for better visibility
+        targetRow.style.animation = 'pulse 2s ease-in-out 3';
+        setTimeout(() => {
+            targetRow.style.animation = '';
+        }, 6000);
+    } else {
+        console.log('Target row not found for partNo:', partNo);
+        
+        // Try to find by part number in the table content
+        const allTableRows = document.querySelectorAll('#parts-table-body tr');
+        allTableRows.forEach((row, index) => {
+            const partNumberCell = row.querySelector('td:nth-child(2) span');
+            if (partNumberCell) {
+                const cellPartNo = partNumberCell.textContent.trim();
+                console.log(`Checking row ${index + 1}: ${cellPartNo} vs ${partNo}`);
+                
+                // Try different matching strategies
+                if (cellPartNo === String(partNo).trim() || 
+                    cellPartNo.includes(String(partNo).trim()) ||
+                    String(partNo).trim().includes(cellPartNo)) {
+                    console.log('Found matching row by content:', row);
+                    row.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    row.style.animation = 'pulse 2s ease-in-out 3';
+                    setTimeout(() => {
+                        row.style.animation = '';
+                    }, 6000);
+                }
+            }
+        });
     }
 
     // Find and highlight the target card (mobile)
     const targetCard = document.getElementById(`part-card-${String(partNo).trim()}`);
     if (targetCard) {
+        console.log('Found target card:', targetCard);
         targetCard.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
         targetCard.setAttribute('tabindex', '-1'); // Make it focusable
         targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -166,10 +201,34 @@ window.highlightPartRow = function (partNo) {
         // Add a brief pulse effect for better visibility on mobile
         const isMobile = window.innerWidth < 768;
         if (isMobile) {
-            targetCard.style.animation = 'pulse 1s ease-in-out 2';
+            targetCard.style.animation = 'pulse 2s ease-in-out 3';
             setTimeout(() => {
                 targetCard.style.animation = '';
-            }, 2000);
+            }, 6000);
         }
+    } else {
+        console.log('Target card not found for partNo:', partNo);
+        
+        // Try to find by part number in the card content
+        const allCards = document.querySelectorAll('[id^="part-card-"]');
+        allCards.forEach((card, index) => {
+            const partNumberSpan = card.querySelector('.font-mono');
+            if (partNumberSpan) {
+                const cardPartNo = partNumberSpan.textContent.trim();
+                console.log(`Checking card ${index + 1}: ${cardPartNo} vs ${partNo}`);
+                
+                if (cardPartNo === String(partNo).trim() || 
+                    cardPartNo.includes(String(partNo).trim()) ||
+                    String(partNo).trim().includes(cardPartNo)) {
+                    console.log('Found matching card by content:', card);
+                    card.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.style.animation = 'pulse 2s ease-in-out 3';
+                    setTimeout(() => {
+                        card.style.animation = '';
+                    }, 6000);
+                }
+            }
+        });
     }
 };
