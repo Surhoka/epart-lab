@@ -45,10 +45,10 @@ window.renderPartsTable = function (containerId, figure, model) {
                 <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400 hidden md:table table-fixed">
                     <thead class="bg-blue-50 dark:bg-blue-800 text-xs uppercase text-gray-700 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="w-16 px-4 md:px-6 py-2 md:py-3 truncate">No</th>
-                            <th scope="col" class="w-48 px-4 md:px-6 py-2 md:py-3 truncate">Part Number</th>
+                            <th scope="col" class="w-16 px-4 md:px-6 py-2 md:py-3 text-center">No.</th>
+                            <th scope="col" class="w-48 px-4 md:px-6 py-2 md:py-3 text-center">Part Number</th>
                             <th scope="col" class="px-4 md:px-6 py-2 md:py-3 truncate">Description</th>
-                            <th scope="col" class="w-20 px-4 md:px-6 py-2 md:py-3 truncate">Qty</th>
+                            <th scope="col" class="w-20 px-4 md:px-6 py-2 md:py-3 text-center">Qty</th>
                         </tr>
                     </thead>
                     <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -97,14 +97,14 @@ window.renderPartsTable = function (containerId, figure, model) {
                 const displayNo = part.No || (index + 1);
                 return `
                 <tr id="part-row-${String(displayNo).trim()}" onclick="window.highlightHotspot('${String(displayNo).trim()}')" class="cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 active:bg-gray-100 dark:active:bg-gray-700/50">
-                    <td class="w-16 px-4 md:px-6 py-2 font-medium text-gray-900 dark:text-white text-xs md:text-sm truncate">${displayNo}</td>
-                    <td class="w-48 px-4 md:px-6 py-2 text-xs md:text-sm truncate">
-                        <span class="font-mono text-blue-600 dark:text-blue-400 font-medium">${part.PartNumber}</span>
+                    <td class="w-16 px-4 md:px-6 py-2 font-medium text-gray-900 dark:text-white text-xs md:text-sm text-center">${displayNo}</td>
+                    <td class="w-48 px-4 md:px-6 py-2 text-xs md:text-sm text-center">
+                        <span class="text-blue-600 dark:text-blue-400 font-medium">${part.PartNumber}</span>
                     </td>
                     <td class="px-4 md:px-6 py-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
                         ${truncateWithTooltip(part.Description)}
                     </td>
-                    <td class="w-20 px-4 md:px-6 py-2 text-xs md:text-sm text-center truncate">${part.Qty || '-'}</td>
+                    <td class="w-20 px-4 md:px-6 py-2 text-xs md:text-sm text-center">${part.Qty || '-'}</td>
                 </tr>
             `}).join('');
         }
@@ -118,7 +118,7 @@ window.renderPartsTable = function (containerId, figure, model) {
                     <div class="flex items-start justify-between mb-2">
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full">${displayNo}</span>
-                            <span class="font-mono text-blue-600 dark:text-blue-400 text-sm font-medium">${part.PartNumber}</span>
+                            <span class="text-blue-600 dark:text-blue-400 text-sm font-medium">${part.PartNumber}</span>
                         </div>
                         <span class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Qty: ${part.Qty || '-'}</span>
                     </div>
