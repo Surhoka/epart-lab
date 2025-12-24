@@ -391,13 +391,45 @@ window.initFigurePage = function () {
                             // Show a brief notification
                             if (params.searchQuery) {
                                 const notification = document.createElement('div');
-                                notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
-                                notification.innerHTML = `🔍 Found part: "${params.searchQuery}" (ID: ${highlightPart})`;
+                                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
+                                notification.innerHTML = `✅ Found part: "${params.searchQuery}" (ID: ${highlightPart})`;
                                 document.body.appendChild(notification);
                                 
                                 setTimeout(() => {
                                     notification.remove();
                                 }, 5000);
+                                
+                                // Restore search query to input fields after navigation
+                                setTimeout(() => {
+                                    // First try to restore from params, then from sessionStorage
+                                    const queryToRestore = params.searchQuery || restoreSearchState();
+                                    
+                                    if (queryToRestore) {
+                                        [searchInput, searchInputDesktop].forEach(input => {
+                                            if (input) {
+                                                input.value = queryToRestore;
+                                                console.log('Restored search query to input:', queryToRestore);
+                                            }
+                                        });
+                                        
+                                        // Show a subtle indication that the search was restored
+                                        [searchInput, searchInputDesktop].forEach(input => {
+                                            if (input && input.value) {
+                                                input.style.backgroundColor = '#f0f9ff'; // Light blue background
+                                                input.style.borderColor = '#3b82f6'; // Blue border
+                                                setTimeout(() => {
+                                                    input.style.backgroundColor = '';
+                                                    input.style.borderColor = '';
+                                                }, 3000);
+                                            }
+                                        });
+                                        
+                                        // Clear search state after successful restore
+                                        setTimeout(() => {
+                                            clearSearchState();
+                                        }, 10000); // Clear after 10 seconds
+                                    }
+                                }, 1000); // Restore after 1 second
                             }
                             
                             console.log('=== END AUTO-HIGHLIGHT DEBUG ===');
@@ -410,13 +442,47 @@ window.initFigurePage = function () {
         }
     }
 
-    // Helper function to sync dropdowns
-    function syncDropdowns(sourceModel, sourceCategory, targetModel, targetCategory) {
-        if (targetModel && targetCategory) {
-            targetModel.value = sourceModel.value;
-            targetCategory.innerHTML = sourceCategory.innerHTML;
-            targetCategory.value = sourceCategory.value;
+    // Helper function to preserve search state
+    function preserveSearchState(query, partNumber) {
+        // Store in sessionStorage for persistence across navigation
+        if (query) {
+            sessionStorage.setItem('figureSearchQuery', query);
+            sessionStorage.setItem('figureSearchPartNumber', partNumber || '');
+            sessionStorage.setItem('figureSearchTimestamp', Date.now().toString());
         }
+    }
+    
+    // Helper function to restore search state
+    function restoreSearchState() {
+        const query = sessionStorage.getItem('figureSearchQuery');
+        const timestamp = sessionStorage.getItem('figureSearchTimestamp');
+        
+        // Only restore if search was recent (within 30 seconds)
+        if (query && timestamp && (Date.now() - parseInt(timestamp)) < 30000) {
+            [searchInput, searchInputDesktop].forEach(input => {
+                if (input) {
+                    input.value = query;
+                    // Add visual indication
+                    input.style.backgroundColor = '#f0f9ff';
+                    input.style.borderColor = '#3b82f6';
+                    setTimeout(() => {
+                        input.style.backgroundColor = '';
+                        input.style.borderColor = '';
+                    }, 3000);
+                }
+            });
+            
+            console.log('Restored search state:', query);
+            return query;
+        }
+        return null;
+    }
+    
+    // Helper function to clear search state
+    function clearSearchState() {
+        sessionStorage.removeItem('figureSearchQuery');
+        sessionStorage.removeItem('figureSearchPartNumber');
+        sessionStorage.removeItem('figureSearchTimestamp');
     }
 
     // Helper function to populate model dropdowns
@@ -581,17 +647,31 @@ window.initFigurePage = function () {
                     `;
                     
                     li.addEventListener('click', function () {
+                        // Store original content
+                        const originalContent = li.innerHTML;
+                        
                         // Show loading feedback
                         li.innerHTML = `
                             <div class="flex flex-col">
                                 <div class="font-medium text-blue-600 dark:text-blue-400">${item.partNumber}</div>
-                                <div class="text-xs text-blue-500 dark:text-blue-400">🔄 Loading figure...</div>
+                                <div class="text-xs text-blue-500 dark:text-blue-400 animate-pulse">🔄 Loading figure...</div>
                                 <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">📍 ${item.figure} | ${item.model}</div>
                             </div>
                         `;
                         
+                        // Disable the item temporarily
+                        li.style.pointerEvents = 'none';
+                        li.style.opacity = '0.7';
+                        
                         // Navigate to part location
                         navigateToPartLocation(item, input, otherInput, suggestions);
+                        
+                        // Restore original content after a delay (in case navigation fails)
+                        setTimeout(() => {
+                            li.innerHTML = originalContent;
+                            li.style.pointerEvents = '';
+                            li.style.opacity = '';
+                        }, 5000);
                     });
                     suggestions.appendChild(li);
                 });
@@ -617,7 +697,13 @@ window.initFigurePage = function () {
 
     // Function to navigate to part location and highlight it
     function navigateToPartLocation(partData, input, otherInput, suggestions) {
-        // Don't clear search inputs immediately - keep them for reference
+        // Store the search query before navigation
+        const searchQuery = input.value;
+        
+        // Preserve search state
+        preserveSearchState(searchQuery, partData.partNumber);
+        
+        // Hide suggestions but don't clear inputs yet
         suggestions.classList.add('hidden');
         
         // Update dropdowns to match the found part's model
@@ -636,19 +722,29 @@ window.initFigurePage = function () {
                     model: partData.model, 
                     category: partData.category || '',
                     highlightPart: partData.partNo, // Pass the part number to highlight
-                    searchQuery: input.value // Keep the search query for reference
+                    searchQuery: searchQuery, // Keep the search query for reference
+                    originalPartNumber: partData.partNumber // Also keep the full part number
                 });
                 
-                // Clear search inputs after navigation is complete
+                // Show loading notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
+                notification.innerHTML = `🔍 Navigating to part: "${searchQuery}"...`;
+                document.body.appendChild(notification);
+                
                 setTimeout(() => {
-                    input.value = '';
-                    if (otherInput) otherInput.value = '';
-                }, 2000); // Clear after 2 seconds
+                    notification.remove();
+                }, 2000);
             }, 500); // Small delay to ensure figures are loaded
         });
     }
 
     if (gridContainerWrapper) {
+        // Restore search state if available
+        setTimeout(() => {
+            restoreSearchState();
+        }, 500);
+        
         // Fetch models on init
         fetchVehicleModels().then(data => {
             vehicleData = data; // Store globally
