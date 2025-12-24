@@ -180,6 +180,8 @@ window.cleanupHotspots = function (containerId) {
 };
 
 window.highlightHotspot = function (label) {
+    console.log('highlightHotspot called with:', label);
+    
     // Remove existing highlights
     const allHotspots = document.querySelectorAll('.hotspot-point');
     allHotspots.forEach(point => {
@@ -190,6 +192,7 @@ window.highlightHotspot = function (label) {
     // Find target hotspot
     const targetHotspot = document.querySelector(`.hotspot-point[data-label="${String(label).trim()}"]`);
     if (targetHotspot) {
+        console.log('Found target hotspot:', targetHotspot);
         targetHotspot.classList.remove('z-50');
         
         // Responsive highlight: smaller ring on mobile
@@ -204,10 +207,41 @@ window.highlightHotspot = function (label) {
         
         // Add a brief pulse effect for better visibility on mobile
         if (isMobile) {
-            targetHotspot.style.animation = 'pulse 1s ease-in-out 2';
+            targetHotspot.style.animation = 'pulse 2s ease-in-out 3';
             setTimeout(() => {
                 targetHotspot.style.animation = '';
-            }, 2000);
+            }, 6000);
         }
+    } else {
+        console.log('Target hotspot not found for label:', label);
+        
+        // Try to find by content matching
+        const allHotspots = document.querySelectorAll('.hotspot-point');
+        allHotspots.forEach((hotspot, index) => {
+            const labelSpan = hotspot.querySelector('span');
+            if (labelSpan) {
+                const hotspotLabel = labelSpan.textContent.trim();
+                console.log(`Checking hotspot ${index + 1}: ${hotspotLabel} vs ${label}`);
+                
+                if (hotspotLabel === String(label).trim() || 
+                    hotspotLabel.includes(String(label).trim()) ||
+                    String(label).trim().includes(hotspotLabel)) {
+                    console.log('Found matching hotspot by content:', hotspot);
+                    
+                    const isMobile = window.innerWidth < 768;
+                    if (isMobile) {
+                        hotspot.classList.add('ring-2', 'ring-yellow-300', 'scale-110', 'z-[60]');
+                    } else {
+                        hotspot.classList.add('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
+                    }
+                    
+                    hotspot.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                    hotspot.style.animation = 'pulse 2s ease-in-out 3';
+                    setTimeout(() => {
+                        hotspot.style.animation = '';
+                    }, 6000);
+                }
+            }
+        });
     }
 };
