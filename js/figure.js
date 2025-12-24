@@ -272,14 +272,42 @@ window.initFigurePage = function () {
                     // Auto-highlight part if specified in params (from search)
                     if (params.highlightPart) {
                         setTimeout(() => {
+                            console.log('Attempting to highlight part:', params.highlightPart);
+                            
                             // Try to highlight both hotspot and table row
                             if (typeof window.highlightHotspot === 'function') {
                                 window.highlightHotspot(params.highlightPart);
+                                console.log('Hotspot highlight attempted for:', params.highlightPart);
                             }
                             if (typeof window.highlightPartRow === 'function') {
                                 window.highlightPartRow(params.highlightPart);
+                                console.log('Table row highlight attempted for:', params.highlightPart);
                             }
-                        }, 1000); // Delay to ensure everything is rendered
+                            
+                            // Also try to scroll to the highlighted part
+                            const targetRow = document.getElementById(`part-row-${String(params.highlightPart).trim()}`);
+                            const targetCard = document.getElementById(`part-card-${String(params.highlightPart).trim()}`);
+                            
+                            if (targetRow) {
+                                targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                console.log('Scrolled to table row for part:', params.highlightPart);
+                            } else if (targetCard) {
+                                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                console.log('Scrolled to card for part:', params.highlightPart);
+                            }
+                            
+                            // Show a brief notification
+                            if (params.searchQuery) {
+                                const notification = document.createElement('div');
+                                notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
+                                notification.innerHTML = `🔍 Found part: "${params.searchQuery}"`;
+                                document.body.appendChild(notification);
+                                
+                                setTimeout(() => {
+                                    notification.remove();
+                                }, 3000);
+                            }
+                        }, 1500); // Increased delay to ensure everything is fully rendered
                     }
                 }
             }).catch(error => {
@@ -459,7 +487,16 @@ window.initFigurePage = function () {
                     `;
                     
                     li.addEventListener('click', function () {
-                        // Navigate directly to the figure detail view with the part highlighted
+                        // Show loading feedback
+                        li.innerHTML = `
+                            <div class="flex flex-col">
+                                <div class="font-medium text-blue-600 dark:text-blue-400">${item.partNumber}</div>
+                                <div class="text-xs text-blue-500 dark:text-blue-400">🔄 Loading figure...</div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">📍 ${item.figure} | ${item.model}</div>
+                            </div>
+                        `;
+                        
+                        // Navigate to part location
                         navigateToPartLocation(item, input, otherInput, suggestions);
                     });
                     suggestions.appendChild(li);
@@ -486,9 +523,7 @@ window.initFigurePage = function () {
 
     // Function to navigate to part location and highlight it
     function navigateToPartLocation(partData, input, otherInput, suggestions) {
-        // Clear search inputs
-        input.value = '';
-        if (otherInput) otherInput.value = '';
+        // Don't clear search inputs immediately - keep them for reference
         suggestions.classList.add('hidden');
         
         // Update dropdowns to match the found part's model
@@ -506,8 +541,15 @@ window.initFigurePage = function () {
                     title: partData.figureTitle || partData.figure, 
                     model: partData.model, 
                     category: partData.category || '',
-                    highlightPart: partData.partNo // Pass the part number to highlight
+                    highlightPart: partData.partNo, // Pass the part number to highlight
+                    searchQuery: input.value // Keep the search query for reference
                 });
+                
+                // Clear search inputs after navigation is complete
+                setTimeout(() => {
+                    input.value = '';
+                    if (otherInput) otherInput.value = '';
+                }, 2000); // Clear after 2 seconds
             }, 500); // Small delay to ensure figures are loaded
         });
     }
