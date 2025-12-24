@@ -247,6 +247,107 @@
 
   <!-- Block Inserter Modal -->
   <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4"
+    x-show="showSettingsModal" x-cloak x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0" x-on:click.self="closeBlockSettings()">
+    <div class="bg-theme-secondary rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+      x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+      <template x-if="activeBlockIndex > -1 && blocks[activeBlockIndex]">
+        <div class="p-6">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-theme-primary">Block Settings</h3>
+            <button
+              class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-800"
+              x-on:click="closeBlockSettings()">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Heading Level Settings -->
+            <template x-if="blocks[activeBlockIndex].type === 'heading'">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Heading Level</label>
+                <div class="flex gap-2">
+                  <template x-for="level in [1, 2, 3, 4, 5, 6]">
+                    <button class="px-3 py-2 text-sm font-medium rounded-md border transition-colors"
+                      :class="blocks[activeBlockIndex].level === level ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                      x-text="'H' + level" x-on:click="blocks[activeBlockIndex].level = level; updateCanPublish()">
+                    </button>
+                  </template>
+                </div>
+              </div>
+            </template>
+
+            <!-- List Style Settings -->
+            <template x-if="blocks[activeBlockIndex].type === 'list'">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">List Style</label>
+                <div class="flex gap-2">
+                  <button
+                    class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border transition-colors"
+                    :class="blocks[activeBlockIndex].style === 'unordered' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                    x-on:click="blocks[activeBlockIndex].style = 'unordered'; updateCanPublish()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                      </path>
+                    </svg>
+                    Bulleted
+                  </button>
+                  <button
+                    class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border transition-colors"
+                    :class="blocks[activeBlockIndex].style === 'ordered' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+                    x-on:click="blocks[activeBlockIndex].style = 'ordered'; updateCanPublish()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                    </svg>
+                    Numbered
+                  </button>
+                </div>
+              </div>
+            </template>
+
+            <!-- Image Settings -->
+            <template x-if="blocks[activeBlockIndex].type === 'image'">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Alt Text</label>
+                  <input type="text" x-model="blocks[activeBlockIndex].alt"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    placeholder="Describe the image..." x-on:input="updateCanPublish()">
+                  <p class="mt-1 text-xs text-gray-500">Alternative text for screen readers and SEO.</p>
+                </div>
+              </div>
+            </template>
+
+            <!-- Common Actions -->
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+              <button
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors dark:text-red-400 dark:bg-red-900/20 dark:hover:bg-red-900/30"
+                x-on:click="deleteBlock(activeBlockIndex); closeBlockSettings()">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Block
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- Block Inserter Modal -->
+  <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4"
     x-show="showBlockInserter" x-cloak x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
