@@ -2,28 +2,24 @@ window.renderPartsTable = function (containerId, figure, model) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Check if mobile for responsive table design
-    const isMobile = window.innerWidth < 768;
-
     container.innerHTML = `
         <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 overflow-hidden">
             <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 dark:border-gray-800">
                 <h3 class="font-semibold text-sm md:text-base text-gray-800 dark:text-white">Parts List</h3>
             </div>
             <div class="overflow-x-auto">
-                ${isMobile ? `
                 <!-- Mobile Card Layout -->
                 <div id="parts-mobile-container" class="md:hidden">
                     <!-- Mobile cards will be inserted here -->
                 </div>
-                ` : ''}
+                
                 <!-- Desktop Table Layout -->
-                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400 ${isMobile ? 'hidden md:table' : ''}">
+                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400 hidden md:table">
                     <thead class="bg-blue-50 dark:bg-blue-800 text-xs uppercase text-gray-700 dark:text-gray-300">
                         <tr>
                             <th scope="col" class="px-4 md:px-6 py-2 md:py-3">No</th>
                             <th scope="col" class="px-4 md:px-6 py-2 md:py-3">Part Number</th>
-                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3 hidden sm:table-cell">Description</th>
+                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3">Description</th>
                             <th scope="col" class="px-4 md:px-6 py-2 md:py-3">Qty</th>
                         </tr>
                     </thead>
@@ -74,8 +70,8 @@ window.renderPartsTable = function (containerId, figure, model) {
                 return `
                 <tr id="part-row-${String(displayNo).trim()}" onclick="window.highlightHotspot('${String(displayNo).trim()}')" class="cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 active:bg-gray-100 dark:active:bg-gray-700/50">
                     <td class="px-4 md:px-6 py-2 font-medium text-gray-900 dark:text-white text-xs md:text-sm">${displayNo}</td>
-                    <td class="px-4 md:px-6 py-2 font-mono text-primary text-xs md:text-sm">${part.PartNumber}</td>
-                    <td class="px-4 md:px-6 py-2 hidden sm:table-cell text-xs md:text-sm">${part.Description}</td>
+                    <td class="px-4 md:px-6 py-2 font-mono text-blue-600 dark:text-blue-400 text-xs md:text-sm">${part.PartNumber}</td>
+                    <td class="px-4 md:px-6 py-2 text-xs md:text-sm">${part.Description}</td>
                     <td class="px-4 md:px-6 py-2 text-xs md:text-sm">${part.Qty || '-'}</td>
                 </tr>
             `}).join('');
@@ -90,7 +86,7 @@ window.renderPartsTable = function (containerId, figure, model) {
                     <div class="flex items-start justify-between mb-2">
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full">${displayNo}</span>
-                            <span class="font-mono text-primary text-sm font-medium">${part.PartNumber}</span>
+                            <span class="font-mono text-blue-600 dark:text-blue-400 text-sm font-medium">${part.PartNumber}</span>
                         </div>
                         <span class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Qty: ${part.Qty || '-'}</span>
                     </div>
