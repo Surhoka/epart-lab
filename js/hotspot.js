@@ -11,6 +11,11 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         return;
     }
 
+    // Clean up any existing hotspot setup first
+    if (container._hotspotCleanup) {
+        container._hotspotCleanup();
+    }
+
     // Ensure container is relative for positioning the new overlay
     if (getComputedStyle(container).position === 'static') {
         container.style.position = 'relative';
@@ -35,11 +40,10 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
     };
 
     const setupHotspots = () => {
+        // Clear any existing hotspots first
+        overlay.innerHTML = '';
+
         // Get the image's current rendered dimensions and position
-        const imageRect = image.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        
-        // Calculate the image's position relative to its container
         const imageLeft = image.offsetLeft;
         const imageTop = image.offsetTop;
         const imageWidth = image.offsetWidth;
@@ -114,11 +118,13 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         });
     };
 
-    // Function to handle resize events
+    // Function to handle resize events with proper cleanup
     const handleResize = () => {
         // Debounce resize events
-        clearTimeout(window.hotspotResizeTimeout);
-        window.hotspotResizeTimeout = setTimeout(() => {
+        if (container._resizeTimeout) {
+            clearTimeout(container._resizeTimeout);
+        }
+        container._resizeTimeout = setTimeout(() => {
             setupHotspots();
         }, 100);
     };
@@ -136,7 +142,15 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
     // Store cleanup function for later use
     container._hotspotCleanup = () => {
         window.removeEventListener('resize', handleResize);
-        clearTimeout(window.hotspotResizeTimeout);
+        if (container._resizeTimeout) {
+            clearTimeout(container._resizeTimeout);
+            delete container._resizeTimeout;
+        }
+        // Remove the overlay
+        const existingOverlay = container.querySelector('.hotspot-overlay-wrapper');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
     };
 };
 
