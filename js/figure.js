@@ -226,7 +226,7 @@ window.initFigurePage = function () {
             </div>
         `;
 
-        // Render Parts Table and Hotspots
+                        // Render Parts Table and Hotspots
         if (typeof window.renderPartsTable === 'function' && typeof window.fetchHotspots === 'function') {
             Promise.all([
                 window.renderPartsTable('parts-table-container', params.figure, params.model),
@@ -269,6 +269,18 @@ window.initFigurePage = function () {
                         }
                     });
 
+                    // Auto-highlight part if specified in params (from search)
+                    if (params.highlightPart) {
+                        setTimeout(() => {
+                            // Try to highlight both hotspot and table row
+                            if (typeof window.highlightHotspot === 'function') {
+                                window.highlightHotspot(params.highlightPart);
+                            }
+                            if (typeof window.highlightPartRow === 'function') {
+                                window.highlightPartRow(params.highlightPart);
+                            }
+                        }, 1000); // Delay to ensure everything is rendered
+                    }
                 }
             }).catch(error => {
                 console.error('Error loading detail view data:', error);
@@ -365,49 +377,139 @@ window.initFigurePage = function () {
         suggestions.innerHTML = '';
 
         if (query.length > 0) {
-            const filteredModels = vehicleData.filter(item =>
-                String(item.model).toLowerCase().includes(query) ||
-                String(item.category).toLowerCase().includes(query)
-            );
-
-            if (filteredModels.length > 0) {
-                suggestions.classList.remove('hidden');
-                filteredModels.forEach(item => {
-                    const li = document.createElement('li');
-                    li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white';
-                    li.textContent = `${item.model} : ${item.category}`;
-                    li.addEventListener('click', function () {
-                        input.value = item.model;
-                        if (otherInput) otherInput.value = item.model;
-                        suggestions.classList.add('hidden');
-
-                        // Sync Dropdowns
-                        [modelSelect, modelSelectDesktop].forEach(select => {
-                            if (select) select.value = item.model;
-                        });
-                        
-                        // Trigger change event manually to update categories
-                        if (modelSelect) modelSelect.dispatchEvent(new Event('change'));
-
-                        // After categories update, set category if available
-                        setTimeout(() => {
-                            if (item.category) {
-                                [categorySelect, categorySelectDesktop].forEach(select => {
-                                    if (select) select.value = item.category;
-                                });
-                                // Fetch specific category
-                                fetchFigures(item.model, item.category);
-                            }
-                        }, 100); // Small delay to allow dropdown population
-                    });
-                    suggestions.appendChild(li);
-                });
+            // Check if query looks like a part number (contains numbers and dashes)
+            const isPartNumberQuery = /[\d-]/.test(query);
+            
+            if (isPartNumberQuery) {
+                // Search for part numbers globally
+                searchPartNumberGlobally(query, suggestions, input, otherInput);
             } else {
-                suggestions.classList.add('hidden');
+                // Original model/category search
+                const filteredModels = vehicleData.filter(item =>
+                    String(item.model).toLowerCase().includes(query) ||
+                    String(item.category).toLowerCase().includes(query)
+                );
+
+                if (filteredModels.length > 0) {
+                    suggestions.classList.remove('hidden');
+                    filteredModels.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white';
+                        li.textContent = `${item.model} : ${item.category}`;
+                        li.addEventListener('click', function () {
+                            input.value = item.model;
+                            if (otherInput) otherInput.value = item.model;
+                            suggestions.classList.add('hidden');
+
+                            // Sync Dropdowns
+                            [modelSelect, modelSelectDesktop].forEach(select => {
+                                if (select) select.value = item.model;
+                            });
+                            
+                            // Trigger change event manually to update categories
+                            if (modelSelect) modelSelect.dispatchEvent(new Event('change'));
+
+                            // After categories update, set category if available
+                            setTimeout(() => {
+                                if (item.category) {
+                                    [categorySelect, categorySelectDesktop].forEach(select => {
+                                        if (select) select.value = item.category;
+                                    });
+                                    // Fetch specific category
+                                    fetchFigures(item.model, item.category);
+                                }
+                            }, 100); // Small delay to allow dropdown population
+                        });
+                        suggestions.appendChild(li);
+                    });
+                } else {
+                    suggestions.classList.add('hidden');
+                }
             }
         } else {
             suggestions.classList.add('hidden');
         }
+    }
+
+    // New function to search part numbers globally
+    async function searchPartNumberGlobally(query, suggestions, input, otherInput) {
+        try {
+            const response = await fetch(`${window.appsScriptUrl}?action=searchPartNumber&query=${encodeURIComponent(query)}`);
+            const result = await response.json();
+            
+            if (result.status === 'success' && result.data.length > 0) {
+                suggestions.classList.remove('hidden');
+                suggestions.innerHTML = '';
+                
+                // Add header for part number results
+                const header = document.createElement('li');
+                header.className = 'px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 font-semibold text-xs border-b border-blue-200 dark:border-blue-800';
+                header.textContent = '🔍 Part Number Results:';
+                suggestions.appendChild(header);
+                
+                result.data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white border-l-4 border-blue-500';
+                    li.innerHTML = `
+                        <div class="flex flex-col">
+                            <div class="font-medium text-blue-600 dark:text-blue-400">${item.partNumber}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">${item.description || 'No description'}</div>
+                            <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">📍 ${item.figure} | ${item.model}</div>
+                        </div>
+                    `;
+                    
+                    li.addEventListener('click', function () {
+                        // Navigate directly to the figure detail view with the part highlighted
+                        navigateToPartLocation(item, input, otherInput, suggestions);
+                    });
+                    suggestions.appendChild(li);
+                });
+            } else {
+                // Show "no results" message for part number search
+                suggestions.classList.remove('hidden');
+                suggestions.innerHTML = `
+                    <li class="px-4 py-2 text-gray-500 dark:text-gray-400 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            No parts found for "${query}"
+                        </div>
+                    </li>
+                `;
+            }
+        } catch (error) {
+            console.error('Part number search error:', error);
+            suggestions.classList.add('hidden');
+        }
+    }
+
+    // Function to navigate to part location and highlight it
+    function navigateToPartLocation(partData, input, otherInput, suggestions) {
+        // Clear search inputs
+        input.value = '';
+        if (otherInput) otherInput.value = '';
+        suggestions.classList.add('hidden');
+        
+        // Update dropdowns to match the found part's model
+        [modelSelect, modelSelectDesktop].forEach(select => {
+            if (select) select.value = partData.model;
+        });
+        
+        // Fetch figures for this model first
+        fetchFigures(partData.model, partData.category || '').then(() => {
+            // Navigate to the specific figure detail view
+            setTimeout(() => {
+                window.navigate('figure', { 
+                    view: 'detail', 
+                    figure: partData.figure, 
+                    title: partData.figureTitle || partData.figure, 
+                    model: partData.model, 
+                    category: partData.category || '',
+                    highlightPart: partData.partNo // Pass the part number to highlight
+                });
+            }, 500); // Small delay to ensure figures are loaded
+        });
     }
 
     if (gridContainerWrapper) {
