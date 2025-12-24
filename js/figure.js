@@ -252,6 +252,8 @@ window.initFigurePage = function () {
 
                         return {
                             ...hotspot,
+                            partNumber: matchedPart ? matchedPart.PartNumber : 'Unknown Part',
+                            description: matchedPart ? matchedPart.Description : 'No description available.',
                             title: matchedPart ? matchedPart.PartNumber : 'Unknown Part',
                             content: matchedPart ? matchedPart.Description : 'No description available.',
                             matchedPartNo: matchedId // Store matched ID
