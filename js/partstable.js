@@ -45,10 +45,10 @@ window.renderPartsTable = function (containerId, figure, model) {
                 <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400 hidden md:table table-fixed">
                     <thead class="bg-blue-50 dark:bg-blue-800 text-xs uppercase text-gray-700 dark:text-gray-300">
                         <tr>
-                            <th scope="col" class="w-16 px-4 md:px-6 py-2 md:py-3 text-center">No.</th>
-                            <th scope="col" class="w-48 px-4 md:px-6 py-2 md:py-3 text-center">Part Number</th>
-                            <th scope="col" class="px-4 md:px-6 py-2 md:py-3 truncate">Description</th>
-                            <th scope="col" class="w-20 px-4 md:px-6 py-2 md:py-3 text-center">Qty</th>
+                            <th scope="col" class="w-16 px-2 md:px-4 py-2 md:py-3 text-center text-xs">No.</th>
+                            <th scope="col" class="w-48 px-2 md:px-4 py-2 md:py-3 text-center text-xs">Part Number</th>
+                            <th scope="col" class="px-2 md:px-4 py-2 md:py-3 text-xs">Description</th>
+                            <th scope="col" class="w-20 px-2 md:px-4 py-2 md:py-3 text-center text-xs">Qty</th>
                         </tr>
                     </thead>
                     <tbody id="parts-table-body" class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -97,14 +97,14 @@ window.renderPartsTable = function (containerId, figure, model) {
                 const displayNo = part.No || (index + 1);
                 return `
                 <tr id="part-row-${String(displayNo).trim()}" onclick="window.highlightHotspot('${String(displayNo).trim()}')" class="cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 active:bg-gray-100 dark:active:bg-gray-700/50">
-                    <td class="w-16 px-4 md:px-6 py-2 font-medium text-gray-900 dark:text-white text-xs md:text-sm text-center">${displayNo}</td>
-                    <td class="w-48 px-4 md:px-6 py-2 text-xs md:text-sm text-center">
+                    <td class="w-16 px-2 md:px-4 py-2 font-medium text-gray-900 dark:text-white text-xs text-center">${displayNo}</td>
+                    <td class="w-48 px-2 md:px-4 py-2 text-xs text-center">
                         <span class="text-blue-600 dark:text-blue-400 font-medium">${part.PartNumber}</span>
                     </td>
-                    <td class="px-4 md:px-6 py-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <td class="px-2 md:px-4 py-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
                         ${truncateWithTooltip(part.Description)}
                     </td>
-                    <td class="w-20 px-4 md:px-6 py-2 text-xs md:text-sm text-center">${part.Qty || '-'}</td>
+                    <td class="w-20 px-2 md:px-4 py-2 text-xs text-center">${part.Qty || '-'}</td>
                 </tr>
             `}).join('');
         }
