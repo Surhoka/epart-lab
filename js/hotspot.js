@@ -22,8 +22,7 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         overlay = document.createElement('div');
         overlay.className = 'hotspot-overlay-wrapper';
         overlay.style.position = 'absolute';
-        // For debugging the overlay itself:
-        // overlay.style.border = '2px solid limegreen'; 
+        overlay.style.pointerEvents = 'none'; // Allow clicks to pass through overlay
         container.appendChild(overlay);
     }
 
@@ -36,23 +35,39 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
     };
 
     const setupHotspots = () => {
+        // Get the image's current rendered dimensions and position
+        const imageRect = image.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        // Calculate the image's position relative to its container
+        const imageLeft = image.offsetLeft;
+        const imageTop = image.offsetTop;
+        const imageWidth = image.offsetWidth;
+        const imageHeight = image.offsetHeight;
+
         // Size and position the overlay to perfectly match the image's rendered dimensions
-        overlay.style.left = `${image.offsetLeft}px`;
-        overlay.style.top = `${image.offsetTop}px`;
-        overlay.style.width = `${image.offsetWidth}px`;
-        overlay.style.height = `${image.offsetHeight}px`;
+        overlay.style.left = `${imageLeft}px`;
+        overlay.style.top = `${imageTop}px`;
+        overlay.style.width = `${imageWidth}px`;
+        overlay.style.height = `${imageHeight}px`;
 
         if (!hotspotsData || !Array.isArray(hotspotsData) || hotspotsData.length === 0) {
             return;
         }
 
         // Now, create and append hotspots to the correctly sized and positioned overlay
-        hotspotsData.forEach((hotspot, index) => {
+        hotspotsData.forEach((hotspot) => {
             const point = document.createElement('div');
             // Responsive hotspot size: smaller on mobile, larger on desktop
             point.className = 'hotspot-point absolute w-5 h-5 md:w-6 md:h-6 -ml-2.5 -mt-2.5 md:-ml-3 md:-mt-3 bg-blue-500 rounded-full border-2 border-white shadow-lg cursor-pointer transform transition-transform hover:scale-110 active:scale-95 z-50 flex items-center justify-center group';
-            point.style.left = `${hotspot.x}%`;
-            point.style.top = `${hotspot.y}%`;
+            point.style.pointerEvents = 'auto'; // Enable clicks on hotspot points
+            
+            // Use precise positioning based on image dimensions
+            const leftPos = (hotspot.x / 100) * imageWidth;
+            const topPos = (hotspot.y / 100) * imageHeight;
+            
+            point.style.left = `${leftPos}px`;
+            point.style.top = `${topPos}px`;
 
             if (hotspot.label) {
                 // Responsive text size
@@ -99,12 +114,30 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         });
     };
 
+    // Function to handle resize events
+    const handleResize = () => {
+        // Debounce resize events
+        clearTimeout(window.hotspotResizeTimeout);
+        window.hotspotResizeTimeout = setTimeout(() => {
+            setupHotspots();
+        }, 100);
+    };
+
     // If the image is already rendered, set up the hotspots. Otherwise, wait for it to load.
     if (image.complete && image.naturalWidth !== 0) {
         setupHotspots();
     } else {
         image.addEventListener('load', setupHotspots, { once: true });
     }
+
+    // Add resize listener to recalculate positions when screen size changes
+    window.addEventListener('resize', handleResize);
+    
+    // Store cleanup function for later use
+    container._hotspotCleanup = () => {
+        window.removeEventListener('resize', handleResize);
+        clearTimeout(window.hotspotResizeTimeout);
+    };
 };
 
 window.fetchHotspots = async function (figure, model) {
@@ -120,6 +153,15 @@ window.fetchHotspots = async function (figure, model) {
     } catch (error) {
         console.error('Fetch error:', error);
         return [];
+    }
+};
+
+// Cleanup function to remove event listeners
+window.cleanupHotspots = function (containerId) {
+    const container = document.getElementById(containerId);
+    if (container && container._hotspotCleanup) {
+        container._hotspotCleanup();
+        delete container._hotspotCleanup;
     }
 };
 
