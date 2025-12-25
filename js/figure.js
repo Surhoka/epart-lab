@@ -226,7 +226,7 @@ window.initFigurePage = function () {
             </div>
         `;
 
-                        // Render Parts Table and Hotspots
+        // Render Parts Table and Hotspots
         if (typeof window.renderPartsTable === 'function' && typeof window.fetchHotspots === 'function') {
             Promise.all([
                 window.renderPartsTable('parts-table-container', params.figure, params.model),
@@ -275,7 +275,7 @@ window.initFigurePage = function () {
                             console.log('=== AUTO-HIGHLIGHT DEBUG ===');
                             console.log('Attempting to highlight part:', params.highlightPart);
                             console.log('Type of highlightPart:', typeof params.highlightPart);
-                            
+
                             // Debug: Check what parts are available in the table
                             const allRows = document.querySelectorAll('#parts-table-body tr[id^="part-row-"]');
                             console.log('Available part rows:');
@@ -285,7 +285,7 @@ window.initFigurePage = function () {
                                 const partNumber = partNumberCell ? partNumberCell.textContent.trim() : 'N/A';
                                 console.log(`  Row ID: "${id}", Part Number: "${partNumber}"`);
                             });
-                            
+
                             // Debug: Check what hotspots are available
                             const allHotspots = document.querySelectorAll('.hotspot-point[data-label]');
                             console.log('Available hotspots:', allHotspots.length);
@@ -302,13 +302,13 @@ window.initFigurePage = function () {
                                     console.log(`  Hotspot label: "${label}"`);
                                 });
                             }
-                            
+
                             // Try multiple highlighting strategies
                             const highlightPart = String(params.highlightPart).trim();
-                            
+
                             // Strategy 1: Direct ID match
                             console.log('Strategy 1: Direct ID match for:', highlightPart);
-                            
+
                             // Call both highlighting functions explicitly
                             if (typeof window.highlightHotspot === 'function') {
                                 console.log('Calling window.highlightHotspot...');
@@ -316,25 +316,25 @@ window.initFigurePage = function () {
                             } else {
                                 console.log('window.highlightHotspot function not available');
                             }
-                            
+
                             if (typeof window.highlightPartRow === 'function') {
                                 console.log('Calling window.highlightPartRow...');
                                 window.highlightPartRow(highlightPart);
                             } else {
                                 console.log('window.highlightPartRow function not available');
                             }
-                            
+
                             // Strategy 2: Try with different formats if direct match fails
                             setTimeout(() => {
                                 const targetRow = document.getElementById(`part-row-${highlightPart}`);
                                 const targetHotspot = document.querySelector(`.hotspot-point[data-label="${highlightPart}"]`);
-                                
-                                console.log('Strategy 2 check:', { 
-                                    targetRow: !!targetRow, 
+
+                                console.log('Strategy 2 check:', {
+                                    targetRow: !!targetRow,
                                     targetHotspot: !!targetHotspot,
                                     totalHotspots: document.querySelectorAll('.hotspot-point').length
                                 });
-                                
+
                                 // If hotspots still not found, try again after more delay
                                 if (!targetHotspot && document.querySelectorAll('.hotspot-point').length === 0) {
                                     console.log('Strategy 3: Hotspots not ready, trying again in 1 second...');
@@ -347,17 +347,27 @@ window.initFigurePage = function () {
                                         }
                                     }, 1000);
                                 }
-                                
+
                                 if (!targetRow && !targetHotspot) {
                                     console.log('Strategy 2: Direct match failed, trying alternative approaches');
-                                    
-                                    // Try to find by part number content
+
+                                    // Try to find by part number content in table
+                                    let foundId = null;
+
                                     allRows.forEach(row => {
                                         const partNumberCell = row.querySelector('td:nth-child(2) span');
                                         if (partNumberCell) {
                                             const partNumber = partNumberCell.textContent.trim();
-                                            if (partNumber.includes(highlightPart) || highlightPart.includes(partNumber)) {
+                                            // loose match for flexibility
+                                            if (partNumber === highlightPart || partNumber.includes(highlightPart) || highlightPart.includes(partNumber)) {
                                                 console.log(`Found matching part by content: ${partNumber}`);
+                                                // Extract the ID (No.) from this row to use for hotspot highlighting
+                                                const idCell = row.querySelector('td:nth-child(1)');
+                                                if (idCell) {
+                                                    foundId = idCell.textContent.trim();
+                                                    console.log(`Extracted ID from row: ${foundId}`);
+                                                }
+
                                                 row.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30');
                                                 row.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                                 row.style.animation = 'pulse 2s ease-in-out 3';
@@ -365,45 +375,49 @@ window.initFigurePage = function () {
                                             }
                                         }
                                     });
-                                    
-                                    // Try to find hotspot by content
-                                    const currentHotspots = document.querySelectorAll('.hotspot-point');
-                                    currentHotspots.forEach(hotspot => {
-                                        const label = hotspot.getAttribute('data-label');
-                                        if (label && (label.includes(highlightPart) || highlightPart.includes(label))) {
-                                            console.log(`Found matching hotspot by content: ${label}`);
-                                            const isMobile = window.innerWidth < 768;
-                                            if (isMobile) {
-                                                hotspot.classList.add('ring-2', 'ring-yellow-300', 'scale-110', 'z-[60]');
-                                            } else {
-                                                hotspot.classList.add('ring-4', 'ring-yellow-400', 'scale-125', 'z-[60]');
-                                            }
-                                            hotspot.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-                                            hotspot.style.animation = 'pulse 2s ease-in-out 3';
-                                            setTimeout(() => hotspot.style.animation = '', 6000);
+
+                                    // If we found the ID from the table row, try to highlight the hotspot with THAT ID
+                                    if (foundId) {
+                                        console.log(`Attempting to highlight hotspot with extracted ID: ${foundId}`);
+                                        if (typeof window.highlightHotspot === 'function') {
+                                            window.highlightHotspot(foundId);
                                         }
-                                    });
+                                    } else {
+                                        // Fallback: Try to find hotspot by content directly (if ID extraction failed)
+                                        const currentHotspots = document.querySelectorAll('.hotspot-point');
+                                        currentHotspots.forEach(hotspot => {
+                                            const label = hotspot.getAttribute('data-label');
+                                            // Check against highlightPart directly
+                                            if (label && (label === highlightPart || label.includes(highlightPart) || highlightPart.includes(label))) {
+                                                console.log(`Found matching hotspot by content: ${label}`);
+                                                // Trigger highlight
+                                                if (typeof window.highlightHotspot === 'function') {
+                                                    window.highlightHotspot(label);
+                                                }
+                                            }
+                                        });
+                                    }
                                 } else {
                                     console.log('Strategy 1 succeeded - found elements:', { targetRow: !!targetRow, targetHotspot: !!targetHotspot });
                                 }
                             }, 500);
-                            
+
                             // Show a brief notification
                             if (params.searchQuery) {
                                 const notification = document.createElement('div');
                                 notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
                                 notification.innerHTML = `✅ Found part: "${params.searchQuery}" (ID: ${highlightPart})`;
                                 document.body.appendChild(notification);
-                                
+
                                 setTimeout(() => {
                                     notification.remove();
                                 }, 5000);
-                                
+
                                 // Restore search query to input fields after navigation
                                 setTimeout(() => {
                                     // First try to restore from params, then from sessionStorage
                                     const queryToRestore = params.searchQuery || restoreSearchState();
-                                    
+
                                     if (queryToRestore) {
                                         [searchInput, searchInputDesktop].forEach(input => {
                                             if (input) {
@@ -411,7 +425,7 @@ window.initFigurePage = function () {
                                                 console.log('Restored search query to input:', queryToRestore);
                                             }
                                         });
-                                        
+
                                         // Show a subtle indication that the search was restored
                                         [searchInput, searchInputDesktop].forEach(input => {
                                             if (input && input.value) {
@@ -423,7 +437,7 @@ window.initFigurePage = function () {
                                                 }, 3000);
                                             }
                                         });
-                                        
+
                                         // Clear search state after successful restore
                                         setTimeout(() => {
                                             clearSearchState();
@@ -431,7 +445,7 @@ window.initFigurePage = function () {
                                     }
                                 }, 1000); // Restore after 1 second
                             }
-                            
+
                             console.log('=== END AUTO-HIGHLIGHT DEBUG ===');
                         }, 1500); // Increased delay to ensure everything is fully rendered
                     }
@@ -451,12 +465,12 @@ window.initFigurePage = function () {
             sessionStorage.setItem('figureSearchTimestamp', Date.now().toString());
         }
     }
-    
+
     // Helper function to restore search state
     function restoreSearchState() {
         const query = sessionStorage.getItem('figureSearchQuery');
         const timestamp = sessionStorage.getItem('figureSearchTimestamp');
-        
+
         // Only restore if search was recent (within 30 seconds)
         if (query && timestamp && (Date.now() - parseInt(timestamp)) < 30000) {
             [searchInput, searchInputDesktop].forEach(input => {
@@ -471,13 +485,13 @@ window.initFigurePage = function () {
                     }, 3000);
                 }
             });
-            
+
             console.log('Restored search state:', query);
             return query;
         }
         return null;
     }
-    
+
     // Helper function to clear search state
     function clearSearchState() {
         sessionStorage.removeItem('figureSearchQuery');
@@ -567,7 +581,7 @@ window.initFigurePage = function () {
         if (query.length > 0) {
             // Check if query looks like a part number (contains numbers and dashes)
             const isPartNumberQuery = /[\d-]/.test(query);
-            
+
             if (isPartNumberQuery) {
                 // Search for part numbers globally
                 searchPartNumberGlobally(query, suggestions, input, otherInput);
@@ -593,7 +607,7 @@ window.initFigurePage = function () {
                             [modelSelect, modelSelectDesktop].forEach(select => {
                                 if (select) select.value = item.model;
                             });
-                            
+
                             // Trigger change event manually to update categories
                             if (modelSelect) modelSelect.dispatchEvent(new Event('change'));
 
@@ -624,17 +638,17 @@ window.initFigurePage = function () {
         try {
             const response = await fetch(`${window.appsScriptUrl}?action=searchPartNumber&query=${encodeURIComponent(query)}`);
             const result = await response.json();
-            
+
             if (result.status === 'success' && result.data.length > 0) {
                 suggestions.classList.remove('hidden');
                 suggestions.innerHTML = '';
-                
+
                 // Add header for part number results
                 const header = document.createElement('li');
                 header.className = 'px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 font-semibold text-xs border-b border-blue-200 dark:border-blue-800';
                 header.textContent = '🔍 Part Number Results:';
                 suggestions.appendChild(header);
-                
+
                 result.data.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'px-4 py-2 hover:bg-gray-100 dark:hover:bg-meta-4 cursor-pointer text-black dark:text-white border-l-4 border-blue-500';
@@ -645,11 +659,11 @@ window.initFigurePage = function () {
                             <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">📍 ${item.figure} | ${item.model}</div>
                         </div>
                     `;
-                    
+
                     li.addEventListener('click', function () {
                         // Store original content
                         const originalContent = li.innerHTML;
-                        
+
                         // Show loading feedback
                         li.innerHTML = `
                             <div class="flex flex-col">
@@ -658,14 +672,14 @@ window.initFigurePage = function () {
                                 <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">📍 ${item.figure} | ${item.model}</div>
                             </div>
                         `;
-                        
+
                         // Disable the item temporarily
                         li.style.pointerEvents = 'none';
                         li.style.opacity = '0.7';
-                        
+
                         // Navigate to part location
                         navigateToPartLocation(item, input, otherInput, suggestions);
-                        
+
                         // Restore original content after a delay (in case navigation fails)
                         setTimeout(() => {
                             li.innerHTML = originalContent;
@@ -699,39 +713,39 @@ window.initFigurePage = function () {
     function navigateToPartLocation(partData, input, otherInput, suggestions) {
         // Store the search query before navigation
         const searchQuery = input.value;
-        
+
         // Preserve search state
         preserveSearchState(searchQuery, partData.partNumber);
-        
+
         // Hide suggestions but don't clear inputs yet
         suggestions.classList.add('hidden');
-        
+
         // Update dropdowns to match the found part's model
         [modelSelect, modelSelectDesktop].forEach(select => {
             if (select) select.value = partData.model;
         });
-        
+
         // Fetch figures for this model first
         fetchFigures(partData.model, partData.category || '').then(() => {
             // Navigate to the specific figure detail view
             setTimeout(() => {
-                window.navigate('figure', { 
-                    view: 'detail', 
-                    figure: partData.figure, 
-                    title: partData.figureTitle || partData.figure, 
-                    model: partData.model, 
+                window.navigate('figure', {
+                    view: 'detail',
+                    figure: partData.figure,
+                    title: partData.figureTitle || partData.figure,
+                    model: partData.model,
                     category: partData.category || '',
-                    highlightPart: partData.partNo, // Pass the part number to highlight
+                    highlightPart: partData.partNo || partData.partNumber, // Pass the part number/ID to highlight
                     searchQuery: searchQuery, // Keep the search query for reference
                     originalPartNumber: partData.partNumber // Also keep the full part number
                 });
-                
+
                 // Show loading notification
                 const notification = document.createElement('div');
                 notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
                 notification.innerHTML = `🔍 Navigating to part: "${searchQuery}"...`;
                 document.body.appendChild(notification);
-                
+
                 setTimeout(() => {
                     notification.remove();
                 }, 2000);
@@ -744,7 +758,7 @@ window.initFigurePage = function () {
         setTimeout(() => {
             restoreSearchState();
         }, 500);
-        
+
         // Fetch models on init
         fetchVehicleModels().then(data => {
             vehicleData = data; // Store globally
