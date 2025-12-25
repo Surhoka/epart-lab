@@ -2020,6 +2020,12 @@ span.flatpickr-weekday,
   display: block !important;
 }
 
+/* Ensure tooltip width fits content properly */
+.hotspot-point > div[class*="absolute"] {
+  width: max-content !important;
+  box-sizing: border-box !important;
+}
+
 /* Hotspot tooltip mobile improvements */
 @media (max-width: 768px) {
   .hotspot-overlay-wrapper {
