@@ -43,6 +43,9 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
         // Clear any existing hotspots first
         overlay.innerHTML = '';
 
+        // Check if mobile early for use throughout the function
+        const isMobile = window.innerWidth < 768;
+
         // Get the image's current rendered dimensions and position
         const imageLeft = image.offsetLeft;
         const imageTop = image.offsetTop;
@@ -93,54 +96,8 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                 });
             }
 
-            // Mobile tooltip interaction - show on tap/touch
-            if (isMobile) {
-                let tooltipVisible = false;
-                
-                // Show tooltip on touch start
-                point.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    
-                    // Hide all other tooltips first
-                    document.querySelectorAll('.hotspot-point > div[class*="absolute"]').forEach(t => {
-                        if (t !== tooltip) {
-                            t.style.opacity = '0';
-                            t.style.visibility = 'hidden';
-                        }
-                    });
-                    
-                    // Toggle this tooltip
-                    if (!tooltipVisible) {
-                        tooltip.style.opacity = '1';
-                        tooltip.style.visibility = 'visible';
-                        tooltipVisible = true;
-                        
-                        // Auto-hide after 3 seconds
-                        setTimeout(() => {
-                            tooltip.style.opacity = '0';
-                            tooltip.style.visibility = 'hidden';
-                            tooltipVisible = false;
-                        }, 3000);
-                    } else {
-                        tooltip.style.opacity = '0';
-                        tooltip.style.visibility = 'hidden';
-                        tooltipVisible = false;
-                    }
-                });
-                
-                // Hide tooltip when touching elsewhere
-                document.addEventListener('touchstart', (e) => {
-                    if (!point.contains(e.target)) {
-                        tooltip.style.opacity = '0';
-                        tooltip.style.visibility = 'hidden';
-                        tooltipVisible = false;
-                    }
-                });
-            }
-
             const tooltip = document.createElement('div');
             // Mobile-responsive tooltip with smart positioning
-            const isMobile = window.innerWidth < 768;
             
             // Base tooltip classes
             let tooltipClasses = 'absolute bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none border border-gray-200 dark:border-gray-700';
@@ -195,6 +152,51 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                     arrow.className = 'absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white dark:border-t-gray-800';
                 }
                 tooltip.appendChild(arrow);
+            }
+
+            // Mobile tooltip interaction - show on tap/touch
+            if (isMobile) {
+                let tooltipVisible = false;
+                
+                // Show tooltip on touch start
+                point.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    
+                    // Hide all other tooltips first
+                    document.querySelectorAll('.hotspot-point > div[class*="absolute"]').forEach(t => {
+                        if (t !== tooltip) {
+                            t.style.opacity = '0';
+                            t.style.visibility = 'hidden';
+                        }
+                    });
+                    
+                    // Toggle this tooltip
+                    if (!tooltipVisible) {
+                        tooltip.style.opacity = '1';
+                        tooltip.style.visibility = 'visible';
+                        tooltipVisible = true;
+                        
+                        // Auto-hide after 3 seconds
+                        setTimeout(() => {
+                            tooltip.style.opacity = '0';
+                            tooltip.style.visibility = 'hidden';
+                            tooltipVisible = false;
+                        }, 3000);
+                    } else {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                        tooltipVisible = false;
+                    }
+                });
+                
+                // Hide tooltip when touching elsewhere
+                document.addEventListener('touchstart', (e) => {
+                    if (!point.contains(e.target)) {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                        tooltipVisible = false;
+                    }
+                });
             }
 
             point.appendChild(tooltip);
