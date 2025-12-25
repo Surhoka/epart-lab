@@ -2008,6 +2008,18 @@ span.flatpickr-weekday,
   visibility: visible;
 }
 
+/* Force all hotspot tooltips to be horizontal */
+.hotspot-point > div,
+.hotspot-point > div * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  text-align: left !important;
+  display: block !important;
+}
+
 /* Hotspot tooltip mobile improvements */
 @media (max-width: 768px) {
   .hotspot-overlay-wrapper {
@@ -2019,12 +2031,16 @@ span.flatpickr-weekday,
   .hotspot-point > div[class*="absolute"] {
     /* Improve mobile tooltip visibility */
     z-index: 9999 !important;
-    /* Prevent text wrapping issues */
-    word-wrap: break-word;
-    hyphens: auto;
-    /* Ensure proper text flow */
+    /* Force horizontal text layout */
+    display: block !important;
     white-space: normal !important;
-    line-height: 1.3;
+    word-wrap: break-word !important;
+    text-align: left !important;
+    line-height: 1.4 !important;
+    /* Prevent any vertical text issues */
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    direction: ltr !important;
   }
   
   /* Mobile-specific tooltip positioning fixes */
@@ -2039,9 +2055,6 @@ span.flatpickr-weekday,
   .hotspot-point > div[class*="absolute"] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(8px);
-    /* Prevent vertical text layout */
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
   }
 }
 
