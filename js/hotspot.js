@@ -106,10 +106,10 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
             if (isMobile) {
                 tooltipClasses += ' text-[10px] p-3 z-[60]';
                 
-                // Force horizontal layout with explicit width
-                tooltip.style.minWidth = '200px';
-                tooltip.style.maxWidth = '300px';
-                tooltip.style.width = 'auto';
+                // Force horizontal layout with content-fitting width
+                tooltip.style.width = 'max-content';
+                tooltip.style.maxWidth = '280px';
+                tooltip.style.minWidth = '120px';
                 tooltip.style.whiteSpace = 'normal';
                 tooltip.style.wordWrap = 'break-word';
                 tooltip.style.textAlign = 'left';
@@ -135,9 +135,9 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                 tooltipClasses += ' text-xs p-2 z-50 bottom-full mb-2 left-1/2 transform -translate-x-1/2';
                 
                 // Force horizontal layout for desktop too
-                tooltip.style.minWidth = '180px';
-                tooltip.style.maxWidth = '280px';
-                tooltip.style.width = 'auto';
+                tooltip.style.width = 'max-content';
+                tooltip.style.maxWidth = '240px';
+                tooltip.style.minWidth = '100px';
                 tooltip.style.whiteSpace = 'normal';
                 tooltip.style.wordWrap = 'break-word';
                 tooltip.style.textAlign = 'left';
