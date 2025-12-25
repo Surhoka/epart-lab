@@ -104,7 +104,17 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
             
             // Mobile-specific sizing and positioning
             if (isMobile) {
-                tooltipClasses += ' text-[10px] p-2 max-w-[280px] z-[60] whitespace-normal';
+                tooltipClasses += ' text-[10px] p-3 z-[60]';
+                
+                // Force horizontal layout with explicit width
+                tooltip.style.minWidth = '200px';
+                tooltip.style.maxWidth = '300px';
+                tooltip.style.width = 'auto';
+                tooltip.style.whiteSpace = 'normal';
+                tooltip.style.wordWrap = 'break-word';
+                tooltip.style.textAlign = 'left';
+                tooltip.style.writingMode = 'horizontal-tb';
+                tooltip.style.textOrientation = 'mixed';
                 
                 // Smart positioning for mobile based on hotspot location
                 if (hotspot.x > 75) {
@@ -122,7 +132,15 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                 }
             } else {
                 // Desktop sizing and positioning
-                tooltipClasses += ' text-xs p-2 max-w-[240px] z-50 bottom-full mb-2 left-1/2 transform -translate-x-1/2 whitespace-normal';
+                tooltipClasses += ' text-xs p-2 z-50 bottom-full mb-2 left-1/2 transform -translate-x-1/2';
+                
+                // Force horizontal layout for desktop too
+                tooltip.style.minWidth = '180px';
+                tooltip.style.maxWidth = '280px';
+                tooltip.style.width = 'auto';
+                tooltip.style.whiteSpace = 'normal';
+                tooltip.style.wordWrap = 'break-word';
+                tooltip.style.textAlign = 'left';
             }
             
             tooltip.className = tooltipClasses;
@@ -137,8 +155,8 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                 description.substring(0, maxDescLength) + '...' : description;
 
             tooltip.innerHTML = `
-                <div class="font-semibold mb-1 border-b border-gray-200 dark:border-gray-700 pb-1 ${isMobile ? 'text-[10px]' : 'text-xs'} leading-tight">${partNumber}</div>
-                <div class="text-gray-600 dark:text-gray-300 leading-relaxed ${isMobile ? 'text-[9px]' : 'text-[10px]'}">${truncatedDesc}</div>
+                <div style="font-weight: 600; margin-bottom: 4px; border-bottom: 1px solid ${isMobile ? '#e5e7eb' : '#d1d5db'}; padding-bottom: 2px; font-size: ${isMobile ? '10px' : '12px'}; line-height: 1.3;">${partNumber}</div>
+                <div style="color: #6b7280; line-height: 1.4; font-size: ${isMobile ? '9px' : '10px'};">${truncatedDesc}</div>
             `;
 
             // Add arrow based on position (only for non-mobile or when tooltip is above/below)
