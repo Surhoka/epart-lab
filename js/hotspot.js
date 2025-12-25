@@ -93,25 +93,109 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                 });
             }
 
-            const tooltip = document.createElement('div');
-            // Mobile-responsive tooltip
-            tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 md:mb-2 w-max max-w-[10rem] md:max-w-[12rem] bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-[10px] md:text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-1.5 md:p-2 pointer-events-none';
-            
-            // Check if tooltip would go off-screen on mobile and adjust position
-            const isMobile = window.innerWidth < 768;
-            if (isMobile && hotspot.x > 70) {
-                // If hotspot is on the right side, show tooltip on the left
-                tooltip.className = tooltip.className.replace('left-1/2 transform -translate-x-1/2', 'right-0');
-            } else if (isMobile && hotspot.x < 30) {
-                // If hotspot is on the left side, show tooltip on the right
-                tooltip.className = tooltip.className.replace('left-1/2 transform -translate-x-1/2', 'left-0');
+            // Mobile tooltip interaction - show on tap/touch
+            if (isMobile) {
+                let tooltipVisible = false;
+                
+                // Show tooltip on touch start
+                point.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    
+                    // Hide all other tooltips first
+                    document.querySelectorAll('.hotspot-point > div[class*="absolute"]').forEach(t => {
+                        if (t !== tooltip) {
+                            t.style.opacity = '0';
+                            t.style.visibility = 'hidden';
+                        }
+                    });
+                    
+                    // Toggle this tooltip
+                    if (!tooltipVisible) {
+                        tooltip.style.opacity = '1';
+                        tooltip.style.visibility = 'visible';
+                        tooltipVisible = true;
+                        
+                        // Auto-hide after 3 seconds
+                        setTimeout(() => {
+                            tooltip.style.opacity = '0';
+                            tooltip.style.visibility = 'hidden';
+                            tooltipVisible = false;
+                        }, 3000);
+                    } else {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                        tooltipVisible = false;
+                    }
+                });
+                
+                // Hide tooltip when touching elsewhere
+                document.addEventListener('touchstart', (e) => {
+                    if (!point.contains(e.target)) {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                        tooltipVisible = false;
+                    }
+                });
             }
 
+            const tooltip = document.createElement('div');
+            // Mobile-responsive tooltip with smart positioning
+            const isMobile = window.innerWidth < 768;
+            
+            // Base tooltip classes
+            let tooltipClasses = 'absolute bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none border border-gray-200 dark:border-gray-700';
+            
+            // Mobile-specific sizing and positioning
+            if (isMobile) {
+                tooltipClasses += ' text-[10px] p-2 max-w-[200px] z-[60]';
+                
+                // Smart positioning for mobile based on hotspot location
+                if (hotspot.x > 75) {
+                    // Right edge - show tooltip on the left
+                    tooltipClasses += ' right-0 bottom-full mb-2';
+                } else if (hotspot.x < 25) {
+                    // Left edge - show tooltip on the right
+                    tooltipClasses += ' left-0 bottom-full mb-2';
+                } else if (hotspot.y < 25) {
+                    // Top edge - show tooltip below
+                    tooltipClasses += ' top-full mt-2 left-1/2 transform -translate-x-1/2';
+                } else {
+                    // Default - show tooltip above and centered
+                    tooltipClasses += ' bottom-full mb-2 left-1/2 transform -translate-x-1/2';
+                }
+            } else {
+                // Desktop sizing and positioning
+                tooltipClasses += ' text-xs p-2 max-w-[240px] z-50 bottom-full mb-2 left-1/2 transform -translate-x-1/2';
+            }
+            
+            tooltip.className = tooltipClasses;
+
+            // Create tooltip content with responsive layout
+            const partNumber = hotspot.partNumber || hotspot.title || 'N/A';
+            const description = toTitleCase(hotspot.description || hotspot.content) || 'No description';
+            
+            // Truncate description on mobile if too long
+            const maxDescLength = isMobile ? 80 : 120;
+            const truncatedDesc = description.length > maxDescLength ? 
+                description.substring(0, maxDescLength) + '...' : description;
+
             tooltip.innerHTML = `
-                <div class="font-semibold mb-0.5 border-b border-gray-200 dark:border-gray-700 pb-0.5 text-[9px] md:text-xs">${hotspot.partNumber || hotspot.title || 'N/A'}</div>
-                <div class="text-gray-600 dark:text-gray-300 leading-tight text-[8px] md:text-[10px]">${toTitleCase(hotspot.description || hotspot.content) || 'No description'}</div>
-                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white dark:border-t-gray-800"></div>
+                <div class="font-semibold mb-1 border-b border-gray-200 dark:border-gray-700 pb-1 ${isMobile ? 'text-[10px]' : 'text-xs'}">${partNumber}</div>
+                <div class="text-gray-600 dark:text-gray-300 leading-tight ${isMobile ? 'text-[9px]' : 'text-[10px]'}">${truncatedDesc}</div>
             `;
+
+            // Add arrow based on position (only for non-mobile or when tooltip is above/below)
+            if (!isMobile || (hotspot.x >= 25 && hotspot.x <= 75)) {
+                const arrow = document.createElement('div');
+                if (isMobile && hotspot.y < 25) {
+                    // Arrow pointing up (tooltip is below hotspot)
+                    arrow.className = 'absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-white dark:border-b-gray-800';
+                } else {
+                    // Arrow pointing down (tooltip is above hotspot)
+                    arrow.className = 'absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white dark:border-t-gray-800';
+                }
+                tooltip.appendChild(arrow);
+            }
 
             point.appendChild(tooltip);
             overlay.appendChild(point);
