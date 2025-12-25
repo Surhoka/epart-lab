@@ -104,7 +104,7 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
             
             // Mobile-specific sizing and positioning
             if (isMobile) {
-                tooltipClasses += ' text-[10px] p-2 max-w-[200px] z-[60]';
+                tooltipClasses += ' text-[10px] p-2 max-w-[280px] z-[60] whitespace-normal';
                 
                 // Smart positioning for mobile based on hotspot location
                 if (hotspot.x > 75) {
@@ -122,7 +122,7 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
                 }
             } else {
                 // Desktop sizing and positioning
-                tooltipClasses += ' text-xs p-2 max-w-[240px] z-50 bottom-full mb-2 left-1/2 transform -translate-x-1/2';
+                tooltipClasses += ' text-xs p-2 max-w-[240px] z-50 bottom-full mb-2 left-1/2 transform -translate-x-1/2 whitespace-normal';
             }
             
             tooltip.className = tooltipClasses;
@@ -132,13 +132,13 @@ window.renderHotspots = function (containerId, hotspotsData, onHotspotClick) {
             const description = toTitleCase(hotspot.description || hotspot.content) || 'No description';
             
             // Truncate description on mobile if too long
-            const maxDescLength = isMobile ? 80 : 120;
+            const maxDescLength = isMobile ? 60 : 120;
             const truncatedDesc = description.length > maxDescLength ? 
                 description.substring(0, maxDescLength) + '...' : description;
 
             tooltip.innerHTML = `
-                <div class="font-semibold mb-1 border-b border-gray-200 dark:border-gray-700 pb-1 ${isMobile ? 'text-[10px]' : 'text-xs'}">${partNumber}</div>
-                <div class="text-gray-600 dark:text-gray-300 leading-tight ${isMobile ? 'text-[9px]' : 'text-[10px]'}">${truncatedDesc}</div>
+                <div class="font-semibold mb-1 border-b border-gray-200 dark:border-gray-700 pb-1 ${isMobile ? 'text-[10px]' : 'text-xs'} leading-tight">${partNumber}</div>
+                <div class="text-gray-600 dark:text-gray-300 leading-relaxed ${isMobile ? 'text-[9px]' : 'text-[10px]'}">${truncatedDesc}</div>
             `;
 
             // Add arrow based on position (only for non-mobile or when tooltip is above/below)
