@@ -1,5 +1,21 @@
 <!-- 404 Error Page -->
-<div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="globalData()">
+<div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="{
+    get blogTitle() {
+        return window.app?.blogTitle || document.title || 'EzyParts';
+    },
+    get blogFavicon() {
+        if (window.app?.blogFavicon) {
+            return window.app.blogFavicon;
+        }
+        
+        const faviconLink = document.querySelector('link[rel=\'icon\'], link[rel=\'shortcut icon\']');
+        if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
+            return faviconLink.href;
+        }
+        
+        return 'https://www.blogger.com/img/blogger_logo_round_35.png';
+    }
+}">
     <!-- ===== Common Grid Shape Start ===== -->
     <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
         <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/grid-01.svg" alt="grid" />
@@ -35,39 +51,9 @@
       </a>
     </div>
 <script>
-// Make blogFavicon available globally for Alpine.js
-document.addEventListener('alpine:init', () => {
-    Alpine.data('globalData', () => ({
-        get blogTitle() {
-            return window.app?.blogTitle || document.title || 'EzyParts';
-        },
-        get blogFavicon() {
-            // Try to get from main app first
-            if (window.app?.blogFavicon) {
-                return window.app.blogFavicon;
-            }
-            
-            // Try to find Blogger's favicon (URL or data URI)
-            const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
-            if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
-                return faviconLink.href;
-            }
-            
-            // Fallback to Blogger default
-            return 'https://www.blogger.com/img/blogger_logo_round_35.png';
-        }
-    }));
-});
-
-// Initialize Alpine.js data on the page
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof Alpine !== 'undefined') {
-        // Apply global data to the page
-        document.body.setAttribute('x-data', 'globalData()');
-    }
-});
-</script>            
-
-
-
+// Simple fallback for cases where Alpine.js might not be loaded
+if (typeof Alpine === 'undefined') {
+    console.warn('Alpine.js not loaded. Blog title and favicon may not display correctly.');
+}
+</script>
 
