@@ -8,21 +8,33 @@
         // Try to get data from localStorage (stored by main template)
         try {
             const storedData = localStorage.getItem('blogData');
+            console.log('404 page - stored data:', storedData);
+            
             if (storedData) {
                 const blogData = JSON.parse(storedData);
+                console.log('404 page - parsed blog data:', blogData);
+                
                 // Check if data is not too old (24 hours)
                 const isDataFresh = (Date.now() - blogData.timestamp) < (24 * 60 * 60 * 1000);
+                console.log('404 page - data is fresh:', isDataFresh);
                 
                 if (isDataFresh && blogData.title) {
                     this.blogTitle = blogData.title;
                     this.blogFavicon = blogData.favicon || this.blogFavicon;
                     this.blogDescription = blogData.description || this.blogDescription;
+                    console.log('404 page - using stored data:', {
+                        title: this.blogTitle,
+                        favicon: this.blogFavicon,
+                        description: this.blogDescription
+                    });
                     return; // Exit early if we got good data
                 }
             }
         } catch (e) {
             console.log('Could not read blog data from localStorage:', e);
         }
+        
+        console.log('404 page - using fallback data');
         
         // Fallback: try to get from current page
         if (document.title && document.title !== 'EzyParts') {
@@ -40,6 +52,12 @@
         if (faviconLink && faviconLink.href) {
             this.blogFavicon = faviconLink.href;
         }
+        
+        console.log('404 page - final fallback data:', {
+            title: this.blogTitle,
+            favicon: this.blogFavicon,
+            description: this.blogDescription
+        });
     }
 }">
     <!-- ===== Common Grid Shape Start ===== -->
