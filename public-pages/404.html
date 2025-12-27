@@ -36,21 +36,33 @@
         
         console.log('404 page - using fallback data');
         
-        // Fallback: try to get from current page
+        // Enhanced fallback: try to get from current page or make educated guesses
         if (document.title && document.title !== 'EzyParts') {
             this.blogTitle = document.title;
         }
         
+        // Try to get favicon from current page
+        const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
+        if (faviconLink && faviconLink.href) {
+            this.blogFavicon = faviconLink.href;
+        }
+        
+        // Try to get description from current page meta
         const currentMeta = document.querySelector('meta[name=&quot;description&quot;]');
         if (currentMeta && currentMeta.content) {
             this.blogDescription = currentMeta.content;
         } else {
-            this.blogDescription = `Welcome to ${this.blogTitle} - Your trusted platform for quality parts and components.`;
-        }
-        
-        const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
-        if (faviconLink && faviconLink.href) {
-            this.blogFavicon = faviconLink.href;
+            // Try to extract blog name from URL or title for better description
+            const blogName = this.blogTitle;
+            const domain = window.location.hostname;
+            
+            if (domain.includes('blogspot.com')) {
+                // Extract blog name from blogspot domain
+                const subdomain = domain.split('.')[0];
+                this.blogDescription = `Welcome to ${blogName} - Your trusted source for quality content and information.`;
+            } else {
+                this.blogDescription = `Welcome to ${blogName} - Your trusted platform for quality parts and components.`;
+            }
         }
         
         console.log('404 page - final fallback data:', {
@@ -58,6 +70,17 @@
             favicon: this.blogFavicon,
             description: this.blogDescription
         });
+        
+        // Store the fallback data for future use
+        const fallbackData = {
+            title: this.blogTitle,
+            favicon: this.blogFavicon,
+            description: this.blogDescription,
+            timestamp: Date.now(),
+            source: 'fallback'
+        };
+        localStorage.setItem('blogData', JSON.stringify(fallbackData));
+        console.log('404 page - stored fallback data for future use');
     }
 }">
     <!-- ===== Common Grid Shape Start ===== -->
@@ -100,10 +123,4 @@
 if (typeof Alpine === 'undefined') {
     console.warn('Alpine.js not loaded. Blog title and favicon may not display correctly.');
 }
-
-// Debug function to check available meta tags
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Available meta description:', document.querySelector('meta[name="description"]')?.content);
-    console.log('Document title:', document.title);
-});
 </script>
