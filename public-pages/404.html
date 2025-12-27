@@ -16,7 +16,25 @@
         return 'https://www.blogger.com/img/blogger_logo_round_35.png';
     },
     get blogDescription() {
-        return window.app?.blogDescription || document.querySelector('meta[name=\'description\']')?.content || 'Welcome to our blog';
+        // Try to get from main app first
+        if (window.app?.blogDescription) {
+            return window.app.blogDescription;
+        }
+        
+        // Try to get from Blogger's meta description
+        const bloggerMeta = document.querySelector('meta[name="description"]');
+        if (bloggerMeta && bloggerMeta.content && bloggerMeta.content.trim()) {
+            return bloggerMeta.content;
+        }
+        
+        // Try to get from Blogger's page title as fallback
+        const pageTitle = document.title;
+        if (pageTitle && pageTitle !== 'EzyParts') {
+            return `Welcome to ${pageTitle} - Your trusted platform for quality parts and components.`;
+        }
+        
+        // Final fallback
+        return 'Welcome to our blog - Your trusted platform for quality parts and components.';
     }
 }">
     <!-- ===== Common Grid Shape Start ===== -->
@@ -59,4 +77,10 @@
 if (typeof Alpine === 'undefined') {
     console.warn('Alpine.js not loaded. Blog title and favicon may not display correctly.');
 }
+
+// Debug function to check available meta tags
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Available meta description:', document.querySelector('meta[name="description"]')?.content);
+    console.log('Document title:', document.title);
+});
 </script>
