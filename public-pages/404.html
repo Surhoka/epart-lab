@@ -1,40 +1,41 @@
 <!-- 404 Error Page -->
 <div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="{
-    get blogTitle() {
-        return window.app?.blogTitle || document.title || 'EzyParts';
-    },
-    get blogFavicon() {
+    blogTitle: '',
+    blogFavicon: '',
+    blogDescription: '',
+    
+    init() {
+        // Set blog title
+        this.blogTitle = window.app?.blogTitle || document.title || 'EzyParts';
+        
+        // Set blog favicon
         if (window.app?.blogFavicon) {
-            return window.app.blogFavicon;
+            this.blogFavicon = window.app.blogFavicon;
+        } else {
+            const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
+            if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
+                this.blogFavicon = faviconLink.href;
+            } else {
+                this.blogFavicon = 'https://www.blogger.com/img/blogger_logo_round_35.png';
+            }
         }
         
-        const faviconLink = document.querySelector('link[rel=\'icon\'], link[rel=\'shortcut icon\']');
-        if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
-            return faviconLink.href;
-        }
-        
-        return 'https://www.blogger.com/img/blogger_logo_round_35.png';
-    },
-    get blogDescription() {
-        // Try to get from main app first
+        // Set blog description
         if (window.app?.blogDescription) {
-            return window.app.blogDescription;
+            this.blogDescription = window.app.blogDescription;
+        } else {
+            const bloggerMeta = document.querySelector('meta[name=&quot;description&quot;]');
+            if (bloggerMeta && bloggerMeta.content && bloggerMeta.content.trim()) {
+                this.blogDescription = bloggerMeta.content;
+            } else {
+                const pageTitle = document.title;
+                if (pageTitle && pageTitle !== 'EzyParts') {
+                    this.blogDescription = `Welcome to ${pageTitle} - Your trusted platform for quality parts and components.`;
+                } else {
+                    this.blogDescription = 'Welcome to our blog - Your trusted platform for quality parts and components.';
+                }
+            }
         }
-        
-        // Try to get from Blogger's meta description
-        const bloggerMeta = document.querySelector('meta[name="description"]');
-        if (bloggerMeta && bloggerMeta.content && bloggerMeta.content.trim()) {
-            return bloggerMeta.content;
-        }
-        
-        // Try to get from Blogger's page title as fallback
-        const pageTitle = document.title;
-        if (pageTitle && pageTitle !== 'EzyParts') {
-            return `Welcome to ${pageTitle} - Your trusted platform for quality parts and components.`;
-        }
-        
-        // Final fallback
-        return 'Welcome to our blog - Your trusted platform for quality parts and components.';
     }
 }">
     <!-- ===== Common Grid Shape Start ===== -->
