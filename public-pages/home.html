@@ -2,7 +2,7 @@
 <section class="relative bg-white dark:bg-gray-900 overflow-hidden">
     <div class="flex">
         <!-- Categories Sidebar -->
-        <div class="hidden lg:block w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+        <div class="hidden lg:block w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 relative">
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-4">
                     <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
@@ -12,67 +12,491 @@
                 </div>
                 
                 <div class="space-y-1">
-                    <div class="category-item active flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" data-category="accessories">
+                    <div class="category-item active flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group relative" data-category="accessories">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        <span class="text-sm font-medium">Accessories, Body & Wipers</span>
+                        <span class="text-sm font-medium flex-1">Accessories, Body & Wipers</span>
+                        <svg class="w-4 h-4 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <!-- Subcategories Column 1 -->
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Body Parts</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Bumpers & Components</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Doors & Windows</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Mirrors & Accessories</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Hoods & Fenders</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Grilles & Trim</a></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Subcategories Column 2 -->
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Wipers & Accessories</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wiper Blades</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wiper Motors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Washer Pumps</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Washer Fluid</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wiper Arms</a></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Subcategories Column 3 -->
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Interior Accessories</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Floor Mats</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Seat Covers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Dashboard Accessories</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Organizers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Air Fresheners</a></li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Featured Product -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-yellow-600 font-semibold mb-2">SALE! MOTOR OILS</div>
+                                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=150&h=100&fit=crop" alt="Motor Oil" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$230</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Premium Motor Oil 5W-30</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="air-fuel">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="air-fuel">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Air, Fuel, Emission & Exhaust</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Air, Fuel, Emission & Exhaust</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Air Filters</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Engine Air Filters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cabin Air Filters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Performance Filters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Filter Housings</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Fuel System</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Fuel Pumps</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Fuel Filters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Fuel Injectors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Fuel Lines</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Exhaust System</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Mufflers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Catalytic Converters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Exhaust Pipes</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Headers</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-green-600 font-semibold mb-2">NEW ARRIVAL</div>
+                                        <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=150&h=100&fit=crop" alt="Air Filter" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$45</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">High-Flow Air Filter</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="battery">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="battery">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Battery, Electrical & Wiring</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Battery, Electrical & Wiring</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Batteries</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Car Batteries</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Marine Batteries</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Motorcycle Batteries</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Battery Chargers</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Electrical</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Alternators</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Starters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Ignition Coils</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Spark Plugs</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Wiring</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wire Harnesses</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Connectors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Fuses & Relays</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Switches</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-red-600 font-semibold mb-2">HOT DEAL</div>
+                                        <img src="https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=150&h=100&fit=crop" alt="Battery" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$129</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Premium Car Battery</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="brakes">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="brakes">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Brakes, Steering & Suspension</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Brakes, Steering & Suspension</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Brakes</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Brake Pads & Shoes</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Brake Rotors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Brake Calipers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Brake Hoses & Lines</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Brake Drums</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Steering</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Tie Rod Ends & Related</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Power Steering Hoses</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Tire Repair</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Power Steering Pumps</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wheel Lug Nuts</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Suspension</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Shock Absorbers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Sway Bar Parts & Kits</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Suspension Ball Joints</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Chassis Kits</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Suspension Control Arms</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-yellow-600 font-semibold mb-2">SALE! MOTOR OILS</div>
+                                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=100&fit=crop" alt="Motor Oil" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$230</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Premium Brake Pads Set</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="cooling">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="cooling">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Cooling & Heating</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Cooling & Heating</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Cooling System</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Radiators</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Water Pumps</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Thermostats</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cooling Fans</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Hoses & Clamps</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Heating System</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Heater Cores</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Blower Motors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">HVAC Controls</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cabin Filters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Heater Valves</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Climate Control</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">A/C Compressors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Condensers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Evaporators</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Refrigerant</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">A/C Hoses</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-blue-600 font-semibold mb-2">COOLING SPECIAL</div>
+                                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=100&fit=crop" alt="Radiator" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$189</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">High-Performance Radiator</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="electronics">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="electronics">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Electronics & Navigation</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Electronics & Navigation</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Audio & Video</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Car Stereos</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Speakers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Amplifiers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Subwoofers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Dash Cameras</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Navigation</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">GPS Systems</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Backup Cameras</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Parking Sensors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Radar Detectors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Bluetooth Adapters</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Accessories</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Phone Mounts</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Car Chargers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">USB Adapters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wireless Chargers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cable Management</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-purple-600 font-semibold mb-2">TECH DEAL</div>
+                                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=150&h=100&fit=crop" alt="Car Audio" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$299</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Premium Car Audio System</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="engines">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="engines">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Engines & Ignition</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Engines & Ignition</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Engine Parts</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Engine Blocks</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Pistons & Rings</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cylinder Heads</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Gaskets & Seals</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Timing Chains</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Ignition System</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Spark Plugs</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Ignition Coils</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Distributors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Ignition Wires</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Ignition Modules</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Performance</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Turbochargers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Superchargers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cold Air Intakes</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Performance Chips</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Intercoolers</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-orange-600 font-semibold mb-2">PERFORMANCE</div>
+                                        <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=150&h=100&fit=crop" alt="Engine" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$899</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">High-Performance Turbo Kit</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="tools">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="tools">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tools, Fluids & Garage</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Tools, Fluids & Garage</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Hand Tools</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Wrenches</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Screwdrivers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Pliers</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Socket Sets</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Tool Boxes</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Power Tools</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Impact Wrenches</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Drills</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Grinders</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Compressors</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Jacks & Lifts</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Fluids & Chemicals</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Motor Oil</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Brake Fluid</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Coolant</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Transmission Fluid</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Cleaners & Degreasers</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-green-600 font-semibold mb-2">TOOL SPECIAL</div>
+                                        <img src="https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=150&h=100&fit=crop" alt="Tools" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$159</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Professional Tool Set</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" data-category="transmission">
+                    <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative" data-category="transmission">
                         <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Transmission & Drivetrain</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">Transmission & Drivetrain</span>
+                        <svg class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        
+                        <!-- Hover Dropdown -->
+                        <div class="category-dropdown absolute left-full top-0 ml-2 w-[800px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Transmission</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Automatic Transmissions</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Manual Transmissions</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">CVT Transmissions</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Transmission Filters</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Torque Converters</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Drivetrain</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Driveshafts</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">CV Joints</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Differentials</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Axles</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Transfer Cases</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Clutch System</h4>
+                                        <ul class="space-y-2">
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Clutch Kits</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Clutch Discs</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Pressure Plates</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Release Bearings</a></li>
+                                            <li><a href="#" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">Clutch Masters</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="text-xs text-red-600 font-semibold mb-2">TRANSMISSION</div>
+                                        <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=150&h=100&fit=crop" alt="Transmission" class="w-full h-20 object-cover rounded mb-3">
+                                        <div class="text-lg font-bold text-gray-900 dark:text-white mb-1">$1,299</div>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400">Rebuilt Transmission</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
