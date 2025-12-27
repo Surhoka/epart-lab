@@ -45,6 +45,32 @@
       <p
         class="absolute bottom-6 left-1/2 -translate-x-1/2 text-center text-sm text-gray-500 dark:text-gray-400"
       >
-        &#169; <span x-text='new Date().getFullYear()'/> <span x-text='blogTitle'/>. All rights reserved.
+       <img alt='Logo' class='h-8 w-auto' expr:src='data:blog.blogspotFaviconUrl'/> &#169; <span x-text='new Date().getFullYear()'/> <span x-text='blogTitle'/>. All rights reserved.
       </p>
+
     </div>
+<script>
+// Make blogFavicon available globally for Alpine.js
+document.addEventListener('alpine:init', () => {
+    Alpine.data('globalData', () => ({
+        get blogTitle() {
+            return window.app?.blogTitle || document.title || 'Admin Dashboard';
+        },
+        get blogFavicon() {
+            // Try to get from main app first
+            if (window.app?.blogFavicon) {
+                return window.app.blogFavicon;
+            }
+            
+            // Try to find Blogger's favicon (URL or data URI)
+            const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+            if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
+                return faviconLink.href;
+            }
+            
+            // Fallback to Blogger default
+            return 'https://www.blogger.com/img/blogger_logo_round_35.png';
+        }
+    }));
+});
+</script>            
