@@ -1,39 +1,48 @@
 <!-- 404 Error Page -->
 <div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="{
-    blogTitle: '',
-    blogFavicon: '',
-    blogDescription: '',
+    blogTitle: 'EzyParts',
+    blogFavicon: 'https://www.blogger.com/img/blogger_logo_round_35.png',
+    blogDescription: 'Welcome to our blog - Your trusted platform for quality parts and components.',
     
     init() {
-        // Set blog title
-        this.blogTitle = window.app?.blogTitle || document.title || 'EzyParts';
-        
-        // Set blog favicon
-        if (window.app?.blogFavicon) {
-            this.blogFavicon = window.app.blogFavicon;
-        } else {
-            const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
-            if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
-                this.blogFavicon = faviconLink.href;
-            } else {
-                this.blogFavicon = 'https://www.blogger.com/img/blogger_logo_round_35.png';
-            }
+        // Try to get data from URL parameters first (for direct access)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('title')) {
+            this.blogTitle = decodeURIComponent(urlParams.get('title'));
+        }
+        if (urlParams.get('favicon')) {
+            this.blogFavicon = decodeURIComponent(urlParams.get('favicon'));
+        }
+        if (urlParams.get('description')) {
+            this.blogDescription = decodeURIComponent(urlParams.get('description'));
         }
         
-        // Set blog description
-        if (window.app?.blogDescription) {
-            this.blogDescription = window.app.blogDescription;
-        } else {
-            const bloggerMeta = document.querySelector('meta[name=&quot;description&quot;]');
-            if (bloggerMeta && bloggerMeta.content && bloggerMeta.content.trim()) {
-                this.blogDescription = bloggerMeta.content;
-            } else {
-                const pageTitle = document.title;
-                if (pageTitle && pageTitle !== 'EzyParts') {
-                    this.blogDescription = `Welcome to ${pageTitle} - Your trusted platform for quality parts and components.`;
-                } else {
-                    this.blogDescription = 'Welcome to our blog - Your trusted platform for quality parts and components.';
+        // Try to get from parent window (if loaded in iframe/SPA)
+        if (window.parent && window.parent !== window) {
+            // Request blog data from parent
+            window.parent.postMessage({ type: 'REQUEST_BLOG_DATA' }, '*');
+            
+            // Listen for response
+            window.addEventListener('message', (event) => {
+                if (event.data.type === 'BLOG_DATA_RESPONSE') {
+                    this.blogTitle = event.data.data.blogTitle || this.blogTitle;
+                    this.blogFavicon = event.data.data.blogFavicon || this.blogFavicon;
+                    this.blogDescription = event.data.data.blogDescription || this.blogDescription;
                 }
+            });
+        }
+        
+        // Fallback: try to get from current page meta (if available)
+        const currentMeta = document.querySelector('meta[name=&quot;description&quot;]');
+        if (currentMeta && currentMeta.content && !urlParams.get('description')) {
+            this.blogDescription = currentMeta.content;
+        }
+        
+        // Fallback: try to get from current page title
+        if (document.title && document.title !== 'EzyParts' && !urlParams.get('title')) {
+            this.blogTitle = document.title;
+            if (!urlParams.get('description') && !currentMeta) {
+                this.blogDescription = `Welcome to ${document.title} - Your trusted platform for quality parts and components.`;
             }
         }
     }
