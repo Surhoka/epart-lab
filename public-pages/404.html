@@ -45,7 +45,7 @@
       <p
         class="absolute bottom-6 left-1/2 -translate-x-1/2 text-center text-sm text-gray-500 dark:text-gray-400"
       >
-       <img alt='Logo' class='h-8 w-auto' expr:src='data:blog.blogspotFaviconUrl'/> &#169; <span x-text='new Date().getFullYear()'/> <span x-text='blogTitle'/>. All rights reserved.
+       <img :src="blogFavicon" alt="Logo" class="w-12 h-12" /> &#169; <span x-text='new Date().getFullYear()'/> <span x-text='blogTitle'/>. All rights reserved.
       </p>
 
     </div>
@@ -74,3 +74,4 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>            
+
