@@ -1,5 +1,5 @@
 <!-- 404 Error Page -->
-<div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6">
+<div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="globalData()">
     <!-- ===== Common Grid Shape Start ===== -->
     <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
         <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/grid-01.svg" alt="grid" />
@@ -16,39 +16,30 @@
         </h1>
 
         <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/404.svg" alt="404" class="dark:hidden" />
-        <img
-          src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/404-dark.svg"
-          alt="404"
-          class="hidden dark:block"
-        />
+        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/404-dark.svg" alt="404" class="hidden dark:block" />
 
-        <p
-          class="mb-6 mt-10 text-base text-gray-700 dark:text-gray-400 sm:text-lg"
-        >
+        <p class="mb-6 mt-10 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
           Kami tidak dapat menemukan halaman yang Anda cari!
         </p>
 
-        <a
-          href="/"
-          class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-        >
+        <a href="/" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
           Back to Home Page
         </a>
       </div>
-      <!-- Footer -->
-    <div class="relative z-10 flex flex-col items-center">
-      <a href="/" class="flex items-center gap-3 mb-6">
-        <img :src="blogFavicon" alt="Logo" class="w-12 h-12" />
-        <span class="text-3xl font-bold text-white tracking-tight" x-text="blogTitle"></span>
-      </a>
 
+    <!-- Blog Title and Favicon Section -->
+    <div class="relative z-10 flex flex-col items-center mt-12">
+      <a href="/" class="flex items-center gap-3 mb-6 group">
+        <img :src="blogFavicon" alt="Logo" class="w-12 h-12 rounded-lg shadow-sm transition-transform group-hover:scale-105" />
+        <span class="text-2xl font-bold text-gray-800 dark:text-white/90 tracking-tight transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400" x-text="blogTitle"></span>
+      </a>
     </div>
 <script>
 // Make blogFavicon available globally for Alpine.js
 document.addEventListener('alpine:init', () => {
     Alpine.data('globalData', () => ({
         get blogTitle() {
-            return window.app?.blogTitle || document.title || 'home';
+            return window.app?.blogTitle || document.title || 'EzyParts';
         },
         get blogFavicon() {
             // Try to get from main app first
@@ -67,8 +58,15 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
-</script>            
 
+// Initialize Alpine.js data on the page
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof Alpine !== 'undefined') {
+        // Apply global data to the page
+        document.body.setAttribute('x-data', 'globalData()');
+    }
+});
+</script>            
 
 
 
