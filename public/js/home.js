@@ -51,6 +51,17 @@ function addSliderCSS() {
             color: rgb(96 165 250) !important;
         }
         
+        .category-dropdown {
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .group:hover .category-dropdown {
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        
         .hero-title, .hero-description, .hero-price {
             transition: opacity 0.3s ease;
         }
@@ -193,10 +204,9 @@ function initCategorySidebar() {
             
             // Get category data
             const category = this.dataset.category;
-            const categoryName = this.textContent.trim();
             
             // Update hero content based on category
-            updateHeroContent(category, categoryName);
+            updateHeroContent(category);
             
             // Optional: Navigate to category page
             // window.navigate('shop', { category: category });
@@ -218,7 +228,7 @@ function initCategorySidebar() {
 }
 
 // Update Hero Content based on category
-function updateHeroContent(category, categoryName) {
+function updateHeroContent(category) {
     const heroTitle = document.querySelector('.hero-title');
     const heroDescription = document.querySelector('.hero-description');
     const heroPrice = document.querySelector('.hero-price');
