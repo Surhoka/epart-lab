@@ -5,84 +5,60 @@
     blogDescription: 'Welcome to our blog - Your trusted platform for quality parts and components.',
     
     init() {
-        // Try to get data from localStorage (stored by main template)
+        // 1. Try to get data from global window.app (hosting template)
+        if (window.app) {
+            console.log('404 page - fetching data from window.app');
+            this.blogTitle = window.app.blogTitle || this.blogTitle;
+            this.blogFavicon = window.app.blogFavicon || this.blogFavicon;
+            
+            // Handle potentially delayed description
+            if (window.app.blogDescription) {
+                this.blogDescription = window.app.blogDescription;
+            } else {
+                // Poll for description if it's still being loaded by the template
+                const checkDesc = setInterval(() => {
+                    if (window.app.blogDescription) {
+                        this.blogDescription = window.app.blogDescription;
+                        clearInterval(checkDesc);
+                    }
+                }, 200);
+                setTimeout(() => clearInterval(checkDesc), 5000); // Stop polling after 5s
+            }
+            
+            // If we have valid title from window.app, we're good to go
+            if (this.blogTitle && this.blogTitle !== 'Blog Title' && this.blogTitle !== 'EzyParts') {
+                return;
+            }
+        }
+
+        // 2. Try to get data from localStorage (fallback for refresh on 404)
         try {
             const storedData = localStorage.getItem('blogData');
-            console.log('404 page - stored data:', storedData);
-            
             if (storedData) {
                 const blogData = JSON.parse(storedData);
-                console.log('404 page - parsed blog data:', blogData);
-                
-                // Check if data is not too old (24 hours)
                 const isDataFresh = (Date.now() - blogData.timestamp) < (24 * 60 * 60 * 1000);
-                console.log('404 page - data is fresh:', isDataFresh);
                 
                 if (isDataFresh && blogData.title) {
                     this.blogTitle = blogData.title;
                     this.blogFavicon = blogData.favicon || this.blogFavicon;
                     this.blogDescription = blogData.description || this.blogDescription;
-                    console.log('404 page - using stored data:', {
-                        title: this.blogTitle,
-                        favicon: this.blogFavicon,
-                        description: this.blogDescription
-                    });
-                    return; // Exit early if we got good data
+                    return;
                 }
             }
         } catch (e) {
-            console.log('Could not read blog data from localStorage:', e);
+            console.warn('Could not read blog data from localStorage:', e);
         }
         
-        console.log('404 page - using fallback data');
-        
-        // Enhanced fallback: try to get from current page or make educated guesses
-        if (document.title && document.title !== 'EzyParts') {
+        // 3. Last resort fallbacks
+        if (document.title && document.title.length > 0) {
             this.blogTitle = document.title;
         }
         
-        // Try to get favicon from current page
-        const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
-        if (faviconLink && faviconLink.href) {
-            this.blogFavicon = faviconLink.href;
-        }
-        
-        // Try to get description from current page meta
-        const currentMeta = document.querySelector('meta[name=&quot;description&quot;]');
-        if (currentMeta && currentMeta.content) {
-            this.blogDescription = currentMeta.content;
-        } else {
-            // Try to extract blog name from URL or title for better description
-            const blogName = this.blogTitle;
-            const domain = window.location.hostname;
-            
-            if (domain.includes('blogspot.com')) {
-                // Extract blog name from blogspot domain
-                const subdomain = domain.split('.')[0];
-                this.blogDescription = `Welcome to ${blogName} - Your trusted source for quality content and information.`;
-            } else {
-                this.blogDescription = `Welcome to ${blogName} - Your trusted platform for quality parts and components.`;
-            }
-        }
-        
-        console.log('404 page - final fallback data:', {
-            title: this.blogTitle,
-            favicon: this.blogFavicon,
-            description: this.blogDescription
-        });
-        
-        // Store the fallback data for future use
-        const fallbackData = {
-            title: this.blogTitle,
-            favicon: this.blogFavicon,
-            description: this.blogDescription,
-            timestamp: Date.now(),
-            source: 'fallback'
-        };
-        localStorage.setItem('blogData', JSON.stringify(fallbackData));
-        console.log('404 page - stored fallback data for future use');
-    }
-}">
+        const faviconLink = document.querySelector('link[rel=" icon"], link[rel="shortcut icon" ]'); if (faviconLink &&
+    faviconLink.href) { this.blogFavicon=faviconLink.href; } const
+    currentMeta=document.querySelector('meta[name="description" ]'); if (currentMeta && currentMeta.content) {
+    this.blogDescription=currentMeta.content; } else { const blogName=this.blogTitle; this.blogDescription=`Welcome to
+    ${blogName} - Your trusted source for quality content and information.`; } } }">
     <!-- ===== Common Grid Shape Start ===== -->
     <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
         <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/grid-01.svg" alt="grid" />
