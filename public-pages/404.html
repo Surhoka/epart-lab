@@ -54,11 +54,19 @@
             this.blogTitle = document.title;
         }
         
-        const faviconLink = document.querySelector('link[rel=" icon"], link[rel="shortcut icon" ]'); if (faviconLink &&
-    faviconLink.href) { this.blogFavicon=faviconLink.href; } const
-    currentMeta=document.querySelector('meta[name="description" ]'); if (currentMeta && currentMeta.content) {
-    this.blogDescription=currentMeta.content; } else { const blogName=this.blogTitle; this.blogDescription=`Welcome to
-    ${blogName} - Your trusted source for quality content and information.`; } } }">
+        const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
+        if (faviconLink && faviconLink.href) {
+            this.blogFavicon = faviconLink.href;
+        }
+        
+        const currentMeta = document.querySelector('meta[name=&quot;description&quot;]');
+        if (currentMeta && currentMeta.content) {
+            this.blogDescription = currentMeta.content;
+        } else {
+            this.blogDescription = 'Welcome to ' + this.blogTitle + ' - Your trusted source for quality content.';
+        }
+    }
+}">
     <!-- ===== Common Grid Shape Start ===== -->
     <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
         <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/grid-01.svg" alt="grid" />
@@ -115,3 +123,4 @@
             console.warn('Alpine.js not loaded. Blog title and favicon may not display correctly.');
         }
     </script>
+</div>
