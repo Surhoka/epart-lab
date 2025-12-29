@@ -1,0 +1,97 @@
+<!-- 404 Error Page -->
+<style>
+    [x-icon] svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .text-glow {
+        text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .dark .gradient-text {
+        background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+
+<div class="relative z-1 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center overflow-hidden p-6"
+    x-data="{
+    blogTitle: 'EzyParts',
+    blogFavicon: 'https://www.blogger.com/img/blogger_logo_round_35.png',
+    blogDescription: 'Premium Dashboard & Admin Parts Store Management',
+    
+    init() {
+        if (window.app) {
+            this.blogTitle = window.app.blogTitle || this.blogTitle;
+            this.blogFavicon = window.app.blogFavicon || this.blogFavicon;
+        }
+    }
+}">
+    <!-- Background Accents -->
+    <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] opacity-20 xl:max-w-[450px]" x-icon="'grid-01'"></div>
+    <div class="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 opacity-20 xl:max-w-[450px]"
+        x-icon="'grid-01'"></div>
+
+    <div class="mx-auto w-full max-w-[500px] text-center">
+        <!-- Error Code -->
+        <div class="relative mb-8">
+            <h1 class="text-glow gradient-text text-8xl font-black md:text-9xl tracking-tighter">
+                404
+            </h1>
+            <div
+                class="absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-[0.5em] text-gray-400 dark:text-gray-500">
+                Page Not Found
+            </div>
+        </div>
+
+        <!-- Illustration -->
+        <div class="relative mx-auto mb-10 h-auto w-full max-w-[320px]">
+            <div x-icon="'404'" class="dark:hidden w-full transition-transform duration-500 hover:scale-105"></div>
+            <div x-icon="'404-dark'" class="hidden dark:block w-full transition-transform duration-500 hover:scale-105">
+            </div>
+        </div>
+
+        <!-- Message -->
+        <h2 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+            Opps! Halaman tidak ditemukan.
+        </h2>
+        <p class="mb-10 text-base text-gray-500 dark:text-gray-400">
+            Halaman yang Anda cari mungkin telah dipindahkan, dihapus, atau tidak pernah ada.
+        </p>
+
+        <!-- Actions -->
+        <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <a href="#dashboard"
+                class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 hover:shadow-blue-500/40 active:scale-95">
+                Back to Dashboard
+            </a>
+            <button @click="window.history.back()"
+                class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-800/80 active:scale-95">
+                Go Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Branding Footer -->
+    <div class="mt-16 flex flex-col items-center border-t border-gray-100 pt-8 dark:border-gray-800/50">
+        <a href="#dashboard" class="group flex items-center gap-3 transition-opacity hover:opacity-80">
+            <img :src="blogFavicon" alt="Logo" class="h-8 w-8 rounded-lg shadow-sm" />
+            <div class="flex flex-col">
+                <span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white" x-text="blogTitle"></span>
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium"
+                    x-text="blogDescription"></span>
+            </div>
+        </a>
+    </div>
+</div>
