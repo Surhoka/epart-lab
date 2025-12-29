@@ -1,4 +1,11 @@
 <!-- 404 Error Page -->
+<style>
+    [x-icon] svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+</style>
 <div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="{
     blogTitle: 'EzyParts',
     blogFavicon: 'https://www.blogger.com/img/blogger_logo_round_35.png',
@@ -68,11 +75,9 @@
     }
 }">
     <!-- ===== Common Grid Shape Start ===== -->
-    <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
-        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/grid-01.svg" alt="grid" />
+    <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]" x-icon="'grid-01'">
     </div>
-    <div class="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 xl:max-w-[450px]">
-        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/grid-01.svg" alt="grid" />
+    <div class="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 xl:max-w-[450px]" x-icon="'grid-01'">
     </div>
     <!-- ===== Common Grid Shape End ===== -->
 
@@ -82,10 +87,8 @@
             ERROR
         </h1>
 
-        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/404.svg" alt="404"
-            class="dark:hidden" />
-        <img src="https://raw.githubusercontent.com/Surhoka/epart-lab/main/images/404-dark.svg" alt="404"
-            class="hidden dark:block" />
+        <div x-icon="'404'" class="dark:hidden w-full"></div>
+        <div x-icon="'404-dark'" class="hidden dark:block w-full"></div>
 
         <p class="mb-6 mt-10 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
             Kami tidak dapat menemukan halaman yang Anda cari!
