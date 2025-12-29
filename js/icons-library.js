@@ -109,7 +109,7 @@ window.getEzyIcon = (name, className = 'w-5 h-5') => {
 
 // Register Alpine.js directive
 const registerIconDirective = () => {
-    if (window.Alpine && !window.Alpine.directives['icon']) {
+    if (window.Alpine) {
         window.Alpine.directive('icon', (el, { expression }, { evaluate }) => {
             const iconName = evaluate(expression);
             const iconHtml = window.getEzyIcon(iconName, el.className);
