@@ -108,15 +108,23 @@ window.getEzyIcon = (name, className = 'w-5 h-5') => {
 };
 
 // Register Alpine.js directive
-document.addEventListener('alpine:init', () => {
-    window.Alpine.directive('icon', (el, { expression }, { evaluate }) => {
-        const iconName = evaluate(expression);
-        const iconHtml = window.getEzyIcon(iconName, el.className);
-        if (iconHtml) {
-            el.innerHTML = iconHtml;
-        }
-    });
-});
+const registerIconDirective = () => {
+    if (window.Alpine && !window.Alpine.directives['icon']) {
+        window.Alpine.directive('icon', (el, { expression }, { evaluate }) => {
+            const iconName = evaluate(expression);
+            const iconHtml = window.getEzyIcon(iconName, el.className);
+            if (iconHtml) {
+                el.innerHTML = iconHtml;
+            }
+        });
+    }
+};
+
+if (window.Alpine) {
+    registerIconDirective();
+} else {
+    document.addEventListener('alpine:init', registerIconDirective);
+}
 
 // Auto-inject on load
 if (document.readyState === 'loading') {
