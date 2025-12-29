@@ -24,6 +24,7 @@ const EzyIcons = {
     'phone': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
     'clock': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
     'message-circle': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+    'message': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
     'mail': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
 
     // Services (from Ezyparts)
@@ -39,6 +40,7 @@ const EzyIcons = {
     'cooling': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 4.5 12 3l1.5 1.5M10.5 19.5 12 21l1.5-1.5M4.5 10.5 3 12l1.5 1.5M19.5 10.5 21 12l-1.5 1.5"/><circle cx="12" cy="12" r="3"/><path d="m14 14 3 3"/><path d="m10 10-3-3"/><path d="m14 10 3-3"/><path d="m10 14-3 3"/></svg>`,
     'electronics': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 15h3"/><path d="M1 9h3"/><path d="M1 15h3"/></svg>`,
     'engines': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M22 12h-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M12 22v-4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M2 12h4"/><path d="m19.07 4.93-2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>`,
+    'engine': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M22 12h-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M12 22v-4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M2 12h4"/><path d="m19.07 4.93-2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>`,
     'tools': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
     'transmission': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>`,
 
@@ -62,16 +64,18 @@ function injectEzyIcons() {
     }
 
     Object.entries(EzyIcons).forEach(([name, svgContent]) => {
+        const symbolId = `icon-${name}`;
+        if (svgSprite.querySelector(`#${symbolId}`)) return;
+
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = svgContent;
         const svgElement = tempDiv.querySelector('svg');
 
         if (svgElement) {
             const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'symbol');
-            symbol.id = `icon-${name}`;
+            symbol.id = symbolId;
             symbol.setAttribute('viewBox', svgElement.getAttribute('viewBox') || '0 0 24 24');
 
-            // Move child nodes from svg to symbol
             while (svgElement.firstChild) {
                 symbol.appendChild(svgElement.firstChild);
             }
@@ -84,36 +88,31 @@ function injectEzyIcons() {
 // Global accessor
 window.EzyIcons = EzyIcons;
 window.getEzyIcon = (name, className = 'w-5 h-5') => {
-    if (!EzyIcons[name]) return '';
-    const svg = EzyIcons[name];
-    if (className) {
-        return svg.replace('<svg', `<svg class="${className}"`);
+    if (!EzyIcons[name]) {
+        console.warn(`Icon "${name}" not found in EzyIcons library.`);
+        return '';
     }
-    return svg;
+    const svg = EzyIcons[name];
+
+    // Ensure className has at least some dimensions
+    let finalClass = className || 'w-5 h-5';
+    if (!finalClass.includes('w-') && !finalClass.includes('h-')) {
+        finalClass += ' w-5 h-5';
+    }
+
+    return svg.replace('<svg', `<svg class="${finalClass.trim()}"`);
 };
 
-// Register Alpine.js directive if Alpine is present
-if (window.Alpine) {
+// Register Alpine.js directive
+document.addEventListener('alpine:init', () => {
     window.Alpine.directive('icon', (el, { expression }, { evaluate }) => {
         const iconName = evaluate(expression);
         const iconHtml = window.getEzyIcon(iconName, el.className);
         if (iconHtml) {
             el.innerHTML = iconHtml;
-            // Transfer svg children and attributes if we want more control,
-            // but for now, simple innerHTML is fine as getEzyIcon handles className.
         }
     });
-} else {
-    document.addEventListener('alpine:init', () => {
-        window.Alpine.directive('icon', (el, { expression }, { evaluate }) => {
-            const iconName = evaluate(expression);
-            const iconHtml = window.getEzyIcon(iconName, el.className);
-            if (iconHtml) {
-                el.innerHTML = iconHtml;
-            }
-        });
-    });
-}
+});
 
 // Auto-inject on load
 if (document.readyState === 'loading') {
