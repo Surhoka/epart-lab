@@ -1,0 +1,84 @@
+/**
+ * Public Apps Script Interface
+ * Handles communication with the Public API endpoint
+ */
+
+// API Configuration (Set in Blogger Template)
+// window.publicAppsScriptUrl = "...";
+
+/**
+ * Send data to the public Google Apps Script endpoint
+ * @param {string} action - The action to perform
+ * @param {object} data - The data payload
+ * @param {function} callback - Success callback
+ * @param {function} errorHandler - Error callback
+ */
+window.sendToPublicApi = function (action, data, callback, errorHandler) {
+    if (!window.publicAppsScriptUrl) {
+        console.warn('publicAppsScriptUrl is not set. API calls will fail.');
+        return;
+    }
+
+    // Public side mostly uses GET (JSONP) for simplicity and speed
+    const callbackName = 'public_jsonp_' + Math.round(100000 * Math.random());
+
+    window[callbackName] = function (response) {
+        delete window[callbackName];
+        const scriptElement = document.getElementById(callbackName);
+        if (scriptElement) scriptElement.remove();
+
+        if (response && response.status === 'success') {
+            if (callback) callback(response);
+        } else {
+            console.error('API Error:', response?.message || 'Unknown error');
+            if (errorHandler) errorHandler(response);
+        }
+    };
+
+    let url = window.publicAppsScriptUrl + `?action=${action}&callback=${callbackName}`;
+    for (const key in data) {
+        url += `&${key}=${encodeURIComponent(data[key])}`;
+    }
+
+    const script = document.createElement('script');
+    script.id = callbackName;
+    script.src = url;
+    script.onerror = function () {
+        console.error('Public API Connection Failed');
+        delete window[callbackName];
+        script.remove();
+        if (errorHandler) errorHandler({ status: 'error', message: 'Connection failed' });
+    };
+    document.body.appendChild(script);
+};
+
+/**
+ * Specific function to fetch branding data
+ */
+window.fetchBranding = function () {
+    window.sendToPublicApi('getProfile', {}, (response) => {
+        if (response.data && response.data.publicDisplay) {
+            const branding = {
+                title: response.data.publicDisplay.storeName,
+                description: response.data.publicDisplay.tagline,
+                phone: response.data.publicDisplay.supportPhone,
+                email: response.data.publicDisplay.supportEmail,
+                address: response.data.publicDisplay.storeAddress,
+                socials: {
+                    facebook: response.data.publicDisplay.facebook,
+                    twitter: response.data.publicDisplay.twitter,
+                    instagram: response.data.publicDisplay.instagram,
+                    linkedin: response.data.publicDisplay.linkedin
+                }
+            };
+
+            // Save to local storage for persistence
+            localStorage.setItem('publicBrandingData', JSON.stringify(branding));
+
+            // Notify app to update branding if it's already running
+            if (window.app && typeof window.app.applyBranding === 'function') {
+                window.app.applyBranding(branding);
+            }
+        }
+    });
+};
