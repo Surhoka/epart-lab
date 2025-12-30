@@ -1,0 +1,161 @@
+<!-- Contact Page -->
+<div class="bg-gray-50 dark:bg-gray-900 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto"
+        x-init="window.renderBreadcrumb([{ label: 'Home', action: 'window.navigate(\'home\')' }, { label: 'Contact' }])">
+        <!-- Breadcrumb Container -->
+        <div id="breadcrumb-container"></div>
+
+        <!-- Header Section -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
+                Get in Touch</h1>
+            <p class="mt-4 max-w-xl mx-auto text-xl text-gray-500 dark:text-gray-400">
+                Kami siap membantu Anda menemukan suku cadang terbaik untuk kendaraan Anda. Hubungi kami melalui saluran
+                di bawah ini.
+            </p>
+        </div>
+
+        <!-- Contact Info Cards -->
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+            <!-- Address Card -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 transform hover:scale-105 transition-all duration-300">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6">
+                    <div class="w-6 h-6 text-blue-600 dark:text-blue-400" x-icon="'map-pin'"></div>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Our Office</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed"
+                    x-text="publicAddress || 'Loading address...'"></p>
+            </div>
+
+            <!-- Phone Card -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 transform hover:scale-105 transition-all duration-300">
+                <div
+                    class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-6">
+                    <div class="w-6 h-6 text-green-600 dark:text-green-400" x-icon="'phone'"></div>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Phone Number</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-1">Mon-Fri from 8am to 5pm</p>
+                <p class="text-blue-600 dark:text-blue-400 font-semibold" x-text="publicPhone || 'Loading phone...'">
+                </p>
+            </div>
+
+            <!-- Email Card -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 transform hover:scale-105 transition-all duration-300">
+                <div
+                    class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-6">
+                    <div class="w-6 h-6 text-purple-600 dark:text-purple-400" x-icon="'mail'"></div>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Email Address</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-1">Our friendly team is here to help.</p>
+                <p class="text-blue-600 dark:text-blue-400 font-semibold"
+                    x-text="publicEmail || 'contact@ezyparts.com'"></p>
+            </div>
+
+            <!-- Hours Card -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 transform hover:scale-105 transition-all duration-300">
+                <div
+                    class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center mb-6">
+                    <div class="w-6 h-6 text-orange-600 dark:text-orange-400" x-icon="'clock'"></div>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Working Hours</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm" x-text="operatingHours.weekdays"></p>
+                <p class="text-gray-600 dark:text-gray-400 text-sm" x-text="operatingHours.days"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-8 sm:p-12">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Send us a Message</h2>
+                    <form action="#" method="POST" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label for="first-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First
+                                    Name</label>
+                                <input type="text" id="first-name" name="first-name"
+                                    class="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    placeholder="John">
+                            </div>
+                            <div>
+                                <label for="last-name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last
+                                    Name</label>
+                                <input type="text" id="last-name" name="last-name"
+                                    class="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    placeholder="Doe">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="email"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                            <input type="email" id="email" name="email"
+                                class="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                placeholder="john@example.com">
+                        </div>
+
+                        <div>
+                            <label for="subject"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subject</label>
+                            <select id="subject" name="subject"
+                                class="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none appearance-none">
+                                <option>General Inquiry</option>
+                                <option>Order Status</option>
+                                <option>Return Request</option>
+                                <option>Spare Part Help</option>
+                                <option>Feedback</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="message"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
+                            <textarea id="message" name="message" rows="4"
+                                class="block w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none resize-none"
+                                placeholder="How can we help you?"></textarea>
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-2 group">
+                                Send Message
+                                <div class="w-5 h-5 group-hover:translate-x-1 transition-transform" x-icon="'send'">
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div
+                class="h-[600px] lg:h-auto min-h-[400px] rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+                <!-- Location Label Overlay -->
+                <div
+                    class="absolute top-6 left-6 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 max-w-xs">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div
+                            class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                            <div class="w-4 h-4 text-blue-600 dark:text-blue-400" x-icon="'navigation'"></div>
+                        </div>
+                        <span class="font-bold text-gray-900 dark:text-white">Our Location</span>
+                    </div>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 font-medium" x-text="publicAddress"></p>
+                </div>
+
+                <!-- Map Iframe -->
+                <iframe class="w-full h-full grayscale dark:invert-[0.9] dark:hue-rotate-180"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126906.516565158!2d106.7891557!3d-6.2297465!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e430ae1e9b%3A0x62955519ec55d487!2sJakarta%20Pusat%2C%20Kota%20Jakarta%20Pusat%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+                    style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
