@@ -547,130 +547,131 @@
           </form>
         </div>
       </div>
-      <!-- END MODAL ADDRESS -->
+    </div>
+    <!-- END MODAL ADDRESS -->
 
-      <!-- BEGIN MODAL PUBLIC INFO -->
-      <div :class="{ 'show': isPublicInfoModal }"
-        class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
-        <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
-          x-on:click="isPublicInfoModal = false"></div>
-        <div
-          class="modal-dialog relative w-full max-w-[720px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
-          <!-- close btn -->
-          <button x-on:click="isPublicInfoModal = false"
-            class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+    <!-- BEGIN MODAL PUBLIC INFO -->
+    <div :class="{ 'show': isPublicInfoModal }"
+      class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
+      <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+        x-on:click="isPublicInfoModal = false"></div>
+      <div
+        class="modal-dialog relative w-full max-w-[720px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
+        <!-- close btn -->
+        <button x-on:click="isPublicInfoModal = false"
+          class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
 
-          <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-            <div class="modal-header border-b border-theme-primary pb-6 mb-8">
-              <h4 class="font-bold text-theme-primary text-2xl lg:text-3xl">
-                Edit Public Branding
-              </h4>
-              <p class="mt-2 text-sm text-theme-secondary">
-                Informasi ini digunakan untuk tampilan Footer dan Halaman Kontak di website publik anda.
-              </p>
+        <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+          <div class="modal-header border-b border-theme-primary pb-6 mb-8">
+            <h4 class="font-bold text-theme-primary text-2xl lg:text-3xl">
+              Edit Public Branding
+            </h4>
+            <p class="mt-2 text-sm text-theme-secondary">
+              Informasi ini digunakan untuk tampilan Footer dan Halaman Kontak di website publik anda.
+            </p>
+          </div>
+
+          <form class="flex flex-col gap-8">
+            <!-- Corporate Identity -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Corporate Identity</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div class="lg:col-span-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Store / Brand
+                    Name</label>
+                  <input id="input-public-name" type="text" placeholder="e.g. EzyParts Indonesia Official Store"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Brand Tagline /
+                    Brief
+                    Description</label>
+                  <textarea id="input-public-tagline" rows="3"
+                    placeholder="Deskripsi singkat yang akan muncul di bawah logo footer..."
+                    class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700"></textarea>
+                </div>
+              </div>
             </div>
 
-            <form class="flex flex-col gap-8">
-              <!-- Corporate Identity -->
-              <div>
-                <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Corporate Identity</h5>
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <div class="lg:col-span-2">
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Store / Brand
-                      Name</label>
-                    <input id="input-public-name" type="text" placeholder="e.g. EzyParts Indonesia Official Store"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                  <div class="lg:col-span-2">
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Brand Tagline /
-                      Brief
-                      Description</label>
-                    <textarea id="input-public-tagline" rows="3"
-                      placeholder="Deskripsi singkat yang akan muncul di bawah logo footer..."
-                      class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700"></textarea>
-                  </div>
+            <!-- Public Contacts -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                    Email</label>
+                  <input id="input-public-email" type="email" placeholder="support@ezyparts.com"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                    Phone</label>
+                  <input id="input-public-phone" type="text" placeholder="+62 21 1234 5678"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
+                    Address (Full)</label>
+                  <input id="input-public-address" type="text"
+                    placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
                 </div>
               </div>
+            </div>
 
-              <!-- Public Contacts -->
-              <div>
-                <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
-                      Email</label>
-                    <input id="input-public-email" type="email" placeholder="support@ezyparts.com"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
-                      Phone</label>
-                    <input id="input-public-phone" type="text" placeholder="+62 21 1234 5678"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                  <div class="lg:col-span-2">
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
-                      Address (Full)</label>
-                    <input id="input-public-address" type="text"
-                      placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
+            <!-- Social Presence -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
+                    URL</label>
+                  <input id="input-public-facebook" type="text" placeholder="https://facebook.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
+                    URL</label>
+                  <input id="input-public-twitter" type="text" placeholder="https://x.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
+                    URL</label>
+                  <input id="input-public-instagram" type="text" placeholder="https://instagram.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
+                    URL</label>
+                  <input id="input-public-linkedin" type="text" placeholder="https://linkedin.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
                 </div>
               </div>
+            </div>
 
-              <!-- Social Presence -->
-              <div>
-                <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
-                      URL</label>
-                    <input id="input-public-facebook" type="text" placeholder="https://facebook.com/..."
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
-                      URL</label>
-                    <input id="input-public-twitter" type="text" placeholder="https://x.com/..."
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
-                      URL</label>
-                    <input id="input-public-instagram" type="text" placeholder="https://instagram.com/..."
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                  <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
-                      URL</label>
-                    <input id="input-public-linkedin" type="text" placeholder="https://linkedin.com/..."
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Footer Buttons -->
-              <div
-                class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-4 modal-footer border-t border-theme-primary pt-8">
-                <button x-on:click="isPublicInfoModal = false" type="button"
-                  class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
-                  Cancel
-                </button>
-                <button id="save-public-info-btn" type="button"
-                  class="btn w-full sm:w-auto flex justify-center items-center rounded-xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 ml-auto">
-                  Save Branding Info
-                </button>
-              </div>
-            </form>
-          </div>
+            <!-- Footer Buttons -->
+            <div
+              class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-4 modal-footer border-t border-theme-primary pt-8">
+              <button x-on:click="isPublicInfoModal = false" type="button"
+                class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
+                Cancel
+              </button>
+              <button id="save-public-info-btn" type="button"
+                class="btn w-full sm:w-auto flex justify-center items-center rounded-xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 ml-auto">
+                Save Branding Info
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-      <!-- END MODAL PUBLIC INFO -->
     </div>
+    <!-- END MODAL PUBLIC INFO -->
   </div>
+</div>
