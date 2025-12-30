@@ -166,9 +166,9 @@ function fetchProfileData(userId) {
  * Populate profile data into the HTML
  */
 function populateProfileData(data) {
-    const { personalInfo, address, socialLinks } = data;
+    const { personalInfo, address, socialLinks, publicDisplay } = data;
 
-    // Populate Meta Card
+    // Populate Meta Card (Internal)
     const profilePhotoDisplay = document.getElementById('profile-photo-display');
     if (profilePhotoDisplay && personalInfo.profilePhoto) {
         profilePhotoDisplay.src = personalInfo.profilePhoto;
@@ -244,13 +244,52 @@ function populateProfileData(data) {
     }
 
     // Populate modal form fields
-    populateModalFields(personalInfo, address, socialLinks);
+    populateModalFields(personalInfo, address, socialLinks, publicDisplay);
+
+    // Populate Public Display section (Website Branding)
+    if (publicDisplay) {
+        const nameDisp = document.getElementById('display-public-name');
+        const emailDisp = document.getElementById('display-public-email');
+        const phoneDisp = document.getElementById('display-public-phone');
+        const addrDisp = document.getElementById('display-public-address');
+        const taglineDisp = document.getElementById('display-public-tagline');
+
+        if (nameDisp) nameDisp.textContent = publicDisplay.storeName || '-';
+        if (emailDisp) emailDisp.textContent = publicDisplay.supportEmail || '-';
+        if (phoneDisp) phoneDisp.textContent = publicDisplay.supportPhone || '-';
+        if (addrDisp) addrDisp.textContent = publicDisplay.storeAddress || '-';
+        if (taglineDisp) taglineDisp.textContent = publicDisplay.tagline || '-';
+
+        // Update Social Status Indicators
+        updateSocialStatus('status-fb', publicDisplay.facebook);
+        updateSocialStatus('status-tw', publicDisplay.twitter);
+        updateSocialStatus('status-ig', publicDisplay.instagram);
+        updateSocialStatus('status-li', publicDisplay.linkedin);
+    }
+}
+
+/**
+ * Helper to update social status text
+ */
+function updateSocialStatus(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        if (value && value.trim() !== '') {
+            el.textContent = 'Active';
+            el.classList.add('text-success-600');
+            el.classList.remove('text-gray-600');
+        } else {
+            el.textContent = 'Inactive';
+            el.classList.remove('text-success-600');
+            el.classList.add('text-gray-600');
+        }
+    }
 }
 
 /**
  * Populate modal form fields with data
  */
-function populateModalFields(personalInfo, address, socialLinks) {
+function populateModalFields(personalInfo, address, socialLinks, publicDisplay) {
     // Personal Info Modal - using IDs
     const firstNameInput = document.getElementById('input-firstname');
     const lastNameInput = document.getElementById('input-lastname');
@@ -285,6 +324,29 @@ function populateModalFields(personalInfo, address, socialLinks) {
     if (cityStateInput) cityStateInput.value = address.cityState || '';
     if (postalCodeInput) postalCodeInput.value = address.postalCode || '';
     if (taxIdInput) taxIdInput.value = address.taxId || '';
+
+    // Public Display Modal
+    if (publicDisplay) {
+        const pubNameInp = document.getElementById('input-public-name');
+        const pubTagInp = document.getElementById('input-public-tagline');
+        const pubEmailInp = document.getElementById('input-public-email');
+        const pubPhoneInp = document.getElementById('input-public-phone');
+        const pubAddrInp = document.getElementById('input-public-address');
+        const pubFbInp = document.getElementById('input-public-facebook');
+        const pubTwInp = document.getElementById('input-public-twitter');
+        const pubIgInp = document.getElementById('input-public-instagram');
+        const pubLiInp = document.getElementById('input-public-linkedin');
+
+        if (pubNameInp) pubNameInp.value = publicDisplay.storeName || '';
+        if (pubTagInp) pubTagInp.value = publicDisplay.tagline || '';
+        if (pubEmailInp) pubEmailInp.value = publicDisplay.supportEmail || '';
+        if (pubPhoneInp) pubPhoneInp.value = publicDisplay.supportPhone || '';
+        if (pubAddrInp) pubAddrInp.value = publicDisplay.storeAddress || '';
+        if (pubFbInp) pubFbInp.value = publicDisplay.facebook || '';
+        if (pubTwInp) pubTwInp.value = publicDisplay.twitter || '';
+        if (pubIgInp) pubIgInp.value = publicDisplay.instagram || '';
+        if (pubLiInp) pubLiInp.value = publicDisplay.linkedin || '';
+    }
 }
 
 /**
@@ -310,6 +372,16 @@ function setupEventListeners() {
             // Add loading state (using global function)
             window.setButtonLoading(saveAddressBtn, true);
             saveAddress();
+        });
+    }
+
+    // Public Info Save Button
+    const savePublicInfoBtn = document.getElementById('save-public-info-btn');
+    if (savePublicInfoBtn) {
+        savePublicInfoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.setButtonLoading(savePublicInfoBtn, true);
+            savePublicInfo();
         });
     }
 
@@ -710,6 +782,83 @@ function resetUploadButton() {
     if (editPhotoBtn) {
         editPhotoBtn.disabled = false;
         editPhotoBtn.style.opacity = '1';
+    }
+}
+
+/**
+ * Save public branding information
+ */
+function savePublicInfo() {
+    const isCreating = !window.currentProfileUserId;
+
+    const publicData = {
+        publicDisplay: {
+            storeName: document.getElementById('input-public-name')?.value || '',
+            tagline: document.getElementById('input-public-tagline')?.value || '',
+            supportEmail: document.getElementById('input-public-email')?.value || '',
+            supportPhone: document.getElementById('input-public-phone')?.value || '',
+            storeAddress: document.getElementById('input-public-address')?.value || '',
+            facebook: document.getElementById('input-public-facebook')?.value || '',
+            twitter: document.getElementById('input-public-twitter')?.value || '',
+            instagram: document.getElementById('input-public-instagram')?.value || '',
+            linkedin: document.getElementById('input-public-linkedin')?.value || ''
+        }
+    };
+
+    if (typeof window.sendDataToGoogle === 'function') {
+        const action = isCreating ? 'createProfile' : 'updateProfile';
+        const payload = isCreating ? { profileData: JSON.stringify(publicData) } : {
+            profileData: JSON.stringify(publicData),
+            userId: window.currentProfileUserId
+        };
+
+        window.sendDataToGoogle(action, payload, (response) => {
+            const saveBtn = document.getElementById('save-public-info-btn');
+
+            if (response.status === 'success') {
+                if (window.showToast) window.showToast('Public branding updated successfully', 'success');
+
+                // Update local storage for immediate use in Public template
+                const blogData = {
+                    title: publicData.publicDisplay.storeName,
+                    description: publicData.publicDisplay.tagline,
+                    phone: publicData.publicDisplay.supportPhone,
+                    email: publicData.publicDisplay.supportEmail,
+                    address: publicData.publicDisplay.storeAddress,
+                    socials: {
+                        facebook: publicData.publicDisplay.facebook,
+                        twitter: publicData.publicDisplay.twitter,
+                        instagram: publicData.publicDisplay.instagram,
+                        linkedin: publicData.publicDisplay.linkedin
+                    },
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('publicBrandingData', JSON.stringify(blogData));
+
+                // Clear cache before refetching
+                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+                localStorage.removeItem(cacheKey);
+
+                fetchProfileData(window.currentProfileUserId);
+
+                // Close modal if using Alpine
+                const profileContainer = document.getElementById('profile-page-container');
+                if (profileContainer && window.Alpine) {
+                    try {
+                        const alpineData = window.Alpine.$data(profileContainer);
+                        if (alpineData) {
+                            alpineData.isPublicInfoModal = false;
+                        }
+                    } catch (e) {
+                        console.error("Error closing modal", e);
+                    }
+                }
+            } else {
+                console.error('Failed to save public info:', response.message);
+                if (window.showToast) window.showToast('Failed to save branding info', 'error');
+                window.setButtonLoading(saveBtn, false);
+            }
+        });
     }
 }
 
