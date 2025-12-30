@@ -248,17 +248,17 @@ function populateProfileData(data) {
 
     // Populate Public Display section (Website Branding)
     if (publicDisplay) {
-        const nameDisp = document.getElementById('display-public-name');
         const emailDisp = document.getElementById('display-public-email');
         const phoneDisp = document.getElementById('display-public-phone');
         const addrDisp = document.getElementById('display-public-address');
-        const taglineDisp = document.getElementById('display-public-tagline');
+        const hoursDisp = document.getElementById('display-operating-hours');
+        const daysDisp = document.getElementById('display-operating-days');
 
-        if (nameDisp) nameDisp.textContent = publicDisplay.storeName || '-';
         if (emailDisp) emailDisp.textContent = publicDisplay.supportEmail || '-';
         if (phoneDisp) phoneDisp.textContent = publicDisplay.supportPhone || '-';
         if (addrDisp) addrDisp.textContent = publicDisplay.storeAddress || '-';
-        if (taglineDisp) taglineDisp.textContent = publicDisplay.tagline || '-';
+        if (hoursDisp) hoursDisp.textContent = publicDisplay.operatingHours || '-';
+        if (daysDisp) daysDisp.textContent = publicDisplay.operatingDays || '-';
 
         // Update Social Status Indicators
         updateSocialStatus('status-fb', publicDisplay.facebook);
@@ -327,21 +327,21 @@ function populateModalFields(personalInfo, address, socialLinks, publicDisplay) 
 
     // Public Display Modal
     if (publicDisplay) {
-        const pubNameInp = document.getElementById('input-public-name');
-        const pubTagInp = document.getElementById('input-public-tagline');
         const pubEmailInp = document.getElementById('input-public-email');
         const pubPhoneInp = document.getElementById('input-public-phone');
         const pubAddrInp = document.getElementById('input-public-address');
+        const pubHoursInp = document.getElementById('input-operating-hours');
+        const pubDaysInp = document.getElementById('input-operating-days');
         const pubFbInp = document.getElementById('input-public-facebook');
         const pubTwInp = document.getElementById('input-public-twitter');
         const pubIgInp = document.getElementById('input-public-instagram');
         const pubLiInp = document.getElementById('input-public-linkedin');
 
-        if (pubNameInp) pubNameInp.value = publicDisplay.storeName || '';
-        if (pubTagInp) pubTagInp.value = publicDisplay.tagline || '';
         if (pubEmailInp) pubEmailInp.value = publicDisplay.supportEmail || '';
         if (pubPhoneInp) pubPhoneInp.value = publicDisplay.supportPhone || '';
         if (pubAddrInp) pubAddrInp.value = publicDisplay.storeAddress || '';
+        if (pubHoursInp) pubHoursInp.value = publicDisplay.operatingHours || '';
+        if (pubDaysInp) pubDaysInp.value = publicDisplay.operatingDays || '';
         if (pubFbInp) pubFbInp.value = publicDisplay.facebook || '';
         if (pubTwInp) pubTwInp.value = publicDisplay.twitter || '';
         if (pubIgInp) pubIgInp.value = publicDisplay.instagram || '';
@@ -786,18 +786,18 @@ function resetUploadButton() {
 }
 
 /**
- * Save public branding information
+ * Save public contact and operating hours information
  */
 function savePublicInfo() {
     const isCreating = !window.currentProfileUserId;
 
     const publicData = {
         publicDisplay: {
-            storeName: document.getElementById('input-public-name')?.value || '',
-            tagline: document.getElementById('input-public-tagline')?.value || '',
             supportEmail: document.getElementById('input-public-email')?.value || '',
             supportPhone: document.getElementById('input-public-phone')?.value || '',
             storeAddress: document.getElementById('input-public-address')?.value || '',
+            operatingHours: document.getElementById('input-operating-hours')?.value || '',
+            operatingDays: document.getElementById('input-operating-days')?.value || '',
             facebook: document.getElementById('input-public-facebook')?.value || '',
             twitter: document.getElementById('input-public-twitter')?.value || '',
             instagram: document.getElementById('input-public-instagram')?.value || '',
@@ -816,15 +816,17 @@ function savePublicInfo() {
             const saveBtn = document.getElementById('save-public-info-btn');
 
             if (response.status === 'success') {
-                if (window.showToast) window.showToast('Public branding updated successfully', 'success');
+                if (window.showToast) window.showToast('Contact info and operating hours updated successfully', 'success');
 
                 // Update local storage for immediate use in Public template
-                const blogData = {
-                    title: publicData.publicDisplay.storeName,
-                    description: publicData.publicDisplay.tagline,
+                const brandingData = {
                     phone: publicData.publicDisplay.supportPhone,
                     email: publicData.publicDisplay.supportEmail,
                     address: publicData.publicDisplay.storeAddress,
+                    operatingHours: {
+                        weekdays: publicData.publicDisplay.operatingHours,
+                        days: publicData.publicDisplay.operatingDays
+                    },
                     socials: {
                         facebook: publicData.publicDisplay.facebook,
                         twitter: publicData.publicDisplay.twitter,
@@ -833,7 +835,7 @@ function savePublicInfo() {
                     },
                     timestamp: Date.now()
                 };
-                localStorage.setItem('publicBrandingData', JSON.stringify(blogData));
+                localStorage.setItem('publicBrandingData', JSON.stringify(brandingData));
 
                 // Clear cache before refetching
                 const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
@@ -855,7 +857,7 @@ function savePublicInfo() {
                 }
             } else {
                 console.error('Failed to save public info:', response.message);
-                if (window.showToast) window.showToast('Failed to save branding info', 'error');
+                if (window.showToast) window.showToast('Failed to save contact info', 'error');
                 window.setButtonLoading(saveBtn, false);
             }
         });
