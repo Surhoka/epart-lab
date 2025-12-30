@@ -406,6 +406,26 @@ function setupEventListeners() {
         });
     }
 
+    // Public Branding Edit Button (Explicit Handle)
+    const editPublicBrandingBtn = document.getElementById('edit-public-branding-btn');
+    if (editPublicBrandingBtn) {
+        editPublicBrandingBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("Edit Public Branding Clicked");
+            const profileContainer = document.getElementById('profile-page-container');
+            if (profileContainer && window.Alpine) {
+                try {
+                    const alpineData = window.Alpine.$data(profileContainer);
+                    if (alpineData) {
+                        alpineData.isPublicInfoModal = true;
+                    }
+                } catch (err) {
+                    console.error("Alpine toggle error:", err);
+                }
+            }
+        });
+    }
+
     // Profile Photo Edit Button
     const editPhotoBtn = document.getElementById('edit-photo-btn');
     const photoInput = document.getElementById('profile-photo-input');
