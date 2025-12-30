@@ -406,6 +406,37 @@ function setupEventListeners() {
         });
     }
 
+    // Personal Info Edit Button (Explicit Handle)
+    const editPersonalInfoBtn = document.getElementById('edit-personal-info-btn');
+    if (editPersonalInfoBtn) {
+        editPersonalInfoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const profileContainer = document.getElementById('profile-page-container');
+            if (profileContainer && window.Alpine) {
+                const alpineData = window.Alpine.$data(profileContainer);
+                if (alpineData) {
+                    alpineData.isProfileInfoModal = true;
+                    // Pre-populate data if needed or rely on Alpine binding
+                }
+            }
+        });
+    }
+
+    // Address Edit Button (Explicit Handle)
+    const editAddressBtn = document.getElementById('edit-address-btn');
+    if (editAddressBtn) {
+        editAddressBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const profileContainer = document.getElementById('profile-page-container');
+            if (profileContainer && window.Alpine) {
+                const alpineData = window.Alpine.$data(profileContainer);
+                if (alpineData) {
+                    alpineData.isProfileAddressModal = true;
+                }
+            }
+        });
+    }
+
     // Public Branding Edit Button (Explicit Handle)
     const editPublicBrandingBtn = document.getElementById('edit-public-branding-btn');
     if (editPublicBrandingBtn) {
