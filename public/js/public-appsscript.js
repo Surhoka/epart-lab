@@ -59,11 +59,13 @@ window.fetchBranding = function () {
     window.sendToPublicApi('getProfile', {}, (response) => {
         if (response.data && response.data.publicDisplay) {
             const branding = {
-                title: response.data.publicDisplay.storeName,
-                description: response.data.publicDisplay.tagline,
                 phone: response.data.publicDisplay.supportPhone,
                 email: response.data.publicDisplay.supportEmail,
                 address: response.data.publicDisplay.storeAddress,
+                operatingHours: {
+                    weekdays: response.data.publicDisplay.operatingHours,
+                    days: response.data.publicDisplay.operatingDays
+                },
                 socials: {
                     facebook: response.data.publicDisplay.facebook,
                     twitter: response.data.publicDisplay.twitter,
