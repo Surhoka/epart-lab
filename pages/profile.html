@@ -254,12 +254,6 @@
             </p>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-12 2xl:gap-x-24">
-              <!-- Store Brand Name -->
-              <div>
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Store / Brand Name</p>
-                <p id="display-public-name" class="text-sm font-medium text-gray-800 dark:text-white/90">-</p>
-              </div>
-
               <!-- Support Email -->
               <div>
                 <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Support Email</p>
@@ -273,15 +267,21 @@
               </div>
 
               <!-- Store Address -->
-              <div>
+              <div class="lg:col-span-2">
                 <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Physical Store Address</p>
                 <p id="display-public-address" class="text-sm font-medium text-gray-800 dark:text-white/90">-</p>
               </div>
 
-              <!-- Tagline / Description -->
-              <div class="lg:col-span-2">
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Brand Tagline / Description</p>
-                <p id="display-public-tagline" class="text-sm font-medium text-gray-800 dark:text-white/90">-</p>
+              <!-- Operating Hours -->
+              <div>
+                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Operating Hours</p>
+                <p id="display-operating-hours" class="text-sm font-medium text-gray-800 dark:text-white/90">-</p>
+              </div>
+
+              <!-- Operating Days -->
+              <div>
+                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Operating Days</p>
+                <p id="display-operating-days" class="text-sm font-medium text-gray-800 dark:text-white/90">-</p>
               </div>
             </div>
           </div>
@@ -294,7 +294,7 @@
                 d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
                 fill="" />
             </svg>
-            Edit Public Branding
+            Edit Contact & Hours
           </button>
         </div>
 
@@ -570,93 +570,89 @@
       </button>
 
       <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-        <div class="modal-header border-b border-theme-primary pb-6 mb-8">
-          <h4 class="font-bold text-theme-primary text-2xl lg:text-3xl">
-            Edit Public Branding
-          </h4>
-          <p class="mt-2 text-sm text-theme-secondary">
-            Informasi ini digunakan untuk tampilan Footer dan Halaman Kontak di website publik anda.
-          </p>
-        </div>
-
-        <form class="flex flex-col gap-8">
-          <!-- Corporate Identity -->
-          <div>
-            <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Corporate Identity</h5>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div class="lg:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Store / Brand
-                  Name</label>
-                <input id="input-public-name" type="text" placeholder="e.g. EzyParts Indonesia Official Store"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-              </div>
-              <div class="lg:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Brand Tagline /
-                  Brief
-                  Description</label>
-                <textarea id="input-public-tagline" rows="3"
-                  placeholder="Deskripsi singkat yang akan muncul di bawah logo footer..."
-                  class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700"></textarea>
-              </div>
-            </div>
+          <div class="modal-header border-b border-theme-primary pb-6 mb-8">
+            <h4 class="font-bold text-theme-primary text-2xl lg:text-3xl">
+              Edit Public Contact & Operating Hours
+            </h4>
+            <p class="mt-2 text-sm text-theme-secondary">
+              Informasi ini digunakan untuk tampilan Footer dan Header di website publik anda.
+            </p>
           </div>
 
-          <!-- Public Contacts -->
-          <div>
-            <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
-                  Email</label>
-                <input id="input-public-email" type="email" placeholder="support@ezyparts.com"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
-                  Phone</label>
-                <input id="input-public-phone" type="text" placeholder="+62 21 1234 5678"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-              </div>
-              <div class="lg:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
-                  Address (Full)</label>
-                <input id="input-public-address" type="text"
-                  placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+          <form class="flex flex-col gap-8">
+            <!-- Public Contacts -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                    Email</label>
+                  <input id="input-public-email" type="email" placeholder="support@ezyparts.com"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                    Phone</label>
+                  <input id="input-public-phone" type="text" placeholder="+62 21 1234 5678"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
+                    Address (Full)</label>
+                  <input id="input-public-address" type="text"
+                    placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Social Presence -->
-          <div>
-            <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
-                  URL</label>
-                <input id="input-public-facebook" type="text" placeholder="https://facebook.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
-                  URL</label>
-                <input id="input-public-twitter" type="text" placeholder="https://x.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
-                  URL</label>
-                <input id="input-public-instagram" type="text" placeholder="https://instagram.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
-                  URL</label>
-                <input id="input-public-linkedin" type="text" placeholder="https://linkedin.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+            <!-- Operating Hours -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Operating Hours</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating Hours</label>
+                  <input id="input-operating-hours" type="text" placeholder="8:00am - 8:00pm"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating Days</label>
+                  <input id="input-operating-days" type="text" placeholder="Monday - Saturday"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
               </div>
             </div>
-          </div>
+
+            <!-- Social Presence -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
+                    URL</label>
+                  <input id="input-public-facebook" type="text" placeholder="https://facebook.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
+                    URL</label>
+                  <input id="input-public-twitter" type="text" placeholder="https://x.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
+                    URL</label>
+                  <input id="input-public-instagram" type="text" placeholder="https://instagram.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
+                    URL</label>
+                  <input id="input-public-linkedin" type="text" placeholder="https://linkedin.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+                </div>
+              </div>
+            </div>
 
           <!-- Footer Buttons -->
           <div
@@ -667,7 +663,7 @@
             </button>
             <button id="save-public-info-btn" type="button"
               class="btn w-full sm:w-auto flex justify-center items-center rounded-xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 ml-auto">
-              Save Branding Info
+              Save Operating Hours & Contact Info
             </button>
           </div>
         </form>
