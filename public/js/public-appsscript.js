@@ -14,7 +14,7 @@
  * @param {function} errorHandler - Error callback
  */
 window.sendToPublicApi = function (action, data, callback, errorHandler) {
-    if (!window.publicAppsScriptUrl) {
+    if (!window.publicAppsScriptUrl && action !== 'checkSetup' && action !== 'saveConfig') {
         console.warn('publicAppsScriptUrl is not set. API calls will fail.');
         return;
     }
@@ -35,8 +35,15 @@ window.sendToPublicApi = function (action, data, callback, errorHandler) {
         }
     };
 
-    let url = window.publicAppsScriptUrl + `?action=${action}&callback=${callbackName}`;
+    let baseUrl = data.appUrl || window.publicAppsScriptUrl;
+    if (!baseUrl && (action === 'checkSetup' || action === 'saveConfig')) {
+        // Silently fail if no URL and doing setup
+        return;
+    }
+
+    let url = baseUrl + `?action=${action}&callback=${callbackName}`;
     for (const key in data) {
+        if (key === 'appUrl') continue; // Don't send the URL back to itself as a param
         url += `&${key}=${encodeURIComponent(data[key])}`;
     }
 
