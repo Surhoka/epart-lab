@@ -63,24 +63,19 @@
                 <label
                     class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Database
                     Type</label>
-                <div class="grid grid-cols-2 gap-3">
+                <div
+                    class="flex p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
                     <button @click="setupForm.dbType = 'automatic'"
-                        :class="setupForm.dbType === 'automatic' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 bg-transparent'"
-                        class="flex items-center gap-3 px-4 py-3 border-2 rounded-2xl transition-all group">
-                        <div :class="setupForm.dbType === 'automatic' ? 'text-blue-500' : 'text-slate-400'"
-                            class="w-5 h-5 group-hover:scale-110 transition-transform" x-icon="'zap'"></div>
-                        <span
-                            :class="setupForm.dbType === 'automatic' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'"
-                            class="text-xs font-bold uppercase tracking-tight">Auto</span>
+                        :class="setupForm.dbType === 'automatic' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500'"
+                        class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-all">
+                        <div class="w-3.5 h-3.5" x-icon="'zap'"></div>
+                        <span class="text-[11px] font-bold uppercase tracking-tight">Automatic</span>
                     </button>
                     <button @click="setupForm.dbType = 'manual'"
-                        :class="setupForm.dbType === 'manual' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 bg-transparent'"
-                        class="flex items-center gap-3 px-4 py-3 border-2 rounded-2xl transition-all group">
-                        <div :class="setupForm.dbType === 'manual' ? 'text-blue-500' : 'text-slate-400'"
-                            class="w-5 h-5 group-hover:scale-110 transition-transform" x-icon="'database'"></div>
-                        <span
-                            :class="setupForm.dbType === 'manual' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'"
-                            class="text-xs font-bold uppercase tracking-tight">Manual</span>
+                        :class="setupForm.dbType === 'manual' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500'"
+                        class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-all">
+                        <div class="w-3.5 h-3.5" x-icon="'database'"></div>
+                        <span class="text-[11px] font-bold uppercase tracking-tight">Manual</span>
                     </button>
                 </div>
             </div>
