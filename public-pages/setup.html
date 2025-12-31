@@ -1,5 +1,5 @@
 <div x-data="window.initSetupPage()" x-init="init()"
-    class="fixed inset-0 z-[999998] flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950 overflow-y-auto"
+    class="fixed inset-0 z-[999998] flex items-center justify-center p-3 sm:p-4 bg-slate-50 dark:bg-slate-950"
     x-show="!isSetup" x-cloak x-transition:enter="transition ease-out duration-500"
     x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
 
@@ -11,33 +11,33 @@
     </div>
 
     <div
-        class="relative w-full max-w-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 rounded-3xl shadow-2xl p-6 lg:p-10 max-h-[95vh] flex flex-col transition-all duration-300">
+        class="relative w-full max-w-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 rounded-3xl shadow-2xl p-5 sm:p-6 lg:p-8 max-h-[98vh] sm:max-h-[95vh] flex flex-col transition-all duration-300 overflow-hidden">
         <!-- Logo/Header (Horizontal) -->
-        <div class="flex items-center gap-4 mb-5 border-b border-slate-100 dark:border-slate-800 pb-5">
+        <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5 border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5 flex-shrink-0">
             <div
-                class="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20 transition-transform hover:rotate-12 duration-300">
-                <div class="w-6 h-6 text-white" x-icon="'settings'"></div>
+                class="flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20 transition-transform hover:rotate-12 duration-300">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 text-white" x-icon="'settings'"></div>
             </div>
-            <div class="flex-1">
-                <h1 class="text-xl lg:text-2xl font-extrabold text-slate-900 dark:text-white leading-none mb-1">EzyParts
+            <div class="flex-1 min-w-0">
+                <h1 class="text-lg sm:text-xl lg:text-2xl font-extrabold text-slate-900 dark:text-white leading-none mb-1">EzyParts
                     Setup</h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">Connect your application to database.</p>
             </div>
         </div>
 
         <!-- Form Sections (Scrollable if needed) -->
-        <div class="space-y-4 overflow-y-auto pr-1">
+        <div class="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 sm:space-y-4">
             <!-- WebApp URL -->
             <div>
                 <label
                     class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Public
                     WebApp URL</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
                         <div class="w-4 h-4 text-slate-400" x-icon="'link'"></div>
                     </div>
                     <input type="url" x-model="setupForm.appUrl"
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm"
+                        class="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm"
                         placeholder="https://script.google.com/macros/s/.../exec">
                 </div>
                 <p class="mt-1 text-[10px] text-slate-500">Deployed URL from Google Apps Script (Anyone).</p>
@@ -49,11 +49,11 @@
                     class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Admin
                     Email</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
                         <div class="w-4 h-4 text-slate-400" x-icon="'mail'"></div>
                     </div>
                     <input type="email" x-model="setupForm.email"
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm"
+                        class="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm"
                         placeholder="admin@example.com">
                 </div>
             </div>
@@ -67,49 +67,56 @@
                     class="flex p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
                     <button @click="setupForm.dbType = 'automatic'"
                         :class="setupForm.dbType === 'automatic' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500'"
-                        class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-all">
+                        class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-1.5 sm:py-2 rounded-lg transition-all">
                         <div class="w-3.5 h-3.5" x-icon="'zap'"></div>
-                        <span class="text-[11px] font-bold uppercase tracking-tight">Automatic</span>
+                        <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-tight">Automatic</span>
                     </button>
                     <button @click="setupForm.dbType = 'manual'"
                         :class="setupForm.dbType === 'manual' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500'"
-                        class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-all">
+                        class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-1.5 sm:py-2 rounded-lg transition-all">
                         <div class="w-3.5 h-3.5" x-icon="'database'"></div>
-                        <span class="text-[11px] font-bold uppercase tracking-tight">Manual</span>
+                        <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-tight">Manual</span>
                     </button>
                 </div>
             </div>
 
             <!-- Database Name (Manual) -->
-            <div x-show="setupForm.dbType === 'manual'" x-transition x-cloak>
+            <div x-show="setupForm.dbType === 'manual'" 
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                 x-cloak>
                 <input type="text" x-model="setupForm.dbName"
-                    class="w-full px-4 py-2.5 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm"
                     placeholder="Database Name">
-            </div>
-
-            <!-- Install Button -->
-            <div class="pt-2">
-                <button @click="installApp()" :disabled="isInstalling"
-                    class="w-full flex items-center justify-center gap-3 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-base shadow-xl shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 active:scale-95">
-                    <template x-if="!isInstalling">
-                        <div class="flex items-center gap-2">
-                            <span>Install Now</span>
-                            <div class="w-4 h-4" x-icon="'arrow-right'"></div>
-                        </div>
-                    </template>
-                    <template x-if="isInstalling">
-                        <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 animate-spin border-2 border-white/30 border-t-white rounded-full">
-                            </div>
-                            <span>Connecting...</span>
-                        </div>
-                    </template>
-                </button>
             </div>
         </div>
 
+        <!-- Install Button -->
+        <div class="flex-shrink-0 pt-3 sm:pt-4">
+            <button @click="installApp()" :disabled="isInstalling"
+                class="w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-sm sm:text-base shadow-xl shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 active:scale-95">
+                <template x-if="!isInstalling">
+                    <div class="flex items-center gap-2">
+                        <span>Install Now</span>
+                        <div class="w-4 h-4" x-icon="'arrow-right'"></div>
+                    </div>
+                </template>
+                <template x-if="isInstalling">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 animate-spin border-2 border-white/30 border-t-white rounded-full">
+                        </div>
+                        <span>Connecting...</span>
+                    </div>
+                </template>
+            </button>
+        </div>
+
         <!-- Footer -->
-        <p class="text-center mt-6 text-[10px] text-slate-500 dark:text-slate-500 font-medium">
+        <p class="flex-shrink-0 text-center mt-4 sm:mt-6 text-[10px] text-slate-500 dark:text-slate-500 font-medium">
             Powered by <span class="text-blue-500">EzyParts.Engine</span> v2.0
         </p>
     </div>
