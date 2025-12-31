@@ -1,0 +1,118 @@
+<div x-data="window.initSetupPage()" x-init="init()"
+    class="fixed inset-0 z-[999998] flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950 overflow-y-auto"
+    x-show="!isSetup" x-cloak x-transition:enter="transition ease-out duration-500"
+    x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full"></div>
+        <div class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full">
+        </div>
+    </div>
+
+    <div
+        class="relative w-full max-w-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 rounded-3xl shadow-2xl p-8 lg:p-12">
+        <!-- Logo/Header -->
+        <div class="text-center mb-10">
+            <div
+                class="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-2xl shadow-lg shadow-blue-500/30 mb-6">
+                <div class="w-10 h-10 text-white" x-icon="'settings'"></div>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">EzyParts Setup Wizard</h1>
+            <p class="text-slate-500 dark:text-slate-400">Complete the initial configuration to connect your application
+                to your database.</p>
+        </div>
+
+        <!-- Form Sections -->
+        <div class="space-y-6">
+            <!-- WebApp URL -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Public WebApp
+                    URL</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <div class="w-5 h-5 text-slate-400" x-icon="'link'"></div>
+                    </div>
+                    <input type="url" x-model="setupForm.appUrl"
+                        class="w-full pl-11 pr-4 py-3 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white"
+                        placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                <p class="mt-1.5 text-xs text-slate-500">The URL of your deployed Google Apps Script (must be deployed
+                    as 'Anyone').</p>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Admin Email</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <div class="w-5 h-5 text-slate-400" x-icon="'mail'"></div>
+                    </div>
+                    <input type="email" x-model="setupForm.email"
+                        class="w-full pl-11 pr-4 py-3 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white"
+                        placeholder="admin@example.com">
+                </div>
+            </div>
+
+            <!-- Database Selection -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Database
+                    Initialization</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button @click="setupForm.dbType = 'automatic'"
+                        :class="setupForm.dbType === 'automatic' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 bg-transparent'"
+                        class="flex flex-col items-center justify-center p-4 border-2 rounded-2xl transition-all group">
+                        <div :class="setupForm.dbType === 'automatic' ? 'text-blue-500' : 'text-slate-400'"
+                            class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" x-icon="'zap'"></div>
+                        <span
+                            :class="setupForm.dbType === 'automatic' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'"
+                            class="text-xs font-bold uppercase tracking-wider">Automatic</span>
+                    </button>
+                    <button @click="setupForm.dbType = 'manual'"
+                        :class="setupForm.dbType === 'manual' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 bg-transparent'"
+                        class="flex flex-col items-center justify-center p-4 border-2 rounded-2xl transition-all group">
+                        <div :class="setupForm.dbType === 'manual' ? 'text-blue-500' : 'text-slate-400'"
+                            class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" x-icon="'database'"></div>
+                        <span
+                            :class="setupForm.dbType === 'manual' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'"
+                            class="text-xs font-bold uppercase tracking-wider">Manual Setup</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Database Name (Manual) -->
+            <div x-show="setupForm.dbType === 'manual'" x-transition>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Manual Database
+                    Name</label>
+                <input type="text" x-model="setupForm.dbName"
+                    class="w-full px-4 py-3 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white"
+                    placeholder="EzyParts Private Database">
+            </div>
+
+            <!-- Install Button -->
+            <div class="pt-4">
+                <button @click="installApp()" :disabled="isInstalling"
+                    class="w-full flex items-center justify-center gap-3 py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/30 transition-all transform hover:-translate-y-1 active:scale-95">
+                    <template x-if="!isInstalling">
+                        <div class="flex items-center gap-2">
+                            <span>Complete Installation</span>
+                            <div class="w-5 h-5" x-icon="'arrow-right'"></div>
+                        </div>
+                    </template>
+                    <template x-if="isInstalling">
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 animate-spin border-2 border-white/30 border-t-white rounded-full">
+                            </div>
+                            <span>Connecting & Configuring...</span>
+                        </div>
+                    </template>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center mt-8 text-sm text-slate-500 dark:text-slate-500">
+            Powered by <span class="font-bold text-slate-900 dark:text-slate-300">EzyParts.Engine</span> v2.0
+        </p>
+    </div>
+</div>
