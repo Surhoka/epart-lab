@@ -1,4 +1,6 @@
 // Setup Page JavaScript
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzjkiOsAUTxZ-cSAa-5rh_Z6mweTKi8vXWb9dgp_nx5Biv0xbsjsZW2YRSXkFEdSJ8/exec';
+
 window.initSetupPage = function () {
     return {
         setupForm: {
@@ -9,8 +11,15 @@ window.initSetupPage = function () {
         },
         isInstalling: false,
 
-        init() {
+        async init() {
             console.log('Setup page initialized');
+
+            // Check for Default WebApp URL (Bootstrapper)
+            if (typeof WEBAPP_URL !== 'undefined' && WEBAPP_URL !== 'PLACEHOLDER_WEBAPP_URL') {
+                this.setupForm.appUrl = WEBAPP_URL;
+                await this.autoConfigure();
+            }
+
             // Load saved form data if exists
             const savedData = localStorage.getItem('setupFormData');
             if (savedData) {
@@ -26,6 +35,24 @@ window.initSetupPage = function () {
             this.$watch('setupForm', (value) => {
                 localStorage.setItem('setupFormData', JSON.stringify(value));
             }, { deep: true });
+        },
+
+        async autoConfigure() {
+            if (!this.setupForm.appUrl) return;
+
+            // Set global URL temporarily
+            window.publicAppsScriptUrl = this.setupForm.appUrl;
+
+            // Call getConfig API
+            if (typeof window.sendToPublicApi === 'function') {
+                window.sendToPublicApi('getConfig', {}, (response) => {
+                    if (response.status === 'success' && response.data) {
+                        if (response.data.dbName) this.setupForm.dbName = response.data.dbName;
+                        if (response.data.adminEmail) this.setupForm.email = response.data.adminEmail;
+                        // Auto-fill other settings if available
+                    }
+                });
+            }
         },
 
         async installApp() {
@@ -143,8 +170,8 @@ window.initSetupPage = function () {
             // Create toast notification
             const toast = document.createElement('div');
             toast.className = `fixed top-4 right-4 z-[999999] px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all duration-300 translate-x-full opacity-0 ${type === 'success' ? 'bg-green-500' :
-                    type === 'error' ? 'bg-red-500' :
-                        'bg-blue-500'
+                type === 'error' ? 'bg-red-500' :
+                    'bg-blue-500'
                 }`;
             toast.textContent = message;
 
