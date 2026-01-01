@@ -32,9 +32,9 @@ window.sendToPublicApi = function (action, data, callback, errorHandler) {
         } else {
             console.error('API Error:', response?.message || 'Unknown error');
 
-            // DETEKSI KRITIS: Jika database hilang/dihapus
-            if (response?.message && response.message.includes('Public database not found')) {
-                console.warn('CRITICAL: Database missing. Forcing setup mode (Seamless).');
+            // DETEKSI KRITIS: Jika database hilang/dihapus ATAU Corrupt
+            if (response?.message && (response.message.includes('Public database not found') || response.message.includes('Database corrupt'))) {
+                console.warn('CRITICAL: Database missing/corrupt. Forcing setup mode (Seamless).');
 
                 // 1. Hapus status setup di storage
                 localStorage.removeItem('isSetup');
