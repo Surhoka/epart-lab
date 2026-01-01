@@ -1,5 +1,5 @@
 // Setup Page JavaScript
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzjkiOsAUTxZ-cSAa-5rh_Z6mweTKi8vXWb9dgp_nx5Biv0xbsjsZW2YRSXkFEdSJ8/exec';
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyNfOG5Cxxg4aLUe0q3-Kl6GSuJSEQ_lNtmiIOBV6qzj2BPA2RMP-Xg0_FZlMo2bSCM/exec';
 
 window.initSetupPage = function () {
     return {
@@ -202,3 +202,4 @@ window.initSetupPage = function () {
 };
 
 console.log('Setup.js loaded successfully');
+
