@@ -43,7 +43,6 @@ window.sendToPublicApi = function (action, data, callback, errorHandler) {
 
     let url = baseUrl + `?action=${action}&callback=${callbackName}`;
     for (const key in data) {
-        if (key === 'appUrl') continue; // Don't send the URL back to itself as a param
         url += `&${key}=${encodeURIComponent(data[key])}`;
     }
 
