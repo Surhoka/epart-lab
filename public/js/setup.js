@@ -89,10 +89,10 @@ window.initSetupPage = function() {
             return new Promise((resolve, reject) => {
                 // Use the public API interface
                 if (typeof window.sendToPublicApi === 'function') {
-                    window.sendToPublicApi('install', data, (response) => {
+                    window.sendToPublicApi('saveConfig', data, (response) => {
                         this.isInstalling = false;
                         
-                        if (response.success) {
+                        if (response.status === 'success') {
                             this.showToast('Installation completed successfully!', 'success');
                             
                             // Mark as setup complete
