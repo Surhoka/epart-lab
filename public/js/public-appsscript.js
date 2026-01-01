@@ -31,6 +31,25 @@ window.sendToPublicApi = function (action, data, callback, errorHandler) {
             if (callback) callback(response);
         } else {
             console.error('API Error:', response?.message || 'Unknown error');
+
+            // DETEKSI KRITIS: Jika database hilang/dihapus
+            if (response?.message && response.message.includes('Public database not found')) {
+                console.warn('CRITICAL: Database missing. Forcing setup mode.');
+
+                // 1. Hapus status setup di storage
+                localStorage.removeItem('isSetup');
+
+                // 2. Jika aplikasi sedang berjalan, paksa ubah state ke mode setup
+                if (window.app) {
+                    window.app.isSetup = false;
+                    window.navigate('setup');
+                } else {
+                    // Fallback jika app belum siap, reload halaman agar inisialisasi ulang
+                    window.location.hash = '#!setup';
+                    window.location.reload();
+                }
+            }
+
             if (errorHandler) errorHandler(response);
         }
     };
