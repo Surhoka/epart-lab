@@ -12,6 +12,12 @@ window.initSetupPage = function () {
         isInstalling: false,
 
         async init() {
+            if (window.isSetupInitialized) {
+                console.log('Setup page already initialized, skipping.');
+                return;
+            }
+            window.isSetupInitialized = true;
+
             console.log('Setup page initialized');
 
             // Check for Default WebApp URL (Bootstrapper)
