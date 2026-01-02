@@ -178,28 +178,37 @@
 
 <script>
   // Make blogFavicon available globally for Alpine.js
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('globalData', () => ({
-      get blogTitle() {
-        return window.app?.blogTitle || document.title || 'Admin Dashboard';
-      },
-      get blogFavicon() {
-        // Try to get from main app first
-        if (window.app?.blogFavicon) {
-          return window.app.blogFavicon;
-        }
+  const registerGlobalData = () => {
+    if (window.Alpine) {
+      Alpine.data('globalData', () => ({
+        get blogTitle() {
+          return window.app?.blogTitle || document.title || 'Admin Dashboard';
+        },
+        get blogFavicon() {
+          // Try to get from main app first
+          if (window.app?.blogFavicon) {
+            return window.app.blogFavicon;
+          }
 
-        // Try to find Blogger's favicon (URL or data URI)
-        const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
-        if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
-          return faviconLink.href;
-        }
+          // Try to find Blogger's favicon (URL or data URI)
+          const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+          if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
+            return faviconLink.href;
+          }
 
-        // Fallback to Blogger default
-        return 'https://www.blogger.com/img/blogger_logo_round_35.png';
-      }
-    }));
-  });
+          // Fallback to Blogger default
+          return 'https://www.blogger.com/img/blogger_logo_round_35.png';
+        }
+      }));
+    }
+  };
+
+  // Register immediately if Alpine is already loaded, otherwise wait for alpine:init
+  if (window.Alpine) {
+    registerGlobalData();
+  } else {
+    document.addEventListener('alpine:init', registerGlobalData);
+  }
 </script>
 <!-- Toggler -->
 <div class="fixed z-50 hidden top-6 right-6 sm:block">
