@@ -43,10 +43,20 @@
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
-    <!-- Error State -->
+    <!-- Error State with Setup Option -->
     <div x-show="!isLoading && error"
         class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-        <span class="font-medium">Error!</span> <span x-text="error"></span>
+        <div class="flex items-center justify-between">
+            <div>
+                <span class="font-medium">Error!</span> <span x-text="error"></span>
+            </div>
+            <button x-show="error && error.includes('not initialized')" 
+                @click="setupDatabase()"
+                class="ml-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center gap-2">
+                <span class="w-4 h-4" x-icon="'settings'"></span>
+                Initialize Database
+            </button>
+        </div>
     </div>
 
     <!-- Tables Grid -->
