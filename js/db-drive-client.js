@@ -23,7 +23,8 @@
          * Get full database structure (list of tables and columns).
          */
         getStructure: function (isPublic, onSuccess, onError) {
-            this._send('getDatabaseStructure', { isPublic: isPublic ? 'true' : 'false' }, onSuccess, onError);
+            console.log('DBDrive.getStructure called with isPublic:', isPublic);
+            this._send('getDatabaseStructure', { isPublic: isPublic }, onSuccess, onError);
         },
 
         /**
