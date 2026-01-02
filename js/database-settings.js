@@ -71,15 +71,25 @@ window.databaseSettings = function () {
         },
 
         setupDatabase() {
+            console.log('Setting up database...');
             window.DBDrive.setup((response) => {
+                console.log('Database setup response:', response);
                 if (response.status === 'success') {
                     this.error = null;
-                    this.refreshStructure();
+                    // Show success message briefly
+                    if (window.showToast) {
+                        window.showToast('Database initialized successfully!', 'success');
+                    }
+                    // Wait a moment then refresh structure
+                    setTimeout(() => {
+                        this.refreshStructure();
+                    }, 1000);
                 } else {
                     this.error = "Failed to setup database: " + response.message;
                     this.isLoading = false;
                 }
             }, (err) => {
+                console.error('Database setup error:', err);
                 this.error = "Database setup error: " + err.message;
                 this.isLoading = false;
             });
