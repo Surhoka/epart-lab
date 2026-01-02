@@ -1,3 +1,11 @@
+<style>
+  [x-icon] svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>
+
 <div x-data="globalData()"
   class="w-full max-w-[1000px] overflow-hidden bg-white rounded-2xl shadow-2xl dark:bg-gray-800 flex flex-col lg:flex-row lg:max-h-[90vh]">
   <!-- Form Section -->
@@ -150,9 +158,10 @@
   <div
     class="hidden w-full lg:w-1/2 lg:flex items-center justify-center p-8 bg-brand-950 dark:bg-black relative overflow-hidden">
     <!-- Background Pattern -->
-    <div class="absolute inset-0 z-0 opacity-50">
-      <span x-icon='"grid-01"' class="absolute top-0 right-0 w-full transform brightness-0 invert"></span>
-      <span x-icon='"grid-01"' class="absolute bottom-0 left-0 w-full transform rotate-180 brightness-0 invert"></span>
+    <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px] opacity-50" x-icon="'grid-01'">
+    </div>
+    <div class="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 xl:max-w-[450px] opacity-50"
+      x-icon="'grid-01'">
     </div>
 
     <div class="relative z-10 flex flex-col items-center">
