@@ -88,6 +88,12 @@
           "icon": "bell",
           "link": "#notification",
           "page": "notification"
+        },
+        {
+          "label": "Database",
+          "icon": "database",
+          "link": "#database-settings",
+          "page": "database-settings"
         }
       ]
     },
