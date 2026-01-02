@@ -105,8 +105,8 @@
             <span @click="showPassword = !showPassword"
               class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
               <!-- Eye icons will be added to icons-library.js -->
-              <span x-show="!showPassword" class="w-5 h-5" x-icon='"user"'></span>
-              <span x-show="showPassword" class="w-5 h-5" x-icon='"user"'></span>
+              <span x-show="!showPassword" class="block w-5 h-5" x-icon='"eye-off"'></span>
+              <span x-show="showPassword" class="block w-5 h-5" x-icon='"eye"'></span>
             </span>
           </div>
         </div>
@@ -176,40 +176,7 @@
   </div>
 </div>
 
-<script>
-  // Make blogFavicon available globally for Alpine.js
-  const registerGlobalData = () => {
-    if (window.Alpine) {
-      Alpine.data('globalData', () => ({
-        get blogTitle() {
-          return window.app?.blogTitle || document.title || 'Admin Dashboard';
-        },
-        get blogFavicon() {
-          // Try to get from main app first
-          if (window.app?.blogFavicon) {
-            return window.app.blogFavicon;
-          }
 
-          // Try to find Blogger's favicon (URL or data URI)
-          const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
-          if (faviconLink && (faviconLink.href.startsWith('data:image/') || faviconLink.href.includes('blogspot.com'))) {
-            return faviconLink.href;
-          }
-
-          // Fallback to Blogger default
-          return 'https://www.blogger.com/img/blogger_logo_round_35.png';
-        }
-      }));
-    }
-  };
-
-  // Register immediately if Alpine is already loaded, otherwise wait for alpine:init
-  if (window.Alpine) {
-    registerGlobalData();
-  } else {
-    document.addEventListener('alpine:init', registerGlobalData);
-  }
-</script>
 <!-- Toggler -->
 <div class="fixed z-50 hidden top-6 right-6 sm:block">
   <button
