@@ -44,14 +44,45 @@ window.databaseSettings = function () {
             }
             // Just proceed if global exists or wait for it
             if (window.DBDrive) {
-                this.refreshStructure();
+                // First check if database is set up
+                this.checkDatabaseSetup();
             } else {
                 // Fallback retry
                 setTimeout(() => {
-                    if (window.DBDrive) this.refreshStructure();
+                    if (window.DBDrive) this.checkDatabaseSetup();
                     else this.error = "DB Drive Client not initialized. Please refresh.";
                 }, 1000);
             }
+        },
+
+        checkDatabaseSetup() {
+            window.DBDrive.checkStatus((response) => {
+                if (response.exists) {
+                    this.refreshStructure();
+                } else {
+                    // Database not set up, offer to set it up
+                    this.error = "Database not initialized. Setting up database...";
+                    this.setupDatabase();
+                }
+            }, (err) => {
+                this.error = "Failed to check database status: " + err.message;
+                this.isLoading = false;
+            });
+        },
+
+        setupDatabase() {
+            window.DBDrive.setup((response) => {
+                if (response.status === 'success') {
+                    this.error = null;
+                    this.refreshStructure();
+                } else {
+                    this.error = "Failed to setup database: " + response.message;
+                    this.isLoading = false;
+                }
+            }, (err) => {
+                this.error = "Database setup error: " + err.message;
+                this.isLoading = false;
+            });
         },
 
         switchDb(isPublic) {
@@ -63,7 +94,10 @@ window.databaseSettings = function () {
             this.isLoading = true;
             this.error = null;
 
+            console.log('Calling DBDrive.getStructure with isPublicDb:', this.isPublicDb);
+            
             window.DBDrive.getStructure(this.isPublicDb, (response) => {
+                console.log('DBDrive.getStructure response:', response);
                 this.isLoading = false;
                 if (response.data) {
                     this.tables = response.data; // [{ name, columns }]
@@ -71,9 +105,9 @@ window.databaseSettings = function () {
                     this.tables = [];
                 }
             }, (err) => {
+                console.error('DBDrive.getStructure error:', err);
                 this.isLoading = false;
                 this.error = err.message || "Failed to fetch database structure.";
-                console.error(err);
             });
         },
 
