@@ -1,9 +1,10 @@
+
 /**
  * database-settings.js
  * Logic for managing Database Tables via DB Drive Client.
  */
 
-window.initDatabaseSettingsPage = function () {
+window.databaseSettings = function () {
     return {
         // State
         isLoading: true,
@@ -176,7 +177,7 @@ window.initDatabaseSettingsPage = function () {
         },
 
         confirmDelete(table) {
-            if (confirm(`Are you sure you want to delete table "${table.name}"?\nThis action cannot be undone and will delete all data in the sheet.`)) {
+            if (confirm(`Are you sure you want to delete table "${table.name}" ?\nThis action cannot be undone and will delete all data in the sheet.`)) {
                 this.isLoading = true; // Block UI
                 window.DBDrive.deleteTable(table.name, this.isPublicDb, (res) => {
                     if (window.showToast) window.showToast('Table deleted.', 'success');
