@@ -73,55 +73,32 @@ console.log('EzyParts Config loaded:', window.EZYPARTS_CONFIG.VERSION);
 window.EZYPARTS_REGISTRY = {
     /**
      * Auto-discover Admin and Public URLs from a single bootstrap URL
+     * Uses JSONP fallback for CORS issues
      */
     async bootstrap(bootstrapUrl) {
         try {
             console.log('Registry Bootstrap: Discovering URLs from', bootstrapUrl);
             
-            // Try to get registry info from the bootstrap URL
-            const response = await fetch(`${bootstrapUrl}?action=getRegistryInfo`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            console.log('Registry Bootstrap result:', result);
-
-            if (result.status === 'success' && result.data) {
-                const registry = result.data;
-                
-                // Update config with discovered URLs
-                window.EZYPARTS_CONFIG.DEFAULT_WEBAPP_URLS.ADMIN_WEBAPP_URL = registry.adminUrl || '';
-                window.EZYPARTS_CONFIG.DEFAULT_WEBAPP_URLS.PUBLIC_WEBAPP_URL = registry.publicUrl || '';
-                
-                // Store in localStorage for persistence
-                if (registry.adminUrl) {
-                    localStorage.setItem('discoveredAdminUrl', registry.adminUrl);
-                }
-                if (registry.publicUrl) {
-                    localStorage.setItem('discoveredPublicUrl', registry.publicUrl);
-                }
-                
-                console.log('Registry Bootstrap: URLs discovered', {
-                    admin: registry.adminUrl,
-                    public: registry.publicUrl
+            // First try regular fetch
+            try {
+                const response = await fetch(`${bootstrapUrl}?action=getRegistryInfo`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
-                
-                return {
-                    success: true,
-                    adminUrl: registry.adminUrl,
-                    publicUrl: registry.publicUrl,
-                    registry: registry
-                };
-            } else {
-                throw new Error(result.message || 'Registry info not available');
+
+                if (response.ok) {
+                    const result = await response.json();
+                    return this.processBootstrapResult(result);
+                }
+            } catch (fetchError) {
+                console.log('Fetch failed, trying JSONP fallback:', fetchError.message);
             }
+            
+            // Fallback to JSONP for CORS issues
+            const result = await this.bootstrapWithJsonp(bootstrapUrl);
+            return this.processBootstrapResult(result);
 
         } catch (error) {
             console.error('Registry Bootstrap error:', error);
@@ -130,6 +107,82 @@ window.EZYPARTS_REGISTRY = {
                 error: error.message
             };
         }
+    },
+
+    /**
+     * Process bootstrap result and update config
+     */
+    processBootstrapResult(result) {
+        console.log('Registry Bootstrap result:', result);
+
+        if (result.status === 'success' && result.data) {
+            const registry = result.data;
+            
+            // Update config with discovered URLs
+            window.EZYPARTS_CONFIG.DEFAULT_WEBAPP_URLS.ADMIN_WEBAPP_URL = registry.adminUrl || '';
+            window.EZYPARTS_CONFIG.DEFAULT_WEBAPP_URLS.PUBLIC_WEBAPP_URL = registry.publicUrl || '';
+            
+            // Store in localStorage for persistence
+            if (registry.adminUrl) {
+                localStorage.setItem('discoveredAdminUrl', registry.adminUrl);
+            }
+            if (registry.publicUrl) {
+                localStorage.setItem('discoveredPublicUrl', registry.publicUrl);
+            }
+            
+            console.log('Registry Bootstrap: URLs discovered', {
+                admin: registry.adminUrl,
+                public: registry.publicUrl
+            });
+            
+            return {
+                success: true,
+                adminUrl: registry.adminUrl,
+                publicUrl: registry.publicUrl,
+                registry: registry
+            };
+        } else {
+            throw new Error(result.message || 'Registry info not available');
+        }
+    },
+
+    /**
+     * JSONP fallback for CORS issues
+     */
+    async bootstrapWithJsonp(bootstrapUrl) {
+        return new Promise((resolve, reject) => {
+            const callbackName = 'ezypartsBootstrap_' + Date.now();
+            const timeoutId = setTimeout(() => {
+                cleanup();
+                reject(new Error('JSONP request timeout'));
+            }, 10000);
+
+            const cleanup = () => {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                }
+                if (script && script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+                clearTimeout(timeoutId);
+            };
+
+            // Create global callback
+            window[callbackName] = (data) => {
+                cleanup();
+                resolve(data);
+            };
+
+            // Create script tag for JSONP
+            const script = document.createElement('script');
+            script.src = `${bootstrapUrl}?action=getRegistryInfo&callback=${callbackName}`;
+            script.onerror = () => {
+                cleanup();
+                reject(new Error('JSONP script load failed'));
+            };
+
+            document.head.appendChild(script);
+        });
     },
 
     /**
