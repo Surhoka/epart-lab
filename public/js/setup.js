@@ -1,205 +1,460 @@
-// Setup Page JavaScript
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyNfOG5Cxxg4aLUe0q3-Kl6GSuJSEQ_lNtmiIOBV6qzj2BPA2RMP-Xg0_FZlMo2bSCM/exec';
+/**
+ * Public EzyParts Setup Page Logic
+ * Connects to existing Admin database instead of creating new one
+ */
 
-window.initSetupPage = function () {
+window.initSetupPage = function() {
     return {
         setupForm: {
-            appUrl: '',
-            email: '',
-            dbType: 'automatic',
-            dbName: ''
+            bootstrapUrl: '', // User's WebApp URL
+            connectionMode: 'readonly'
         },
-        isInstalling: false,
+        userId: null, // Generated user ID
+        isRegistered: false, // User registration status
+        discoveredUrls: {
+            adminUrl: '',
+            publicUrl: ''
+        },
+        isDiscovering: false,
+        isConnecting: false,
+        connectSuccess: false,
+        discoveryStatus: null,
+        connectionStatus: null,
+        databaseInfo: null,
+        registryInfo: null,
+        useDefaults: false,
 
-        async init() {
-            if (window.isSetupInitialized) {
-                console.log('Setup page already initialized, skipping.');
-                return;
+        init() {
+            console.log('Public Setup Page initialized with Multi-User Registry Bootstrap');
+            
+            // Get setup endpoint URL (fixed/default)
+            const setupEndpointUrl = window.EZYPARTS_CONFIG?.REGISTRY_BOOTSTRAP?.DEFAULT_WEBAPP_URL || '';
+            
+            // Load saved user data from localStorage
+            const savedUserId = localStorage.getItem('userId');
+            const savedUserUrl = localStorage.getItem('userWebAppUrl');
+            const discoveredAdmin = localStorage.getItem('discoveredAdminUrl');
+            const discoveredPublic = localStorage.getItem('discoveredPublicUrl');
+            
+            // Set user ID if available
+            if (savedUserId) {
+                this.userId = savedUserId;
+                this.isRegistered = true;
             }
-            window.isSetupInitialized = true;
-
-            console.log('Setup page initialized');
-
-            // Check for Default WebApp URL (Bootstrapper)
-            if (typeof WEBAPP_URL !== 'undefined' && WEBAPP_URL !== 'PLACEHOLDER_WEBAPP_URL') {
-                this.setupForm.appUrl = WEBAPP_URL;
-                await this.autoConfigure();
-            }
-
-            // Load saved form data if exists
-            const savedData = localStorage.getItem('setupFormData');
-            if (savedData) {
-                try {
-                    const parsed = JSON.parse(savedData);
-                    this.setupForm = { ...this.setupForm, ...parsed };
-                } catch (e) {
-                    console.error('Error loading saved setup data:', e);
+            
+            // Load user's WebApp URL
+            this.setupForm.bootstrapUrl = savedUserUrl || '';
+            
+            // Load discovered URLs if available
+            if (discoveredAdmin || discoveredPublic) {
+                this.discoveredUrls.adminUrl = discoveredAdmin || '';
+                this.discoveredUrls.publicUrl = discoveredPublic || '';
+                
+                if (discoveredAdmin) {
+                    this.discoveryStatus = {
+                        success: true,
+                        message: 'URLs already registered and discovered'
+                    };
                 }
             }
-
-            // Watch for form changes and save to localStorage
-            this.$watch('setupForm', (value) => {
-                localStorage.setItem('setupFormData', JSON.stringify(value));
-            }, { deep: true });
-        },
-
-        async autoConfigure() {
-            if (!this.setupForm.appUrl) return;
-
-            // Set global URL temporarily
-            window.publicAppsScriptUrl = this.setupForm.appUrl;
-
-            // Call getConfig API
-            if (typeof window.sendToPublicApi === 'function') {
-                window.sendToPublicApi('getConfig', {}, (response) => {
-                    if (response.status === 'success' && response.data) {
-                        if (response.data.dbName) this.setupForm.dbName = response.data.dbName;
-                        if (response.data.adminEmail) this.setupForm.email = response.data.adminEmail;
-                        // Auto-fill other settings if available
-                    }
-                });
+            
+            // Check if we have setup endpoint configured
+            this.useDefaults = !!setupEndpointUrl;
+            
+            // Auto-discover if user URL is available and not already discovered
+            if (this.setupForm.bootstrapUrl && !this.discoveredUrls.adminUrl) {
+                setTimeout(() => {
+                    this.registerAndDiscover();
+                }, 1000);
+            } else if (this.discoveredUrls.adminUrl) {
+                // Auto-test connection if admin URL is already discovered
+                setTimeout(() => {
+                    this.testDatabaseConnection();
+                }, 1000);
             }
         },
 
-        async installApp() {
-            if (this.isInstalling) return;
+        loadDefaultBootstrap() {
+            const defaultBootstrapUrl = window.EZYPARTS_CONFIG?.REGISTRY_BOOTSTRAP?.DEFAULT_WEBAPP_URL || '';
+            
+            this.setupForm.bootstrapUrl = defaultBootstrapUrl;
+            
+            if (this.setupForm.bootstrapUrl) {
+                this.discoverUrls();
+            }
+            
+            this.showToast('Default Setup URL loaded', 'info');
+        },
 
-            // Validate form
-            if (!this.setupForm.appUrl || !this.setupForm.email) {
-                this.showToast('Please fill in all required fields', 'error');
+        clearAll() {
+            this.setupForm.bootstrapUrl = '';
+            this.discoveredUrls.adminUrl = '';
+            this.discoveredUrls.publicUrl = '';
+            this.discoveryStatus = null;
+            this.connectionStatus = null;
+            this.databaseInfo = null;
+            this.registryInfo = null;
+            
+            // Clear localStorage
+            localStorage.removeItem('bootstrapUrl');
+            localStorage.removeItem('discoveredAdminUrl');
+            localStorage.removeItem('discoveredPublicUrl');
+            localStorage.removeItem('adminAppsScriptUrl');
+            localStorage.removeItem('publicAppsScriptUrl');
+            localStorage.removeItem('connectionMode');
+            localStorage.removeItem('publicConnectionInfo');
+            
+            this.showToast('All data cleared', 'info');
+        },
+
+        async registerAndDiscover() {
+            if (!this.setupForm.bootstrapUrl) {
+                this.showToast('Please enter your WebApp URL first', 'error');
                 return;
+            }
+
+            this.isDiscovering = true;
+            this.discoveryStatus = null;
+            this.discoveredUrls.adminUrl = '';
+            this.discoveredUrls.publicUrl = '';
+
+            try {
+                console.log('Registering user with WebApp URL:', this.setupForm.bootstrapUrl);
+                
+                // Get setup endpoint URL
+                const setupEndpointUrl = window.EZYPARTS_CONFIG?.REGISTRY_BOOTSTRAP?.DEFAULT_WEBAPP_URL;
+                
+                if (!setupEndpointUrl) {
+                    throw new Error('Setup endpoint not configured');
+                }
+                
+                // Register user with setup endpoint
+                const registerResponse = await fetch(`${setupEndpointUrl}?action=registerUser&adminUrl=${encodeURIComponent(this.setupForm.bootstrapUrl)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!registerResponse.ok) {
+                    throw new Error(`HTTP ${registerResponse.status}: ${registerResponse.statusText}`);
+                }
+
+                const registerResult = await registerResponse.json();
+                console.log('User registration result:', registerResult);
+
+                if (registerResult.status === 'success') {
+                    // Save user ID and registration info
+                    this.userId = registerResult.data.userId;
+                    this.isRegistered = true;
+                    
+                    // Extract discovered URLs
+                    this.discoveredUrls.adminUrl = registerResult.data.adminUrl || '';
+                    this.discoveredUrls.publicUrl = registerResult.data.publicUrl || '';
+                    
+                    // Save to localStorage
+                    localStorage.setItem('userId', this.userId);
+                    localStorage.setItem('userWebAppUrl', this.setupForm.bootstrapUrl);
+                    localStorage.setItem('discoveredAdminUrl', this.discoveredUrls.adminUrl);
+                    localStorage.setItem('discoveredPublicUrl', this.discoveredUrls.publicUrl);
+                    
+                    this.discoveryStatus = {
+                        success: true,
+                        message: 'User registered and URLs discovered successfully!'
+                    };
+                    
+                    this.showToast('Registration and discovery successful!', 'success');
+                    
+                    // Auto-test connection if admin URL was discovered
+                    if (this.discoveredUrls.adminUrl) {
+                        setTimeout(() => {
+                            this.testDatabaseConnection();
+                        }, 500);
+                    }
+                } else {
+                    this.discoveryStatus = {
+                        success: false,
+                        message: registerResult.message || 'Failed to register user'
+                    };
+                    this.showToast('User registration failed', 'error');
+                }
+
+            } catch (error) {
+                console.error('User registration error:', error);
+                this.discoveryStatus = {
+                    success: false,
+                    message: `Registration failed: ${error.message}`
+                };
+                this.showToast('User registration failed', 'error');
+            } finally {
+                this.isDiscovering = false;
+            }
+        },
+
+        // Keep the old discoverUrls method as alias for backward compatibility
+        async discoverUrls() {
+            return await this.registerAndDiscover();
+        },
+
+        async testDatabaseConnection() {
+            if (!this.discoveredUrls.adminUrl) {
+                this.showToast('Admin URL not discovered yet', 'error');
+                return;
+            }
+
+            this.connectionStatus = null;
+
+            try {
+                // Test connection to admin database
+                const response = await fetch(`${this.discoveredUrls.adminUrl}?action=getPublicDatabaseInfo`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('Database connection test result:', result);
+
+                if (result.status === 'success' && result.data) {
+                    this.connectionStatus = {
+                        success: true,
+                        message: 'Database found and accessible!'
+                    };
+                    this.databaseInfo = result.data;
+                    
+                    this.showToast('Database connection successful!', 'success');
+                } else {
+                    this.connectionStatus = {
+                        success: false,
+                        message: result.message || 'Database not found or not accessible'
+                    };
+                    this.showToast('Database connection failed', 'error');
+                }
+
+            } catch (error) {
+                console.error('Database connection test error:', error);
+                this.connectionStatus = {
+                    success: false,
+                    message: `Connection failed: ${error.message}`
+                };
+                this.showToast('Connection test failed', 'error');
+            }
+        },
+
+        async connectToDatabase() {
+            if (!this.validateForm()) {
+                return;
+            }
+
+            this.isConnecting = true;
+
+            try {
+                // Save URLs to localStorage (using discovered URLs)
+                if (this.discoveredUrls.adminUrl) {
+                    localStorage.setItem('adminAppsScriptUrl', this.discoveredUrls.adminUrl);
+                }
+                if (this.discoveredUrls.publicUrl) {
+                    localStorage.setItem('publicAppsScriptUrl', this.discoveredUrls.publicUrl);
+                }
+                localStorage.setItem('connectionMode', this.setupForm.connectionMode);
+
+                // Test public app URL if discovered
+                if (this.discoveredUrls.publicUrl) {
+                    try {
+                        const publicResponse = await fetch(`${this.discoveredUrls.publicUrl}?action=checkSetup`, {
+                            method: 'GET'
+                        });
+                        
+                        if (publicResponse.ok) {
+                            const publicResult = await publicResponse.json();
+                            console.log('Public app URL test result:', publicResult);
+                            
+                            // Save setup to public script if it supports it
+                            if (publicResult.status === 'success') {
+                                await this.saveSetupToPublicScript();
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Public app URL test failed, but continuing:', error);
+                    }
+                }
+
+                // Final test of admin connection
+                const finalTest = await fetch(`${this.discoveredUrls.adminUrl}?action=getPublicDatabaseInfo`, {
+                    method: 'GET'
+                });
+
+                if (!finalTest.ok) {
+                    throw new Error('Final connection test failed');
+                }
+
+                const finalResult = await finalTest.json();
+                if (finalResult.status !== 'success') {
+                    throw new Error(finalResult.message || 'Database connection failed');
+                }
+
+                // Save connection info
+                const connectionInfo = {
+                    userId: this.userId,
+                    userWebAppUrl: this.setupForm.bootstrapUrl,
+                    adminUrl: this.discoveredUrls.adminUrl,
+                    publicUrl: this.discoveredUrls.publicUrl,
+                    mode: this.setupForm.connectionMode,
+                    databaseInfo: this.databaseInfo,
+                    registryInfo: this.registryInfo,
+                    connectedAt: new Date().toISOString(),
+                    version: '2.1-multiuser'
+                };
+                localStorage.setItem('publicConnectionInfo', JSON.stringify(connectionInfo));
+
+                // Mark as setup complete
+                localStorage.setItem('isSetup', 'true');
+                
+                this.connectSuccess = true;
+                this.showToast('Successfully connected to database!', 'success');
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                this.showToast(`Connection failed: ${error.message}`, 'error');
+            } finally {
+                this.isConnecting = false;
+            }
+        },
+
+        async saveSetupToPublicScript() {
+            if (!this.discoveredUrls.publicUrl) return;
+
+            try {
+                const setupData = {
+                    action: 'saveSetup',
+                    adminAppsScriptUrl: this.discoveredUrls.adminUrl,
+                    publicAppsScriptUrl: this.discoveredUrls.publicUrl,
+                    connectionMode: this.setupForm.connectionMode
+                };
+
+                const response = await fetch(this.discoveredUrls.publicUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(setupData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Setup saved to public script:', result);
+                }
+            } catch (error) {
+                console.warn('Failed to save setup to public script:', error);
+            }
+        },
+
+        validateForm() {
+            if (!this.setupForm.bootstrapUrl) {
+                this.showToast('Your WebApp URL is required', 'error');
+                return false;
+            }
+
+            if (!this.isRegistered) {
+                this.showToast('Please register with Setup endpoint first', 'error');
+                return false;
+            }
+
+            if (!this.discoveryStatus?.success) {
+                this.showToast('Please register and discover URLs first', 'error');
+                return false;
+            }
+
+            if (!this.discoveredUrls.adminUrl) {
+                this.showToast('Admin URL not discovered from registration', 'error');
+                return false;
+            }
+
+            if (!this.connectionStatus?.success) {
+                this.showToast('Please test database connection first', 'error');
+                return false;
             }
 
             // Validate URL format
             try {
-                new URL(this.setupForm.appUrl);
-            } catch (e) {
-                this.showToast('Please enter a valid URL', 'error');
-                return;
-            }
-
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(this.setupForm.email)) {
-                this.showToast('Please enter a valid email address', 'error');
-                return;
-            }
-
-            // Validate database name for manual setup
-            if (this.setupForm.dbType === 'manual' && !this.setupForm.dbName) {
-                this.showToast('Please enter a database name', 'error');
-                return;
-            }
-
-            this.isInstalling = true;
-
-            try {
-                // Save the public URL to localStorage for future use
-                localStorage.setItem('publicAppsScriptUrl', this.setupForm.appUrl);
-                window.publicAppsScriptUrl = this.setupForm.appUrl;
-
-                // Prepare installation data
-                const installData = {
-                    appUrl: this.setupForm.appUrl,
-                    email: this.setupForm.email,
-                    dbType: this.setupForm.dbType,
-                    dbName: this.setupForm.dbType === 'manual' ? this.setupForm.dbName : null,
-                    blogTitle: window.app?.blogTitle || document.title || 'EzyParts Store',
-                    blogUrl: window.location.origin,
-                    timestamp: new Date().toISOString()
-                };
-
-                // Call installation API
-                await this.callInstallationAPI(installData);
-
+                new URL(this.setupForm.bootstrapUrl);
+                if (this.discoveredUrls.adminUrl) {
+                    new URL(this.discoveredUrls.adminUrl);
+                }
+                if (this.discoveredUrls.publicUrl) {
+                    new URL(this.discoveredUrls.publicUrl);
+                }
             } catch (error) {
-                console.error('Installation error:', error);
-                this.showToast('Installation failed. Please try again.', 'error');
-                this.isInstalling = false;
+                this.showToast('Invalid URL format detected', 'error');
+                return false;
             }
+
+            return true;
         },
 
-        async callInstallationAPI(data) {
-            return new Promise((resolve, reject) => {
-                // Use the public API interface
-                if (typeof window.sendToPublicApi === 'function') {
-                    window.sendToPublicApi('saveConfig', data, (response) => {
-                        this.isInstalling = false;
-
-                        if (response.status === 'success') {
-                            this.showToast('Installation completed successfully!', 'success');
-
-                            // Mark as setup complete
-                            localStorage.setItem('isSetup', 'true');
-
-                            // Clear form data
-                            localStorage.removeItem('setupFormData');
-
-                            // Update app state
-                            if (window.app) {
-                                window.app.isSetup = true;
-                            }
-
-                            // Navigate to home page
-                            setTimeout(() => {
-                                window.navigate('home');
-                            }, 1500);
-
-                            resolve(response);
-                        } else {
-                            this.showToast(response.message || 'Installation failed', 'error');
-                            reject(new Error(response.message || 'Installation failed'));
-                        }
-                    });
-                } else {
-                    // Fallback: simulate installation for testing
-                    setTimeout(() => {
-                        this.isInstalling = false;
-                        this.showToast('Installation completed (demo mode)', 'success');
-                        localStorage.setItem('isSetup', 'true');
-
-                        if (window.app) {
-                            window.app.isSetup = true;
-                        }
-
-                        setTimeout(() => {
-                            window.navigate('home');
-                        }, 1500);
-
-                        resolve({ success: true });
-                    }, 2000);
+        finishSetup() {
+            // Use dynamic config completion handler
+            if (typeof window.onSetupComplete === 'function') {
+                window.onSetupComplete(
+                    this.discoveredUrls.adminUrl,
+                    this.discoveredUrls.publicUrl,
+                    this.userId
+                );
+            } else {
+                // Fallback to original method
+                if (window.app) {
+                    window.app.isSetup = true;
+                    window.app.page = 'home';
                 }
-            });
+                
+                window.navigate('home');
+            }
+            
+            this.showToast('Welcome to Public EzyParts!', 'success');
         },
 
         showToast(message, type = 'info') {
             // Create toast notification
             const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 z-[999999] px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all duration-300 translate-x-full opacity-0 ${type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' :
-                    'bg-blue-500'
-                }`;
+            toast.className = `fixed top-4 right-4 z-[999999] px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transform transition-all duration-300 translate-x-full`;
+            
+            // Set color based on type
+            switch (type) {
+                case 'success':
+                    toast.className += ' bg-green-600';
+                    break;
+                case 'error':
+                    toast.className += ' bg-red-600';
+                    break;
+                case 'warning':
+                    toast.className += ' bg-yellow-600';
+                    break;
+                default:
+                    toast.className += ' bg-blue-600';
+            }
+            
             toast.textContent = message;
-
             document.body.appendChild(toast);
-
+            
             // Animate in
             setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.remove('translate-x-full');
             }, 100);
-
-            // Auto remove
+            
+            // Remove after 3 seconds
             setTimeout(() => {
-                toast.classList.add('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-full');
                 setTimeout(() => {
                     if (toast.parentNode) {
                         toast.parentNode.removeChild(toast);
                     }
                 }, 300);
-            }, 4000);
+            }, 3000);
         }
     };
 };
-
-console.log('Setup.js loaded successfully');
-
