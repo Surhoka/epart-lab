@@ -1,4 +1,4 @@
-<div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+<div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700" x-data="{ role: 'Public', dbSetup: 'auto' }">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
         <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
@@ -14,14 +14,39 @@
             <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here.</p>
         </div>
 
+        <!-- Email Input -->
+        <div>
+            <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+            <input type="email" id="user-email" name="user-email" required 
+                placeholder="your-email@example.com"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+            <p class="mt-1 text-xs text-gray-400">Used for notifications and access control.</p>
+        </div>
+
         <!-- Role Selection -->
         <div>
             <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
-            <select id="role" name="role" 
+            <select id="role" name="role" x-model="role"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                 <option value="Public">Public</option>
                 <option value="Admin">Admin</option>
             </select>
+        </div>
+
+        <!-- Database Setup Options (Admin Only) -->
+        <div x-show="role === 'Admin'" x-transition.opacity class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600">
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Database Setup</label>
+             <div class="flex gap-4">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Automatic</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="db-setup" value="manual" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
+                </label>
+             </div>
+             <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create required sheets automatically.' : 'You will configure sheet IDs manually.'"></p>
         </div>
 
         <!-- Token Input (Hidden by default logic in JS) -->
