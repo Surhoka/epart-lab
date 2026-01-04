@@ -1,6 +1,7 @@
 /**
- * EZYPARTS CLIENT BRIDGE - v2.3.0 (Config-Linked Discovery)
+ * EZYPARTS CLIENT BRIDGE - v2.3.1 (Health-Aware Discovery)
  * Melayani Admin dan Publik dengan satu script yang terhubung ke config.js
+ * Ditambahkan pembersihan cache jika database tidak valid.
  */
 
 // Helper untuk mendapatkan Gateway URL dari config.js
@@ -21,10 +22,11 @@ window.EzyApi = {
  * Mendapatkan URL API secara Global berdasarkan Role
  */
 async function discoverEzyApi() {
-    // 1. Cek cache di localStorage untuk kecepatan
     const cacheKey = 'Ezyparts_Config_Cache';
-    const cached = localStorage.getItem(cacheKey);
+    const DISCOVERY_URL = getGatewayUrl();
 
+    // 1. Cek cache di localStorage untuk kecepatan awal
+    const cached = localStorage.getItem(cacheKey);
     if (cached) {
         try {
             const config = JSON.parse(cached);
@@ -33,7 +35,6 @@ async function discoverEzyApi() {
         } catch (e) { }
     }
 
-    const DISCOVERY_URL = getGatewayUrl();
     if (!DISCOVERY_URL) {
         console.warn('Ezyparts Discovery: Gateway URL not found yet.');
         return;
@@ -46,7 +47,17 @@ async function discoverEzyApi() {
 
         if (config.status === 'success') {
             window.EzyApi.config = config;
-            localStorage.setItem(cacheKey, JSON.stringify(config));
+
+            // SECURITY: Jika database tidak valid, hapus cache agar frontend terpaksa re-setup
+            if (config.isSetup === false) {
+                console.warn('Backend reporting Invalid Database. Clearing Cache.');
+                localStorage.removeItem(cacheKey);
+                // Kita juga hapus EzypartsConfig agar router utama mendeteksi status belum setup
+                localStorage.removeItem('EzypartsConfig');
+            } else {
+                localStorage.setItem(cacheKey, JSON.stringify(config));
+            }
+
             applyRoleUrl(config);
         }
     } catch (e) {
@@ -73,6 +84,12 @@ function applyRoleUrl(config) {
 
     window.EzyApi.url = targetUrl || DISCOVERY_URL;
     window.appsScriptUrl = window.EzyApi.url; // Kompatibilitas ke kode lama
+
+    // Sinkronisasi status kesehatan ke aplikasi utama jika sudah login
+    if (window.app) {
+        window.app.dbHealthy = config.isSetup !== false;
+    }
+
     console.log(`[EzyApi] ${role} Mode Active:`, window.EzyApi.url);
 }
 
@@ -83,7 +100,6 @@ discoverEzyApi();
  * Universal Data Sender (POST/GET)
  */
 window.sendDataToGoogle = function (action, data, callback, errorHandler) {
-    // Jika API belum siap, tunggu sebentar
     if (!window.EzyApi.isReady) {
         setTimeout(() => window.sendDataToGoogle(action, data, callback, errorHandler), 300);
         return;
@@ -95,7 +111,6 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
     ];
 
     if (postActions.includes(action)) {
-        // --- POST METHOD ---
         fetch(window.EzyApi.url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -108,7 +123,6 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
                 if (errorHandler) errorHandler(err);
             });
     } else {
-        // --- GET METHOD (JSONP) ---
         const cbName = 'ezy_cb_' + Date.now() + Math.floor(Math.random() * 100);
         window[cbName] = function (res) {
             delete window[cbName];
