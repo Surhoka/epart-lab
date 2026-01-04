@@ -41,7 +41,7 @@
             this.isDetecting = true;
             this.detectError = '';
             try {
-                const response = await fetch(`${this.webappUrl}?role=${this.role}&url=${encodeURIComponent(this.webappUrl)}`);
+                const response = await fetch(`${this.webappUrl}?action=check`);
                 const data = await response.json();
                 if (data.status === 'success' && data.sheetId) {
                     this.sheetId = data.sheetId;
