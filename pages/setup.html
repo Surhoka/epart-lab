@@ -5,6 +5,7 @@
     </div>
     
     <form id="setup-form" class="space-y-6">
+        <input type="hidden" name="action" value="saveConfiguration">
         <!-- WebApp URL Input -->
         <div>
             <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WebApp URL</label>
@@ -38,7 +39,7 @@
 
             <!-- Database Setup Options (Admin Only) -->
             <div x-show="role === 'Admin'" x-transition.opacity class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
-                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Database Setup</label>
+                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Global Database Setup</label>
                  <div class="flex gap-4">
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
@@ -49,7 +50,7 @@
                         <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
                     </label>
                  </div>
-                 <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create required sheets automatically.' : 'You will configure sheet IDs manually.'"></p>
+                 <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'"></p>
                  
                  <!-- Manual Database Configuration -->
                  <div x-show="dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
