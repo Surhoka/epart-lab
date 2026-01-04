@@ -14,23 +14,24 @@
             <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here.</p>
         </div>
 
-        <!-- Email Input -->
-        <div>
-            <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-            <input type="email" id="user-email" name="user-email" required 
-                placeholder="your-email@example.com"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-            <p class="mt-1 text-xs text-gray-400">Used for notifications and access control.</p>
-        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Email Input -->
+            <div>
+                <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                <input type="email" id="user-email" name="user-email" required 
+                    placeholder="your-email@example.com"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+            </div>
 
-        <!-- Role Selection -->
-        <div>
-            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
-            <select id="role" name="role" x-model="role"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-                <option value="Public">Public</option>
-                <option value="Admin">Admin</option>
-            </select>
+            <!-- Role Selection -->
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+                <select id="role" name="role" x-model="role"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                    <option value="Public">Public</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
         </div>
 
         <!-- Database Setup Options (Admin Only) -->
