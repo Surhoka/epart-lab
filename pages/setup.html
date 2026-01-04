@@ -1,5 +1,5 @@
-<div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700" 
-     x-data="{ 
+<div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+    x-data="{ 
         role: 'Public', 
         dbSetup: 'auto',
         webappUrl: '',
@@ -10,6 +10,8 @@
         hasExistingConfig: false,
         setupMode: 'new',
         originalConfig: {},
+        isDetecting: false,
+        detectError: '',
         init() {
             const saved = localStorage.getItem('EzypartsConfig');
             if (saved) {
@@ -26,9 +28,78 @@
                     if (this.sheetId) {
                         this.hasExistingConfig = true;
                         this.setupMode = 'existing';
-                        this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId };
+                        this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId, webappUrl: this.webappUrl };
                     }
                 } catch(e) { console.error('Config load error', e); }
+            }
+        },
+        async detectConfig() {
+            if (!this.webappUrl || !this.webappUrl.startsWith('http')) {
+                alert('Please enter a valid WebApp URL first.');
+                return;
+            }
+            this.isDetecting = true;
+            this.detectError = '';
+            try {
+                const response = await fetch(`${this.webappUrl}?role=${this.role}&url=${encodeURIComponent(this.webappUrl)}`);
+                const data = await response.json();
+                if (data.status === 'success' && data.sheetId) {
+                    this.sheetId = data.sheetId;
+                    this.dbName = data.dbName;
+                    this.publicWebappUrl = data.publicWebappUrl || '';
+                    this.hasExistingConfig = true;
+                    this.setupMode = 'existing';
+                    this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId, webappUrl: this.webappUrl };
+                    alert('Configuration detected successfully!');
+                } else {
+                    alert('No existing database configuration found on this script.');
+                }
+            } catch (e) {
+                console.error('Detection error', e);
+                alert('Connection failed. Make sure yours Apps Script is deployed as Web App and accessible.');
+            } finally {
+                this.isDetecting = false;
+            }
+        },
+        async submitForm() {
+            if (!this.webappUrl) {
+                alert('Please enter a WebApp URL.');
+                return;
+            }
+            const tokenInput = document.getElementById('token');
+            if (this.role === 'Admin' && (!tokenInput || !tokenInput.value)) {
+                alert('Please enter a token for Admin role.');
+                return;
+            }
+
+            this.isDetecting = true;
+            const token = tokenInput ? tokenInput.value : '';
+            
+            const params = new URLSearchParams({
+                role: this.role,
+                url: this.webappUrl,
+                token: token,
+                publicWebappUrl: this.publicWebappUrl,
+                dbSetup: this.dbSetup,
+                dbName: this.dbName,
+                sheetId: this.sheetId
+            });
+
+            try {
+                const response = await fetch(`${this.webappUrl}?${params.toString()}`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.setItem('EzypartsConfig', JSON.stringify(data));
+                    alert('Configuration saved successfully!');
+                    window.location.hash = '#dashboard';
+                } else {
+                    alert('Error: ' + (data.message || 'Saving failed.'));
+                }
+            } catch (e) {
+                console.error('Submit error', e);
+                alert('An error occurred. Check browser console for details.');
+            } finally {
+                this.isDetecting = false;
             }
         }
      }">
@@ -36,16 +107,26 @@
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
         <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
     </div>
-    
-    <form id="setup-form" class="space-y-6">
+
+    <form id="setup-form" @submit.prevent="submitForm()" class="space-y-6">
         <input type="hidden" name="action" value="saveConfiguration">
         <!-- WebApp URL Input -->
         <div>
-            <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WebApp URL</label>
-            <input type="url" id="webapp-url" name="webapp-url" x-model="webappUrl" required 
-                placeholder="https://script.google.com/macros/s/.../exec"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-            <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here.</p>
+            <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WebApp
+                URL</label>
+            <div class="flex gap-2">
+                <input type="url" id="webapp-url" name="webapp-url" x-model="webappUrl" required
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                <button type="button" @click="detectConfig()" :disabled="isDetecting"
+                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors inline-flex items-center gap-2">
+                    <span x-show="isDetecting"
+                        class="animate-spin h-4 w-4 border-2 border-brand-500 border-t-transparent rounded-full"></span>
+                    <span x-text="isDetecting ? 'Checking...' : 'Detect'"></span>
+                </button>
+            </div>
+            <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here and click Detect to find existing
+                settings.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
@@ -53,15 +134,17 @@
             <div :class="role === 'Admin' ? '' : 'md:col-span-2'" class="space-y-4">
                 <!-- Email Input -->
                 <div>
-                    <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-                    <input type="email" id="user-email" name="user-email" x-model="email" required 
+                    <label for="user-email"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                    <input type="email" id="user-email" name="user-email" x-model="email" required
                         placeholder="your-email@example.com"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                 </div>
 
                 <!-- Role Selection -->
                 <div>
-                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+                    <label for="role"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
                     <select id="role" name="role" x-model="role"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                         <option value="Public">Public (Open Access)</option>
@@ -71,78 +154,107 @@
             </div>
 
             <!-- Database Setup Options (Admin Only) -->
-            <div x-show="role === 'Admin'" x-transition.opacity class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
-                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Global Database Setup</label>
-                 
-                 <!-- Existing Config Option -->
-                 <div x-show="hasExistingConfig" class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800">
+            <div x-show="role === 'Admin'" x-transition.opacity
+                class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Global Database Setup</label>
+
+                <!-- Existing Config Option -->
+                <div x-show="hasExistingConfig"
+                    class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800">
                     <label class="flex items-center cursor-pointer mb-2">
-                        <input type="radio" name="setup-mode" value="existing" x-model="setupMode" @change="dbName = originalConfig.dbName; sheetId = originalConfig.sheetId" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <span class="ml-2 text-sm font-semibold text-blue-800 dark:text-blue-300">Use Existing Configuration</span>
+                        <input type="radio" name="setup-mode" value="existing" x-model="setupMode"
+                            @change="dbName = originalConfig.dbName; sheetId = originalConfig.sheetId"
+                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-2 text-sm font-semibold text-blue-800 dark:text-blue-300">Use Existing
+                            Configuration</span>
                     </label>
                     <div class="ml-6 text-xs text-blue-600 dark:text-blue-400">
                         <p>DB: <span x-text="originalConfig.dbName || 'N/A'"></span></p>
-                        <p>ID: <span x-text="originalConfig.sheetId ? originalConfig.sheetId.substring(0,10)+'...' : 'N/A'"></span></p>
+                        <p>ID: <span
+                                x-text="originalConfig.sheetId ? originalConfig.sheetId.substring(0,10)+'...' : 'N/A'"></span>
+                        </p>
                     </div>
-                 </div>
+                </div>
 
-                 <!-- New/Reset Option -->
-                 <div class="mb-2">
+                <!-- New/Reset Option -->
+                <div class="mb-2">
                     <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="setup-mode" value="new" x-model="setupMode" @change="if(hasExistingConfig) { dbName = ''; sheetId = ''; dbSetup = 'auto'; }" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
-                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300" x-text="hasExistingConfig ? 'Reset / New Configuration' : 'Configure Database'"></span>
+                        <input type="radio" name="setup-mode" value="new" x-model="setupMode"
+                            @change="if(hasExistingConfig) { dbName = ''; sheetId = ''; dbSetup = 'auto'; }"
+                            class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                            x-text="hasExistingConfig ? 'Reset / New Configuration' : 'Configure Database'"></span>
                     </label>
-                 </div>
+                </div>
 
-                 <div x-show="setupMode === 'new'" x-transition class="pl-6 border-l-2 border-gray-200 dark:border-gray-600 ml-2">
-                     <div class="flex gap-4 mb-2">
+                <div x-show="setupMode === 'new'" x-transition
+                    class="pl-6 border-l-2 border-gray-200 dark:border-gray-600 ml-2">
+                    <div class="flex gap-4 mb-2">
                         <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                            <input type="radio" name="db-setup" value="auto" x-model="dbSetup"
+                                class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
                             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Automatic</span>
                         </label>
                         <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="db-setup" value="manual" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                            <input type="radio" name="db-setup" value="manual" x-model="dbSetup"
+                                class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
                             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
                         </label>
-                     </div>
-                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'"></p>
-                 </div>
-                 
-                 <!-- Public WebApp URL Configuration -->
-                 <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                    <label for="public-webapp-url" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Public WebApp URL</label>
-                    <input type="url" id="public-webapp-url" name="public-webapp-url" x-model="publicWebappUrl" placeholder="Leave blank if same as Admin URL" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2"
+                        x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'">
+                    </p>
+                </div>
+
+                <!-- Public WebApp URL Configuration -->
+                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <label for="public-webapp-url"
+                        class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Public WebApp
+                        URL</label>
+                    <input type="url" id="public-webapp-url" name="public-webapp-url" x-model="publicWebappUrl"
+                        placeholder="Leave blank if same as Admin URL"
+                        class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                     <p class="mt-1 text-[10px] text-gray-400">Used for public-facing pages configuration.</p>
-                 </div>
-                 
-                 <!-- Manual Database Configuration -->
-                 <div x-show="setupMode === 'new' && dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                </div>
+
+                <!-- Manual Database Configuration -->
+                <div x-show="setupMode === 'new' && dbSetup === 'manual'" x-transition
+                    class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                     <div>
-                        <label for="db-name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
-                        <input type="text" id="db-name" name="db-name" x-model="dbName" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                        <label for="db-name"
+                            class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database
+                            Name</label>
+                        <input type="text" id="db-name" name="db-name" x-model="dbName" placeholder="Ezyparts DB"
+                            class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                     </div>
                     <div>
-                        <label for="sheet-id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sheet ID</label>
-                        <input type="text" id="sheet-id" name="sheet-id" x-model="sheetId" placeholder="Existing ID (Opt)" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                        <label for="sheet-id"
+                            class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sheet ID</label>
+                        <input type="text" id="sheet-id" name="sheet-id" x-model="sheetId"
+                            placeholder="Existing ID (Opt)"
+                            class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                     </div>
-                 </div>
+                </div>
             </div>
         </div>
 
-        <!-- Token Input (Hidden by default logic in JS) -->
-        <div id="token-group" style="display: none;">
-            <label for="token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Access Token</label>
-            <input type="text" id="token" name="token" 
+        <!-- Token Input -->
+        <div id="token-group" x-show="role === 'Admin'" x-transition>
+            <label for="token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Access
+                Token</label>
+            <input type="text" id="token" name="token"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" 
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors">
-            Connect & Continue
+        <button type="submit" :disabled="isDetecting"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors disabled:opacity-50">
+            <span x-show="isDetecting"
+                class="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full"></span>
+            <span x-text="isDetecting ? 'Connecting...' : 'Connect & Continue'"></span>
         </button>
     </form>
-    
+
     <div class="mt-6 text-center">
         <a href="#" class="text-xs text-gray-400 hover:text-brand-500 transition-colors">Need help finding your URL?</a>
     </div>
