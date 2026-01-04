@@ -21,7 +21,10 @@ function getWebAppUrl() {
         return config.webappUrl;
     }
     // Fallback to the hardcoded dev URL only if setup hasn't been completed
-    return CONFIG.WEBAPP_URL_DEV;
+    if (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV) {
+        return CONFIG.WEBAPP_URL_DEV;
+    }
+    return '';
 }
 
 function getDatabaseConfig() {
