@@ -1,26 +1,18 @@
-<div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700" x-data="{ role: 'Public', dbSetup: 'auto' }">
+<div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700" x-data="{ role: 'Public', dbSetup: 'auto' }">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
         <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
     </div>
     
     <form id="setup-form" class="space-y-6">
-        <!-- WebApp URL Input -->
-        <div>
-            <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WebApp URL</label>
-            <input type="url" id="webapp-url" name="webapp-url" required 
-                placeholder="https://script.google.com/macros/s/.../exec"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-            <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here.</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <!-- Email Input -->
-            <div>
-                <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-                <input type="email" id="user-email" name="user-email" required 
-                    placeholder="your-email@example.com"
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- WebApp URL Input -->
+            <div class="md:col-span-3">
+                <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WebApp URL</label>
+                <input type="url" id="webapp-url" name="webapp-url" required 
+                    placeholder="https://script.google.com/macros/s/.../exec"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here.</p>
             </div>
 
             <!-- Role Selection -->
@@ -32,6 +24,14 @@
                     <option value="Admin">Admin</option>
                 </select>
             </div>
+        </div>
+
+        <!-- Email Input -->
+        <div>
+            <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+            <input type="email" id="user-email" name="user-email" required 
+                placeholder="your-email@example.com"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
         </div>
 
         <!-- Database Setup Options (Admin Only) -->
