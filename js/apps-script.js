@@ -1,12 +1,15 @@
 /**
- * EZYPARTS CLIENT BRIDGE - v2.3.2 (Blogger-Optimized Discovery)
+ * EZYPARTS CLIENT BRIDGE - v2.3.3 (Blogger-Optimized & Robust Discovery)
  * Melayani Admin dan Publik dengan satu script yang terhubung ke config.js
- * Perbaikan: Menggunakan document.head karena script dimuat di bagian <head> Blogger.
+ * Perbaikan: Menambahkan .trim() pada URL dan penanganan parameter URL yang lebih baik.
  */
 
 // Helper untuk mendapatkan Gateway URL dari config.js
 const getGatewayUrl = () => {
-    if (typeof getWebAppUrl === 'function') return getWebAppUrl();
+    if (typeof getWebAppUrl === 'function') {
+        const url = getWebAppUrl();
+        return url ? url.trim() : '';
+    }
     return ''; // Fallback
 };
 
@@ -23,7 +26,7 @@ window.EzyApi = {
  */
 async function discoverEzyApi() {
     const cacheKey = 'Ezyparts_Config_Cache';
-    const DISCOVERY_URL = getGatewayUrl();
+    let DISCOVERY_URL = getGatewayUrl();
 
     // 1. Cek cache di localStorage untuk kecepatan awal
     const cached = localStorage.getItem(cacheKey);
@@ -44,7 +47,10 @@ async function discoverEzyApi() {
     try {
         const cbName = 'ezy_discovery_' + Date.now();
         const script = document.createElement('script');
-        script.src = `${DISCOVERY_URL}?action=get_config&callback=${cbName}`;
+
+        // Memastikan penambahan parameter action tidak merusak struktur URL (mendukung URL dengan atau tanpa ?)
+        const separator = DISCOVERY_URL.includes('?') ? '&' : '?';
+        script.src = `${DISCOVERY_URL}${separator}action=get_config&callback=${cbName}`;
 
         // Buat Promise untuk menunggu hasil JSONP
         const config = await new Promise((resolve, reject) => {
@@ -53,7 +59,7 @@ async function discoverEzyApi() {
                 script.remove();
                 resolve(res);
             };
-            script.onerror = () => reject(new Error('Discovery script load failed'));
+            script.onerror = () => reject(new Error('Discovery script load failed from: ' + script.src));
 
             // GUNAKAN HEAD: Karena body mungkin belum ada saat script ini jalan di <head>
             (document.head || document.documentElement).appendChild(script);
@@ -98,7 +104,7 @@ function applyRoleUrl(config) {
         (config.adminUrl || config.publicUrl) :
         (config.publicUrl || config.adminUrl);
 
-    window.EzyApi.url = targetUrl || DISCOVERY_URL;
+    window.EzyApi.url = (targetUrl ? targetUrl.trim() : '') || DISCOVERY_URL;
     window.appsScriptUrl = window.EzyApi.url; // Kompatibilitas ke kode lama
 
     // Sinkronisasi status kesehatan ke aplikasi utama jika sudah login
@@ -150,7 +156,10 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
         const query = new URLSearchParams({ action, callback: cbName, ...data }).toString();
         const script = document.createElement('script');
         script.id = cbName;
-        script.src = `${window.EzyApi.url}?${query}`;
+        // Penanganan URL agar tidak duplikasi tanda tanya
+        const baseUrl = window.EzyApi.url;
+        const separator = baseUrl.includes('?') ? '&' : '?';
+        script.src = `${baseUrl}${separator}${query}`;
         (document.head || document.documentElement).appendChild(script);
     }
 };
