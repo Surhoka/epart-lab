@@ -47,6 +47,18 @@
                 </label>
              </div>
              <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create required sheets automatically.' : 'You will configure sheet IDs manually.'"></p>
+             
+             <!-- Manual Database Configuration -->
+             <div x-show="dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                <div>
+                    <label for="db-name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
+                    <input type="text" id="db-name" name="db-name" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                </div>
+                <div>
+                    <label for="sheet-id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sheet ID</label>
+                    <input type="text" id="sheet-id" name="sheet-id" placeholder="Existing ID (Opt)" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                </div>
+             </div>
         </div>
 
         <!-- Token Input (Hidden by default logic in JS) -->
