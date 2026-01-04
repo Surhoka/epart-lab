@@ -112,6 +112,10 @@ async function discoverEzyApi() {
 }
 
 function forceSetupMode() {
+    // PROTEKSI: Jangan mengganggu jika user sudah berada di halaman setup
+    if (window.location.hash === '#setup' || window.location.hash === '#!setup') return;
+
+    console.warn('Force Setup Mode triggered...');
     localStorage.removeItem('EzypartsConfig');
     localStorage.removeItem('Ezyparts_Config_Cache');
     if (window.app) {
