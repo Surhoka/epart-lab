@@ -27,6 +27,29 @@ window.setupData = function () {
             }
         },
 
+        // Helper Internal untuk JSONP
+        async fetchJsonp(url, params = {}) {
+            const cbName = 'setup_cb_' + Date.now();
+            const query = new URLSearchParams(params);
+            query.set('callback', cbName);
+            const script = document.createElement('script');
+            script.src = `${url}${url.includes('?') ? '&' : '?'}${query.toString()}`;
+
+            return new Promise((resolve, reject) => {
+                window[cbName] = (res) => {
+                    delete window[cbName];
+                    script.remove();
+                    resolve(res);
+                };
+                script.onerror = () => {
+                    script.remove();
+                    reject(new Error('Network Error or CORS failure'));
+                };
+                (document.head || document.documentElement).appendChild(script);
+                setTimeout(() => reject(new Error('Timeout')), 10000);
+            });
+        },
+
         async detectConfig() {
             if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
                 alert('Please enter a valid WebApp URL.');
@@ -35,18 +58,17 @@ window.setupData = function () {
             this.isDetecting = true;
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
-                const response = await fetch(baseUrl + '?action=check');
-                const data = await response.json();
+                const data = await this.fetchJsonp(baseUrl, { action: 'get_config' });
 
                 if (data.status === 'success') {
                     if (data.email) this.email = data.email;
-                    if (data.sheetId) {
-                        this.sheetId = data.sheetId;
-                        this.dbName = data.dbName;
+                    if (data.dbId) {
+                        this.sheetId = data.dbId;
+                        this.dbName = data.dbName || 'Ezyparts Database';
                         this.hasExistingConfig = true;
                         this.setupMode = 'existing';
-                        this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId };
-                        alert('Configuration detected and loaded successfully!');
+                        this.originalConfig = { dbName: this.dbName, sheetId: data.dbId };
+                        alert('Configuration detected successfully!');
                     } else {
                         alert('Connected! No previous database found on this script.');
                     }
@@ -55,6 +77,7 @@ window.setupData = function () {
                 }
             } catch (e) {
                 alert('Connection failed. Please ensure your script is deployed as "Anyone".');
+                console.error(e);
             } finally {
                 this.isDetecting = false;
             }
@@ -66,8 +89,9 @@ window.setupData = function () {
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
                 const token = document.getElementById('token')?.value || '';
-                const params = new URLSearchParams({
-                    action: 'setup', // Explicit action for setup.gs
+
+                const data = await this.fetchJsonp(baseUrl, {
+                    action: 'setup',
                     role: this.role,
                     url: this.webappUrl,
                     token: token,
@@ -77,24 +101,27 @@ window.setupData = function () {
                     sheetId: this.sheetId
                 });
 
-                const response = await fetch(baseUrl + '?' + params.toString());
-                const data = await response.json();
-
                 if (data.status === 'success') {
                     localStorage.setItem('EzypartsConfig', JSON.stringify({
                         webappUrl: this.webappUrl,
                         email: this.email,
                         role: this.role,
                         dbName: this.dbName,
-                        sheetId: this.sheetId
+                        sheetId: data.dbId || this.sheetId
                     }));
+
+                    // Clear Discovery Cache to force refresh
+                    localStorage.removeItem('Ezyparts_Config_Cache');
+
                     alert('Setup Success! You are now connected.');
                     window.location.hash = '#dashboard';
+                    // Optional: window.location.reload();
                 } else {
                     alert('Setup Error: ' + data.message);
                 }
             } catch (e) {
                 alert('An error occurred during verification.');
+                console.error(e);
             } finally {
                 this.isDetecting = false;
             }
