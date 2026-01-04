@@ -1,64 +1,130 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const setupForm = document.getElementById('setup-form');
-    const roleSelector = document.getElementById('role');
-    const tokenGroup = document.getElementById('token-group');
+/**
+ * Setup Page Initialization
+ */
+window.initSetupPage = function () {
+    console.log('Setup page initialized');
+};
 
-    roleSelector.addEventListener('change', function () {
-        if (this.value === 'Admin') {
-            tokenGroup.style.display = 'block';
-        } else {
-            tokenGroup.style.display = 'none';
-        }
-    });
+/**
+ * Alpine.js Data for Setup Page
+ */
+window.setupData = function () {
+    return {
+        role: 'Public',
+        dbSetup: 'auto',
+        webappUrl: '',
+        email: '',
+        publicWebappUrl: '',
+        dbName: '',
+        sheetId: '',
+        hasExistingConfig: false,
+        setupMode: 'new',
+        originalConfig: {},
+        isDetecting: false,
+        detectError: '',
 
-    setupForm.addEventListener('submit', function (e) {
-        e.preventDefault();
+        init() {
+            const saved = localStorage.getItem('EzypartsConfig');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    this.webappUrl = config.webappUrl || '';
+                    this.publicWebappUrl = config.publicWebappUrl || '';
+                    this.role = config.role || 'Public';
+                    this.email = config.email || '';
+                    this.dbSetup = config.dbSetup || 'auto';
+                    this.dbName = config.dbName || '';
+                    this.sheetId = config.sheetId || '';
 
-        const webAppUrl = document.getElementById('webapp-url').value;
-        const role = roleSelector.value;
-        const token = document.getElementById('token').value;
-        
-        const publicWebappUrl = document.getElementById('public-webapp-url') ? document.getElementById('public-webapp-url').value : '';
-        const dbSetup = document.querySelector('input[name="db-setup"]:checked') ? document.querySelector('input[name="db-setup"]:checked').value : 'auto';
-        const dbName = document.getElementById('db-name') ? document.getElementById('db-name').value : '';
-        const sheetId = document.getElementById('sheet-id') ? document.getElementById('sheet-id').value : '';
+                    if (this.sheetId) {
+                        this.hasExistingConfig = true;
+                        this.setupMode = 'existing';
+                        this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId, webappUrl: this.webappUrl };
+                    }
+                } catch (e) { console.error('Config load error', e); }
+            }
+        },
 
-        if (!webAppUrl) {
-            alert('Please enter a valid WebApp URL.');
-            return;
-        }
+        async detectConfig() {
+            if (!this.webappUrl || !this.webappUrl.startsWith('http')) {
+                alert('Please enter a valid WebApp URL first.');
+                return;
+            }
+            this.isDetecting = true;
+            this.detectError = '';
+            try {
+                const baseUrl = this.webappUrl.split('?')[0];
+                const response = await fetch(`${baseUrl}?action=check`);
+                const data = await response.json();
 
-        if (role === 'Admin' && !token) {
-            alert('Please enter a token for the Admin role.');
-            return;
-        }
+                if (data.status === 'success') {
+                    if (data.email) this.email = data.email;
+                    if (data.publicWebappUrl) this.publicWebappUrl = data.publicWebappUrl;
 
-        const params = new URLSearchParams({
-            role: role,
-            url: webAppUrl,
-            token: token,
-            publicWebappUrl: publicWebappUrl,
-            dbSetup: dbSetup,
-            dbName: dbName,
-            sheetId: sheetId
-        });
+                    if (data.sheetId) {
+                        this.sheetId = data.sheetId;
+                        this.dbName = data.dbName;
+                        this.hasExistingConfig = true;
+                        this.setupMode = 'existing';
+                        this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId, webappUrl: this.webappUrl };
+                        alert('Existing configuration detected and loaded!');
+                    } else if (data.email || data.publicWebappUrl) {
+                        alert('Script connected! Settings found, but no database linked.');
+                    } else {
+                        alert('Connected to script, but no previous configuration found.');
+                    }
+                } else {
+                    alert('Could not retrieve configuration.');
+                }
+            } catch (e) {
+                console.error('Detection error', e);
+                alert('Connection failed. Check URL and access settings.');
+            } finally {
+                this.isDetecting = false;
+            }
+        },
 
-        const scriptUrl = webAppUrl;
+        async submitForm() {
+            if (!this.webappUrl) {
+                alert('Please enter a WebApp URL.');
+                return;
+            }
+            const tokenInput = document.getElementById('token');
+            if (this.role === 'Admin' && (!tokenInput || !tokenInput.value)) {
+                alert('Please enter a token for Admin role.');
+                return;
+            }
 
-        fetch(`${scriptUrl}?${params.toString()}`)
-            .then(response => response.json())
-            .then(data => {
+            this.isDetecting = true;
+            const token = tokenInput ? tokenInput.value : '';
+            const params = new URLSearchParams({
+                role: this.role,
+                url: this.webappUrl,
+                token: token,
+                email: this.email,
+                publicWebappUrl: this.publicWebappUrl,
+                dbSetup: this.dbSetup,
+                dbName: this.dbName,
+                sheetId: this.sheetId
+            });
+
+            try {
+                const baseUrl = this.webappUrl.split('?')[0];
+                const response = await fetch(`${baseUrl}?${params.toString()}`);
+                const data = await response.json();
                 if (data.status === 'success') {
                     localStorage.setItem('EzypartsConfig', JSON.stringify(data));
                     alert('Configuration saved successfully!');
-                    window.location.hash = '#dashboard'; // Redirect to dashboard
+                    window.location.hash = '#dashboard';
                 } else {
-                    alert('Error saving configuration.');
+                    alert('Error: ' + (data.message || 'Saving failed.'));
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while saving the configuration.');
-            });
-    });
-});
+            } catch (e) {
+                console.error('Submit error', e);
+                alert('An error occurred during submission.');
+            } finally {
+                this.isDetecting = false;
+            }
+        }
+    };
+};
