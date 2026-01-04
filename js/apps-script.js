@@ -1,24 +1,24 @@
 /**
- * EZYPARTS CLIENT BRIDGE - v2.3.3 (Blogger-Optimized & Robust Discovery)
+ * EZYPARTS CLIENT BRIDGE - v2.3.4 (Self-Healing Discovery)
  * Melayani Admin dan Publik dengan satu script yang terhubung ke config.js
- * Perbaikan: Menambahkan .trim() pada URL dan penanganan parameter URL yang lebih baik.
+ * Perbaikan: Mendukung Self-Healing jika URL di cache rusak/lama.
  */
 
 // Helper untuk mendapatkan Gateway URL dari config.js
 const getGatewayUrl = () => {
     if (typeof getWebAppUrl === 'function') {
-        const url = getWebAppUrl();
+        const url = getWebAppUrl(); // Mencoba LocalStorage lalu Hardcoded
         return url ? url.trim() : '';
     }
-    return ''; // Fallback
+    return '';
 };
 
 // Inisialisasi State Global
 window.EzyApi = {
     url: '',
-    role: window.EZY_ROLE || 'Public', // Default: Public (Bisa di-override di template)
+    role: window.EZY_ROLE || 'Public',
     isReady: false,
-    config: { adminUrl: '', publicUrl: '' }
+    config: { adminUrl: '', publicUrl: '', isSetup: true }
 };
 
 /**
@@ -26,9 +26,10 @@ window.EzyApi = {
  */
 async function discoverEzyApi() {
     const cacheKey = 'Ezyparts_Config_Cache';
-    let DISCOVERY_URL = getGatewayUrl();
+    const HARDCODED_URL = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV) ? CONFIG.WEBAPP_URL_DEV.trim() : '';
+    let CURRENT_URL = getGatewayUrl();
 
-    // 1. Cek cache di localStorage untuk kecepatan awal
+    // 1. Load Cache Awal untuk UI cepat
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
         try {
@@ -38,57 +39,94 @@ async function discoverEzyApi() {
         } catch (e) { }
     }
 
-    if (!DISCOVERY_URL) {
-        console.warn('Ezyparts Discovery: Gateway URL not found yet.');
+    if (!CURRENT_URL) {
+        console.warn('Ezyparts Discovery: No URL found. Forcing setup mode.');
+        forceSetupMode();
         return;
     }
 
-    // 2. Selalu validasi/update dari Server (Background Discovery via JSONP untuk bypass CORS)
-    try {
-        const cbName = 'ezy_discovery_' + Date.now();
+    // Fungsi Internal untuk melakukan Fetching via JSONP
+    const fetchConfig = async (targetUrl) => {
+        const cbName = 'ezy_discovery_' + Date.now() + Math.floor(Math.random() * 100);
         const script = document.createElement('script');
+        const separator = targetUrl.includes('?') ? '&' : '?';
+        script.src = `${targetUrl}${separator}action=get_config&callback=${cbName}`;
 
-        // Memastikan penambahan parameter action tidak merusak struktur URL (mendukung URL dengan atau tanpa ?)
-        const separator = DISCOVERY_URL.includes('?') ? '&' : '?';
-        script.src = `${DISCOVERY_URL}${separator}action=get_config&callback=${cbName}`;
-
-        // Buat Promise untuk menunggu hasil JSONP
-        const config = await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             window[cbName] = (res) => {
                 delete window[cbName];
                 script.remove();
                 resolve(res);
             };
-            script.onerror = () => reject(new Error('Discovery script load failed from: ' + script.src));
-
-            // GUNAKAN HEAD: Karena body mungkin belum ada saat script ini jalan di <head>
+            script.onerror = () => {
+                script.remove();
+                reject(new Error('Script load failed'));
+            };
             (document.head || document.documentElement).appendChild(script);
-
-            // Timeout 10 detik
-            setTimeout(() => reject(new Error('Discovery timeout')), 10000);
+            setTimeout(() => { script.remove(); reject(new Error('Timeout')); }, 8000);
         });
+    };
+
+    // 2. PROSES DISCOVERY DENGAN SELF-HEALING
+    try {
+        let config;
+        try {
+            // Coba URL saat ini (bisa jadi dari cache yang rusak)
+            config = await fetchConfig(CURRENT_URL);
+        } catch (e) {
+            console.warn('Primary Discovery URL failed. Trying Hardcoded Fallback...');
+            // Jika gagal dan URL saat ini bukan Hardcoded, coba Hardcoded
+            if (CURRENT_URL !== HARDCODED_URL && HARDCODED_URL) {
+                config = await fetchConfig(HARDCODED_URL);
+            } else {
+                throw e; // Berhenti jika Hardcoded pun gagal
+            }
+        }
 
         if (config && config.status === 'success') {
             window.EzyApi.config = config;
 
-            // SECURITY: Jika database tidak valid, hapus cache agar frontend terpaksa re-setup
+            // SECURITY CHECK: Jika DB tidak valid, paksa re-setup
             if (config.isSetup === false) {
-                console.warn('Backend reporting Invalid Database. Clearing Cache.');
-                localStorage.removeItem(cacheKey);
-                localStorage.removeItem('EzypartsConfig');
+                console.error('SERVER REPORT: Database missing. Clearing config.');
+                forceSetupMode();
             } else {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
+                applyRoleUrl(config);
             }
-
-            applyRoleUrl(config);
+        } else {
+            throw new Error('Invalid config response');
         }
     } catch (e) {
-        console.warn('Discovery fetch failed, using fallback:', e);
-        if (!window.EzyApi.url) window.EzyApi.url = DISCOVERY_URL;
+        console.error('Discovery CRITICAL Error:', e.message);
+        // Jika Discovery Gagal total, kita jangan percaya Cache.
+        // Namun kita beri kesempatan jika ini masalah koneksi sementara.
+        // Jika user di Admin, kita tetap tampilkan UI tapi tandai tidak sehat.
+        if (window.EzyApi.role === 'Admin') {
+            handleDiscoveryFailure();
+        }
     } finally {
         window.EzyApi.isReady = true;
-        // Beritahu aplikasi bahwa API siap
         window.dispatchEvent(new CustomEvent('ezy-api-ready', { detail: window.EzyApi }));
+    }
+}
+
+function forceSetupMode() {
+    localStorage.removeItem('EzypartsConfig');
+    localStorage.removeItem('Ezyparts_Config_Cache');
+    if (window.app) {
+        window.app.dbHealthy = false;
+        window.app.dbStatusChecked = true;
+    }
+    window.location.hash = '#setup';
+}
+
+function handleDiscoveryFailure() {
+    // Discovery gagal (mungkin CMS mati/link salah).
+    // Kita anggap tidak aman (Unhealthy)
+    if (window.app) {
+        window.app.dbHealthy = false;
+        window.app.dbStatusChecked = true;
     }
 }
 
@@ -99,20 +137,17 @@ function applyRoleUrl(config) {
     const role = window.EzyApi.role;
     const DISCOVERY_URL = getGatewayUrl();
 
-    // Jika role Admin, prioritaskan adminUrl. Jika Public, prioritaskan publicUrl.
     const targetUrl = (role === 'Admin') ?
         (config.adminUrl || config.publicUrl) :
         (config.publicUrl || config.adminUrl);
 
     window.EzyApi.url = (targetUrl ? targetUrl.trim() : '') || DISCOVERY_URL;
-    window.appsScriptUrl = window.EzyApi.url; // Kompatibilitas ke kode lama
+    window.appsScriptUrl = window.EzyApi.url;
 
-    // Sinkronisasi status kesehatan ke aplikasi utama jika sudah login
     if (window.app) {
         window.app.dbHealthy = config.isSetup !== false;
+        window.app.dbStatusChecked = true;
     }
-
-    console.log(`[EzyApi] ${role} Mode Active:`, window.EzyApi.url);
 }
 
 // Jalankan Discovery
@@ -156,7 +191,6 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
         const query = new URLSearchParams({ action, callback: cbName, ...data }).toString();
         const script = document.createElement('script');
         script.id = cbName;
-        // Penanganan URL agar tidak duplikasi tanda tanya
         const baseUrl = window.EzyApi.url;
         const separator = baseUrl.includes('?') ? '&' : '?';
         script.src = `${baseUrl}${separator}${query}`;
