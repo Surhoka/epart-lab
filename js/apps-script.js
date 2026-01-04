@@ -1,7 +1,7 @@
 /**
- * EZYPARTS CLIENT BRIDGE - v2.3.1 (Health-Aware Discovery)
+ * EZYPARTS CLIENT BRIDGE - v2.3.2 (Blogger-Optimized Discovery)
  * Melayani Admin dan Publik dengan satu script yang terhubung ke config.js
- * Ditambahkan pembersihan cache jika database tidak valid.
+ * Perbaikan: Menggunakan document.head karena script dimuat di bagian <head> Blogger.
  */
 
 // Helper untuk mendapatkan Gateway URL dari config.js
@@ -54,7 +54,9 @@ async function discoverEzyApi() {
                 resolve(res);
             };
             script.onerror = () => reject(new Error('Discovery script load failed'));
-            document.body.appendChild(script);
+
+            // GUNAKAN HEAD: Karena body mungkin belum ada saat script ini jalan di <head>
+            (document.head || document.documentElement).appendChild(script);
 
             // Timeout 10 detik
             setTimeout(() => reject(new Error('Discovery timeout')), 10000);
@@ -149,6 +151,6 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
         const script = document.createElement('script');
         script.id = cbName;
         script.src = `${window.EzyApi.url}?${query}`;
-        document.body.appendChild(script);
+        (document.head || document.documentElement).appendChild(script);
     }
 };
