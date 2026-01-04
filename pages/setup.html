@@ -1,4 +1,4 @@
-<div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700" x-data="{ role: 'Public', dbSetup: 'auto' }">
+<div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700" x-data="{ role: 'Public', dbSetup: 'auto' }">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
         <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
@@ -26,40 +26,42 @@
             </div>
         </div>
 
-        <!-- Email Input -->
-        <div>
-            <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-            <input type="email" id="user-email" name="user-email" required 
-                placeholder="your-email@example.com"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <!-- Email Input -->
+            <div :class="role === 'Admin' ? '' : 'md:col-span-2'">
+                <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                <input type="email" id="user-email" name="user-email" required 
+                    placeholder="your-email@example.com"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+            </div>
 
-        <!-- Database Setup Options (Admin Only) -->
-        <div x-show="role === 'Admin'" x-transition.opacity class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600">
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Database Setup</label>
-             <div class="flex gap-4">
-                <label class="flex items-center cursor-pointer">
-                    <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Automatic</span>
-                </label>
-                <label class="flex items-center cursor-pointer">
-                    <input type="radio" name="db-setup" value="manual" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
-                </label>
-             </div>
-             <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create required sheets automatically.' : 'You will configure sheet IDs manually.'"></p>
-             
-             <!-- Manual Database Configuration -->
-             <div x-show="dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div>
-                    <label for="db-name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
-                    <input type="text" id="db-name" name="db-name" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-                </div>
-                <div>
-                    <label for="sheet-id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sheet ID</label>
-                    <input type="text" id="sheet-id" name="sheet-id" placeholder="Existing ID (Opt)" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-                </div>
-             </div>
+            <!-- Database Setup Options (Admin Only) -->
+            <div x-show="role === 'Admin'" x-transition.opacity class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
+                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Database Setup</label>
+                 <div class="flex gap-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Automatic</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="db-setup" value="manual" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
+                    </label>
+                 </div>
+                 <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create required sheets automatically.' : 'You will configure sheet IDs manually.'"></p>
+                 
+                 <!-- Manual Database Configuration -->
+                 <div x-show="dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                    <div>
+                        <label for="db-name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
+                        <input type="text" id="db-name" name="db-name" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                    </div>
+                    <div>
+                        <label for="sheet-id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sheet ID</label>
+                        <input type="text" id="sheet-id" name="sheet-id" placeholder="Existing ID (Opt)" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                    </div>
+                 </div>
+            </div>
         </div>
 
         <!-- Token Input (Hidden by default logic in JS) -->
