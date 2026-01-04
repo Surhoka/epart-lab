@@ -7,6 +7,9 @@
         publicWebappUrl: '',
         dbName: '',
         sheetId: '',
+        hasExistingConfig: false,
+        setupMode: 'new',
+        originalConfig: {},
         init() {
             const saved = localStorage.getItem('EzypartsConfig');
             if (saved) {
@@ -19,6 +22,12 @@
                     this.dbSetup = config.dbSetup || 'auto';
                     this.dbName = config.dbName || '';
                     this.sheetId = config.sheetId || '';
+                    
+                    if (this.sheetId) {
+                        this.hasExistingConfig = true;
+                        this.setupMode = 'existing';
+                        this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId };
+                    }
                 } catch(e) { console.error('Config load error', e); }
             }
         }
@@ -64,17 +73,40 @@
             <!-- Database Setup Options (Admin Only) -->
             <div x-show="role === 'Admin'" x-transition.opacity class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Global Database Setup</label>
-                 <div class="flex gap-4">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Automatic</span>
+                 
+                 <!-- Existing Config Option -->
+                 <div x-show="hasExistingConfig" class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800">
+                    <label class="flex items-center cursor-pointer mb-2">
+                        <input type="radio" name="setup-mode" value="existing" x-model="setupMode" @change="dbName = originalConfig.dbName; sheetId = originalConfig.sheetId" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-2 text-sm font-semibold text-blue-800 dark:text-blue-300">Use Existing Configuration</span>
                     </label>
+                    <div class="ml-6 text-xs text-blue-600 dark:text-blue-400">
+                        <p>DB: <span x-text="originalConfig.dbName || 'N/A'"></span></p>
+                        <p>ID: <span x-text="originalConfig.sheetId ? originalConfig.sheetId.substring(0,10)+'...' : 'N/A'"></span></p>
+                    </div>
+                 </div>
+
+                 <!-- New/Reset Option -->
+                 <div class="mb-2">
                     <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="db-setup" value="manual" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
+                        <input type="radio" name="setup-mode" value="new" x-model="setupMode" @change="if(hasExistingConfig) { dbName = ''; sheetId = ''; dbSetup = 'auto'; }" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300" x-text="hasExistingConfig ? 'Reset / New Configuration' : 'Configure Database'"></span>
                     </label>
                  </div>
-                 <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'"></p>
+
+                 <div x-show="setupMode === 'new'" x-transition class="pl-6 border-l-2 border-gray-200 dark:border-gray-600 ml-2">
+                     <div class="flex gap-4 mb-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="db-setup" value="auto" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Automatic</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="db-setup" value="manual" x-model="dbSetup" class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
+                        </label>
+                     </div>
+                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'"></p>
+                 </div>
                  
                  <!-- Public WebApp URL Configuration -->
                  <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
@@ -84,7 +116,7 @@
                  </div>
                  
                  <!-- Manual Database Configuration -->
-                 <div x-show="dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                 <div x-show="setupMode === 'new' && dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                     <div>
                         <label for="db-name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
                         <input type="text" id="db-name" name="db-name" x-model="dbName" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
