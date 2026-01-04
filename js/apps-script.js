@@ -40,19 +40,33 @@ async function discoverEzyApi() {
         return;
     }
 
-    // 2. Selalu validasi/update dari Server (Background Discovery)
+    // 2. Selalu validasi/update dari Server (Background Discovery via JSONP untuk bypass CORS)
     try {
-        const response = await fetch(DISCOVERY_URL + '?action=get_config');
-        const config = await response.json();
+        const cbName = 'ezy_discovery_' + Date.now();
+        const script = document.createElement('script');
+        script.src = `${DISCOVERY_URL}?action=get_config&callback=${cbName}`;
 
-        if (config.status === 'success') {
+        // Buat Promise untuk menunggu hasil JSONP
+        const config = await new Promise((resolve, reject) => {
+            window[cbName] = (res) => {
+                delete window[cbName];
+                script.remove();
+                resolve(res);
+            };
+            script.onerror = () => reject(new Error('Discovery script load failed'));
+            document.body.appendChild(script);
+
+            // Timeout 10 detik
+            setTimeout(() => reject(new Error('Discovery timeout')), 10000);
+        });
+
+        if (config && config.status === 'success') {
             window.EzyApi.config = config;
 
             // SECURITY: Jika database tidak valid, hapus cache agar frontend terpaksa re-setup
             if (config.isSetup === false) {
                 console.warn('Backend reporting Invalid Database. Clearing Cache.');
                 localStorage.removeItem(cacheKey);
-                // Kita juga hapus EzypartsConfig agar router utama mendeteksi status belum setup
                 localStorage.removeItem('EzypartsConfig');
             } else {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
@@ -61,7 +75,7 @@ async function discoverEzyApi() {
             applyRoleUrl(config);
         }
     } catch (e) {
-        console.warn('Discovery fetch failed, using fallback.');
+        console.warn('Discovery fetch failed, using fallback:', e);
         if (!window.EzyApi.url) window.EzyApi.url = DISCOVERY_URL;
     } finally {
         window.EzyApi.isReady = true;
