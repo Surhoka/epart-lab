@@ -23,20 +23,13 @@ window.setupData = function () {
                     this.webappUrl = config.webappUrl || '';
                     this.email = config.email || '';
                     this.role = config.role || 'Public';
-                    if (config.sheetId) {
-                        this.hasExistingConfig = true;
-                        this.setupMode = 'existing';
-                        this.originalConfig = { dbName: config.dbName, sheetId: config.sheetId };
-                        this.dbName = config.dbName;
-                        this.sheetId = config.sheetId;
-                    }
-                } catch (e) { console.error('Load error', e); }
+                } catch (e) { }
             }
         },
 
         async detectConfig() {
-            if (!this.webappUrl || !this.webappUrl.startsWith('http')) {
-                alert('Please enter a valid WebApp URL.');
+            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
+                alert('Please enter a valid Google Apps Script URL.');
                 return;
             }
             this.isDetecting = true;
@@ -53,21 +46,22 @@ window.setupData = function () {
                         this.hasExistingConfig = true;
                         this.setupMode = 'existing';
                         this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId };
-                        alert('Configuration found and loaded!');
+                        alert('Success! Connected to Script v' + (data.scriptVersion || 'Unknown') + ' and found database.');
                     } else {
-                        alert('Connected! No existing database found.');
+                        alert('Connected to Script v' + (data.scriptVersion || 'Unknown') + '! No existing database found, you can create one now.');
                     }
                 } else {
-                    alert('Server error: ' + (data.message || 'Check failed.'));
+                    alert('Server error: ' + data.message);
                 }
             } catch (e) {
-                alert('Connection failed. Make sure you have deployed the script as "Anyone".');
+                alert('Connection failed. Make sure you have: 1. Published a NEW VERSION. 2. Set access to "Anyone".');
             } finally {
                 this.isDetecting = false;
             }
         },
 
         async submitForm() {
+            if (!this.webappUrl) { alert('URL required'); return; }
             this.isDetecting = true;
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
@@ -94,7 +88,7 @@ window.setupData = function () {
                         dbName: this.dbName,
                         sheetId: this.sheetId
                     }));
-                    alert('Setup complete!');
+                    alert('Setup complete! Running on Script v' + (data.scriptVersion || '1.0.5'));
                     window.location.hash = '#dashboard';
                 } else {
                     alert('Error: ' + data.message);
