@@ -1,417 +1,126 @@
-// Global modal functions
-window.openProductModal = function (mode, productId = null) {
-    const modal = document.getElementById('productModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const submitBtn = document.getElementById('submitProduct');
+/**
+ * EZYPARTS CLIENT BRIDGE - v2.3.0 (Config-Linked Discovery)
+ * Melayani Admin dan Publik dengan satu script yang terhubung ke config.js
+ */
 
-    modalTitle.textContent = mode === 'add' ? 'Tambah Produk Baru' : 'Edit Produk';
-    submitBtn.textContent = mode === 'add' ? 'Tambah' : 'Update';
-
-    if (mode === 'edit' && productId) {
-        // Load product data for editing
-        sendDataToGoogle('getProduct', { productId: productId }, (response) => {
-            if (response.status === 'success') {
-                const product = response.data;
-                document.getElementById('productName').value = product.name;
-                document.getElementById('productCode').value = product.code;
-                document.getElementById('productCategory').value = product.category;
-                document.getElementById('productBrand').value = product.brand;
-                document.getElementById('productDescription').value = product.description;
-                document.getElementById('productPrice').value = product.price;
-                document.getElementById('productCost').value = product.cost;
-                document.getElementById('minimumStock').value = product.minimumStock;
-            }
-        });
-    }
-
-    modal.classList.remove('hidden');
+// Helper untuk mendapatkan Gateway URL dari config.js
+const getGatewayUrl = () => {
+    if (typeof getWebAppUrl === 'function') return getWebAppUrl();
+    return ''; // Fallback
 };
 
-window.closeProductModal = function () {
-    const modal = document.getElementById('productModal');
-    const form = document.getElementById('productForm');
-    form.reset();
-    modal.classList.add('hidden');
-};
-
-window.setupModalClose = function () {
-    // Close modal when clicking outside
-    window.onclick = function (event) {
-        const modal = document.getElementById('productModal');
-        if (event.target === modal) {
-            closeProductModal();
-        }
-    };
-
-    // Close modal when clicking close button
-    const closeBtn = document.querySelector('.modal-close');
-    if (closeBtn) {
-        closeBtn.onclick = closeProductModal;
-    }
-};
-
-// Helper function for rendering product table
-window.renderProductTable = function (products) {
-    console.log('Rendering products:', products); // Debug log
-
-    // Ensure products is an array
-    if (!Array.isArray(products)) {
-        console.error('Products must be an array:', products);
-        products = [];
-    }
-
-    // Additional validation
-    products = products.filter(product => product && typeof product === 'object');
-
-    const tableBody = document.getElementById('productTableBody');
-    if (!tableBody) {
-        console.error('Product table body not found');
-        return;
-    }
-
-    tableBody.innerHTML = '';
-
-    if (products.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center py-4 text-gray-500">
-                    Tidak ada produk yang tersedia
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    products.forEach((product, index) => {
-        const row = document.createElement('tr');
-        row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.code || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">${product.name || '-'}</div>
-                <div class="text-sm text-gray-500">${product.category || '-'}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.stock || '0'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.price || 0)}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.minimumStock || '0'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.status || 'Aktif'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="openProductModal('edit', '${product.id}')" class="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
-                <button onclick="deleteProduct('${product.id}')" class="text-red-600 hover:text-red-900">Hapus</button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-};
-
-// Global utility functions
-window.showToast = function (message, type = 'success', duration = 3000) {
-    const toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        console.error('Toast container not found.');
-        return;
-    }
-
-    // --- GLOBAL AUTO-HIDE BUTTON LOGIC ---
-    // If this is a success toast and there are buttons in loading state,
-    // mark them as successful (which will hide buttons tagged with data-hide-on-success)
-    if (type === 'success' && typeof window.markActiveButtonsAsSuccess === 'function') {
-        window.markActiveButtonsAsSuccess();
-    }
-    // -------------------------------------
-
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-
-    // Get Icon based on type
-    let icon = '';
-    switch (type) {
-        case 'success':
-            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5l-8 8-4-4"/></svg>';
-            break;
-        case 'error':
-            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-10 10M5 5l10 10"/></svg>';
-            break;
-        case 'warning':
-            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v10M10 16h.01"/></svg>';
-            break;
-        case 'info':
-        default:
-            icon = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4M10 14h.01"/></svg>';
-            break;
-    }
-
-    toast.innerHTML = `
-        <div class="toast-icon">${icon}</div>
-        <div class="toast-message">${message}</div>
-        <button class="toast-close-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 4l-8 8M4 4l8 8"/>
-            </svg>
-        </button>
-        <div class="toast-progress" style="animation: toast-progress ${duration}ms linear forwards"></div>
-    `;
-
-    toastContainer.appendChild(toast);
-
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 10);
-
-    const closeBtn = toast.querySelector('.toast-close-btn');
-    closeBtn.addEventListener('click', () => {
-        hideToast(toast);
-    });
-
-    // Auto close
-    const timeoutId = setTimeout(() => hideToast(toast), duration);
-
-    // Cleanup timeout if closed manually
-    closeBtn.dataset.timeoutId = timeoutId;
-};
-
-window.hideToast = function (toast) {
-    if (!toast) return;
-
-    const closeBtn = toast.querySelector('.toast-close-btn');
-    if (closeBtn && closeBtn.dataset.timeoutId) {
-        clearTimeout(parseInt(closeBtn.dataset.timeoutId));
-    }
-
-    toast.classList.remove('show');
-    toast.addEventListener('transitionend', () => {
-        toast.remove();
-    }, { once: true });
-};
-
-// Function to make requests with JSONP (script injection) for GET requests
-function makeFetchRequest(action, data, callback, errorHandler) {
-    const callbackName = 'jsonp_callback_' + Math.round(1000 * Math.random());
-
-    window[callbackName] = function (response) {
-        delete window[callbackName];
-
-        console.log('Raw response (GET):', JSON.stringify(response, null, 2));
-
-        try {
-            const normalizedResponse = normalizeResponse(action, response);
-            console.log('Normalized response (GET):', normalizedResponse);
-            if (callback) callback(normalizedResponse);
-        } catch (error) {
-            console.error('Error processing GET response:', error);
-            if (errorHandler) errorHandler(error);
-        }
-    };
-
-    let url = window.appsScriptUrl + `?action=${action}&callback=${callbackName}`;
-    for (const key in data) {
-        if (key !== 'action') {
-            url += `&${key}=${encodeURIComponent(data[key])}`;
-        }
-    }
-
-    console.log('Sending GET request to:', url);
-
-    const script = document.createElement('script');
-    script.src = url;
-    script.onerror = function (error) {
-        console.error('Script loading error:', error);
-        delete window[callbackName];
-        document.body.removeChild(script);
-        if (errorHandler) errorHandler(new Error('Network error or script loading failed.'));
-        else showToast('Network error, please try again.', 'error');
-    };
-    document.body.appendChild(script);
-}
-
-// Function to normalize responses from the server
-function normalizeResponse(action, response) {
-    let normalized = {
-        status: 'error',
-        message: 'Invalid response from server.',
-        data: [],
-        pagination: {},
-        version: 'unknown'
-    };
-
-    if (response) {
-        if (action === 'getExistingNotifications') {
-            normalized.status = response.status || 'success';
-            normalized.message = response.message || 'Notifications fetched';
-            normalized.data = response.notifications || [];
-        } else if (action === 'SignInUser' || action === 'registerUser') {
-            normalized.status = response.status || 'error';
-            normalized.message = response.message || '';
-            normalized.data = response.user || null;
-            if (response.user) normalized.user = response.user; // For backward compatibility
-            if (response.redirectUrl) normalized.redirectUrl = response.redirectUrl;
-            if (response.token) normalized.token = response.token;
-        } else if (action === 'askAiFAQ') {
-            normalized.status = response.status || 'success';
-            normalized.message = response.message || 'Success';
-            normalized.answer = response.answer || '';
-            normalized.data = response.data || [];
-        } else if (action === 'getPosts') {
-            normalized.status = response.status || 'success';
-            normalized.message = response.message || 'Posts retrieved';
-            normalized.data = response.data || { posts: [], total: 0, page: 1, totalPages: 0 };
-        } else if (action === 'getPost') {
-            normalized.status = response.status || 'success';
-            normalized.message = response.message || 'Post retrieved';
-            normalized.data = response.data || null;
-        } else if (action === 'savePost' || action === 'deletePost') {
-            normalized.status = response.status || 'success';
-            normalized.message = response.message || 'Operation completed';
-            normalized.data = response.data || null;
-        } else if (response.status) {
-            // For all other actions, if response has a status field, we should accept it as valid
-            normalized = {
-                status: response.status,
-                message: response.message || 'Success',
-                data: response.data || [],
-                pagination: response.pagination || {},
-                version: response.version || 'unknown'
-            };
-            // Preserve 'answer' if it exists in any other action
-            if (response.answer) normalized.answer = response.answer;
-        } else {
-            // This case should not happen with proper server responses, but for safety
-            normalized.status = 'success';
-            normalized.data = response;
-            if (response.answer) normalized.answer = response.answer;
-        }
-    }
-
-    return normalized;
-}
-
-
-window.sendDataToGoogle = function (action, data, callback, errorHandler) {
-    // Actions that must use POST for security or data length reasons
-    const postActions = [
-        'SignInUser',
-        'registerUser',
-        'uploadFile',
-        'uploadImageAndGetUrl',
-        'addProduk',
-        'updateProduk',
-        'addProduct',
-        'updateProduct',
-        'savePurchaseOrder',
-        'addSupplier',
-        'updateSupplier',
-        'changePassword',
-        'updateProfile',
-        'saveProfileDataOnServer',
-        'simpanProdukBaru',
-        'savePost',
-        'deletePost'
-    ];
-
-    if (postActions.includes(action)) {
-        // Use Fetch API for POST requests
-        const payload = { action, ...data };
-        const formData = 'payload=' + encodeURIComponent(JSON.stringify(payload));
-
-        console.log(`Sending POST request for action: ${action}`);
-
-        fetch(window.appsScriptUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-            },
-            body: formData
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(jsonResponse => {
-                console.log(`Raw response (POST for ${action}):`, jsonResponse);
-                const normalized = normalizeResponse(action, jsonResponse);
-                console.log(`Normalized response (POST for ${action}):`, normalized);
-                if (callback) callback(normalized);
-            })
-            .catch(error => {
-                console.error(`Fetch error for action '${action}':`, error);
-                if (errorHandler) {
-                    errorHandler(error);
-                } else {
-                    showToast(error.message || `An error occurred with action: ${action}`, 'error');
-                }
-            });
-    } else {
-        // Use JSONP for GET requests
-        makeFetchRequest(action, data, callback, errorHandler);
-    }
-};
-
-window.handleAuthUI = function () {
-    const user = JSON.parse(localStorage.getItem('signedInUser'));
-    console.log('handleAuthUI: User object from localStorage:', user); // Added log here
-    const profileDropdownToggle = document.getElementById('profile-dropdown-toggle');
-    const profilePicture = document.getElementById('profile-picture');
-    const usernameDisplay = document.getElementById('username-display');
-    const dropdownUsernameDisplay = document.getElementById('dropdown-username-display');
-    const profileDropdownMenu = document.getElementById('profile-dropdown-menu');
-    const signInButton = document.getElementById('signin-button'); // Assuming a signIn button exists elsewhere for signed out state
-
-    if (user && user.isLoggedIn) {
-        if (profileDropdownToggle) profileDropdownToggle.classList.remove('hidden');
-        if (profilePicture) profilePicture.src = user.pictureUrl || 'https://dummyimage.com/100';
-        if (usernameDisplay) usernameDisplay.textContent = user.fullName || user.userName; // Use fullName, fallback to userName
-        if (dropdownUsernameDisplay) dropdownUsernameDisplay.textContent = user.fullName || user.userName; // Use fullName, fallback to userName
-        if (signInButton) signInButton.classList.add('hidden'); // Hide signIn button if logged in
-    } else {
-        // Ensure profileDropdownToggle is always visible, regardless of signIn status
-        if (profileDropdownToggle) profileDropdownToggle.classList.remove('hidden');
-        if (signInButton) signInButton.classList.remove('hidden'); // Show signIn button if signed out
-    }
+// Inisialisasi State Global
+window.EzyApi = {
+    url: '',
+    role: window.EZY_ROLE || 'Public', // Default: Public (Bisa di-override di template)
+    isReady: false,
+    config: { adminUrl: '', publicUrl: '' }
 };
 
 /**
- * Memuat notifikasi awal yang ada dari server saat halaman dimuat.
+ * Mendapatkan URL API secara Global berdasarkan Role
  */
-function loadInitialNotifications() {
-    // Check if we have cached notifications for today
-    const today = new Date().toISOString().split('T')[0];
-    const cachedData = JSON.parse(localStorage.getItem('notificationsCache') || '{}');
+async function discoverEzyApi() {
+    // 1. Cek cache di localStorage untuk kecepatan
+    const cacheKey = 'Ezyparts_Config_Cache';
+    const cached = localStorage.getItem(cacheKey);
 
-    // If we have cached data for today, dispatch it immediately
-    if (cachedData.date === today && Array.isArray(cachedData.notifications)) {
-        // Dispatch an event with the cached notifications
-        console.log('Dispatching cached notifications-loaded event from initial load', cachedData.notifications);
-        window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: cachedData.notifications }));
+    if (cached) {
+        try {
+            const config = JSON.parse(cached);
+            window.EzyApi.config = config;
+            applyRoleUrl(config);
+        } catch (e) { }
     }
 
-    // Always fetch fresh data from server to update cache
-    sendDataToGoogle('getExistingNotifications', {}, (data) => {
-        if (data.status === "success" && Array.isArray(data.data)) {
-            // Dispatch an event with the notifications
-            console.log('Dispatching notifications-loaded event from initial load', data.data);
-            window.dispatchEvent(new CustomEvent('notifications-loaded', { detail: data.data }));
+    const DISCOVERY_URL = getGatewayUrl();
+    if (!DISCOVERY_URL) {
+        console.warn('Ezyparts Discovery: Gateway URL not found yet.');
+        return;
+    }
 
-            // Cache the fresh data with today's date
-            const cacheData = {
-                date: today,
-                notifications: data.data
-            };
-            localStorage.setItem('notificationsCache', JSON.stringify(cacheData));
-        } else {
-            console.warn('Could not load initial notifications:', data.message);
+    // 2. Selalu validasi/update dari Server (Background Discovery)
+    try {
+        const response = await fetch(DISCOVERY_URL + '?action=get_config');
+        const config = await response.json();
+
+        if (config.status === 'success') {
+            window.EzyApi.config = config;
+            localStorage.setItem(cacheKey, JSON.stringify(config));
+            applyRoleUrl(config);
         }
-    }, (error) => {
-        console.error("Error fetching initial notifications:", error);
-    });
+    } catch (e) {
+        console.warn('Discovery fetch failed, using fallback.');
+        if (!window.EzyApi.url) window.EzyApi.url = DISCOVERY_URL;
+    } finally {
+        window.EzyApi.isReady = true;
+        // Beritahu aplikasi bahwa API siap
+        window.dispatchEvent(new CustomEvent('ezy-api-ready', { detail: window.EzyApi }));
+    }
 }
 
-// Panggil fungsi untuk memuat notifikasi setelah DOM selesai dimuat
-document.addEventListener('DOMContentLoaded', function () {
-    loadInitialNotifications();
-});
+/**
+ * Memilih URL yang tepat sesuai Role saat ini
+ */
+function applyRoleUrl(config) {
+    const role = window.EzyApi.role;
+    const DISCOVERY_URL = getGatewayUrl();
+
+    // Jika role Admin, prioritaskan adminUrl. Jika Public, prioritaskan publicUrl.
+    const targetUrl = (role === 'Admin') ?
+        (config.adminUrl || config.publicUrl) :
+        (config.publicUrl || config.adminUrl);
+
+    window.EzyApi.url = targetUrl || DISCOVERY_URL;
+    window.appsScriptUrl = window.EzyApi.url; // Kompatibilitas ke kode lama
+    console.log(`[EzyApi] ${role} Mode Active:`, window.EzyApi.url);
+}
+
+// Jalankan Discovery
+discoverEzyApi();
+
+/**
+ * Universal Data Sender (POST/GET)
+ */
+window.sendDataToGoogle = function (action, data, callback, errorHandler) {
+    // Jika API belum siap, tunggu sebentar
+    if (!window.EzyApi.isReady) {
+        setTimeout(() => window.sendDataToGoogle(action, data, callback, errorHandler), 300);
+        return;
+    }
+
+    const postActions = [
+        'SignInUser', 'registerUser', 'SignOut',
+        'saveEvent', 'updateProfile', 'setupUserDatabase'
+    ];
+
+    if (postActions.includes(action)) {
+        // --- POST METHOD ---
+        fetch(window.EzyApi.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'payload=' + encodeURIComponent(JSON.stringify({ action, ...data }))
+        })
+            .then(res => res.json())
+            .then(callback)
+            .catch(err => {
+                console.error('API POST Error:', err);
+                if (errorHandler) errorHandler(err);
+            });
+    } else {
+        // --- GET METHOD (JSONP) ---
+        const cbName = 'ezy_cb_' + Date.now() + Math.floor(Math.random() * 100);
+        window[cbName] = function (res) {
+            delete window[cbName];
+            const s = document.getElementById(cbName);
+            if (s) s.remove();
+            if (callback) callback(res);
+        };
+
+        const query = new URLSearchParams({ action, callback: cbName, ...data }).toString();
+        const script = document.createElement('script');
+        script.id = cbName;
+        script.src = `${window.EzyApi.url}?${query}`;
+        document.body.appendChild(script);
+    }
+};
