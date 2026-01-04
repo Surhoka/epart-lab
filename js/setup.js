@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const webAppUrl = document.getElementById('webapp-url').value;
         const role = roleSelector.value;
         const token = document.getElementById('token').value;
+        
+        const publicWebappUrl = document.getElementById('public-webapp-url') ? document.getElementById('public-webapp-url').value : '';
+        const dbSetup = document.querySelector('input[name="db-setup"]:checked') ? document.querySelector('input[name="db-setup"]:checked').value : 'auto';
+        const dbName = document.getElementById('db-name') ? document.getElementById('db-name').value : '';
+        const sheetId = document.getElementById('sheet-id') ? document.getElementById('sheet-id').value : '';
 
         if (!webAppUrl) {
             alert('Please enter a valid WebApp URL.');
@@ -31,7 +36,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams({
             role: role,
             url: webAppUrl,
-            token: token
+            token: token,
+            publicWebappUrl: publicWebappUrl,
+            dbSetup: dbSetup,
+            dbName: dbName,
+            sheetId: sheetId
         });
 
         const scriptUrl = webAppUrl;
@@ -39,9 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`${scriptUrl}?${params.toString()}`)
             .then(response => response.json())
             .then(data => {
-                if (data.role && data.url) {
+                if (data.status === 'success') {
                     localStorage.setItem('EzypartsConfig', JSON.stringify(data));
                     alert('Configuration saved successfully!');
+                    window.location.hash = '#dashboard'; // Redirect to dashboard
                 } else {
                     alert('Error saving configuration.');
                 }
