@@ -1,12 +1,11 @@
 <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-    x-data="{ role: 'Public', dbSetup: 'auto', webappUrl: '', email: '', publicWebappUrl: '', dbName: '', sheetId: '', hasExistingConfig: false, setupMode: 'new', originalConfig: {}, isDetecting: false, detectError: '', init() { const saved = localStorage.getItem('EzypartsConfig'); if (saved) { try { const config = JSON.parse(saved); this.webappUrl = config.webappUrl || ''; this.publicWebappUrl = config.publicWebappUrl || ''; this.role = config.role || 'Public'; this.email = config.email || ''; this.dbSetup = config.dbSetup || 'auto'; this.dbName = config.dbName || ''; this.sheetId = config.sheetId || ''; if (this.sheetId) { this.hasExistingConfig = true; this.setupMode = 'existing'; this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId, webappUrl: this.webappUrl }; } } catch(e) { console.error('Config load error', e); } } }, async detectConfig() { if (!this.webappUrl || !this.webappUrl.startsWith('http')) { alert('Please enter a valid WebApp URL first.'); return; } this.isDetecting = true; try { const baseUrl = this.webappUrl.split('?')[0]; const response = await fetch(baseUrl + '?action=check'); const text = await response.text(); let data; try { data = JSON.parse(text); } catch(e) { alert('The script returned an invalid response. Please ensure you have: 1. Updated the script code. 2. Published a NEW VERSION in Deploy settings.'); return; } if (data && data.status === 'success') { if (data.email) this.email = data.email; if (data.publicWebappUrl) this.publicWebappUrl = data.publicWebappUrl; if (data.sheetId) { this.sheetId = data.sheetId; this.dbName = data.dbName; this.hasExistingConfig = true; this.setupMode = 'existing'; this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId, webappUrl: this.webappUrl }; alert('Existing configuration detected!'); } else { alert('Connected, but no database found. You can continue to create one.'); } } else { alert('Error: ' + (data ? data.message : 'Unknown response from server')); } } catch (e) { alert('Connection failed. Please check your internet and WebApp URL.'); } finally { this.isDetecting = false; } }, async submitForm() { if (!this.webappUrl) { alert('Please enter a WebApp URL.'); return; } const tokenInput = document.getElementById('token'); if (this.role === 'Admin' && (!tokenInput || !tokenInput.value)) { alert('Please enter a token.'); return; } this.isDetecting = true; const token = tokenInput ? tokenInput.value : ''; const params = new URLSearchParams({ role: this.role, url: this.webappUrl, token: token, email: this.email, publicWebappUrl: this.publicWebappUrl, dbSetup: this.dbSetup, dbName: this.dbName, sheetId: this.sheetId }); try { const baseUrl = this.webappUrl.split('?')[0]; const response = await fetch(baseUrl + '?' + params.toString()); const data = await response.json(); if (data.status === 'success') { localStorage.setItem('EzypartsConfig', JSON.stringify(data)); alert('Saved successfully!'); window.location.hash = '#dashboard'; } else { alert('Error: ' + (data.message || 'Saving failed.')); } } catch (e) { alert('Submission error occurred.'); } finally { this.isDetecting = false; } } }">
+    x-data="setupData()">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
         <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
     </div>
 
     <form id="setup-form" @submit.prevent="submitForm()" class="space-y-6">
-        <input type="hidden" name="action" value="saveConfiguration">
         <!-- WebApp URL Input -->
         <div>
             <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WebApp
@@ -87,14 +86,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                    <label for="public-webapp-url"
-                        class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Public WebApp
-                        URL</label>
-                    <input type="url" id="public-webapp-url" name="public-webapp-url" x-model="publicWebappUrl"
-                        placeholder="Leave blank if same as Admin URL"
-                        class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-                </div>
+                <!-- Manual Database Configuration -->
                 <div x-show="setupMode === 'new' && dbSetup === 'manual'" x-transition
                     class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                     <div>
