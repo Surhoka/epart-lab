@@ -1,119 +1,5 @@
 <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-    x-data="{ 
-        role: 'Public', 
-        dbSetup: 'auto',
-        webappUrl: '',
-        email: '',
-        publicWebappUrl: '',
-        dbName: '',
-        sheetId: '',
-        hasExistingConfig: false,
-        setupMode: 'new',
-        originalConfig: {},
-        isDetecting: false,
-        detectError: '',
-        init() {
-            const saved = localStorage.getItem('EzypartsConfig');
-            if (saved) {
-                try {
-                    const config = JSON.parse(saved);
-                    this.webappUrl = config.webappUrl || '';
-                    this.publicWebappUrl = config.publicWebappUrl || '';
-                    this.role = config.role || 'Public';
-                    this.email = config.email || '';
-                    this.dbSetup = config.dbSetup || 'auto';
-                    this.dbName = config.dbName || '';
-                    this.sheetId = config.sheetId || '';
-                    
-                    if (this.sheetId) {
-                        this.hasExistingConfig = true;
-                        this.setupMode = 'existing';
-                        this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId, webappUrl: this.webappUrl };
-                    }
-                } catch(e) { console.error('Config load error', e); }
-            }
-        },
-        async detectConfig() {
-            if (!this.webappUrl || !this.webappUrl.startsWith('http')) {
-                alert('Please enter a valid WebApp URL first.');
-                return;
-            }
-            this.isDetecting = true;
-            this.detectError = '';
-            try {
-                const baseUrl = this.webappUrl.split('?')[0];
-                const response = await fetch(`${baseUrl}?action=check`);
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    if (data.email) this.email = data.email;
-                    if (data.publicWebappUrl) this.publicWebappUrl = data.publicWebappUrl;
-                    
-                    if (data.sheetId) {
-                        this.sheetId = data.sheetId;
-                        this.dbName = data.dbName;
-                        this.hasExistingConfig = true;
-                        this.setupMode = 'existing';
-                        this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId, webappUrl: this.webappUrl };
-                        alert('Existing configuration detected and loaded!');
-                    } else if (data.email || data.publicWebappUrl) {
-                        alert('Script connected! Settings found, but no database linked.');
-                    } else {
-                        alert('Connected to script, but no previous configuration found.');
-                    }
-                } else {
-                    alert('Could not retrieve configuration.');
-                }
-            } catch (e) {
-                console.error('Detection error', e);
-                alert('Connection failed. Link must be correct, deployed as Web App, and set to Anyone.');
-            } finally {
-                this.isDetecting = false;
-            }
-        },
-        async submitForm() {
-            if (!this.webappUrl) {
-                alert('Please enter a WebApp URL.');
-                return;
-            }
-            const tokenInput = document.getElementById('token');
-            if (this.role === 'Admin' && (!tokenInput || !tokenInput.value)) {
-                alert('Please enter a token for Admin role.');
-                return;
-            }
-
-            this.isDetecting = true;
-            const token = tokenInput ? tokenInput.value : '';
-            const params = new URLSearchParams({
-                role: this.role,
-                url: this.webappUrl,
-                token: token,
-                email: this.email,
-                publicWebappUrl: this.publicWebappUrl,
-                dbSetup: this.dbSetup,
-                dbName: this.dbName,
-                sheetId: this.sheetId
-            });
-
-            try {
-                const baseUrl = this.webappUrl.split('?')[0];
-                const response = await fetch(`${baseUrl}?${params.toString()}`);
-                const data = await response.json();
-                if (data.status === 'success') {
-                    localStorage.setItem('EzypartsConfig', JSON.stringify(data));
-                    alert('Configuration saved successfully!');
-                    window.location.hash = '#dashboard';
-                } else {
-                    alert('Error: ' + (data.message || 'Saving failed.'));
-                }
-            } catch (e) {
-                console.error('Submit error', e);
-                alert('An error occurred during submission.');
-            } finally {
-                this.isDetecting = false;
-            }
-        }
-    }">
+    x-data="{ role: 'Public', dbSetup: 'auto', webappUrl: '', email: '', publicWebappUrl: '', dbName: '', sheetId: '', hasExistingConfig: false, setupMode: 'new', originalConfig: {}, isDetecting: false, detectError: '', init() { const saved = localStorage.getItem('EzypartsConfig'); if (saved) { try { const config = JSON.parse(saved); this.webappUrl = config.webappUrl || ''; this.publicWebappUrl = config.publicWebappUrl || ''; this.role = config.role || 'Public'; this.email = config.email || ''; this.dbSetup = config.dbSetup || 'auto'; this.dbName = config.dbName || ''; this.sheetId = config.sheetId || ''; if (this.sheetId) { this.hasExistingConfig = true; this.setupMode = 'existing'; this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId, webappUrl: this.webappUrl }; } } catch(e) { console.error('Config load error', e); } } }, async detectConfig() { if (!this.webappUrl || !this.webappUrl.startsWith('http')) { alert('Please enter a valid WebApp URL first.'); return; } this.isDetecting = true; try { const baseUrl = this.webappUrl.split('?')[0]; const response = await fetch(baseUrl + '?action=check'); const data = await response.json(); if (data.status === 'success') { if (data.email) this.email = data.email; if (data.publicWebappUrl) this.publicWebappUrl = data.publicWebappUrl; if (data.sheetId) { this.sheetId = data.sheetId; this.dbName = data.dbName; this.hasExistingConfig = true; this.setupMode = 'existing'; this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId, webappUrl: this.webappUrl }; alert('Existing configuration detected!'); } else { alert('Connected, but no database found.'); } } else { alert('Could not retrieve config.'); } } catch (e) { alert('Connection failed. Check URL and access settings.'); } finally { this.isDetecting = false; } }, async submitForm() { if (!this.webappUrl) { alert('Please enter a WebApp URL.'); return; } const tokenInput = document.getElementById('token'); if (this.role === 'Admin' && (!tokenInput || !tokenInput.value)) { alert('Please enter a token.'); return; } this.isDetecting = true; const token = tokenInput ? tokenInput.value : ''; const params = new URLSearchParams({ role: this.role, url: this.webappUrl, token: token, email: this.email, publicWebappUrl: this.publicWebappUrl, dbSetup: this.dbSetup, dbName: this.dbName, sheetId: this.sheetId }); try { const baseUrl = this.webappUrl.split('?')[0]; const response = await fetch(baseUrl + '?' + params.toString()); const data = await response.json(); if (data.status === 'success') { localStorage.setItem('EzypartsConfig', JSON.stringify(data)); alert('Saved successfully!'); window.location.hash = '#dashboard'; } else { alert('Error: ' + (data.message || 'Saving failed.')); } } catch (e) { alert('Submission error occurred.'); } finally { this.isDetecting = false; } } }">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
         <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
@@ -136,14 +22,10 @@
                     <span x-text="isDetecting ? 'Checking...' : 'Detect'"></span>
                 </button>
             </div>
-            <p class="mt-1 text-xs text-gray-400">Paste your deployed Web App URL here and click Detect to find existing
-                settings.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <!-- Email & Role Wrapper -->
             <div :class="role === 'Admin' ? '' : 'md:col-span-2'" class="space-y-4">
-                <!-- Email Input -->
                 <div>
                     <label for="user-email"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
@@ -151,8 +33,6 @@
                         placeholder="your-email@example.com"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                 </div>
-
-                <!-- Role Selection -->
                 <div>
                     <label for="role"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
@@ -164,12 +44,9 @@
                 </div>
             </div>
 
-            <!-- Database Setup Options (Admin Only) -->
             <div x-show="role === 'Admin'" x-transition.opacity
                 class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Global Database Setup</label>
-
-                <!-- Existing Config Option -->
                 <div x-show="hasExistingConfig"
                     class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800">
                     <label class="flex items-center cursor-pointer mb-2">
@@ -186,8 +63,6 @@
                         </p>
                     </div>
                 </div>
-
-                <!-- New/Reset Option -->
                 <div class="mb-2">
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="setup-mode" value="new" x-model="setupMode"
@@ -197,7 +72,6 @@
                             x-text="hasExistingConfig ? 'Reset / New Configuration' : 'Configure Database'"></span>
                     </label>
                 </div>
-
                 <div x-show="setupMode === 'new'" x-transition
                     class="pl-6 border-l-2 border-gray-200 dark:border-gray-600 ml-2">
                     <div class="flex gap-4 mb-2">
@@ -212,12 +86,7 @@
                             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Manual</span>
                         </label>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2"
-                        x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'">
-                    </p>
                 </div>
-
-                <!-- Public WebApp URL Configuration -->
                 <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
                     <label for="public-webapp-url"
                         class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Public WebApp
@@ -225,10 +94,7 @@
                     <input type="url" id="public-webapp-url" name="public-webapp-url" x-model="publicWebappUrl"
                         placeholder="Leave blank if same as Admin URL"
                         class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
-                    <p class="mt-1 text-[10px] text-gray-400">Used for public-facing pages configuration.</p>
                 </div>
-
-                <!-- Manual Database Configuration -->
                 <div x-show="setupMode === 'new' && dbSetup === 'manual'" x-transition
                     class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                     <div>
@@ -249,7 +115,6 @@
             </div>
         </div>
 
-        <!-- Token Input -->
         <div id="token-group" x-show="role === 'Admin'" x-transition>
             <label for="token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Access
                 Token</label>
@@ -257,7 +122,6 @@
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" :disabled="isDetecting"
             class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors disabled:opacity-50">
             <span x-show="isDetecting"
@@ -265,8 +129,4 @@
             <span x-text="isDetecting ? 'Connecting...' : 'Connect & Continue'"></span>
         </button>
     </form>
-
-    <div class="mt-6 text-center">
-        <a href="#" class="text-xs text-gray-400 hover:text-brand-500 transition-colors">Need help finding your URL?</a>
-    </div>
 </div>
