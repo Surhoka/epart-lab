@@ -1,11 +1,4 @@
 /**
- * Setup Page Initialization
- */
-window.initSetupPage = function () {
-    console.log('Setup page initialized');
-};
-
-/**
  * Alpine.js Data for Setup Page
  */
 window.setupData = function () {
@@ -21,7 +14,6 @@ window.setupData = function () {
         setupMode: 'new',
         originalConfig: {},
         isDetecting: false,
-        detectError: '',
 
         init() {
             const saved = localStorage.getItem('EzypartsConfig');
@@ -29,99 +21,86 @@ window.setupData = function () {
                 try {
                     const config = JSON.parse(saved);
                     this.webappUrl = config.webappUrl || '';
-                    this.publicWebappUrl = config.publicWebappUrl || '';
-                    this.role = config.role || 'Public';
                     this.email = config.email || '';
-                    this.dbSetup = config.dbSetup || 'auto';
-                    this.dbName = config.dbName || '';
-                    this.sheetId = config.sheetId || '';
-
-                    if (this.sheetId) {
+                    this.role = config.role || 'Public';
+                    if (config.sheetId) {
                         this.hasExistingConfig = true;
                         this.setupMode = 'existing';
-                        this.originalConfig = { dbName: this.dbName, sheetId: this.sheetId, webappUrl: this.webappUrl };
+                        this.originalConfig = { dbName: config.dbName, sheetId: config.sheetId };
+                        this.dbName = config.dbName;
+                        this.sheetId = config.sheetId;
                     }
-                } catch (e) { console.error('Config load error', e); }
+                } catch (e) { console.error('Load error', e); }
             }
         },
 
         async detectConfig() {
             if (!this.webappUrl || !this.webappUrl.startsWith('http')) {
-                alert('Please enter a valid WebApp URL first.');
+                alert('Please enter a valid WebApp URL.');
                 return;
             }
             this.isDetecting = true;
-            this.detectError = '';
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
-                const response = await fetch(`${baseUrl}?action=check`);
+                const response = await fetch(baseUrl + '?action=check');
                 const data = await response.json();
 
                 if (data.status === 'success') {
                     if (data.email) this.email = data.email;
-                    if (data.publicWebappUrl) this.publicWebappUrl = data.publicWebappUrl;
-
                     if (data.sheetId) {
                         this.sheetId = data.sheetId;
                         this.dbName = data.dbName;
                         this.hasExistingConfig = true;
                         this.setupMode = 'existing';
-                        this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId, webappUrl: this.webappUrl };
-                        alert('Existing configuration detected and loaded!');
-                    } else if (data.email || data.publicWebappUrl) {
-                        alert('Script connected! Settings found, but no database linked.');
+                        this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId };
+                        alert('Configuration found and loaded!');
                     } else {
-                        alert('Connected to script, but no previous configuration found.');
+                        alert('Connected! No existing database found.');
                     }
                 } else {
-                    alert('Could not retrieve configuration.');
+                    alert('Server error: ' + (data.message || 'Check failed.'));
                 }
             } catch (e) {
-                console.error('Detection error', e);
-                alert('Connection failed. Check URL and access settings.');
+                alert('Connection failed. Make sure you have deployed the script as "Anyone".');
             } finally {
                 this.isDetecting = false;
             }
         },
 
         async submitForm() {
-            if (!this.webappUrl) {
-                alert('Please enter a WebApp URL.');
-                return;
-            }
-            const tokenInput = document.getElementById('token');
-            if (this.role === 'Admin' && (!tokenInput || !tokenInput.value)) {
-                alert('Please enter a token for Admin role.');
-                return;
-            }
-
             this.isDetecting = true;
-            const token = tokenInput ? tokenInput.value : '';
-            const params = new URLSearchParams({
-                role: this.role,
-                url: this.webappUrl,
-                token: token,
-                email: this.email,
-                publicWebappUrl: this.publicWebappUrl,
-                dbSetup: this.dbSetup,
-                dbName: this.dbName,
-                sheetId: this.sheetId
-            });
-
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
-                const response = await fetch(`${baseUrl}?${params.toString()}`);
+                const token = document.getElementById('token')?.value || '';
+                const params = new URLSearchParams({
+                    action: 'save',
+                    role: this.role,
+                    url: this.webappUrl,
+                    token: token,
+                    email: this.email,
+                    dbSetup: this.dbSetup,
+                    dbName: this.dbName,
+                    sheetId: this.sheetId
+                });
+
+                const response = await fetch(baseUrl + '?' + params.toString());
                 const data = await response.json();
+
                 if (data.status === 'success') {
-                    localStorage.setItem('EzypartsConfig', JSON.stringify(data));
-                    alert('Configuration saved successfully!');
+                    localStorage.setItem('EzypartsConfig', JSON.stringify({
+                        webappUrl: this.webappUrl,
+                        email: this.email,
+                        role: this.role,
+                        dbName: this.dbName,
+                        sheetId: this.sheetId
+                    }));
+                    alert('Setup complete!');
                     window.location.hash = '#dashboard';
                 } else {
-                    alert('Error: ' + (data.message || 'Saving failed.'));
+                    alert('Error: ' + data.message);
                 }
             } catch (e) {
-                console.error('Submit error', e);
-                alert('An error occurred during submission.');
+                alert('Failed to save configuration.');
             } finally {
                 this.isDetecting = false;
             }
