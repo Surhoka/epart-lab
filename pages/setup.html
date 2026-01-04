@@ -4,14 +4,21 @@
         dbSetup: 'auto',
         webappUrl: '',
         email: '',
+        publicWebappUrl: '',
+        dbName: '',
+        sheetId: '',
         init() {
             const saved = localStorage.getItem('EzypartsConfig');
             if (saved) {
                 try {
                     const config = JSON.parse(saved);
                     this.webappUrl = config.webappUrl || '';
+                    this.publicWebappUrl = config.publicWebappUrl || '';
                     this.role = config.role || 'Public';
                     this.email = config.email || '';
+                    this.dbSetup = config.dbSetup || 'auto';
+                    this.dbName = config.dbName || '';
+                    this.sheetId = config.sheetId || '';
                 } catch(e) { console.error('Config load error', e); }
             }
         }
@@ -69,15 +76,22 @@
                  </div>
                  <p class="text-xs text-gray-500 dark:text-gray-400" x-text="dbSetup === 'auto' ? 'System will create/connect global sheets automatically.' : 'Manually link to existing global sheets.'"></p>
                  
+                 <!-- Public WebApp URL Configuration -->
+                 <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <label for="public-webapp-url" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Public WebApp URL</label>
+                    <input type="url" id="public-webapp-url" name="public-webapp-url" x-model="publicWebappUrl" placeholder="Leave blank if same as Admin URL" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                    <p class="mt-1 text-[10px] text-gray-400">Used for public-facing pages configuration.</p>
+                 </div>
+                 
                  <!-- Manual Database Configuration -->
                  <div x-show="dbSetup === 'manual'" x-transition class="grid grid-cols-2 gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                     <div>
                         <label for="db-name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
-                        <input type="text" id="db-name" name="db-name" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                        <input type="text" id="db-name" name="db-name" x-model="dbName" placeholder="Ezyparts DB" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                     </div>
                     <div>
                         <label for="sheet-id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sheet ID</label>
-                        <input type="text" id="sheet-id" name="sheet-id" placeholder="Existing ID (Opt)" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                        <input type="text" id="sheet-id" name="sheet-id" x-model="sheetId" placeholder="Existing ID (Opt)" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                     </div>
                  </div>
             </div>
