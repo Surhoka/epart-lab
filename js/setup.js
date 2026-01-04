@@ -29,7 +29,7 @@ window.setupData = function () {
 
         async detectConfig() {
             if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
-                alert('Please enter a valid Google Apps Script URL.');
+                alert('Please enter a valid WebApp URL.');
                 return;
             }
             this.isDetecting = true;
@@ -46,28 +46,28 @@ window.setupData = function () {
                         this.hasExistingConfig = true;
                         this.setupMode = 'existing';
                         this.originalConfig = { dbName: data.dbName, sheetId: data.sheetId };
-                        alert('Success! Connected to Script v' + (data.scriptVersion || 'Unknown') + ' and found database.');
+                        alert('Configuration detected and loaded successfully!');
                     } else {
-                        alert('Connected to Script v' + (data.scriptVersion || 'Unknown') + '! No existing database found, you can create one now.');
+                        alert('Connected! No previous database found on this script.');
                     }
                 } else {
-                    alert('Server error: ' + data.message);
+                    alert('Server error: ' + (data.message || 'Unknown response'));
                 }
             } catch (e) {
-                alert('Connection failed. Make sure you have: 1. Published a NEW VERSION. 2. Set access to "Anyone".');
+                alert('Connection failed. Please ensure your script is deployed as "Anyone".');
             } finally {
                 this.isDetecting = false;
             }
         },
 
         async submitForm() {
-            if (!this.webappUrl) { alert('URL required'); return; }
+            if (!this.webappUrl) { alert('WebApp URL is required'); return; }
             this.isDetecting = true;
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
                 const token = document.getElementById('token')?.value || '';
                 const params = new URLSearchParams({
-                    action: 'save',
+                    action: 'setup', // Explicit action for setup.gs
                     role: this.role,
                     url: this.webappUrl,
                     token: token,
@@ -88,13 +88,13 @@ window.setupData = function () {
                         dbName: this.dbName,
                         sheetId: this.sheetId
                     }));
-                    alert('Setup complete! Running on Script v' + (data.scriptVersion || '1.0.5'));
+                    alert('Setup Success! You are now connected.');
                     window.location.hash = '#dashboard';
                 } else {
-                    alert('Error: ' + data.message);
+                    alert('Setup Error: ' + data.message);
                 }
             } catch (e) {
-                alert('Failed to save configuration.');
+                alert('An error occurred during verification.');
             } finally {
                 this.isDetecting = false;
             }
