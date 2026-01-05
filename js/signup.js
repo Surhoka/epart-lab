@@ -52,9 +52,13 @@ function handleSignup(e) {
     });
 }
 
-// Initialize when script loads (for direct load) or when called by router
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSignupPage);
-} else {
-    initSignupPage();
-}
+// Initialize when script loads
+initSignupPage();
+
+// Also re-initialize when SPA navigates back to this page
+window.addEventListener('ezy:page-loaded', function (e) {
+    if (e.detail && e.detail.page === 'signup') {
+        console.log("Signup page loaded, re-initializing...");
+        initSignupPage();
+    }
+});
