@@ -65,12 +65,12 @@ function handleSignin(e) {
 
                         // Proceed with navigation after full profile is fetched and saved
                         setTimeout(() => {
-                            // Redirect to dashboard using the proper navigation function
+                            // Redirect to profile using the proper navigation function
                             if (window.navigate) {
-                                window.navigate('dashboard');
+                                window.navigate('profile');
                             } else {
                                 // Fallback to direct hash change if navigate function is not available
-                                window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+                                window.location.hash = window.encodeState ? window.encodeState({ page: 'profile', params: {} }) : '#profile';
                             }
                             window.dispatchEvent(new Event('auth-status-changed'));
                         }, 50); // Reduced delay to 50ms
@@ -93,9 +93,9 @@ function handleSignin(e) {
                         }
                         setTimeout(() => {
                             if (window.navigate) {
-                                window.navigate('dashboard');
+                                window.navigate('profile');
                             } else {
-                                window.location.hash = window.encodeState ? window.encodeState({ page: 'dashboard', params: {} }) : '#dashboard';
+                                window.location.hash = window.encodeState ? window.encodeState({ page: 'profile', params: {} }) : '#profile';
                             }
                             window.dispatchEvent(new Event('auth-status-changed'));
                         }, 50);
