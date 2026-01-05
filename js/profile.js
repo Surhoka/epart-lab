@@ -564,7 +564,7 @@ function savePersonalInfo() {
     };
 
     if (typeof window.sendDataToGoogle === 'function') {
-        const action = isCreating ? 'createProfile' : 'updateProfile';
+        const action = isCreating ? 'createProfile' : 'updateCoreProfile';
         const payload = {
             profileData: JSON.stringify(profileData),
             userId: userId
@@ -618,7 +618,7 @@ function saveAddress() {
     };
 
     if (typeof window.sendDataToGoogle === 'function') {
-        const action = isCreating ? 'createProfile' : 'updateProfile';
+        const action = isCreating ? 'createProfile' : 'updateCoreProfile';
         const payload = {
             profileData: JSON.stringify(profileData),
             userId: userId
@@ -833,7 +833,7 @@ function savePublicInfo() {
     };
 
     if (typeof window.sendDataToGoogle === 'function') {
-        const action = isCreating ? 'createProfile' : 'updateProfile';
+        const action = isCreating ? 'createProfile' : 'updatePublicProfile';
         const payload = {
             profileData: JSON.stringify(publicData),
             userId: userId
