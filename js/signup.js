@@ -43,8 +43,8 @@ function handleSignup(e) {
         if (response.status === 'success') {
             toast('Registration successful! Redirecting to login...', 'success');
             setTimeout(() => {
-                const state = { page: 'signin', params: {} };
-                window.location.hash = window.encodeState ? window.encodeState(state) : '#signin';
+                const state = { page: 'profile', params: {} };
+                window.location.hash = window.encodeState ? window.encodeState(state) : '#profile';
             }, 1500);
         } else {
             toast(response.message || 'Registration failed.', 'error');
