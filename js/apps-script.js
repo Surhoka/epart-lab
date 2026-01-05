@@ -175,12 +175,15 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
     ];
 
     if (postActions.includes(action)) {
+        // Use JSON body for POST to ensure reliability with large payloads
         fetch(window.EzyApi.url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'payload=' + encodeURIComponent(JSON.stringify({ action, ...data }))
+            body: JSON.stringify({ action, ...data })
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
             .then(callback)
             .catch(err => {
                 console.error('API POST Error:', err);
