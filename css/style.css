@@ -2009,8 +2009,8 @@ span.flatpickr-weekday,
 }
 
 /* Force all hotspot tooltips to be horizontal */
-.hotspot-point > div,
-.hotspot-point > div * {
+.hotspot-point>div,
+.hotspot-point>div * {
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
   direction: ltr !important;
@@ -2021,7 +2021,7 @@ span.flatpickr-weekday,
 }
 
 /* Ensure tooltip width fits content properly */
-.hotspot-point > div[class*="absolute"] {
+.hotspot-point>div[class*="absolute"] {
   width: max-content !important;
   box-sizing: border-box !important;
 }
@@ -2032,9 +2032,9 @@ span.flatpickr-weekday,
     /* Ensure tooltips can overflow container on mobile */
     overflow: visible !important;
   }
-  
+
   .hotspot-point .tooltip,
-  .hotspot-point > div[class*="absolute"] {
+  .hotspot-point>div[class*="absolute"] {
     /* Improve mobile tooltip visibility */
     z-index: 9999 !important;
     /* Force horizontal text layout */
@@ -2048,7 +2048,7 @@ span.flatpickr-weekday,
     text-orientation: mixed !important;
     direction: ltr !important;
   }
-  
+
   /* Mobile-specific tooltip positioning fixes */
   .hotspot-point {
     /* Ensure hotspot points are easily tappable on mobile */
@@ -2056,9 +2056,9 @@ span.flatpickr-weekday,
     min-height: 20px;
     touch-action: manipulation;
   }
-  
+
   /* Improve tooltip readability on mobile */
-  .hotspot-point > div[class*="absolute"] {
+  .hotspot-point>div[class*="absolute"] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(8px);
   }
@@ -2091,4 +2091,13 @@ span.flatpickr-weekday,
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #2D3748;
+}
+
+/* Added for Alpine.js and Premium UI */
+[x-cloak] {
+  display: none !important;
+}
+
+:root {
+  --color-brand-500: #3b82f6;
 }
