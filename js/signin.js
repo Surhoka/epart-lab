@@ -137,9 +137,13 @@ function handleSignin(e) {
     });
 }
 
-// Initialize when script loads (for direct load) or when called by router
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSigninPage);
-} else {
-    initSigninPage();
-}
+// Initialize when script loads
+initSigninPage();
+
+// Also re-initialize when SPA navigates back to this page
+window.addEventListener('ezy:page-loaded', function (e) {
+    if (e.detail && e.detail.page === 'signin') {
+        console.log("Signin page loaded, re-initializing...");
+        initSigninPage();
+    }
+});
