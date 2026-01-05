@@ -515,11 +515,14 @@ function clearAddress() {
  * Helper to get the current user ID from either the page state or the session
  */
 function getEffectiveUserId() {
-    if (window.currentProfileUserId) return window.currentProfileUserId;
-    
-    // Fallback to signedInUser session
+    // Prioritize the actual logged-in user for any action.
     const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-    return sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+    
+    if (sessionUserId) return sessionUserId;
+
+    // Fallback to the ID of the profile currently being viewed on the page.
+    return window.currentProfileUserId;
 }
 
 /**
