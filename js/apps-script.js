@@ -4,14 +4,16 @@
  * Perbaikan: Mendukung Self-Healing jika URL di cache rusak/lama.
  */
 
-// Helper untuk mendapatkan Gateway URL dari config.js
-var getGatewayUrl = () => {
-    if (typeof getWebAppUrl === 'function') {
-        const url = getWebAppUrl(); // Mencoba LocalStorage lalu Hardcoded
-        return url ? url.trim() : '';
-    }
-    return '';
-};
+// Helper untuk mendapatkan Gateway URL (Gunakan window check untuk mencegah redeklarasi error)
+if (typeof window.getGatewayUrl === 'undefined') {
+    window.getGatewayUrl = () => {
+        if (typeof getWebAppUrl === 'function') {
+            const url = getWebAppUrl(); // Mencoba LocalStorage lalu Hardcoded
+            return url ? url.trim() : '';
+        }
+        return '';
+    };
+}
 
 // Inisialisasi State Global
 window.EzyApi = {
