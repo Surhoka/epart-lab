@@ -5,7 +5,7 @@
  */
 
 // Helper untuk mendapatkan Gateway URL dari config.js
-const getGatewayUrl = () => {
+var getGatewayUrl = () => {
     if (typeof getWebAppUrl === 'function') {
         const url = getWebAppUrl(); // Mencoba LocalStorage lalu Hardcoded
         return url ? url.trim() : '';
