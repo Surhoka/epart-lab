@@ -7,11 +7,13 @@ window.initProfilePage = function () {
         window.renderBreadcrumb('Profile');
     }
 
-    // Store current user ID globally for this page
-    window.currentProfileUserId = null;
+    // Get the logged-in user from session storage.
+    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
 
-    // Fetch and populate profile data
-    fetchProfileData();
+    // Fetch and populate profile data for the logged-in user.
+    // This is critical to ensure the page loads the correct user's data from the start.
+    fetchProfileData(sessionUserId);
 
     // Setup event listeners for save buttons
     setupEventListeners();
