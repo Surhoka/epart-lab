@@ -512,11 +512,23 @@ function clearAddress() {
 }
 
 /**
+ * Helper to get the current user ID from either the page state or the session
+ */
+function getEffectiveUserId() {
+    if (window.currentProfileUserId) return window.currentProfileUserId;
+    
+    // Fallback to signedInUser session
+    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+    return sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+}
+
+/**
  * Save personal information
  */
 function savePersonalInfo() {
     // If no ID, we are creating a new profile
     const isCreating = !window.currentProfileUserId;
+    const userId = getEffectiveUserId();
 
     // Get values from modal inputs using IDs
     const firstName = document.getElementById('input-firstname')?.value || '';
@@ -548,9 +560,9 @@ function savePersonalInfo() {
 
     if (typeof window.sendDataToGoogle === 'function') {
         const action = isCreating ? 'createProfile' : 'updateProfile';
-        const payload = isCreating ? { profileData: JSON.stringify(profileData) } : {
+        const payload = {
             profileData: JSON.stringify(profileData),
-            userId: window.currentProfileUserId
+            userId: userId
         };
 
         window.sendDataToGoogle(action, payload, (response) => {
@@ -583,6 +595,7 @@ function savePersonalInfo() {
 function saveAddress() {
     // If no ID, we are creating a new profile (though usually personal info comes first)
     const isCreating = !window.currentProfileUserId;
+    const userId = getEffectiveUserId();
 
     // Get values from address modal inputs using IDs
     const country = document.getElementById('input-country')?.value || '';
@@ -601,9 +614,9 @@ function saveAddress() {
 
     if (typeof window.sendDataToGoogle === 'function') {
         const action = isCreating ? 'createProfile' : 'updateProfile';
-        const payload = isCreating ? { profileData: JSON.stringify(profileData) } : {
+        const payload = {
             profileData: JSON.stringify(profileData),
-            userId: window.currentProfileUserId
+            userId: userId
         };
 
         window.sendDataToGoogle(action, payload, (response) => {
@@ -790,6 +803,7 @@ function resetUploadButton() {
  */
 function savePublicInfo() {
     const isCreating = !window.currentProfileUserId;
+    const userId = getEffectiveUserId();
 
     const publicData = {
         publicDisplay: {
@@ -807,9 +821,9 @@ function savePublicInfo() {
 
     if (typeof window.sendDataToGoogle === 'function') {
         const action = isCreating ? 'createProfile' : 'updateProfile';
-        const payload = isCreating ? { profileData: JSON.stringify(publicData) } : {
+        const payload = {
             profileData: JSON.stringify(publicData),
-            userId: window.currentProfileUserId
+            userId: userId
         };
 
         window.sendDataToGoogle(action, payload, (response) => {
@@ -863,4 +877,3 @@ function savePublicInfo() {
         });
     }
 }
-
