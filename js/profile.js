@@ -369,7 +369,7 @@ function setupEventListeners() {
     if (saveAddressBtn) {
         saveAddressBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            // Add loading state (using global function)
+            // Add loading state
             window.setButtonLoading(saveAddressBtn, true);
             saveAddress();
         });
@@ -722,7 +722,8 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
         }
     }).catch((error) => {
         console.error('Error uploading photo:', error);
-        if (window.showToast) window.showToast('Error uploading photo: ' + error.message, 'error');
+        const msg = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+        if (window.showToast) window.showToast('Error uploading photo: ' + msg, 'error');
         resetUploadButton();
     });
 }
