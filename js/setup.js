@@ -43,10 +43,17 @@ window.setupData = function () {
                 };
                 script.onerror = () => {
                     script.remove();
-                    reject(new Error('Network Error or CORS failure'));
+                    reject(new Error('Network Error: Verify WebApp URL is correct and script is deployed as "Anyone".'));
                 };
                 (document.head || document.documentElement).appendChild(script);
-                setTimeout(() => reject(new Error('Timeout')), 10000);
+                // Increase timeout to 90s for DB creation
+                setTimeout(() => {
+                    if (window[cbName]) {
+                        delete window[cbName];
+                        script.remove();
+                        reject(new Error('Connection Timeout: The server took too long to respond.'));
+                    }
+                }, 90000);
             });
         },
 
@@ -76,7 +83,7 @@ window.setupData = function () {
                     alert('Server error: ' + (data.message || 'Unknown response'));
                 }
             } catch (e) {
-                alert('Connection failed. Please ensure your script is deployed as "Anyone".');
+                alert('Detection Error: ' + e.message);
                 console.error(e);
             } finally {
                 this.isDetecting = false;
@@ -113,14 +120,14 @@ window.setupData = function () {
                     // Clear Discovery Cache to force refresh
                     localStorage.removeItem('Ezyparts_Config_Cache');
 
-                    alert('Setup Success! You are now connected.');
-                    window.location.hash = '#dashboard';
-                    // Optional: window.location.reload();
+                    alert('Setup Success! Please create your first Admin account.');
+                    window.location.hash = '#signup';
+                    setTimeout(() => window.location.reload(), 500);
                 } else {
                     alert('Setup Error: ' + data.message);
                 }
             } catch (e) {
-                alert('An error occurred during verification.');
+                alert('Setup Failed: ' + e.message);
                 console.error(e);
             } finally {
                 this.isDetecting = false;
