@@ -696,7 +696,8 @@ function handlePhotoFileChange(event) {
  * @param {String} mimeType - MIME type of the image
  */
 function uploadProfilePhoto(fileName, base64data, mimeType) {
-    if (!window.currentProfileUserId) {
+    const userId = getEffectiveUserId();
+    if (!userId) {
         if (window.showToast) window.showToast('Please create a profile first', 'error');
         resetUploadButton();
         return;
@@ -733,11 +734,17 @@ function uploadProfilePhoto(fileName, base64data, mimeType) {
  * @param {String} photoUrl - Google Drive URL of the uploaded photo
  */
 function saveProfilePhotoUrl(photoUrl) {
+    const userId = getEffectiveUserId();
+    if (!userId) {
+        if (window.showToast) window.showToast('User ID not found. Cannot save photo.', 'error');
+        resetUploadButton();
+        return;
+    }
     if (typeof window.sendDataToGoogle === 'function') {
         // Use the correct 'updateProfilePhoto' action and include the userId
         window.sendDataToGoogle('updateProfilePhoto', {
             photoUrl: photoUrl,
-            userId: window.currentProfileUserId
+            userId: userId
         }, (response) => {
             if (response.status === 'success') {
                 if (window.showToast) window.showToast('Profile photo updated successfully');
