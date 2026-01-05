@@ -1,58 +1,137 @@
-function initSignupPage() {
-    const signupButton = document.querySelector('button.bg-brand-500'); // Select the Sign Up button
-    if (signupButton) {
-        // Remove existing event listeners by cloning
-        const newButton = signupButton.cloneNode(true);
-        signupButton.parentNode.replaceChild(newButton, signupButton);
+/**
+ * Alpine.js Data for Setup Page
+ */
+window.setupData = function () {
+    return {
+        role: 'Public',
+        dbSetup: 'auto',
+        webappUrl: '',
+        email: '',
+        publicWebappUrl: '',
+        dbName: '',
+        sheetId: '',
+        hasExistingConfig: false,
+        setupMode: 'new',
+        originalConfig: {},
+        isDetecting: false,
 
-        newButton.addEventListener('click', handleSignup);
-    }
-}
+        init() {
+            const saved = localStorage.getItem('EzypartsConfig');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    this.webappUrl = config.webappUrl || '';
+                    this.email = config.email || '';
+                    this.role = config.role || 'Public';
+                } catch (e) { }
+            }
+        },
 
-function handleSignup(e) {
-    if (e) e.preventDefault();
+        // Helper Internal untuk JSONP
+        async fetchJsonp(url, params = {}) {
+            const cbName = 'setup_cb_' + Date.now();
+            const query = new URLSearchParams(params);
+            query.set('callback', cbName);
+            const script = document.createElement('script');
+            script.src = `${url}${url.includes('?') ? '&' : '?'}${query.toString()}`;
 
-    const fname = document.getElementById('fname').value;
-    const lname = document.getElementById('lname').value;
-    const email = document.getElementById('email').value;
-    // Assuming the password input is the one inside the relative div with toggle
-    const passwordInput = document.querySelector('input[type="password"]') || document.querySelector('input[placeholder="Enter your password"]');
-    const password = passwordInput ? passwordInput.value : '';
+            return new Promise((resolve, reject) => {
+                window[cbName] = (res) => {
+                    delete window[cbName];
+                    script.remove();
+                    resolve(res);
+                };
+                script.onerror = () => {
+                    script.remove();
+                    reject(new Error('Network Error: Verify WebApp URL is correct and script is deployed as "Anyone".'));
+                };
+                (document.head || document.documentElement).appendChild(script);
+                // Increase timeout to 90s for DB creation
+                setTimeout(() => {
+                    if (window[cbName]) {
+                        delete window[cbName];
+                        script.remove();
+                        reject(new Error('Connection Timeout: The server took too long to respond.'));
+                    }
+                }, 90000);
+            });
+        },
 
-    // Basic Validation
-    if (!fname || !lname || !email || !password) {
-        showToast('Please fill in all required fields.', 'error');
-        return;
-    }
+        async detectConfig() {
+            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
+                alert('Please enter a valid WebApp URL.');
+                return;
+            }
+            this.isDetecting = true;
+            try {
+                const baseUrl = this.webappUrl.split('?')[0];
+                const data = await this.fetchJsonp(baseUrl, { action: 'get_config' });
 
-    const btn = e.target;
-    const originalText = btn.textContent;
-    btn.innerHTML = '<div class="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></div>';
-    btn.disabled = true;
+                if (data.status === 'success') {
+                    if (data.email) this.email = data.email;
+                    if (data.dbId) {
+                        this.sheetId = data.dbId;
+                        this.dbName = data.dbName || 'Ezyparts Database';
+                        this.hasExistingConfig = true;
+                        this.setupMode = 'existing';
+                        this.originalConfig = { dbName: this.dbName, sheetId: data.dbId };
+                        alert('Configuration detected successfully!');
+                    } else {
+                        alert('Connected! No previous database found on this script.');
+                    }
+                } else {
+                    alert('Server error: ' + (data.message || 'Unknown response'));
+                }
+            } catch (e) {
+                alert('Detection Error: ' + e.message);
+                console.error(e);
+            } finally {
+                this.isDetecting = false;
+            }
+        },
 
-    sendDataToGoogle('registerUser', {
-        fname: fname,
-        lname: lname,
-        email: email,
-        password: password
-    }, function (response) {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        async submitForm() {
+            if (!this.webappUrl) { alert('WebApp URL is required'); return; }
+            this.isDetecting = true;
+            try {
+                const baseUrl = this.webappUrl.split('?')[0];
+                const token = document.getElementById('token')?.value || '';
 
-        if (response.status === 'success') {
-            showToast('Registration successful! Redirecting to login...', 'success');
-            setTimeout(() => {
-                window.location.hash = '#signin';
-            }, 1500);
-        } else {
-            showToast(response.message || 'Registration failed.', 'error');
+                const data = await this.fetchJsonp(baseUrl, {
+                    action: 'setup',
+                    role: this.role,
+                    url: this.webappUrl,
+                    token: token,
+                    email: this.email,
+                    dbSetup: this.dbSetup,
+                    dbName: this.dbName,
+                    sheetId: this.sheetId
+                });
+
+                if (data.status === 'success') {
+                    localStorage.setItem('EzypartsConfig', JSON.stringify({
+                        webappUrl: this.webappUrl,
+                        email: this.email,
+                        role: this.role,
+                        dbName: this.dbName,
+                        sheetId: data.dbId || this.sheetId
+                    }));
+
+                    // Clear Discovery Cache to force refresh
+                    localStorage.removeItem('Ezyparts_Config_Cache');
+
+                    alert('Setup Success! Please create your first Admin account.');
+                    window.location.hash = '#signup';
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    alert('Setup Error: ' + data.message);
+                }
+            } catch (e) {
+                alert('Setup Failed: ' + e.message);
+                console.error(e);
+            } finally {
+                this.isDetecting = false;
+            }
         }
-    });
-}
-
-// Initialize when script loads (for direct load) or when called by router
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSignupPage);
-} else {
-    initSignupPage();
-}
+    };
+};
