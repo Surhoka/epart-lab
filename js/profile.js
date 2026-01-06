@@ -575,6 +575,7 @@ function savePersonalInfo() {
 
             if (response.status === 'success') {
                 if (window.showToast) window.showToast(isCreating ? 'Profile created successfully' : 'Profile updated successfully', 'success');
+                window.setButtonLoading(saveBtn, false); // Stop the spinner
 
                 if (isCreating && response.data && response.data.id) {
                     window.currentProfileUserId = response.data.id;
@@ -618,7 +619,8 @@ function saveAddress() {
     };
 
     if (typeof window.sendDataToGoogle === 'function') {
-        const action = isCreating ? 'createProfile' : 'updateCoreProfile';
+        // BUG FIX: Action should be 'updatePublicProfile' for address data.
+        const action = isCreating ? 'createProfile' : 'updatePublicProfile';
         const payload = {
             profileData: JSON.stringify(profileData),
             userId: userId
@@ -629,6 +631,7 @@ function saveAddress() {
 
             if (response.status === 'success') {
                 if (window.showToast) window.showToast(isCreating ? 'Address saved and profile created' : 'Address updated successfully', 'success');
+                window.setButtonLoading(saveBtn, false); // BUG FIX: Stop the spinner on success.
 
                 if (isCreating && response.data && response.data.id) {
                     window.currentProfileUserId = response.data.id;
