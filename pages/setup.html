@@ -77,13 +77,21 @@
               </div>
               <p class="text-xs text-slate-600 dark:text-slate-300">
                 Kami mendeteksi database lama bernama 
-                <strong class="text-slate-900 dark:text-white" x-text="originalConfig.dbName"></strong>.
-                File aslinya sudah tidak ada, tapi Anda bisa membuat ulang database dengan nama ini.
+                <strong class="text-slate-900 dark:text-white" x-text="originalConfig.dbName"></strong>, namun filenya hilang. Apa yang ingin Anda lakukan?
               </p>
-              <label class="flex items-center gap-3 p-3 cursor-pointer">
-                <input type="radio" name="setup-mode" value="new" x-model="setupMode"
-                  class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                <span class="text-xs font-medium text-slate-500">Buat ulang dengan nama lama</span>
+              
+              <!-- Option 1: Recreate with old name -->
+              <label class="flex items-center gap-3 p-3 cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20 rounded-lg">
+                <input type="radio" name="setup-mode" value="reuse" x-model="setupMode" @click="dbName = originalConfig.dbName"
+                  class="w-4 h-4 text-blue-600 bg-transparent focus:ring-blue-500 border-slate-400 dark:border-slate-600">
+                <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Buat ulang dengan nama lama</span>
+              </label>
+
+              <!-- Option 2: Reset -->
+              <label class="flex items-center gap-3 p-3 cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20 rounded-lg">
+                <input type="radio" name="setup-mode" value="new" x-model="setupMode" @click="dbName = ''"
+                  class="w-4 h-4 text-blue-600 bg-transparent focus:ring-blue-500 border-slate-400 dark:border-slate-600">
+                <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Reset dan gunakan nama baru</span>
               </label>
             </div>
 
@@ -117,3 +125,7 @@
                             x-text="isDetecting ? 'Synchronizing...' : 'Connect &amp; Initialize'"></span>
                     </button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
