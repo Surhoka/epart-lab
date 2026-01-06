@@ -1,895 +1,370 @@
-// Profile page initialization
-window.initProfilePage = function () {
-    console.log("Profile Page Initialized");
+/**
+ * EZYPARTS ADMIN CORE - v2.4.0
+ * 
+ * SETUP INSTRUCTIONS:
+ * 1. Link the DBDrive Library in your Apps Script Project Settings.
+ * 2. Use the Identifier: "DBDriveLibrary"
+ * 3. Ensure the Library version is selected.
+ */
 
-    // Initialize Breadcrumb
-    if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Profile');
-    }
+// Global configuration object (Fetch dynamically from Script Properties populated during Setup)
+const props_ = PropertiesService.getScriptProperties();
+const CONFIG = {
+  // Database ID (Spreadsheet ID)
+  spreadsheetId: props_.getProperty('DB_ID'),
+  
+  // Public Database ID (Spreadsheet ID)
+  publicSpreadsheetId: props_.getProperty('PUBLIC_DB_ID'),
 
-    // Get the logged-in user from session storage.
-    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+  // Root Drive Folder ID for storage
+  driveFolderId: props_.getProperty('DRIVE_FOLDER_ID'),
+  
+  // Public Folder ID (if applicable)
+  publicFolderId: props_.getProperty('PUBLIC_FOLDER_ID'),
 
-    // Fetch and populate profile data for the logged-in user.
-    // This is critical to ensure the page loads the correct user's data from the start.
-    fetchProfileData(sessionUserId);
-
-    // Setup event listeners for save buttons
-    setupEventListeners();
-
-    console.log('Profile page ready');
+  // Standard Sheet Names
+  produkSheetName: "Produk",
+  gambarSheetName: "GambarProduk",
+  daftarprodukSheetName: "DaftarProduk",
+  calendarSheetName: "Events",
+  profileSheetName: "Profile",
+  hotspotSheetName: "Hotspot",
+  mediaLibrarySheetName: "MediaLibrary",
+  postsSheetName: "Posts"
 };
 
 /**
- * Force reset button to original state
- * This ensures button is fully restored even if setButtonLoading fails
+ * Gets or creates the Public Spreadsheet in the specified Drive Folder.
+ * Used for all public-facing data (Branding, Posts, etc.)
  */
-function forceResetButton(buttonId, originalText) {
-    const button = document.getElementById(buttonId);
-    if (button) {
-        button.disabled = false;
-        button.classList.remove('btn-loading', 'btn-success');
-        button.style.display = '';
-        button.style.opacity = '';
-        button.style.transform = '';
-        button.style.backgroundColor = '';
-        button.style.borderColor = '';
-        button.style.color = '';
-        if (originalText) {
-            button.innerHTML = originalText;
-        }
-        // Clean up any data attributes
-        delete button.dataset.originalText;
-        delete button.dataset.originalDisabled;
-        delete button.dataset.oldBg;
+function getPublicSpreadsheet_() {
+  try {
+    if (!CONFIG.publicSpreadsheetId) {
+      throw new Error("Public Spreadsheet ID is not configured. Please run setup.");
     }
+    return SpreadsheetApp.openById(CONFIG.publicSpreadsheetId);
+  } catch (e) {
+    console.error("Could not open public spreadsheet by ID: " + CONFIG.publicSpreadsheetId + ". Error: " + e.toString());
+    // As a last resort, try to find it via the registry from the library directly.
+    const status = (typeof DBDriveLibrary !== 'undefined') ? DBDriveLibrary.checkDatabaseStatus() : { exists: false };
+    if (status.exists && status.data.publicSpreadsheetId) {
+      console.warn("Falling back to DBDriveLibrary registry for Public DB ID.");
+      PropertiesService.getScriptProperties().setProperty('PUBLIC_DB_ID', status.data.publicSpreadsheetId);
+      CONFIG.publicSpreadsheetId = status.data.publicSpreadsheetId;
+      return SpreadsheetApp.openById(status.data.publicSpreadsheetId);
+    }
+    throw new Error("Fatal: Could not access the Public Spreadsheet. Please re-run setup. " + e.toString());
+  }
 }
 
 /**
- * Uploads an image to Google Drive via Google Apps Script and returns its public URL.
- * @param {string} fileName - The desired file name for the uploaded image.
- * @param {string} base64Data - The base64 encoded image data (without the data:image/...;base64, prefix).
- * @param {string} mimeType - The MIME type of the image (e.g., 'image/png', 'image/jpeg').
- * @returns {Promise<Object>} A promise that resolves with an object containing `status` and `url` if successful,
- *                            or `status` and `message` if there's an error.
+ * Handle GET Requests
  */
-window.uploadImageAndGetUrl = function (fileName, base64Data, mimeType) {
-    return new Promise((resolve, reject) => {
-        if (typeof window.sendDataToGoogle !== 'function') {
-            const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
-            console.error(errorMessage);
-            return reject({ status: 'error', message: errorMessage });
-        }
+function doGet(e) {
+  const params = (e && e.parameter) ? e.parameter : {};
+  const action = params.action;
+  const callback = params.callback;
+  let response;
 
-        const data = {
-            fileName: fileName,
-            fileData: base64Data,
-            fileType: mimeType
-        };
-
-        window.sendDataToGoogle('uploadImageAndGetUrl', data, (response) => {
-            if (response.status === 'success' && response.url) {
-                resolve({ status: 'success', url: response.url });
+  try {
+    // 1. ROUTE: Database Library Actions (Delegated to DBDriveLibrary)
+    if (typeof DBDriveLibrary !== 'undefined' && DBDriveLibrary.isDatabaseAction(action)) {
+      response = DBDriveLibrary.handleDatabaseAction(action, params);
+    } 
+    // 2. ROUTE: Discovery & Setup (Legacy Compatibility)
+    else if (action === 'get_config' || action === 'check') {
+      response = handleGetConfigAction_(params);
+    } 
+    else if (action === 'setup') {
+      response = handleSetupAction_(params);
+    }
+    // 3. ROUTE: Core Admin API
+    else {
+      switch (action) {
+        case 'checkLoginStatus':
+          response = checkLoginStatus();
+          break;
+        case 'getProfile':
+          response = getProfile(params.userId);
+          break;
+        case 'getEvents':
+          response = (typeof getEvents === 'function') ? getEvents() : { status: 'error', message: 'Calendar not implemented' };
+          break;
+        case 'updateCoreProfile':
+          // NOTE: This should ideally be a POST, but handling via GET for client compatibility.
+          try {
+            const profileData = params.profileData ? JSON.parse(params.profileData) : {};
+            if (typeof updateCoreProfile === 'function') {
+                const updateResponse = updateCoreProfile(profileData, params.userId);
+                // Echo back the saved data on success, as the client might need it to refresh the UI.
+                if (updateResponse.status === 'success') {
+                    updateResponse.data = profileData;
+                }
+                response = updateResponse;
             } else {
-                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
+                response = { status: 'error', message: 'Core profile update failed' };
             }
-        }, (error) => {
-            console.error('Error in uploadImageAndGetUrl:', error);
-            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
-        });
-    });
-};
-
-/**
- * Fetch profile data from Google Sheets
- * @param {String} userId Optional - ID user yang akan diambil. Jika kosong, ambil user pertama.
- */
-function fetchProfileData(userId) {
-    // 1. CACHE FIRST STRATEGY
-    const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
-    const cachedData = localStorage.getItem(cacheKey);
-
-    if (cachedData) {
-        try {
-            const parsedData = JSON.parse(cachedData);
-            console.log('Loading profile from cache...');
-            // Populate UI immediately with cached data
-            window.currentProfileUserId = parsedData.id;
-            populateProfileData(parsedData);
-        } catch (e) {
-            console.error('Error parsing cached profile data', e);
-            localStorage.removeItem(cacheKey);
-        }
-    }
-
-    // 2. NETWORK BACKGROUND FETCH
-    if (typeof window.sendDataToGoogle === 'function') {
-        const params = userId ? { userId } : {};
-        console.log('Fetching fresh profile data from server...');
-
-        window.sendDataToGoogle('getProfile', params, (response) => {
-            if (response.status === 'success' && response.data) {
-                // Store the user ID for future updates
-                window.currentProfileUserId = response.data.id;
-
-                // Update UI with fresh data
-                populateProfileData(response.data);
-                console.log('Profile data loaded from server:', response.data);
-
-                // Update Cache
-                localStorage.setItem(cacheKey, JSON.stringify(response.data));
-
-                // Also update the loggedInUser session so the header updates immediately
-                // This ensures consistency between profile data and header display.
-                const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-                if (sessionUser && response.data.personalInfo && response.data.personalInfo.profilePhoto) {
-                    sessionUser.pictureUrl = response.data.personalInfo.profilePhoto;
-                    localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
-
-                    // Force Alpine.js to update the header by re-assigning the currentUser object
-                    if (window.app && typeof window.app.currentUser !== 'undefined') {
-                        window.app.currentUser = sessionUser;
-                    }
+          } catch(jsonErr) {
+            response = { status: 'error', message: 'Invalid profileData format: ' + jsonErr.toString() };
+          }
+          break;
+        case 'updatePublicProfile':
+          // NOTE: This should ideally be a POST, but handling via GET for client compatibility.
+          try {
+            const profileData = params.profileData ? JSON.parse(params.profileData) : {};
+            if (typeof updatePublicProfile === 'function') {
+                const updateResponse = updatePublicProfile(profileData, params.userId);
+                // Echo back the saved data on success
+                if (updateResponse.status === 'success') {
+                    updateResponse.data = profileData;
                 }
-
+                response = updateResponse;
             } else {
-                console.log('No profile data found, prompting creation.');
-                window.currentProfileUserId = null; // Ensure ID is null
-
-                // Only show toast/modal if we didn't have cached data (to avoid annoying popups if cache was stale but valid-ish)
-                // OR if we want to enforce consistency. 
-                // Let's stick to original behavior but only if NO cache exists or if server explicitly says "error/empty".
-
-                if (!cachedData) {
-                    if (window.showToast) window.showToast('Welcome! Please create your profile.', 'info');
-
-                    // Auto-open Personal Info Modal
-                    const profileContainer = document.getElementById('profile-page-container');
-                    if (profileContainer && window.Alpine) {
-                        try {
-                            const alpineData = window.Alpine.$data(profileContainer);
-                            if (alpineData) {
-                                alpineData.isProfileInfoModal = true;
-                            }
-                        } catch (e) {
-                            console.error('Error opening modal:', e);
-                        }
-                    }
-                }
+                response = { status: 'error', message: 'Public profile update failed' };
             }
-        });
+          } catch(jsonErr) {
+            response = { status: 'error', message: 'Invalid profileData format: ' + jsonErr.toString() };
+          }
+          break;
+        default:
+          if (!action) {
+            response = { status: 'success', message: "Ezyparts Admin API Active", isLibraryLoaded: (typeof setupUserDatabase === 'function') };
+          } else {
+            response = { status: 'error', message: "Action '" + action + "' not recognized." };
+          }
+      }
+    }
+  } catch (err) {
+    response = { status: 'error', message: err.toString() };
+  }
+
+  return callback ? createJsonpResponse_(callback, response) : createJsonResponse_(response);
+}
+
+/**
+ * Handle POST Requests
+ */
+function doPost(e) {
+  let payload;
+  try {
+    const contents = e.postData.contents;
+    if (e.postData.type === "application/x-www-form-urlencoded") {
+      const params = contents.split('&').reduce((acc, part) => {
+        const [key, value] = part.split('=');
+        acc[decodeURIComponent(key)] = decodeURIComponent(value);
+        return acc;
+      }, {});
+      payload = params.payload ? JSON.parse(params.payload) : params;
     } else {
-        console.error('sendDataToGoogle function not found. Make sure apps-script.js is loaded.');
+      payload = JSON.parse(contents);
     }
+
+    const action = payload.action;
+    let response;
+
+    // 1. ROUTE: Database & Image Library Actions
+    if (typeof DBDriveLibrary !== 'undefined' && DBDriveLibrary.isDatabaseAction(action)) {
+      response = DBDriveLibrary.handleEnhancedDatabaseAction(e, action, payload);
+    }
+    // 2. ROUTE: Core Admin API
+    else {
+      switch (action) {
+        case 'SignInUser':
+          response = SignInUser(payload);
+          break;
+        case 'registerUser':
+          response = registerUser(payload);
+          break;
+        case 'SignOut':
+          response = SignOut();
+          break;
+        case 'createProfile':
+          response = (typeof createProfile === 'function') ? createProfile(payload.userId, payload.profileData) : { status: 'error', message: 'Profile creation failed' };
+          break;
+        case 'updateCoreProfile':
+          if (typeof updateCoreProfile === 'function') {
+              const updateResponse = updateCoreProfile(payload.profileData, payload.userId);
+              // Echo back the saved data on success, as the client might need it to refresh the UI.
+              if (updateResponse.status === 'success') {
+                  updateResponse.data = payload.profileData;
+              }
+              response = updateResponse;
+          } else {
+              response = { status: 'error', message: 'Core profile update failed' };
+          }
+          break;
+        case 'updatePublicProfile':
+          if (typeof updatePublicProfile === 'function') {
+              const updateResponse = updatePublicProfile(payload.profileData, payload.userId);
+              // Echo back the saved data on success, as the client might need it to refresh the UI.
+              if (updateResponse.status === 'success') {
+                  updateResponse.data = payload.profileData;
+              }
+              response = updateResponse;
+          } else {
+              response = { status: 'error', message: 'Public profile update failed' };
+          }
+          break;
+        case 'updateProfilePhoto':
+          response = (typeof updateProfilePhoto === 'function') ? updateProfilePhoto(payload.photoUrl, payload.userId) : { status: 'error', message: 'Profile photo update failed' };
+          break;
+        case 'uploadImageAndGetUrl':
+          response = (typeof uploadImageAndGetUrl === 'function') ? uploadImageAndGetUrl(payload.fileName, payload.fileData, payload.fileType) : { status: 'error', message: 'Image upload failed' };
+          break;
+        case 'saveEvent':
+          response = (typeof saveEvent === 'function') ? saveEvent(payload) : { status: 'error', message: 'Calendar save failed' };
+          break;
+        case 'setup':
+          response = handleSetupAction_(payload);
+          break;
+        default:
+          response = { status: 'error', message: "Action '" + action + "' not recognized for POST." };
+      }
+    }
+    return createJsonResponse_(response);
+  } catch (err) {
+    return createJsonResponse_({ status: 'error', message: err.toString() });
+  }
 }
 
-/**
- * Populate profile data into the HTML
- */
-function populateProfileData(data) {
-    const { personalInfo, address, socialLinks, publicDisplay } = data;
+// --- CORE FUNCTIONS ---
 
-    // Populate Meta Card (Internal)
-    const profilePhotoDisplay = document.getElementById('profile-photo-display');
-    if (profilePhotoDisplay && personalInfo.profilePhoto) {
-        profilePhotoDisplay.src = personalInfo.profilePhoto;
-    }
 
-    const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim();
-    const nameDisplay = document.getElementById('profile-name-display');
-    if (nameDisplay) nameDisplay.textContent = fullName;
+// --- HELPERS ---
 
-    const bioDisplay = document.getElementById('profile-bio-display');
-    if (bioDisplay) bioDisplay.textContent = personalInfo.bio || '-';
+// --- SETUP & CONFIG HELPERS (INTEGRATED) ---
 
-    const locationDisplay = document.getElementById('profile-location-display');
-    if (locationDisplay) locationDisplay.textContent = address.cityState || '-';
+function handleGetConfigAction_(params) {
+  const props = PropertiesService.getScriptProperties();
+  
+  // Cek Registry Library dulu via linked DBDriveLibrary
+  const hasLibrary = (typeof DBDriveLibrary !== 'undefined');
+  const libraryStatus = hasLibrary ? DBDriveLibrary.checkDatabaseStatus() : { exists: false };
+  let dbId = props.getProperty('DB_ID');
+  
+  // Jika library punya registry, gunakan adminSpreadsheetId sebagai DB_ID utama
+  if (libraryStatus.exists && libraryStatus.data.adminSpreadsheetId) {
+    dbId = libraryStatus.data.adminSpreadsheetId;
+  }
 
-    // Populate Personal Information section
-    const personalInfoSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[0];
-    if (personalInfoSection) {
-        const fields = personalInfoSection.querySelectorAll('div');
-        fields.forEach(field => {
-            const label = field.querySelector('p.text-xs');
-            const value = field.querySelector('p.text-sm.font-medium');
+  let isDbActuallyValid = false;
+  if (dbId) {
+    try {
+      SpreadsheetApp.openById(dbId);
+      isDbActuallyValid = true;
+    } catch (e) { }
+  }
 
-            if (label && value) {
-                const labelText = label.textContent.trim();
-                switch (labelText) {
-                    case 'First Name':
-                        value.textContent = personalInfo.firstName || '-';
-                        break;
-                    case 'Last Name':
-                        value.textContent = personalInfo.lastName || '-';
-                        break;
-                    case 'Email address':
-                        value.textContent = personalInfo.email || '-';
-                        break;
-                    case 'Phone':
-                        value.textContent = personalInfo.phone || '-';
-                        break;
-                    case 'Bio':
-                        value.textContent = personalInfo.bio || '-';
-                        break;
-                }
-            }
-        });
-    }
-
-    // Populate Address section
-    const addressSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[1];
-    if (addressSection) {
-        const fields = addressSection.querySelectorAll('div');
-        fields.forEach(field => {
-            const label = field.querySelector('p.text-xs');
-            const value = field.querySelector('p.text-sm.font-medium');
-
-            if (label && value) {
-                const labelText = label.textContent.trim();
-                switch (labelText) {
-                    case 'Country':
-                        value.textContent = address.country || '-';
-                        break;
-                    case 'City/State':
-                        value.textContent = address.cityState || '-';
-                        break;
-                    case 'Postal Code':
-                        value.textContent = address.postalCode || '-';
-                        break;
-                    case 'TAX ID':
-                        value.textContent = address.taxId || '-';
-                        break;
-                }
-            }
-        });
-    }
-
-    // Populate modal form fields
-    populateModalFields(personalInfo, address, socialLinks, publicDisplay);
-
-    // Populate Public Display section (Website Branding)
-    if (publicDisplay) {
-        const emailDisp = document.getElementById('display-public-email');
-        const phoneDisp = document.getElementById('display-public-phone');
-        const addrDisp = document.getElementById('display-public-address');
-        const hoursDisp = document.getElementById('display-operating-hours');
-        const daysDisp = document.getElementById('display-operating-days');
-
-        if (emailDisp) emailDisp.textContent = publicDisplay.supportEmail || '-';
-        if (phoneDisp) phoneDisp.textContent = publicDisplay.supportPhone || '-';
-        if (addrDisp) addrDisp.textContent = publicDisplay.storeAddress || '-';
-        if (hoursDisp) hoursDisp.textContent = publicDisplay.operatingHours || '-';
-        if (daysDisp) daysDisp.textContent = publicDisplay.operatingDays || '-';
-
-        // Update Social Status Indicators
-        updateSocialStatus('status-fb', publicDisplay.facebook);
-        updateSocialStatus('status-tw', publicDisplay.twitter);
-        updateSocialStatus('status-ig', publicDisplay.instagram);
-        updateSocialStatus('status-li', publicDisplay.linkedin);
-    }
+  return {
+    status: 'success',
+    adminUrl: props.getProperty('WEBAPP_URL_ADMIN') || '',
+    publicUrl: props.getProperty('WEBAPP_URL_PUBLIC') || '',
+    dbId: dbId || '',
+    isSetup: isDbActuallyValid,
+    email: props.getProperty('ADMIN_EMAIL') || '',
+    libraryRegistry: libraryStatus.exists ? libraryStatus.data : null
+  };
 }
 
-/**
- * Helper to update social status text
- */
-function updateSocialStatus(id, value) {
-    const el = document.getElementById(id);
-    if (el) {
-        if (value && value.trim() !== '') {
-            el.textContent = 'Active';
-            el.classList.add('text-success-600');
-            el.classList.remove('text-gray-600');
-        } else {
-            el.textContent = 'Inactive';
-            el.classList.remove('text-success-600');
-            el.classList.add('text-gray-600');
-        }
-    }
-}
-
-/**
- * Populate modal form fields with data
- */
-function populateModalFields(personalInfo, address, socialLinks, publicDisplay) {
-    // Personal Info Modal - using IDs
-    const firstNameInput = document.getElementById('input-firstname');
-    const lastNameInput = document.getElementById('input-lastname');
-    const emailInput = document.getElementById('input-email');
-    const phoneInput = document.getElementById('input-phone');
-    const bioInput = document.getElementById('input-bio');
-
-    if (firstNameInput) firstNameInput.value = personalInfo.firstName || '';
-    if (lastNameInput) lastNameInput.value = personalInfo.lastName || '';
-    if (emailInput) emailInput.value = personalInfo.email || '';
-    if (phoneInput) phoneInput.value = personalInfo.phone || '';
-    if (bioInput) bioInput.value = personalInfo.bio || '';
-
-    // Social Links - using IDs
-    const facebookInput = document.getElementById('input-facebook');
-    const twitterInput = document.getElementById('input-twitter');
-    const linkedinInput = document.getElementById('input-linkedin');
-    const instagramInput = document.getElementById('input-instagram');
-
-    if (facebookInput) facebookInput.value = socialLinks.facebook || '';
-    if (twitterInput) twitterInput.value = socialLinks.twitter || '';
-    if (linkedinInput) linkedinInput.value = socialLinks.linkedin || '';
-    if (instagramInput) instagramInput.value = socialLinks.instagram || '';
-
-    // Address Modal - using IDs
-    const countryInput = document.getElementById('input-country');
-    const cityStateInput = document.getElementById('input-citystate');
-    const postalCodeInput = document.getElementById('input-postalcode');
-    const taxIdInput = document.getElementById('input-taxid');
-
-    if (countryInput) countryInput.value = address.country || '';
-    if (cityStateInput) cityStateInput.value = address.cityState || '';
-    if (postalCodeInput) postalCodeInput.value = address.postalCode || '';
-    if (taxIdInput) taxIdInput.value = address.taxId || '';
-
-    // Public Display Modal
-    if (publicDisplay) {
-        const pubEmailInp = document.getElementById('input-public-email');
-        const pubPhoneInp = document.getElementById('input-public-phone');
-        const pubAddrInp = document.getElementById('input-public-address');
-        const pubHoursInp = document.getElementById('input-operating-hours');
-        const pubDaysInp = document.getElementById('input-operating-days');
-        const pubFbInp = document.getElementById('input-public-facebook');
-        const pubTwInp = document.getElementById('input-public-twitter');
-        const pubIgInp = document.getElementById('input-public-instagram');
-        const pubLiInp = document.getElementById('input-public-linkedin');
-
-        if (pubEmailInp) pubEmailInp.value = publicDisplay.supportEmail || '';
-        if (pubPhoneInp) pubPhoneInp.value = publicDisplay.supportPhone || '';
-        if (pubAddrInp) pubAddrInp.value = publicDisplay.storeAddress || '';
-        if (pubHoursInp) pubHoursInp.value = publicDisplay.operatingHours || '';
-        if (pubDaysInp) pubDaysInp.value = publicDisplay.operatingDays || '';
-        if (pubFbInp) pubFbInp.value = publicDisplay.facebook || '';
-        if (pubTwInp) pubTwInp.value = publicDisplay.twitter || '';
-        if (pubIgInp) pubIgInp.value = publicDisplay.instagram || '';
-        if (pubLiInp) pubLiInp.value = publicDisplay.linkedin || '';
-    }
-}
-
-/**
- * Setup event listeners for save buttons
- */
-function setupEventListeners() {
-    // Personal Info Save Button
-    const savePersonalInfoBtn = document.getElementById('save-personal-info-btn');
-    if (savePersonalInfoBtn) {
-        savePersonalInfoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Add loading state (using global function)
-            window.setButtonLoading(savePersonalInfoBtn, true);
-            savePersonalInfo();
-        });
-    }
-
-    // Address Save Button
-    const saveAddressBtn = document.getElementById('save-address-btn');
-    if (saveAddressBtn) {
-        saveAddressBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Add loading state
-            window.setButtonLoading(saveAddressBtn, true);
-            saveAddress();
-        });
-    }
-
-    // Public Info Save Button
-    const savePublicInfoBtn = document.getElementById('save-public-info-btn');
-    if (savePublicInfoBtn) {
-        savePublicInfoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.setButtonLoading(savePublicInfoBtn, true);
-            savePublicInfo();
-        });
-    }
-
-    // Delete Profile Button (Personal Info Modal)
-    const deleteBtn = document.getElementById('delete-profile-btn');
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.setButtonLoading(deleteBtn, true);
-            clearPersonalInfo();
-        });
-    }
-
-    // Delete Profile Button (Address Modal)
-    const deleteBtnAddress = document.getElementById('delete-address-btn');
-    if (deleteBtnAddress) {
-        deleteBtnAddress.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Add loading state
-            window.setButtonLoading(deleteBtnAddress, true);
-            clearAddress();
-        });
-    }
-
-    // Profile Photo Edit Button
-    const editPhotoBtn = document.getElementById('edit-photo-btn');
-    const photoInput = document.getElementById('profile-photo-input');
-
-    if (editPhotoBtn && photoInput) {
-        editPhotoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            photoInput.click();
-        });
-
-        photoInput.addEventListener('change', handlePhotoFileChange);
-    }
-}
-
-/**
- * Clear personal information
- */
-function clearPersonalInfo() {
-    if (!window.currentProfileUserId) {
-        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
-        return;
-    }
-
-    if (confirm('Are you sure you want to clear personal information?')) {
-        const profileData = {
-            personalInfo: {
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                bio: ''
-            },
-            socialLinks: {
-                facebook: '',
-                twitter: '',
-                linkedin: '',
-                instagram: ''
-            }
-        };
-
-        window.sendDataToGoogle('updateProfile', {
-            profileData: JSON.stringify(profileData),
-            userId: window.currentProfileUserId
-        }, (response) => {
-            const deleteBtn = document.getElementById('delete-profile-btn');
-            if (response.status === 'success') {
-                if (window.showToast) window.showToast('Personal information cleared successfully', 'success');
-
-                // Fetch will automatically update cache and UI
-                fetchProfileData(window.currentProfileUserId);
-            } else {
-                console.error('Failed to clear personal info:', response.message);
-                if (window.showToast) window.showToast('Failed to clear personal info', 'error');
-                window.setButtonLoading(deleteBtn, false);
-            }
-        });
-    } else {
-        const deleteBtn = document.getElementById('delete-profile-btn');
-        window.setButtonLoading(deleteBtn, false);
-    }
-}
-
-/**
- * Clear address information
- */
-function clearAddress() {
-    if (!window.currentProfileUserId) {
-        if (window.showToast) window.showToast('User ID tidak ditemukan', 'error');
-        return;
-    }
-
-    if (confirm('Are you sure you want to clear address information?')) {
-        const profileData = {
-            address: {
-                country: '',
-                cityState: '',
-                postalCode: '',
-                taxId: ''
-            }
-        };
-
-        if (typeof window.sendDataToGoogle === 'function') {
-            window.sendDataToGoogle('updateProfile', {
-                profileData: JSON.stringify(profileData),
-                userId: window.currentProfileUserId
-            }, (response) => {
-                const deleteBtnAddress = document.getElementById('delete-address-btn');
-                if (response.status === 'success') {
-                    if (window.showToast) window.showToast('Address information cleared successfully', 'success');
-
-                    // Fetch will automatically update cache and UI
-                    fetchProfileData(window.currentProfileUserId);
-                } else {
-                    console.error('Failed to clear address:', response.message);
-                    if (window.showToast) window.showToast('Failed to clear address', 'error');
-                    window.setButtonLoading(deleteBtnAddress, false);
-                }
-            });
-        }
-    } else {
-        const deleteBtnAddress = document.getElementById('delete-address-btn');
-        window.setButtonLoading(deleteBtnAddress, false);
-    }
-}
-
-/**
- * Helper to get the current user ID from either the page state or the session
- */
-function getEffectiveUserId() {
-    // Prioritize the actual logged-in user for any action.
-    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+function handleSetupAction_(params) {
+  try {
+    const role = params.role; 
+    const url = params.url;
+    const props = PropertiesService.getScriptProperties();
     
-    if (sessionUserId) return sessionUserId;
+    if (role === 'Admin') {
+      props.setProperty('WEBAPP_URL_ADMIN', url);
+      if (params.email) props.setProperty('ADMIN_EMAIL', params.email);
+      
+      // Menggunakan linked DBDriveLibrary untuk setup struktur canggih
+      if (typeof DBDriveLibrary !== 'undefined') {
+          // Library ini sekarang punya Health Check internal di checkDatabaseStatus()
+          const librarySetup = DBDriveLibrary.setupUserDatabase();
+          
+          if (librarySetup.status === 'success') {
+             // Extract both Admin and Public DB IDs from the library's setup result
+             const adminDbId = librarySetup.data.adminSpreadsheetId;
+             const publicDbId = librarySetup.data.publicSpreadsheetId;
 
-    // Fallback to the ID of the profile currently being viewed on the page.
-    return window.currentProfileUserId;
-}
-
-/**
- * Save personal information
- */
-function savePersonalInfo() {
-    // If no ID, we are creating a new profile
-    const isCreating = !window.currentProfileUserId;
-    const userId = getEffectiveUserId();
-
-    // Get values from modal inputs using IDs
-    const firstName = document.getElementById('input-firstname')?.value || '';
-    const lastName = document.getElementById('input-lastname')?.value || '';
-    const email = document.getElementById('input-email')?.value || '';
-    const phone = document.getElementById('input-phone')?.value || '';
-    const bio = document.getElementById('input-bio')?.value || '';
-
-    const facebook = document.getElementById('input-facebook')?.value || '';
-    const twitter = document.getElementById('input-twitter')?.value || '';
-    const linkedin = document.getElementById('input-linkedin')?.value || '';
-    const instagram = document.getElementById('input-instagram')?.value || '';
-
-    const profileData = {
-        personalInfo: {
-            firstName,
-            lastName,
-            email,
-            phone,
-            bio
-        },
-        socialLinks: {
-            facebook,
-            twitter,
-            linkedin,
-            instagram
+             // Store them in script properties for global use
+             props.setProperty('DB_ID', adminDbId);
+             props.setProperty('PUBLIC_DB_ID', publicDbId);
+             
+             // Pastikan tabel-tabel standar tersedia (Gunakan Safety Try-Catch)
+             try {
+               const ss = SpreadsheetApp.openById(adminDbId);
+               ['Produk', 'DaftarProduk', 'Profile', 'Posts', 'Events'].forEach(n => { 
+                  if(!ss.getSheetByName(n)) ss.insertSheet(n); 
+               });
+                              const profileSheet = ss.getSheetByName('Profile');
+                if (profileSheet && profileSheet.getLastRow() === 0) {
+                  const profileHeaders = [
+                    'id', 'first name', 'last name', 'email', 'phone', 'bio', 'status', 
+                    'profile photo', 'country', 'city/state', 'postal code', 'tax id', 
+                    'facebook', 'twitter', 'linkedin', 'instagram', 'timestamp'
+                  ];
+                  profileSheet.appendRow(profileHeaders);
+                }
+             } catch (ssErr) {
+               // Jika gagal buka di sini, berarti librarySetup meloloskan ID yang rusak
+               props.deleteProperty("DB_DRIVE_REGISTRY");
+               throw new Error("Database file exists in registry but is unreadable. Please try again to recreate it.");
+             }
+          } else {
+             throw new Error(librarySetup.message || "Library failed to setup database.");
+          }
+      } else {
+        // Fallback jika library tidak terhubung
+        let dbId = props.getProperty('DB_ID');
+        if (dbId) {
+          try { SpreadsheetApp.openById(dbId); } catch(e) { dbId = null; }
         }
+
+        if (!dbId || params.dbSetup === 'force_new') {
+            const ss = SpreadsheetApp.create(params.dbName || 'Ezyparts Database');
+            dbId = ss.getId();
+            props.setProperty('DB_ID', dbId);
+        }
+      }
+    } 
+    
+    if (role === 'Public') {
+      props.setProperty('WEBAPP_URL_PUBLIC', url);
+    }
+
+    return { 
+      status: 'success', 
+      message: 'Setup ' + role + ' Successful',
+      dbId: props.getProperty('DB_ID')
     };
-
-    if (typeof window.sendDataToGoogle === 'function') {
-        const action = isCreating ? 'createProfile' : 'updateCoreProfile';
-        const payload = {
-            profileData: JSON.stringify(profileData),
-            userId: userId
-        };
-
-        window.sendDataToGoogle(action, payload, (response) => {
-            const saveBtn = document.getElementById('save-personal-info-btn');
-
-            if (response.status === 'success') {
-                if (window.showToast) window.showToast(isCreating ? 'Profile created successfully' : 'Profile updated successfully', 'success');
-                window.setButtonLoading(saveBtn, false); // Stop the spinner
-
-                if (isCreating && response.data && response.data.id) {
-                    window.currentProfileUserId = response.data.id;
-                }
-
-                // Clear cache before refetching to ensure we don't load stale data
-                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                localStorage.removeItem(cacheKey);
-
-                fetchProfileData(window.currentProfileUserId); // Refresh data
-            } else {
-                console.error('Failed to save profile:', response.message);
-                if (window.showToast) window.showToast('Failed to save profile: ' + response.message, 'error');
-                window.setButtonLoading(saveBtn, false);
-            }
-        });
-    }
+  } catch (err) {
+    return { status: 'error', message: "Setup Critical Error: " + err.toString() };
+  }
 }
 
-/**
- * Save address information
- */
-function saveAddress() {
-    // If no ID, we are creating a new profile (though usually personal info comes first)
-    const isCreating = !window.currentProfileUserId;
-    const userId = getEffectiveUserId();
+// --- AUTH FUNCTIONS (PRESERVED) ---
 
-    // Get values from address modal inputs using IDs
-    const country = document.getElementById('input-country')?.value || '';
-    const cityState = document.getElementById('input-citystate')?.value || '';
-    const postalCode = document.getElementById('input-postalcode')?.value || '';
-    const taxId = document.getElementById('input-taxid')?.value || '';
+// (registerUser and SignInUser are now managed in auth.gs for better organization)
 
-    const profileData = {
-        address: {
-            country,
-            cityState,
-            postalCode,
-            taxId
-        }
-    };
-
-    if (typeof window.sendDataToGoogle === 'function') {
-        // BUG FIX: Action should be 'updatePublicProfile' for address data.
-        const action = isCreating ? 'createProfile' : 'updatePublicProfile';
-        const payload = {
-            profileData: JSON.stringify(profileData),
-            userId: userId
-        };
-
-        window.sendDataToGoogle(action, payload, (response) => {
-            const saveBtn = document.getElementById('save-address-btn');
-
-            if (response.status === 'success') {
-                if (window.showToast) window.showToast(isCreating ? 'Address saved and profile created' : 'Address updated successfully', 'success');
-                window.setButtonLoading(saveBtn, false); // BUG FIX: Stop the spinner on success.
-
-                if (isCreating && response.data && response.data.id) {
-                    window.currentProfileUserId = response.data.id;
-                }
-
-                // Clear cache before refetching
-                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                localStorage.removeItem(cacheKey);
-
-                fetchProfileData(window.currentProfileUserId); // Refresh data
-            } else {
-                console.error('Failed to save address:', response.message);
-                if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
-                window.setButtonLoading(saveBtn, false);
-            }
-        });
-    }
+function SignOut() {
+  PropertiesService.getUserProperties().deleteProperty('loggedInUserEmail');
+  return { status: 'success', message: 'Signed out' };
 }
 
-/**
- * Handle profile photo file selection
- */
-function handlePhotoFileChange(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-        if (window.showToast) window.showToast('Please select an image file', 'error');
-        return;
-    }
-
-    // Validate file size (max 10MB for Drive upload)
-    if (file.size > 10 * 1024 * 1024) {
-        if (window.showToast) window.showToast('Image size must be less than 10MB', 'error');
-        return;
-    }
-
-    // Show loading toast
-    if (window.showToast) window.showToast('Uploading profile photo...', 'info', 5000);
-
-    // Disable edit button during upload
-    const editPhotoBtn = document.getElementById('edit-photo-btn');
-    if (editPhotoBtn) {
-        window.setButtonLoading(editPhotoBtn, true);
-    }
-
-    // Read file as base64
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const base64data = e.target.result.split(',')[1];
-        const fileName = `profile_photo_${Date.now()}.${file.name.split('.').pop()}`;
-
-        // Preview the image immediately
-        const profilePhotoDisplay = document.getElementById('profile-photo-display');
-        if (profilePhotoDisplay) {
-            profilePhotoDisplay.src = e.target.result;
-        }
-
-        // Upload to Google Drive and get URL
-        uploadProfilePhoto(fileName, base64data, file.type);
-    };
-    reader.readAsDataURL(file);
+function checkLoginStatus() {
+  const email = PropertiesService.getUserProperties().getProperty('loggedInUserEmail');
+  return { status: 'success', isLoggedIn: !!email, user: email ? { email } : null };
 }
 
-/**
- * Upload profile photo to Google Drive and save URL
- * @param {String} fileName - Name for the uploaded file
- * @param {String} base64data - Base64 encoded image data (without prefix)
- * @param {String} mimeType - MIME type of the image
- */
-function uploadProfilePhoto(fileName, base64data, mimeType) {
-    const userId = getEffectiveUserId();
-    if (!userId) {
-        if (window.showToast) window.showToast('Please create a profile first', 'error');
-        resetUploadButton();
-        return;
-    }
+// --- OUTPUT HELPERS ---
 
-    // Check if uploadImageAndGetUrl function exists
-    if (typeof window.uploadImageAndGetUrl !== 'function') {
-        console.error('uploadImageAndGetUrl function not found');
-        if (window.showToast) window.showToast('Upload function not available', 'error');
-        resetUploadButton();
-        return;
-    }
-
-    // Upload image to Google Drive
-    window.uploadImageAndGetUrl(fileName, base64data, mimeType).then((response) => {
-        if (response.status === 'success' && response.url) {
-            // Save the Drive URL to profile
-            saveProfilePhotoUrl(response.url);
-        } else {
-            console.error('Failed to upload photo:', response.message);
-            if (window.showToast) window.showToast('Failed to upload photo: ' + (response.message || 'Error'), 'error');
-            resetUploadButton();
-        }
-    }).catch((error) => {
-        console.error('Error uploading photo:', error);
-        const msg = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-        if (window.showToast) window.showToast('Error uploading photo: ' + msg, 'error');
-        resetUploadButton();
-    });
+function createJsonResponse_(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-/**
- * Save profile photo URL to backend
- * @param {String} photoUrl - Google Drive URL of the uploaded photo
- */
-function saveProfilePhotoUrl(photoUrl) {
-    const userId = getEffectiveUserId();
-    if (!userId) {
-        if (window.showToast) window.showToast('User ID not found. Cannot save photo.', 'error');
-        resetUploadButton();
-        return;
-    }
-    if (typeof window.sendDataToGoogle === 'function') {
-        // Use the correct 'updateProfilePhoto' action and include the userId
-        window.sendDataToGoogle('updateProfilePhoto', {
-            photoUrl: photoUrl,
-            userId: userId
-        }, (response) => {
-            if (response.status === 'success') {
-                if (window.showToast) window.showToast('Profile photo updated successfully');
-
-                // Update the display with the new URL
-                const profilePhotoDisplay = document.getElementById('profile-photo-display');
-                if (profilePhotoDisplay) {
-                    profilePhotoDisplay.src = photoUrl;
-                }
-
-                // Update cache locally to reflect the new photo url without needing full re-fetch or invalidation
-                // This is a "surgical" cache update since we know exactly what changed
-                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                const cachedData = localStorage.getItem(cacheKey);
-                if (cachedData) {
-                    try {
-                        const parsedData = JSON.parse(cachedData);
-                        if (parsedData.personalInfo) {
-                            parsedData.personalInfo.profilePhoto = photoUrl;
-                            localStorage.setItem(cacheKey, JSON.stringify(parsedData));
-
-                            // ALSO update the loggedInUser session so the header updates immediately
-                            const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-                            if (sessionUser) {
-                                sessionUser.pictureUrl = photoUrl;
-                                localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
-
-                                // Force Alpine.js to update the header by re-assigning the currentUser object
-                                if (window.app && typeof window.app.currentUser !== 'undefined') {
-                                    window.app.currentUser = sessionUser;
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.error("Failed to update cache for photo", e);
-                    }
-                }
-            } else {
-                console.error('Failed to save photo URL:', response.message);
-                if (window.showToast) window.showToast('Failed to save photo: ' + response.message, 'error');
-            }
-            resetUploadButton();
-        });
-    } else {
-        console.error('sendDataToGoogle function not found');
-        if (window.showToast) window.showToast('Save function not available', 'error');
-        resetUploadButton();
-    }
-}
-
-/**
- * Reset upload button state
- */
-function resetUploadButton() {
-    const editPhotoBtn = document.getElementById('edit-photo-btn');
-    if (editPhotoBtn) {
-        editPhotoBtn.disabled = false;
-        editPhotoBtn.style.opacity = '1';
-    }
-}
-
-/**
- * Save public contact and operating hours information
- */
-function savePublicInfo() {
-    const isCreating = !window.currentProfileUserId;
-    const userId = getEffectiveUserId();
-
-    const publicData = {
-        publicDisplay: {
-            supportEmail: document.getElementById('input-public-email')?.value || '',
-            supportPhone: document.getElementById('input-public-phone')?.value || '',
-            storeAddress: document.getElementById('input-public-address')?.value || '',
-            operatingHours: document.getElementById('input-operating-hours')?.value || '',
-            operatingDays: document.getElementById('input-operating-days')?.value || '',
-            facebook: document.getElementById('input-public-facebook')?.value || '',
-            twitter: document.getElementById('input-public-twitter')?.value || '',
-            instagram: document.getElementById('input-public-instagram')?.value || '',
-            linkedin: document.getElementById('input-public-linkedin')?.value || ''
-        }
-    };
-
-    if (typeof window.sendDataToGoogle === 'function') {
-        const action = isCreating ? 'createProfile' : 'updatePublicProfile';
-        const payload = {
-            profileData: JSON.stringify(publicData),
-            userId: userId
-        };
-
-        window.sendDataToGoogle(action, payload, (response) => {
-            const saveBtn = document.getElementById('save-public-info-btn');
-
-            if (response.status === 'success') {
-                if (window.showToast) window.showToast('Contact info and operating hours updated successfully', 'success');
-
-                // Update local storage for immediate use in Public template
-                const brandingData = {
-                    phone: publicData.publicDisplay.supportPhone,
-                    email: publicData.publicDisplay.supportEmail,
-                    address: publicData.publicDisplay.storeAddress,
-                    operatingHours: {
-                        weekdays: publicData.publicDisplay.operatingHours,
-                        days: publicData.publicDisplay.operatingDays
-                    },
-                    socials: {
-                        facebook: publicData.publicDisplay.facebook,
-                        twitter: publicData.publicDisplay.twitter,
-                        instagram: publicData.publicDisplay.instagram,
-                        linkedin: publicData.publicDisplay.linkedin
-                    },
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('publicBrandingData', JSON.stringify(brandingData));
-
-                // Clear cache before refetching
-                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                localStorage.removeItem(cacheKey);
-
-                fetchProfileData(window.currentProfileUserId);
-
-                // Close modal if using Alpine
-                const profileContainer = document.getElementById('profile-page-container');
-                if (profileContainer && window.Alpine) {
-                    try {
-                        const alpineData = window.Alpine.$data(profileContainer);
-                        if (alpineData) {
-                            alpineData.isPublicInfoModal = false;
-                        }
-                    } catch (e) {
-                        console.error("Error closing modal", e);
-                    }
-                }
-            } else {
-                console.error('Failed to save public info:', response.message);
-                if (window.showToast) window.showToast('Failed to save contact info', 'error');
-                window.setButtonLoading(saveBtn, false);
-            }
-        });
-    }
+function createJsonpResponse_(callback, data) {
+  const jsonp = callback + '(' + JSON.stringify(data) + ')';
+  return ContentService.createTextOutput(jsonp)
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
