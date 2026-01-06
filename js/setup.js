@@ -109,6 +109,14 @@ window.setupData = function () {
                 });
 
                 if (data.status === 'success') {
+                    // If this is a new setup/reset, clear all old data first.
+                    if (this.setupMode === 'new') {
+                        localStorage.clear();
+                    } else {
+                        // For existing setups, just clear the cache to force a refresh.
+                        localStorage.removeItem('Ezyparts_Config_Cache');
+                    }
+
                     localStorage.setItem('EzypartsConfig', JSON.stringify({
                         webappUrl: this.webappUrl,
                         email: this.email,
@@ -116,9 +124,6 @@ window.setupData = function () {
                         dbName: this.dbName,
                         sheetId: data.dbId || this.sheetId
                     }));
-
-                    // Clear Discovery Cache to force refresh
-                    localStorage.removeItem('Ezyparts_Config_Cache');
 
                     alert('Setup Success! Please create your first Admin account.');
                     window.location.hash = '#signup';
