@@ -1,153 +1,69 @@
-<div class="w-full max-w-4xl mx-auto px-4 py-12 min-h-screen flex items-center justify-center" x-data="setupData()">
-    <div
-        class="w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300">
-        <div class="flex flex-col md:flex-row">
-            <!-- Left Branding Side -->
-            <div
-                class="md:w-1/3 bg-slate-50 dark:bg-slate-800/50 p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
-                <div>
-                    <div
-                        class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20">
-                        <img :src="blogFavicon" class="w-10 h-10 object-contain" alt="Logo">
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Ezyparts Engine</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                        Connect your Google Apps Script to synchronize your database and start managing your store
-                        efficiently.
-                    </p>
-                </div>
+<div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+    x-data="setupData()">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome</h1>
+        <p class="text-gray-500 dark:text-gray-400">Connect your Apps Script to get started.</p>
+    </div>
 
-                <div class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
-                    <div class="flex items-center gap-3 text-xs font-medium text-slate-400 uppercase tracking-wider">
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        System Ready
-                    </div>
+    <form id="setup-form" @submit.prevent="submitForm()" class="space-y-6">
+        <!-- WebApp URL Input -->
+        <div>
+            <label for="webapp-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                WebApp URL
+            </label>
+            <input type="url" id="webapp-url" name="webapp-url" x-model="webappUrl" required
+                placeholder="https://script.google.com/macros/s/.../exec"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div :class="role === 'Admin' ? '' : 'md:col-span-2'" class="space-y-4">
+                <div>
+                    <label for="user-email"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                    <input type="email" id="user-email" name="user-email" x-model="email" required
+                        placeholder="your-email@example.com"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                </div>
+                <div>
+                    <label for="role"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+                    <select id="role" name="role" x-model="role"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+                        <option value="Public">Public (Open Access)</option>
+                        <option value="Admin">Admin (Login Required)</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Right Form Side -->
-            <div class="md:w-2/3 p-8 lg:p-12">
-                <div class="mb-10 text-center md:text-left">
-                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Setup Connection
-                    </h1>
-                    <p class="text-slate-500 dark:text-slate-400 mt-2">Initialize your administrative gateway</p>
+            <div x-show="role === 'Admin'" x-transition.opacity
+                class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 h-full">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Global Database Setup</label>
+                
+                <!-- Nama Database wajib diisi -->
+                <div class="mb-2">
+                    <label for="db-name"
+                        class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Database Name</label>
+                    <input type="text" id="db-name" name="db-name" x-model="dbName" required
+                        placeholder="Masukkan nama database"
+                        class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
                 </div>
-
-                <form @submit.prevent="submitForm()" class="space-y-6">
-                    <!-- WebApp URL -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Google WebApp
-                            URL</label>
-                        <div class="group relative">
-                            <input type="url" x-model="webappUrl" required autocomplete="off"
-                                placeholder="https://script.google.com/macros/s/.../exec"
-                                class="w-full pl-4 pr-24 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white">
-                            <button type="button" @click="detectConfig()" :disabled="isDetecting"
-                                class="absolute right-2 top-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-blue-500/10 flex items-center gap-2">
-                                <span x-show="isDetecting"
-                                    class="animate-spin h-3 w-3 border-2 border-white/30 border-t-white rounded-full"></span>
-                                <span x-text="isDetecting ? 'Detecting' : 'Detect'"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Email -->
-                        <div class="space-y-2">
-                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Admin Email</label>
-                            <input type="email" x-model="email" required placeholder="admin@ezyparts.com"
-                                class="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white font-medium">
-                        </div>
-
-                        <!-- Role -->
-                        <div class="space-y-2">
-                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Deployment
-                                Role</label>
-                            <select x-model="role"
-                                class="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white font-medium appearance-none cursor-pointer">
-                                <option value="Public">Public Interface</option>
-                                <option value="Admin">Admin Controller</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Database Settings (Expanded for Admin) -->
-                    <div x-show="role === 'Admin'" x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 -translate-y-4"
-                        class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm font-bold text-slate-900 dark:text-white">Database Registry</label>
-                            <div
-                                class="flex bg-white dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                                <button type="button" @click="dbSetup = 'auto'"
-                                    :class="dbSetup === 'auto' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'"
-                                    class="px-3 py-1.5 rounded-md text-xs font-bold transition-all">Auto</button>
-                                <button type="button" @click="dbSetup = 'manual'"
-                                    :class="dbSetup === 'manual' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'"
-                                    class="px-3 py-1.5 rounded-md text-xs font-bold transition-all">Manual</button>
-                            </div>
-                        </div>
-
-                        <!-- Existing Config Alert -->
-                        <div x-show="hasExistingConfig"
-                            class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl space-y-2">
-                            <div class="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-sm">
-                                <span class="w-4 h-4" x-icon="'zap'"></span>
-                                Legacy Data Found
-                            </div>
-                            <label
-                                class="flex items-start gap-3 p-3 bg-white/50 dark:bg-slate-900/50 rounded-lg cursor-pointer hover:bg-white transition-colors border border-amber-100 dark:border-amber-900/30">
-                                <input type="radio" name="setup-mode" value="existing" x-model="setupMode"
-                                    class="mt-1 w-4 h-4 text-amber-600 focus:ring-amber-500">
-                                <span class="text-xs text-slate-600 dark:text-slate-300">
-                                    Continue with <strong class="text-slate-900 dark:text-white"
-                                        x-text="originalConfig.dbName"></strong>
-                                    (<span
-                                        x-text="originalConfig.sheetId ? originalConfig.sheetId.substring(0,8)+'...' : 'N/A'"></span>)
-                                </span>
-                            </label>
-                            <label class="flex items-center gap-3 p-3 cursor-pointer">
-                                <input type="radio" name="setup-mode" value="new" x-model="setupMode"
-                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <span class="text-xs font-medium text-slate-500">Reset &amp; Start Fresh</span>
-                            </label>
-                        </div>
-
-                        <!-- Manual Fields -->
-                        <div x-show="dbSetup === 'manual' && setupMode === 'new'" class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DB
-                                    Name</label>
-                                <input type="text" x-model="dbName" placeholder="Main Store"
-                                    class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 text-sm dark:text-white outline-none">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sheet
-                                    ID</label>
-                                <input type="text" x-model="sheetId" placeholder="Optional"
-                                    class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 text-sm dark:text-white outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Token -->
-                    <div x-show="role === 'Admin'" x-transition class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Security Token</label>
-                        <input type="password" id="token" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                            class="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white tracking-widest">
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" :disabled="isDetecting"
-                        class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3">
-                        <span x-show="!isDetecting" class="w-5 h-5" x-icon="'connect'"></span>
-                        <span x-show="isDetecting"
-                            class="animate-spin h-5 w-5 border-3 border-white/30 border-t-white rounded-full"></span>
-                        <span class="text-lg"
-                            x-text="isDetecting ? 'Synchronizing...' : 'Connect &amp; Initialize'"></span>
-                    </button>
-                </form>
             </div>
         </div>
-    </div>
+
+        <div id="token-group" x-show="role === 'Admin'" x-transition>
+            <label for="token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Access
+                Token</label>
+            <input type="text" id="token" name="token"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+        </div>
+
+        <!-- Tombol utama langsung detect + setup -->
+        <button type="submit" :disabled="isDetecting"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors disabled:opacity-50">
+            <span x-show="isDetecting"
+                class="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full"></span>
+            <span x-text="isDetecting ? 'Connecting...' : 'Connect & Initialize'"></span>
+        </button>
+    </form>
 </div>
