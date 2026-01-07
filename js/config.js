@@ -1,5 +1,5 @@
 const CONFIG = {
-    WEBAPP_URL_DEV: 'https://script.google.com/macros/s/AKfycbxiwRjJV1b3y6tNQ5t8qytIDsyTVBzS4GVocemtCVenVfftKyO4atT81PDQjncr5OWR/exec',//setup.gs URL
+    WEBAPP_URL_DEV: 'https://script.google.com/macros/s/AKfycbzIvXCXjhn7ESUsjVlnl8WTDHoIafqd5HHWC5zk_xS_CU-nrudLZtmyqJ9_RJf5_H4F/exec',//setup.gs URL
     // Add other environments like PROD if needed
     // WEBAPP_URL_PROD: 'https://script.google.com/macros/s/YOUR_PROD_SCRIPT_ID/exec'
 };
