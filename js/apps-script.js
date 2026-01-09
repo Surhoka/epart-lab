@@ -92,8 +92,9 @@ async function discoverEzyApi() {
             // SECURITY CHECK: Jika DB tidak valid, paksa re-setup
             // EXCEPTION: Jangan reset jika statusNote='setup_in_progress' atau 'legacy'
             if (config.isSetup === false && config.statusNote !== 'setup_in_progress' && config.statusNote !== 'legacy') {
-                console.error('SERVER REPORT: Database missing. Clearing config.');
-                forceSetupMode();
+                console.warn('SERVER REPORT: Database missing from config check.');
+                // DISABLE AGGRESSIVE RESET - Let the UI handle it.
+                // forceSetupMode(); 
             } else {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
                 applyRoleUrl(config);
