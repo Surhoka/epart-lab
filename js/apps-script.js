@@ -89,7 +89,8 @@ async function discoverEzyApi() {
             window.EzyApi.config = config;
 
             // SECURITY CHECK: Jika DB tidak valid, paksa re-setup
-            if (config.isSetup === false) {
+            // EXCEPTION: Jangan reset jika statusNote='setup_in_progress' atau 'legacy'
+            if (config.isSetup === false && config.statusNote !== 'setup_in_progress' && config.statusNote !== 'legacy') {
                 console.error('SERVER REPORT: Database missing. Clearing config.');
                 forceSetupMode();
             } else {
