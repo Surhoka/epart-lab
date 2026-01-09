@@ -1,12 +1,20 @@
 <div class="w-full max-w-4xl mx-auto px-4 py-12 min-h-screen flex items-center justify-center" x-data="setupData()">
-  <div class="w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300">
+  <div
+    class="w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300">
     <div class="flex flex-col md:flex-row">
-      
+
       <!-- Left Branding Side -->
-      <div class="md:w-1/3 bg-slate-50 dark:bg-slate-800/50 p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
+      <div
+        class="md:w-1/3 bg-slate-50 dark:bg-slate-800/50 p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
         <div>
-          <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+          <div
+            class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+              </path>
+            </svg>
           </div>
           <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Ezyparts Engine</h2>
           <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
@@ -29,7 +37,7 @@
         </div>
 
         <form @submit.prevent="submitForm()" class="space-y-6">
-          
+
           <!-- WebApp URL -->
           <fieldset :disabled="isDetecting" class="space-y-6 group">
             <div class="space-y-2">
@@ -60,45 +68,56 @@
             </div>
 
             <!-- Database Settings (Expanded for Admin) -->
-            <div x-show="role === 'Admin'" x-transition class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div x-show="role === 'Admin'" x-transition
+              class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
               <label class="text-sm font-bold text-slate-900 dark:text-white">Database Registry</label>
 
               <!-- Active Database -->
-              <div x-show="statusNote === 'active'" class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl">
+              <div x-show="statusNote === 'active'"
+                class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl">
                 <p class="text-xs text-green-800 dark:text-green-400 font-medium">
                   Database aktif: <strong x-text="originalConfig.dbName"></strong>
                 </p>
               </div>
 
               <!-- Legacy Database -->
-              <div x-show="statusNote === 'legacy'" class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl space-y-2">
+              <div x-show="statusNote === 'legacy'"
+                class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl space-y-2">
                 <div class="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-sm">
                   <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22M12 6l7.53 13H4.47M11 10v4h2v-4zM11 16v2h2v-2z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L1 21h22M12 6l7.53 13H4.47M11 10v4h2v-4zM11 16v2h2v-2z"></path>
+                    </svg>
                   </span>
                   Legacy Data Found
                 </div>
-                <p class="text-xs text-slate-600 dark:text-slate-300">
-                  Kami mendeteksi database lama bernama 
-                  <strong class="text-slate-900 dark:text-white" x-text="originalConfig.dbName"></strong>, namun filenya hilang. Apa yang ingin Anda lakukan?
+                <strong class="text-slate-900 dark:text-white" x-text="originalConfig.dbName"></strong>. Apa yang ingin
+                Anda lakukan?
                 </p>
-                
-                <label class="flex items-center gap-3 p-3 cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20 rounded-lg">
-                  <input type="radio" name="setup-mode" value="reuse" x-model="setupMode" @click="dbName = originalConfig.dbName"
+
+                <label
+                  class="flex items-center gap-3 p-3 cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20 rounded-lg">
+                  <input type="radio" name="setup-mode" value="reuse" x-model="setupMode"
+                    @click="dbName = originalConfig.dbName"
                     class="w-4 h-4 text-blue-600 bg-transparent focus:ring-blue-500 border-slate-400 dark:border-slate-600">
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Buat ulang dengan nama lama</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Buat ulang dengan nama
+                    lama</span>
                 </label>
 
-                <label class="flex items-center gap-3 p-3 cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20 rounded-lg">
+                <label
+                  class="flex items-center gap-3 p-3 cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20 rounded-lg">
                   <input type="radio" name="setup-mode" value="new" x-model="setupMode" @click="dbName = ''"
                     class="w-4 h-4 text-blue-600 bg-transparent focus:ring-blue-500 border-slate-400 dark:border-slate-600">
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Reset dan gunakan nama baru</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Reset dan gunakan nama
+                    baru</span>
                 </label>
               </div>
 
               <!-- No Database -->
-              <div x-show="statusNote === 'no_database'" class="p-4 bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 rounded-xl">
-                <p class="text-xs text-slate-600 dark:text-slate-300">Belum ada database terdeteksi. Silakan buat baru.</p>
+              <div x-show="statusNote === 'no_database'"
+                class="p-4 bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <p class="text-xs text-slate-600 dark:text-slate-300">Belum ada database terdeteksi. Silakan buat baru.
+                </p>
               </div>
 
               <!-- Database Name input (always shows for legacy or new) -->
@@ -121,16 +140,21 @@
           <button type="submit" :disabled="isDetecting"
             class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-wait flex items-center justify-center gap-3">
             <span x-show="!isDetecting" class="w-5 h-5 -ml-2">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                </path>
+              </svg>
             </span>
-            <span x-show="isDetecting" class="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></span>
+            <span x-show="isDetecting"
+              class="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></span>
             <span class="text-base" x-text="isDetecting ? 'Processing...' : 'Connect & Initialize'"></span>
           </button>
-          
+
           <!-- === NEW: STATUS DISPLAY AREA === -->
           <div x-show="isDetecting" x-transition class="text-center pt-2">
             <p class="text-sm text-slate-500 dark:text-slate-400" x-text="statusMessage"></p>
-            <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1" x-show="setupStatus === 'ERROR' && errorMessage" x-text="errorMessage"></p>
+            <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1"
+              x-show="setupStatus === 'ERROR' && errorMessage" x-text="errorMessage"></p>
           </div>
           <!-- === END OF NEW AREA === -->
         </form>
