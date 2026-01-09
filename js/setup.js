@@ -202,8 +202,9 @@ window.setupData = function () {
                     case 'IDLE':
                         this.statusMessage = 'Waiting for server...';
                         break;
-                    default:
-                        this.statusMessage = 'Status: ' + this.setupStatus;
+                    default: // Handles 'UNKNOWN' or any other status
+                        this.statusMessage = data.message || 'Status Unknown: ' + this.setupStatus;
+                        if (data.errorMessage) this.errorMessage = data.errorMessage;
                         break;
                 }
             } catch (e) {
