@@ -162,6 +162,7 @@ window.setupData = function () {
             try {
                 const baseUrl = this.webappUrl.split('?')[0];
                 const data = await window.app.fetchJsonp(baseUrl, { action: 'get_setup_status' });
+                console.log('POLLING RESPONSE:', data); // DEBUG LOG
 
                 this.setupStatus = data.setupStatus || 'UNKNOWN';
 
