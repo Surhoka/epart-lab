@@ -174,7 +174,13 @@ window.setupData = function () {
                         this.isDetecting = false;
                         clearInterval(this.statusInterval);
                         clearTimeout(this.setupTimeout);
-                        this.statusMessage = 'Setup completed! Redirecting...';
+                    case 'COMPLETED':
+                        this.isDetecting = false;
+                        clearInterval(this.statusInterval);
+                        clearTimeout(this.setupTimeout);
+
+                        // Custom message as requested
+                        this.statusMessage = 'Setup sukses dan Database berhasil dibuat!';
 
                         if (this.setupMode === 'new') localStorage.clear();
                         else localStorage.removeItem('Ezyparts_Config_Cache');
@@ -187,11 +193,13 @@ window.setupData = function () {
                             sheetId: data.dbId || this.sheetId
                         }));
 
-                        window.showToast(this.statusMessage, 'success', 4000);
+                        window.showToast(this.statusMessage, 'success', 5000);
+
+                        // Increase delay slightly to let user read the toast
                         setTimeout(() => {
                             window.location.hash = '#signup';
                             window.location.reload();
-                        }, 1000);
+                        }, 2000);
                         break;
                     case 'ERROR':
                         this.isDetecting = false;
