@@ -51,6 +51,7 @@ window.setupData = function () {
                 }
 
                 if (data && data.status === 'success') {
+                    // Check if DB is healthy/active
                     if (data.isSetup === true || data.statusNote === 'active') {
                         localStorage.setItem('EzypartsConfig', JSON.stringify({
                             webappUrl: this.webappUrl,
