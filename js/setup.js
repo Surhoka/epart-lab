@@ -1,9 +1,10 @@
 window.setupData = function () {
     return {
         // State Properties
-        role: 'Admin',
+        role: window.EZY_ROLE || 'Admin', // Read from template or default to Admin
         dbSetup: 'auto',
-        webappUrl: '',
+        webappUrl: '',            // User's own WebApp URL
+        adminWebAppUrl: '',       // For Public: Admin URL to connect to
         email: '',
         dbName: '',
         sheetId: '',
@@ -20,14 +21,22 @@ window.setupData = function () {
         statusInterval: null,
         setupTimeout: null,
 
+        // Computed-like getters for role
+        get isAdmin() { return this.role === 'Admin'; },
+        get isPublic() { return this.role === 'Public'; },
+
         init() {
+            console.log('Setup initialized with role:', this.role);
             try {
                 const saved = localStorage.getItem('EzypartsConfig');
                 if (saved) {
                     const config = JSON.parse(saved);
                     this.webappUrl = config.webappUrl || '';
                     this.email = config.email || '';
-                    this.role = config.role || 'Admin';
+                    // Don't override role from localStorage - use template setting
+                    if (this.isPublic && config.adminWebAppUrl) {
+                        this.adminWebAppUrl = config.adminWebAppUrl;
+                    }
                 }
             } catch (e) {
                 console.error('Error parsing config:', e);
@@ -99,14 +108,21 @@ window.setupData = function () {
         },
 
         async submitForm() {
-            if (!this.webappUrl) {
-                alert('WebApp URL is required');
-                return;
+            // Validate based on role
+            if (this.isAdmin) {
+                if (!this.webappUrl) {
+                    alert('WebApp URL is required');
+                    return;
+                }
+            } else if (this.isPublic) {
+                if (!this.adminWebAppUrl) {
+                    alert('Admin WebApp URL is required for connection');
+                    return;
+                }
             }
 
             this.isDetecting = true;
             this.setupStatus = 'IN_PROGRESS';
-            this.statusMessage = 'Sending setup request... Please wait.';
             this.errorMessage = '';
 
             if (this.statusInterval) clearInterval(this.statusInterval);
@@ -121,32 +137,71 @@ window.setupData = function () {
             }, 120000);
 
             try {
-                const baseUrl = this.webappUrl.split('?')[0];
+                if (this.isAdmin) {
+                    // ADMIN: Create new database via user's WebApp
+                    this.statusMessage = 'Creating database... Please wait.';
+                    const baseUrl = this.webappUrl.split('?')[0];
 
-                if (window.app && window.app.fetchJsonp) {
-                    window.app.fetchJsonp(baseUrl, {
-                        action: 'setup',
-                        role: this.role,
-                        url: this.webappUrl,
-                        email: this.email,
-                        dbSetup: this.setupMode === 'new' ? 'force_new' : this.dbSetup,
-                        dbName: this.dbName,
-                        sheetId: this.sheetId
-                    });
+                    if (window.app && window.app.fetchJsonp) {
+                        window.app.fetchJsonp(baseUrl, {
+                            action: 'setup',
+                            role: 'Admin',
+                            url: this.webappUrl,
+                            email: this.email,
+                            dbSetup: this.setupMode === 'new' ? 'force_new' : this.dbSetup,
+                            dbName: this.dbName,
+                            sheetId: this.sheetId
+                        });
 
-                    // Start polling
-                    setTimeout(() => {
-                        this.checkStatus();
-                        this.statusInterval = setInterval(() => this.checkStatus(), 3000);
-                    }, 500);
-                } else {
-                    throw new Error('App core not ready');
+                        // Start polling for Admin setup
+                        setTimeout(() => {
+                            this.checkStatus();
+                            this.statusInterval = setInterval(() => this.checkStatus(), 3000);
+                        }, 500);
+                    } else {
+                        throw new Error('App core not ready');
+                    }
+
+                } else if (this.isPublic) {
+                    // PUBLIC: Connect to existing Admin database
+                    this.statusMessage = 'Connecting to Admin database...';
+                    const adminUrl = this.adminWebAppUrl.split('?')[0];
+
+                    // Verify Admin has valid DB
+                    const data = await window.app.fetchJsonp(adminUrl, { action: 'get_config' });
+
+                    if (data && data.status === 'success' && data.isSetup) {
+                        // Admin exists and has DB - save connection info
+                        localStorage.setItem('EzypartsConfig', JSON.stringify({
+                            webappUrl: this.webappUrl || adminUrl, // Own URL or use Admin's
+                            adminWebAppUrl: adminUrl,
+                            email: data.email || '',
+                            role: 'Public',
+                            dbName: data.dbName || '',
+                            sheetId: data.dbId || ''
+                        }));
+
+                        this.setupStatus = 'COMPLETED';
+                        this.statusMessage = 'Connected to Admin database successfully!';
+                        this.isDetecting = false;
+                        clearTimeout(this.setupTimeout);
+
+                        window.showToast(this.statusMessage, 'success', 3000);
+                        setTimeout(() => {
+                            window.location.hash = '#home';
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(data?.statusNote === 'no_database'
+                            ? 'Admin has not setup their database yet'
+                            : 'Could not connect to Admin: ' + (data?.message || 'Unknown error'));
+                    }
                 }
 
             } catch (e) {
                 this.isDetecting = false;
                 this.setupStatus = 'ERROR';
-                this.errorMessage = 'Client error: ' + e.message;
+                this.errorMessage = 'Error: ' + e.message;
                 if (this.statusInterval) clearInterval(this.statusInterval);
                 if (this.setupTimeout) clearTimeout(this.setupTimeout);
             }
