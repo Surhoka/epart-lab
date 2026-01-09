@@ -87,6 +87,7 @@ async function discoverEzyApi() {
 
         if (config && config.status === 'success') {
             window.EzyApi.config = config;
+            console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
             // SECURITY CHECK: Jika DB tidak valid, paksa re-setup
             // EXCEPTION: Jangan reset jika statusNote='setup_in_progress' atau 'legacy'
