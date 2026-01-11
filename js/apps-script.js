@@ -176,6 +176,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
     const postActions = [
         'SignInUser', 'registerUser', 'SignOut',
         'saveEvent', 'updateProfile', 'createProfile',
+        'updateCoreProfile', 'updatePublicProfile',
         'updateProfilePhoto', 'uploadImageAndGetUrl', 'setupUserDatabase'
     ];
 
