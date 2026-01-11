@@ -7,6 +7,7 @@ window.setupData = function () {
         adminWebAppUrl: '',       // For Public: Admin URL to connect to
         email: '',
         dbName: '',
+        siteKey: '',
         sheetId: '',
         hasExistingConfig: false,
         setupMode: 'new',
@@ -21,9 +22,13 @@ window.setupData = function () {
         statusInterval: null,
         setupTimeout: null,
 
-        // Computed-like getters for role
-        get isAdmin() { return this.role === 'Admin'; },
-        get isPublic() { return this.role === 'Public'; },
+        get downloadUrl() {
+            // Gunakan gatewayUrl dari CONFIG jika tersedia (Unified Gateway)
+            const gatewayUrl = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV)
+                ? CONFIG.WEBAPP_URL_DEV
+                : 'https://script.google.com/macros/s/AKfycbzIvXCXjhn7ESUsjVlnl8WTDHoIafqd5HHWC5zk_xS_CU-nrudLZtmyqJ9_RJf5_H4F/exec';
+            return `${gatewayUrl}?action=download_public_template&adminUrl=${encodeURIComponent(this.webappUrl)}&siteKey=${this.siteKey}&dbName=${encodeURIComponent(this.dbName)}`;
+        },
 
         init() {
             console.log('Setup initialized with role:', this.role);
@@ -33,6 +38,7 @@ window.setupData = function () {
                     const config = JSON.parse(saved);
                     this.webappUrl = config.webappUrl || '';
                     this.email = config.email || '';
+                    this.siteKey = config.siteKey || '';
                     // Don't override role from localStorage - use template setting
                     if (this.isPublic && config.adminWebAppUrl) {
                         this.adminWebAppUrl = config.adminWebAppUrl;
@@ -67,7 +73,8 @@ window.setupData = function () {
                             email: data.email || '',
                             role: this.role || 'Admin',
                             dbName: data.dbName || '',
-                            sheetId: data.dbId || ''
+                            sheetId: data.dbId || '',
+                            siteKey: data.siteKey || ''
                         }));
                         window.showToast('Existing setup found. Synchronizing...', 'success', 4000);
                         setTimeout(() => {
@@ -80,6 +87,7 @@ window.setupData = function () {
                     if (data.email) this.email = data.email;
                     this.sheetId = data.dbId || '';
                     this.statusNote = data.statusNote || 'no_database';
+                    this.siteKey = data.siteKey || '';
 
                     if (this.statusNote === 'legacy') {
                         this.hasExistingConfig = true;
@@ -178,7 +186,8 @@ window.setupData = function () {
                             email: data.email || '',
                             role: 'Public',
                             dbName: data.dbName || '',
-                            sheetId: data.dbId || ''
+                            sheetId: data.dbId || '',
+                            siteKey: data.siteKey || ''
                         }));
 
                         this.setupStatus = 'COMPLETED';
@@ -229,13 +238,10 @@ window.setupData = function () {
                         this.isDetecting = false;
                         clearInterval(this.statusInterval);
                         clearTimeout(this.setupTimeout);
-                    case 'COMPLETED':
-                        this.isDetecting = false;
-                        clearInterval(this.statusInterval);
-                        clearTimeout(this.setupTimeout);
 
                         // Custom message as requested
                         this.statusMessage = 'Setup sukses dan Database berhasil dibuat!';
+                        this.siteKey = data.siteKey || '';
 
                         if (this.setupMode === 'new') localStorage.clear();
                         else localStorage.removeItem('Ezyparts_Config_Cache');
@@ -245,16 +251,11 @@ window.setupData = function () {
                             email: this.email,
                             role: this.role,
                             dbName: this.dbName,
-                            sheetId: data.dbId || this.sheetId
+                            sheetId: data.dbId || this.sheetId,
+                            siteKey: this.siteKey
                         }));
 
                         window.showToast(this.statusMessage, 'success', 5000);
-
-                        // Increase delay slightly to let user read the toast
-                        setTimeout(() => {
-                            window.location.hash = '#signup';
-                            window.location.reload();
-                        }, 2000);
                         break;
                     case 'ERROR':
                         this.isDetecting = false;
@@ -278,6 +279,11 @@ window.setupData = function () {
                 clearInterval(this.statusInterval);
                 clearTimeout(this.setupTimeout);
             }
+        },
+
+        finishSetup() {
+            window.location.hash = '#signup';
+            window.location.reload();
         }
     };
 };
