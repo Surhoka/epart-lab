@@ -41,10 +41,10 @@
           <!-- Role Indicator (read from template) -->
           <div
             class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-            <span class="w-3 h-3 rounded-full" :class="isAdmin ? 'bg-green-500' : 'bg-purple-500'"></span>
+            <span class="w-3 h-3 rounded-full" :class="role === 'Admin' ? 'bg-green-500' : 'bg-purple-500'"></span>
             <span class="text-sm font-semibold"
-              :class="isAdmin ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'">
-              Mode: <span x-text="isAdmin ? 'Admin (Create Database)' : 'Public (Connect to Admin)'"></span>
+              :class="role === 'Admin' ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'">
+              Mode: <span x-text="role === 'Admin' ? 'Admin (Create Database)' : 'Public (Connect to Admin)'"></span>
             </span>
           </div>
 
@@ -52,7 +52,7 @@
           <fieldset :disabled="isDetecting" class="space-y-6 group">
 
             <!-- ADMIN: Own WebApp URL -->
-            <template x-if="isAdmin">
+            <template x-if="role === 'Admin'">
               <div class="space-y-2">
                 <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Your Admin WebApp URL</label>
                 <input type="url" x-model="webappUrl" required autocomplete="off"
@@ -63,7 +63,7 @@
             </template>
 
             <!-- PUBLIC: Admin's WebApp URL to connect -->
-            <template x-if="isPublic">
+            <template x-if="role === 'Public'">
               <div class="space-y-2">
                 <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Admin WebApp URL to
                   Connect</label>
@@ -77,7 +77,7 @@
             </template>
 
             <!-- ADMIN: Email and DB Name -->
-            <template x-if="isAdmin">
+            <template x-if="role === 'Admin'">
               <div class="space-y-6">
 
                 <!-- Database Settings (Expanded for Admin) -->
