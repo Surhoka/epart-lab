@@ -104,9 +104,9 @@
                       </span>
                       Legacy Data Found
                     </div>
-                    <strong class="text-slate-900 dark:text-white" x-text="originalConfig.dbName"></strong>. Apa yang
-                    ingin
-                    Anda lakukan?
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                      Found existing database structure named <strong class="text-slate-900 dark:text-white"
+                        x-text="originalConfig.dbName"></strong>. Apa yang ingin Anda lakukan?
                     </p>
 
                     <label
@@ -127,16 +127,19 @@
                     </label>
                   </div>
 
-                  <!-- No Database -->
-                  <div x-show="statusNote === 'no_database'"
-                    class="p-4 bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 rounded-xl">
-                    <p class="text-xs text-slate-600 dark:text-slate-300">Belum ada database terdeteksi. Silakan buat
-                      baru.
-                    </p>
-                  </div>
+                  <!-- No Database Found / New Setup -->
+                  <template x-if="statusNote === 'no_database' || !statusNote">
+                    <div
+                      class="p-4 bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 rounded-xl">
+                      <p class="text-xs text-slate-600 dark:text-slate-300">Belum ada database terdeteksi. Silakan buat
+                        baru.
+                      </p>
+                    </div>
+                  </template>
 
                   <!-- Database Name input (always shows for legacy or new) -->
-                  <div x-show="statusNote === 'legacy' || statusNote === 'no_database'" class="space-y-1 pt-2">
+                  <div x-show="statusNote === 'legacy' || statusNote === 'no_database' || !statusNote"
+                    class="space-y-1 pt-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Database Name</label>
                     <input type="text" x-model="dbName" :required="role === 'Admin'"
                       placeholder="Masukkan nama database"
