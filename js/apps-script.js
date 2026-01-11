@@ -52,7 +52,9 @@ async function discoverEzyApi() {
         const cbName = 'ezy_discovery_' + Date.now() + Math.floor(Math.random() * 100);
         const script = document.createElement('script');
         const separator = targetUrl.includes('?') ? '&' : '?';
-        script.src = `${targetUrl}${separator}action=get_config&callback=${cbName}`;
+        const finalUrl = `${targetUrl}${separator}action=get_config&callback=${cbName}`;
+        console.log(`Discovery: Pinging ${finalUrl}`);
+        script.src = finalUrl;
 
         return new Promise((resolve, reject) => {
             window[cbName] = (res) => {
@@ -65,7 +67,7 @@ async function discoverEzyApi() {
                 reject(new Error('Script load failed'));
             };
             (document.head || document.documentElement).appendChild(script);
-            setTimeout(() => { script.remove(); reject(new Error('Timeout')); }, 8000);
+            setTimeout(() => { script.remove(); reject(new Error('Timeout after 30s')); }, 30000);
         });
     };
 
