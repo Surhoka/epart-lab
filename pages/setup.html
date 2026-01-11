@@ -159,16 +159,17 @@
                 class="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></span>
               <span class="text-base" x-text="isDetecting ? 'Processing...' : 'Connect & Initialize'"></span>
             </button>
+            <p x-show="isDetecting" class="text-center text-xs text-slate-500 mt-2 animate-pulse"
+              x-text="statusMessage"></p>
           </fieldset>
 
           <!-- === NEW: STATUS & SUCCESS AREA === -->
-          <div x-show="isDetecting || setupStatus === 'COMPLETED'" x-transition class="space-y-4">
-
-            <!-- Polling/Error Status -->
-            <div x-show="isDetecting && setupStatus !== 'COMPLETED'" class="text-center pt-2">
-              <p class="text-sm text-slate-500 dark:text-slate-400" x-text="statusMessage"></p>
-              <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1"
-                x-show="setupStatus === 'ERROR' && errorMessage" x-text="errorMessage"></p>
+          <div x-show="setupStatus === 'ERROR' || setupStatus === 'COMPLETED'" x-transition
+            class="space-y-4 text-center">
+            <!-- Error Status -->
+            <div x-show="setupStatus === 'ERROR' && errorMessage"
+              class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl">
+              <p class="text-sm font-medium text-red-600 dark:text-red-500" x-text="errorMessage"></p>
             </div>
 
             <!-- SUCCESS STATE CARD -->
