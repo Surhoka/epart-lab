@@ -130,7 +130,9 @@
                   </div>
 
                   <div class="space-y-1 pt-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Database Name</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">
+                      Database Name <span class="text-red-500">*</span>
+                    </label>
                     <input type="text" x-model="dbName" :required="role === 'Admin'"
                       class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none">
                   </div>
