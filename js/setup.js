@@ -255,23 +255,9 @@ window.setupData = function () {
                         clearInterval(this.statusInterval);
                         clearTimeout(this.setupTimeout);
 
-                        // Custom message as requested
+                        // Custom message as requested - Do not auto-redirect
                         this.statusMessage = 'Setup sukses dan Database berhasil dibuat!';
                         this.siteKey = data.siteKey || '';
-
-                        if (this.setupMode === 'new') localStorage.clear();
-                        else localStorage.removeItem('Ezyparts_Config_Cache');
-
-                        localStorage.setItem('EzypartsConfig', JSON.stringify({
-                            webappUrl: this.webappUrl,
-                            email: this.email,
-                            role: this.role,
-                            dbName: this.dbName,
-                            sheetId: data.dbId || this.sheetId,
-                            siteKey: this.siteKey
-                        }));
-
-                        window.showToast(this.statusMessage, 'success', 5000);
                         break;
                     case 'ERROR':
                         this.isDetecting = false;
