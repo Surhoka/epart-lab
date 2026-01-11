@@ -127,6 +127,16 @@
                     </label>
                   </div>
 
+                  <!-- Setup in Progress -->
+                  <template x-if="statusNote === 'setup_in_progress'">
+                    <div
+                      class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                      <p class="text-xs text-blue-700 dark:text-blue-400 font-medium">
+                        Setup sedang dikerjakan oleh server... Silakan tunggu sebentar.
+                      </p>
+                    </div>
+                  </template>
+
                   <!-- No Database Found / New Setup -->
                   <template x-if="statusNote === 'no_database' || !statusNote">
                     <div
@@ -137,8 +147,9 @@
                     </div>
                   </template>
 
-                  <!-- Database Name input (always shows for legacy or new) -->
-                  <div x-show="statusNote === 'legacy' || statusNote === 'no_database' || !statusNote"
+                  <!-- Database Name input (always shows for legacy, new, or progress) -->
+                  <div
+                    x-show="statusNote === 'legacy' || statusNote === 'no_database' || statusNote === 'setup_in_progress' || !statusNote"
                     class="space-y-1 pt-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Database Name</label>
                     <input type="text" x-model="dbName" :required="role === 'Admin'"
