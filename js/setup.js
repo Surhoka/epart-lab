@@ -138,6 +138,10 @@ window.setupData = function () {
                     alert('WebApp URL is required');
                     return;
                 }
+                if (!this.dbName) {
+                    alert('Nama Database wajib diisi untuk instalasi baru');
+                    return;
+                }
             } else if (this.role === 'Public') {
                 if (!this.adminWebAppUrl) {
                     alert('Admin WebApp URL is required for connection');
