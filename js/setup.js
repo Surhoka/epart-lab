@@ -70,6 +70,8 @@ window.setupData = function () {
                 }
 
                 if (data && (data.status === 'success' || data.isSetup === false || data.statusNote === 'no_config')) {
+                    console.log('DETECTION RESULT:', data); // DEBUG
+
                     // Check if DB is healthy/active
                     if (data.isSetup === true || data.statusNote === 'active') {
                         localStorage.setItem('EzypartsConfig', JSON.stringify({
@@ -90,13 +92,15 @@ window.setupData = function () {
 
                     if (data.email) this.email = data.email;
                     this.sheetId = data.dbId || '';
-                    this.statusNote = data.statusNote || 'no_database';
+
+                    // Normalize 'no_config' to 'no_database' for UI consistency
+                    this.statusNote = (data.statusNote === 'no_config') ? 'no_database' : (data.statusNote || 'no_database');
                     this.siteKey = data.siteKey || '';
 
                     if (this.statusNote === 'legacy') {
+                        this.originalConfig = { dbName: data.dbName, sheetId: data.dbId };
                         this.hasExistingConfig = true;
                         this.setupMode = 'reuse';
-                        this.originalConfig = { dbName: data.dbName, sheetId: data.dbId };
                         this.dbName = data.dbName || '';
                     } else {
                         this.hasExistingConfig = false;
