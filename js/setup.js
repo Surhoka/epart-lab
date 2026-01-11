@@ -15,6 +15,10 @@ window.setupData = function () {
         isDetecting: false,
         statusNote: 'no_database',
 
+        // Compatibility Getters (Prevents ReferenceError if HTML is cached)
+        isAdmin: (window.EZY_ROLE || 'Admin') === 'Admin',
+        isPublic: window.EZY_ROLE === 'Public',
+
         // Polling Status Properties
         setupStatus: 'IDLE', // Enum: 'IDLE', 'IN_PROGRESS', 'COMPLETED', 'ERROR'
         statusMessage: '',
@@ -40,7 +44,7 @@ window.setupData = function () {
                     this.email = config.email || '';
                     this.siteKey = config.siteKey || '';
                     // Don't override role from localStorage - use template setting
-                    if (this.isPublic && config.adminWebAppUrl) {
+                    if (this.role === 'Public' && config.adminWebAppUrl) {
                         this.adminWebAppUrl = config.adminWebAppUrl;
                     }
                 }
@@ -65,7 +69,7 @@ window.setupData = function () {
                     throw new Error('App core not initialized');
                 }
 
-                if (data && data.status === 'success') {
+                if (data && (data.status === 'success' || data.isSetup === false || data.statusNote === 'no_config')) {
                     // Check if DB is healthy/active
                     if (data.isSetup === true || data.statusNote === 'active') {
                         localStorage.setItem('EzypartsConfig', JSON.stringify({
@@ -112,17 +116,18 @@ window.setupData = function () {
                 if (!data || !(data.isSetup || data.statusNote === 'active')) {
                     this.isDetecting = false;
                 }
+                this.setupStatus = 'IDLE'; // Reset status if detection fails
             }
         },
 
         async submitForm() {
             // Validate based on role
-            if (this.isAdmin) {
+            if (this.role === 'Admin') {
                 if (!this.webappUrl) {
                     alert('WebApp URL is required');
                     return;
                 }
-            } else if (this.isPublic) {
+            } else if (this.role === 'Public') {
                 if (!this.adminWebAppUrl) {
                     alert('Admin WebApp URL is required for connection');
                     return;
@@ -145,7 +150,7 @@ window.setupData = function () {
             }, 120000);
 
             try {
-                if (this.isAdmin) {
+                if (this.role === 'Admin') {
                     // ADMIN: Create new database via user's WebApp
                     this.statusMessage = 'Creating database... Please wait.';
                     const baseUrl = this.webappUrl.split('?')[0];
@@ -170,7 +175,7 @@ window.setupData = function () {
                         throw new Error('App core not ready');
                     }
 
-                } else if (this.isPublic) {
+                } else if (this.role === 'Public') {
                     // PUBLIC: Connect to existing Admin database
                     this.statusMessage = 'Connecting to Admin database...';
                     const adminUrl = this.adminWebAppUrl.split('?')[0];
