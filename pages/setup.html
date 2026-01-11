@@ -93,8 +93,8 @@
                     </p>
                   </div>
 
-                  <!-- Legacy Database -->
-                  <div x-show="statusNote === 'legacy'"
+                  <!-- Legacy Database / Recovered Structure -->
+                  <div x-show="statusNote === 'legacy' || (statusNote === 'setup_in_progress' && originalConfig.dbName)"
                     class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl space-y-2">
                     <div class="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-sm">
                       <span>
