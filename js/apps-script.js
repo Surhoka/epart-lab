@@ -85,21 +85,17 @@ async function discoverEzyApi() {
             }
         }
 
-        if (config && config.status === 'success') {
+        if (config && (config.status === 'success' || config.isSetup === false || config.statusNote === 'no_config')) {
             window.EzyApi.config = config;
             console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
-            // SECURITY CHECK: Jika DB tidak valid, paksa re-setup
-            // EXCEPTION: Jangan reset jika statusNote='setup_in_progress' atau 'legacy'
-            if (config.isSetup === false && config.statusNote !== 'setup_in_progress' && config.statusNote !== 'legacy') {
-                console.warn('SERVER REPORT: Database missing from config check.');
-                // DISABLE AGGRESSIVE RESET - Let the UI handle it.
-                // forceSetupMode(); 
-            } else {
+            // Sync to LocalStorage if successful discovery
+            if (config.status === 'success') {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
                 applyRoleUrl(config);
             }
         } else {
+            console.warn('Discovery: Invalid or incomplete response received:', config);
             throw new Error('Invalid config response');
         }
     } catch (e) {
