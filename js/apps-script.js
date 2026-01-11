@@ -154,7 +154,11 @@ function applyRoleUrl(config) {
     window.appsScriptUrl = window.EzyApi.url;
 
     if (window.app) {
-        window.app.dbHealthy = config.isSetup !== false;
+        // Validation: For Public, we also need siteKey to be healthy
+        const isDbValid = config.isSetup !== false;
+        const hasSiteKey = role === 'Public' ? !!config.siteKey : true;
+
+        window.app.dbHealthy = isDbValid && hasSiteKey;
         window.app.dbStatusChecked = true;
     }
 }
