@@ -97,11 +97,18 @@ window.setupData = function () {
                     this.statusNote = (data.statusNote === 'no_config') ? 'no_database' : (data.statusNote || 'no_database');
                     this.siteKey = data.siteKey || '';
 
-                    if (this.statusNote === 'legacy') {
+                    if (this.statusNote === 'legacy' || this.statusNote === 'setup_in_progress') {
                         this.originalConfig = { dbName: data.dbName, sheetId: data.dbId };
                         this.hasExistingConfig = true;
                         this.setupMode = 'reuse';
                         this.dbName = data.dbName || '';
+
+                        // Autostart polling if server reports progress
+                        if (this.statusNote === 'setup_in_progress') {
+                            this.setupStatus = 'IN_PROGRESS';
+                            this.statusMessage = 'Setup sedang dikerjakan server...';
+                            setTimeout(() => this.checkStatus(), 1000);
+                        }
                     } else {
                         this.hasExistingConfig = false;
                         this.setupMode = 'new';
