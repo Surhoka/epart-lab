@@ -384,7 +384,7 @@ async cancelSetup() {
   } finally {
     this.isCancelling = false;
   }
-}
+},
         finishSetup() {
             window.location.hash = '#signup';
             window.location.reload();
