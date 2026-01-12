@@ -116,7 +116,8 @@ window.setupData = function () {
             if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
                 return;
             }
-            // Avoid duplicate pings for same URL
+            // Avoid duplicate pings or interfering with active setup
+            if (this.setupStatus === 'IN_PROGRESS') return;
             if (this.webappUrl === this.lastDetectedUrl && this.setupStatus !== 'IDLE') return;
 
             this.isDetecting = true;
@@ -196,12 +197,11 @@ window.setupData = function () {
                 this.statusNote = 'no_database';
             } finally {
                 // Stop detecting ONLY if we are NOT in active setup or success
-                const isBusy = (this.setupStatus === 'IN_PROGRESS') || (this.statusNote === 'setup_in_progress');
+                const isBusy = (this.setupStatus === 'IN_PROGRESS');
                 const isDone = (this.setupStatus === 'COMPLETED') || (this.statusNote === 'active');
 
                 if (!isBusy && !isDone) {
                     this.isDetecting = false;
-                    this.setupStatus = 'IDLE';
                 }
             }
         },
