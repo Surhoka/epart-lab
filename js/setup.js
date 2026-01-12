@@ -14,9 +14,6 @@ window.setupData = function () {
         originalConfig: {},
         isDetecting: false,
         statusNote: 'no_database',
-        allowReset: false,
-        isCancelling: false,
-
 
         // Compatibility Getters (Prevents ReferenceError if HTML is cached)
         isAdmin: (window.EZY_ROLE || 'Admin') === 'Admin',
@@ -40,26 +37,10 @@ window.setupData = function () {
         init() {
             console.log('Setup initialized with role:', this.role);
             try {
-                // 1. Try URL parameters first (high priority for cross-browser sync)
-                const getParam = (p) => {
-                    const sp = new URLSearchParams(window.location.search);
-                    if (sp.get(p)) return sp.get(p);
-                    if (window.location.hash.includes('?')) {
-                        const hp = new URLSearchParams(window.location.hash.split('?')[1]);
-                        return hp.get(p);
-                    }
-                    return null;
-                };
-
-                const urlFromParam = getParam('url') || getParam('userWebAppUrl');
-                if (urlFromParam) {
-                    this.webappUrl = urlFromParam.trim();
-                }
-
                 const saved = localStorage.getItem('EzypartsConfig');
                 if (saved) {
                     const config = JSON.parse(saved);
-                    if (!this.webappUrl) this.webappUrl = config.webappUrl || '';
+                    this.webappUrl = config.webappUrl || '';
                     this.email = config.email || '';
                     this.siteKey = config.siteKey || '';
                     // Don't override role from localStorage - use template setting
@@ -67,13 +48,6 @@ window.setupData = function () {
                         this.adminWebAppUrl = config.adminWebAppUrl;
                     }
                 }
-
-                // If we have a URL (from params or cache), trigger detection
-                if (this.webappUrl) {
-                    this.detectConfig();
-                }
-
-
             } catch (e) {
                 console.error('Error parsing config:', e);
             }
@@ -132,14 +106,8 @@ window.setupData = function () {
                         // Autostart polling if server reports progress
                         if (this.statusNote === 'setup_in_progress') {
                             this.setupStatus = 'IN_PROGRESS';
-                            this.isDetecting = true;
                             this.statusMessage = 'Setup sedang dikerjakan server...';
-
-                            if (this.statusInterval) clearInterval(this.statusInterval);
-                            setTimeout(() => {
-                                this.checkStatus();
-                                this.statusInterval = setInterval(() => this.checkStatus(), 3000);
-                            }, 500);
+                            setTimeout(() => this.checkStatus(), 1000);
                         }
                     } else {
                         this.hasExistingConfig = false;
@@ -155,14 +123,11 @@ window.setupData = function () {
                 alert('Detection Error: ' + e.message);
                 this.statusNote = 'no_database';
             } finally {
-                // Stop detecting ONLY if we are NOT in active setup or success
-                const isBusy = (this.setupStatus === 'IN_PROGRESS') || (this.statusNote === 'setup_in_progress');
-                const isDone = (this.setupStatus === 'COMPLETED') || (this.statusNote === 'active');
-
-                if (!isBusy && !isDone) {
+                // Only stop detecting if we didn't succeed and redirect
+                if (!data || !(data.isSetup || data.statusNote === 'active')) {
                     this.isDetecting = false;
-                    this.setupStatus = 'IDLE';
                 }
+                this.setupStatus = 'IDLE'; // Reset status if detection fails
             }
         },
 
@@ -336,41 +301,7 @@ window.setupData = function () {
                 clearTimeout(this.setupTimeout);
             }
         },
-async cancelSetup() {
-  if (!confirm('Apakah Anda yakin ingin mereset setup?')) return;
-  this.isCancelling = true;
-  this.statusMessage = 'Membatalkan setup...';
 
-  try {
-    const baseUrl = this.webappUrl.split('?')[0];
-    const res = await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
-
-    if (res && res.status === 'success') {
-      window.showToast('Setup berhasil dibatalkan.', 'info');
-    } else {
-      window.showToast('Reset lokal dipaksa.', 'warning');
-    }
-
-    // Hentikan polling
-    if (this.statusInterval) clearInterval(this.statusInterval);
-    if (this.setupTimeout) clearTimeout(this.setupTimeout);
-
-    // 👉 Reset state lokal agar input terbuka
-    this.setupStatus = 'IDLE';
-    this.isDetecting = false;
-    this.statusNote = null;
-    this.statusMessage = 'Setup dibatalkan.';
-    this.allowReset = true;
-  } catch (e) {
-    console.error('Cancel failed:', e);
-    this.setupStatus = 'IDLE';
-    this.isDetecting = false;
-    this.allowReset = true;
-    window.showToast('Reset lokal dipaksa.', 'warning');
-  } finally {
-    this.isCancelling = false;
-  }
-},
         finishSetup() {
             window.location.hash = '#signup';
             window.location.reload();
