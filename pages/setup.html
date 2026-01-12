@@ -69,17 +69,15 @@
             </span>
           </div>
 
-          <!-- Form Fields (Hidden on Success) -->
-          <fieldset :disabled="setupStatus === 'IN_PROGRESS'" x-show="setupStatus !== 'COMPLETED'" class="space-y-6 group">
-
+          <!-- MASTER URL INPUT (Always active at the top) -->
+          <div class="space-y-6">
             <!-- ADMIN: Own WebApp URL -->
             <template x-if="role === 'Admin'">
               <div class="space-y-2">
                 <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Your Admin WebApp URL</label>
                 <input type="url" x-model="webappUrl" required autocomplete="off"
                   placeholder="https://script.google.com/macros/s/.../exec"
-                  x-effect="if(webappUrl && webappUrl.includes('script.google.com')) detectConfig()"
-                  class="w-full pl-4 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white group-disabled:opacity-50">
+                  class="w-full pl-4 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white">
               </div>
             </template>
 
@@ -90,11 +88,16 @@
                   Connect</label>
                 <input type="url" x-model="adminWebAppUrl" required autocomplete="off"
                   placeholder="https://script.google.com/macros/s/.../exec"
-                  class="w-full pl-4 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white group-disabled:opacity-50">
+                  class="w-full pl-4 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white">
                 <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan URL WebApp Admin yang ingin Anda
                   hubungkan.</p>
               </div>
             </template>
+          </div>
+
+          <!-- Form Fields (Hidden on Success) -->
+          <fieldset :disabled="setupStatus === 'IN_PROGRESS'" x-show="setupStatus !== 'COMPLETED'"
+            class="space-y-6 group">
 
             <!-- ADMIN: Additional Details -->
             <template x-if="role === 'Admin'">
