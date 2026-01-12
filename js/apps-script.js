@@ -7,6 +7,11 @@
 // Helper untuk mendapatkan Gateway URL (Gunakan window check untuk mencegah redeklarasi error)
 if (typeof window.getGatewayUrl === 'undefined') {
     window.getGatewayUrl = () => {
+        // Try to get from URL Search Params first (Cross-browser Sync)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlFromParam = urlParams.get('url') || urlParams.get('userWebAppUrl');
+        if (urlFromParam) return urlFromParam.trim();
+
         if (typeof getWebAppUrl === 'function') {
             const url = getWebAppUrl(); // Mencoba LocalStorage lalu Hardcoded
             return url ? url.trim() : '';
@@ -91,8 +96,8 @@ async function discoverEzyApi() {
             window.EzyApi.config = config;
             console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
-            // Sync to LocalStorage if successful discovery
-            if (config.status === 'success') {
+            // Sync to LocalStorage ONLY if successful discovery AND it's a real project (not just a gateway stub)
+            if (config.status === 'success' && config.statusNote !== 'no_config') {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
                 applyRoleUrl(config);
             }
