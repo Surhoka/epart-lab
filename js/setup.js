@@ -37,10 +37,17 @@ window.setupData = function () {
         init() {
             console.log('Setup initialized with role:', this.role);
             try {
+                // 1. Try URL parameters first (high priority for cross-browser sync)
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlFromParam = urlParams.get('url') || urlParams.get('userWebAppUrl');
+                if (urlFromParam) {
+                    this.webappUrl = urlFromParam.trim();
+                }
+
                 const saved = localStorage.getItem('EzypartsConfig');
                 if (saved) {
                     const config = JSON.parse(saved);
-                    this.webappUrl = config.webappUrl || '';
+                    if (!this.webappUrl) this.webappUrl = config.webappUrl || '';
                     this.email = config.email || '';
                     this.siteKey = config.siteKey || '';
                     // Don't override role from localStorage - use template setting
@@ -48,6 +55,12 @@ window.setupData = function () {
                         this.adminWebAppUrl = config.adminWebAppUrl;
                     }
                 }
+
+                // If we have a URL (from params or cache), trigger detection
+                if (this.webappUrl) {
+                    this.detectConfig();
+                }
+
             } catch (e) {
                 console.error('Error parsing config:', e);
             }
