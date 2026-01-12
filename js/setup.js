@@ -38,8 +38,17 @@ window.setupData = function () {
             console.log('Setup initialized with role:', this.role);
             try {
                 // 1. Try URL parameters first (high priority for cross-browser sync)
-                const urlParams = new URLSearchParams(window.location.search);
-                const urlFromParam = urlParams.get('url') || urlParams.get('userWebAppUrl');
+                const getParam = (p) => {
+                    const sp = new URLSearchParams(window.location.search);
+                    if (sp.get(p)) return sp.get(p);
+                    if (window.location.hash.includes('?')) {
+                        const hp = new URLSearchParams(window.location.hash.split('?')[1]);
+                        return hp.get(p);
+                    }
+                    return null;
+                };
+
+                const urlFromParam = getParam('url') || getParam('userWebAppUrl');
                 if (urlFromParam) {
                     this.webappUrl = urlFromParam.trim();
                 }
@@ -59,10 +68,25 @@ window.setupData = function () {
                 // If we have a URL (from params or cache), trigger detection
                 if (this.webappUrl) {
                     this.detectConfig();
+                    this.updateBrowserUrl();
                 }
+
+                // Auto-sync to URL whenever webappUrl changes
+                this.$watch('webappUrl', () => this.updateBrowserUrl());
 
             } catch (e) {
                 console.error('Error parsing config:', e);
+            }
+        },
+
+        updateBrowserUrl() {
+            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
+            const currentHash = window.location.hash.split('?')[0] || '#setup';
+            const newHash = `${currentHash}?url=${encodeURIComponent(this.webappUrl)}`;
+            if (window.location.hash !== newHash) {
+                // Use replaceState to avoid triggering hashchange/navigation loops
+                const newUrl = window.location.pathname + window.location.search + newHash;
+                window.history.replaceState(null, '', newUrl);
             }
         },
 
