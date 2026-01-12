@@ -25,6 +25,8 @@ window.setupData = function () {
         errorMessage: '',
         statusInterval: null,
         setupTimeout: null,
+        detectTimeout: null, // For debouncing discovery
+        lastDetectedUrl: '',
 
         get downloadUrl() {
             // Gunakan gatewayUrl dari CONFIG jika tersedia (Unified Gateway)
@@ -72,7 +74,14 @@ window.setupData = function () {
                 }
 
                 // Auto-sync to URL whenever webappUrl changes
-                this.$watch('webappUrl', () => this.updateBrowserUrl());
+                this.$watch('webappUrl', (val) => {
+                    this.updateBrowserUrl();
+                    // DEBOUNCE Detection: Only ping server 1s after user stops typing
+                    if (this.detectTimeout) clearTimeout(this.detectTimeout);
+                    this.detectTimeout = setTimeout(() => {
+                        this.detectConfig();
+                    }, 1000);
+                });
 
             } catch (e) {
                 console.error('Error parsing config:', e);
@@ -94,7 +103,11 @@ window.setupData = function () {
             if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
                 return;
             }
+            // Avoid duplicate pings for same URL
+            if (this.webappUrl === this.lastDetectedUrl && this.setupStatus !== 'IDLE') return;
+
             this.isDetecting = true;
+            this.lastDetectedUrl = this.webappUrl;
             this.statusNote = null;
             let data = null;
 
