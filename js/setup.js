@@ -14,6 +14,9 @@ window.setupData = function () {
         originalConfig: {},
         isDetecting: false,
         statusNote: 'no_database',
+        allowReset: false,
+        isCancelling: false,
+
 
         // Compatibility Getters (Prevents ReferenceError if HTML is cached)
         isAdmin: (window.EZY_ROLE || 'Admin') === 'Admin',
@@ -347,7 +350,41 @@ window.setupData = function () {
                 clearTimeout(this.setupTimeout);
             }
         },
+async cancelSetup() {
+  if (!confirm('Apakah Anda yakin ingin mereset setup?')) return;
+  this.isCancelling = true;
+  this.statusMessage = 'Membatalkan setup...';
 
+  try {
+    const baseUrl = this.webappUrl.split('?')[0];
+    const res = await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
+
+    if (res && res.status === 'success') {
+      window.showToast('Setup berhasil dibatalkan.', 'info');
+    } else {
+      window.showToast('Reset lokal dipaksa.', 'warning');
+    }
+
+    // Hentikan polling
+    if (this.statusInterval) clearInterval(this.statusInterval);
+    if (this.setupTimeout) clearTimeout(this.setupTimeout);
+
+    // 👉 Reset state lokal agar input terbuka
+    this.setupStatus = 'IDLE';
+    this.isDetecting = false;
+    this.statusNote = null;
+    this.statusMessage = 'Setup dibatalkan.';
+    this.allowReset = true;
+  } catch (e) {
+    console.error('Cancel failed:', e);
+    this.setupStatus = 'IDLE';
+    this.isDetecting = false;
+    this.allowReset = true;
+    window.showToast('Reset lokal dipaksa.', 'warning');
+  } finally {
+    this.isCancelling = false;
+  }
+}
         finishSetup() {
             window.location.hash = '#signup';
             window.location.reload();
