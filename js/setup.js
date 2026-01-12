@@ -351,21 +351,6 @@ window.setupData = function () {
         finishSetup() {
             window.location.hash = '#signup';
             window.location.reload();
-        },
-
-        resetLocalState() {
-            console.log('Forcefully resetting all client-side storage...');
-            // Nuke everything in local storage for this domain.
-            localStorage.clear();
-            
-            // Also try to clear session storage as a fallback.
-            sessionStorage.clear();
-            
-            // Use replaceState to clear URL params without reload
-            window.history.replaceState(null, '', window.location.pathname + window.location.search);
-
-            // Force a hard reload from the server, bypassing the browser cache.
-            window.location.reload(true);
         }
     };
 };
