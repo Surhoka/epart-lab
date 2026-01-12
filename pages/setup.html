@@ -57,13 +57,6 @@
           <p class="text-slate-500 dark:text-slate-400 mt-2">Initialize your administrative gateway</p>
         </div>
 
-        <div class="my-4 text-center md:text-right">
-            <button type="button" @click="resetLocalState()"
-                class="text-xs text-slate-500 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Input terkunci? Reset Status
-            </button>
-        </div>
-
         <form @submit.prevent="submitForm()" class="space-y-6">
 
           <!-- Role Indicator (read from template) -->
@@ -169,15 +162,16 @@
             <p x-show="isDetecting" class="text-center text-xs text-slate-500 mt-2 animate-pulse"
               x-text="statusMessage"></p>
           </fieldset>
-          <!-- Reset Button -->
-          <div x-show="setupStatus === 'IN_PROGRESS' || setupStatus === 'ERROR'" class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
-            <button type="button" @click="cancelSetup()" :disabled="isCancelling"
-              class="w-full py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-red-100 dark:border-red-900/30 disabled:opacity-50 shadow-sm">
-            <span x-show="!isCancelling">Reset Setup</span>
-            <span x-show="isCancelling" class="animate-spin h-4 w-4 border-2 border-red-600/30 border-t-red-600 rounded-full"></span>
-           </button>
-           <p class="text-[10px] text-center text-slate-400 mt-2">Gunakan jika polling macet atau URL salah.</p>
-          </div>
+<!-- Reset Button -->
+<div x-show="setupStatus === 'IN_PROGRESS' || setupStatus === 'ERROR'" class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+  <button type="button" @click="cancelSetup()" :disabled="isCancelling"
+    class="w-full py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-red-100 dark:border-red-900/30 disabled:opacity-50 shadow-sm">
+    <span x-show="!isCancelling">Reset Setup</span>
+    <span x-show="isCancelling" class="animate-spin h-4 w-4 border-2 border-red-600/30 border-t-red-600 rounded-full"></span>
+  </button>
+  <p class="text-[10px] text-center text-slate-400 mt-2">Gunakan jika polling macet atau URL salah.</p>
+</div>
+
           <!-- === NEW: STATUS & SUCCESS AREA === -->
           <div x-show="setupStatus === 'ERROR' || setupStatus === 'COMPLETED'" x-transition
             class="space-y-4 text-center">
