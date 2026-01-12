@@ -71,23 +71,11 @@ window.setupData = function () {
                 // If we have a URL (from params or cache), trigger detection
                 if (this.webappUrl) {
                     this.detectConfig();
-                    this.updateBrowserUrl();
                 }
 
 
             } catch (e) {
                 console.error('Error parsing config:', e);
-            }
-        },
-
-        updateBrowserUrl() {
-            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
-            const currentHash = window.location.hash.split('?')[0] || '#setup';
-            const newHash = `${currentHash}?url=${encodeURIComponent(this.webappUrl)}`;
-            if (window.location.hash !== newHash) {
-                // Use replaceState to avoid triggering hashchange/navigation loops
-                const newUrl = window.location.pathname + window.location.search + newHash;
-                window.history.replaceState(null, '', newUrl);
             }
         },
 
