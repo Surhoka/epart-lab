@@ -30,7 +30,7 @@ window.setupData = function () {
             // Gunakan gatewayUrl dari CONFIG jika tersedia (Unified Gateway)
             const gatewayUrl = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV)
                 ? CONFIG.WEBAPP_URL_DEV
-                : 'https://script.google.com/macros/s/AKfycbzIvXCXjhn7ESUsjVlnl8WTDHoIafqd5HHWC5zk_xS_CU-nrudLZtmyqJ9_RJf5_H4F/exec';
+                : 'https://script.google.com/macros/s/AKfycbxjGefXAeRo2pr-pgLCMohxV4l9GOKrUwfjFmTJdJBaBQijvHdJxgroPIl7dubFLt1T/exec';
             return `${gatewayUrl}?action=download_public_template&adminUrl=${encodeURIComponent(this.webappUrl)}&siteKey=${this.siteKey}&dbName=${encodeURIComponent(this.dbName)}`;
         },
 
