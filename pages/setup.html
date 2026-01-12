@@ -70,7 +70,7 @@
           </div>
 
           <!-- Form Fields (Hidden on Success) -->
-          <fieldset :disabled="isDetecting" x-show="setupStatus !== 'COMPLETED'" class="space-y-6 group">
+          <fieldset :disabled="setupStatus === 'IN_PROGRESS'" x-show="setupStatus !== 'COMPLETED'" class="space-y-6 group">
 
             <!-- ADMIN: Own WebApp URL -->
             <template x-if="role === 'Admin'">
