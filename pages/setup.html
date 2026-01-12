@@ -57,6 +57,13 @@
           <p class="text-slate-500 dark:text-slate-400 mt-2">Initialize your administrative gateway</p>
         </div>
 
+        <div class="my-4 text-center md:text-right">
+            <button type="button" @click="resetLocalState()"
+                class="text-xs text-slate-500 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
+                Input terkunci? Reset Status
+            </button>
+        </div>
+
         <form @submit.prevent="submitForm()" class="space-y-6">
 
           <!-- Role Indicator (read from template) -->
