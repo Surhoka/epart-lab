@@ -189,11 +189,12 @@ window.setupData = function () {
                     this.updateBrowserUrl();
                 } else {
                     const msg = data ? (data.message || 'Unknown response') : 'No data received';
-                    alert('Server error: ' + msg);
+                    // alert('Server error: ' + msg); // Alert bisa mengganggu flow, lebih baik pakai toast atau error di bawah
+                    console.warn(msg);
                     this.statusNote = 'no_database';
                 }
             } catch (e) {
-                alert('Detection Error: ' + e.message);
+                console.warn('Detection Error: ' + e.message);
                 this.statusNote = 'no_database';
             } finally {
                 // Stop detecting ONLY if we are NOT in active setup or success
@@ -377,40 +378,48 @@ window.setupData = function () {
         },
 
         async cancelSetup() {
-            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
-            if (!confirm('Apakah Anda yakin ingin membatalkan proses setup yang sedang berjalan?')) return;
+            // Konfirmasi hanya jika sedang dalam proses berat (Setup Database), bukan sekedar deteksi URL
+            if (this.setupStatus === 'IN_PROGRESS' && !confirm('Proses setup database sedang berjalan. Yakin ingin membatalkan?')) {
+                return;
+            }
 
             this.isCancelling = true;
-            this.statusMessage = 'Membatalkan setup...';
+            this.statusMessage = 'Membatalkan...';
 
             try {
-                const baseUrl = this.webappUrl.split('?')[0];
-                const res = await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
-
-                if (res && res.status === 'success') {
-                    window.showToast('Setup berhasil dibatalkan.', 'info');
-                } else {
-                    console.warn('Server reset failed, but forced local reset.');
-                    window.showToast('Reset lokal dipaksa (Server tidak respon).', 'warning');
+                // Coba beritahu server jika URL valid
+                if (this.webappUrl && this.webappUrl.includes('script.google.com')) {
+                    const baseUrl = this.webappUrl.split('?')[0];
+                    // Kita gunakan timeout pendek (3s) agar user tidak menunggu lama jika server macet
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+                    
+                    try {
+                        await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
+                        window.showToast('Setup dibatalkan di server.', 'info');
+                    } catch (e) {
+                        console.warn('Server reset timeout/error, forcing local reset.');
+                    } finally {
+                        clearTimeout(timeoutId);
+                    }
                 }
-
-                // ALWAYS reset local state regardless of server success
-                if (this.statusInterval) clearInterval(this.statusInterval);
-                if (this.setupTimeout) clearTimeout(this.setupTimeout);
-                this.setupStatus = 'IDLE';
-                this.isDetecting = false;
-                this.statusNote = null;
-                this.statusMessage = 'Setup dibatalkan.';
             } catch (e) {
-                console.error('Cancel failed:', e);
-                // Forced local reset on error
+                console.error('Cancel logic error:', e);
+            } finally {
+                // FORCE RESET LOCAL STATE (Ini yang membuka kunci)
                 if (this.statusInterval) clearInterval(this.statusInterval);
                 if (this.setupTimeout) clearTimeout(this.setupTimeout);
+                if (this.detectTimeout) clearTimeout(this.detectTimeout);
+
                 this.setupStatus = 'IDLE';
                 this.isDetecting = false;
-                window.showToast('Batal paksa berhasil dilakukan.', 'info');
-            } finally {
                 this.isCancelling = false;
+                this.statusNote = null;
+                this.errorMessage = '';
+                this.statusMessage = '';
+                this.lastDetectedUrl = ''; // Penting: reset ini agar URL yang sama bisa dideteksi ulang
+                
+                window.showToast('Formulir di-reset. Silakan periksa URL Anda.', 'warning');
             }
         },
 
