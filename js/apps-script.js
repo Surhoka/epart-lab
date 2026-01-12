@@ -7,13 +7,21 @@
 // Helper untuk mendapatkan Gateway URL (Gunakan window check untuk mencegah redeklarasi error)
 if (typeof window.getGatewayUrl === 'undefined') {
     window.getGatewayUrl = () => {
-        // Try to get from URL Search Params first (Cross-browser Sync)
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlFromParam = urlParams.get('url') || urlParams.get('userWebAppUrl');
+        const getParam = (p) => {
+            const sp = new URLSearchParams(window.location.search);
+            if (sp.get(p)) return sp.get(p);
+            if (window.location.hash.includes('?')) {
+                const hp = new URLSearchParams(window.location.hash.split('?')[1]);
+                return hp.get(p);
+            }
+            return null;
+        };
+
+        const urlFromParam = getParam('url') || getParam('userWebAppUrl');
         if (urlFromParam) return urlFromParam.trim();
 
         if (typeof getWebAppUrl === 'function') {
-            const url = getWebAppUrl(); // Mencoba LocalStorage lalu Hardcoded
+            const url = getWebAppUrl();
             return url ? url.trim() : '';
         }
         return '';
@@ -96,9 +104,12 @@ async function discoverEzyApi() {
             window.EzyApi.config = config;
             console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
-            // Sync to LocalStorage ONLY if successful discovery AND it's a real project (not just a gateway stub)
-            if (config.status === 'success' && config.statusNote !== 'no_config') {
+            // ONLY sync to LocalStorage if it's a confirmed healthy PROJECT (not a gateway stub)
+            if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
+                applyRoleUrl(config);
+            } else if (config.statusNote === 'setup_in_progress') {
+                // Keep UI state if setup is in progress
                 applyRoleUrl(config);
             }
         } else {
