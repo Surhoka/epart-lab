@@ -354,27 +354,18 @@ window.setupData = function () {
         },
 
         resetLocalState() {
-            if (confirm('Are you sure you want to reset all local setup data? This will clear any saved WebApp URLs and requires you to start over.')) {
-                console.log('Resetting local state...');
-                localStorage.clear();
-                this.webappUrl = '';
-                this.adminWebAppUrl = '';
-                this.email = '';
-                this.dbName = '';
-                this.siteKey = '';
-                this.hasExistingConfig = false;
-                this.setupMode = 'new';
-                this.originalConfig = {};
-                this.isDetecting = false;
-                this.statusNote = 'no_database';
-                this.setupStatus = 'IDLE';
-                this.errorMessage = '';
-                this.statusMessage = '';
-                // Use replaceState to clear URL params without reload
-                window.history.replaceState(null, '', window.location.pathname + window.location.search);
-                // Then reload the page to apply the cleared state
-                window.location.reload();
-            }
+            console.log('Forcefully resetting all client-side storage...');
+            // Nuke everything in local storage for this domain.
+            localStorage.clear();
+            
+            // Also try to clear session storage as a fallback.
+            sessionStorage.clear();
+            
+            // Use replaceState to clear URL params without reload
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+
+            // Force a hard reload from the server, bypassing the browser cache.
+            window.location.reload(true);
         }
     };
 };
