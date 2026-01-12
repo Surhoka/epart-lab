@@ -388,23 +388,27 @@ window.setupData = function () {
                 const res = await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
 
                 if (res && res.status === 'success') {
-                    // Stop polling
-                    if (this.statusInterval) clearInterval(this.statusInterval);
-                    if (this.setupTimeout) clearTimeout(this.setupTimeout);
-
-                    // Reset Local State
-                    this.setupStatus = 'IDLE';
-                    this.isDetecting = false;
-                    this.statusNote = null;
-                    this.statusMessage = 'Setup dibatalkan.';
-
                     window.showToast('Setup berhasil dibatalkan.', 'info');
                 } else {
-                    throw new Error(res ? res.message : 'Gagal membatalkan setup.');
+                    console.warn('Server reset failed, but forced local reset.');
+                    window.showToast('Reset lokal dipaksa (Server tidak respon).', 'warning');
                 }
+
+                // ALWAYS reset local state regardless of server success
+                if (this.statusInterval) clearInterval(this.statusInterval);
+                if (this.setupTimeout) clearTimeout(this.setupTimeout);
+                this.setupStatus = 'IDLE';
+                this.isDetecting = false;
+                this.statusNote = null;
+                this.statusMessage = 'Setup dibatalkan.';
             } catch (e) {
                 console.error('Cancel failed:', e);
-                window.showToast('Gagal membatalkan: ' + e.message, 'error');
+                // Forced local reset on error
+                if (this.statusInterval) clearInterval(this.statusInterval);
+                if (this.setupTimeout) clearTimeout(this.setupTimeout);
+                this.setupStatus = 'IDLE';
+                this.isDetecting = false;
+                window.showToast('Batal paksa berhasil dilakukan.', 'info');
             } finally {
                 this.isCancelling = false;
             }
