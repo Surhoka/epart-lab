@@ -13,6 +13,7 @@ window.setupData = function () {
         setupMode: 'new',
         originalConfig: {},
         isDetecting: false,
+        isCancelling: false,
         statusNote: 'no_database',
 
         // Compatibility Getters (Prevents ReferenceError if HTML is cached)
@@ -371,8 +372,41 @@ window.setupData = function () {
                 this.isDetecting = false;
                 this.setupStatus = 'ERROR';
                 this.errorMessage = 'Status check failed: ' + e.message;
-                clearInterval(this.statusInterval);
                 clearTimeout(this.setupTimeout);
+            }
+        },
+
+        async cancelSetup() {
+            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
+            if (!confirm('Apakah Anda yakin ingin membatalkan proses setup yang sedang berjalan?')) return;
+
+            this.isCancelling = true;
+            this.statusMessage = 'Membatalkan setup...';
+
+            try {
+                const baseUrl = this.webappUrl.split('?')[0];
+                const res = await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
+
+                if (res && res.status === 'success') {
+                    // Stop polling
+                    if (this.statusInterval) clearInterval(this.statusInterval);
+                    if (this.setupTimeout) clearTimeout(this.setupTimeout);
+
+                    // Reset Local State
+                    this.setupStatus = 'IDLE';
+                    this.isDetecting = false;
+                    this.statusNote = null;
+                    this.statusMessage = 'Setup dibatalkan.';
+
+                    window.showToast('Setup berhasil dibatalkan.', 'info');
+                } else {
+                    throw new Error(res ? res.message : 'Gagal membatalkan setup.');
+                }
+            } catch (e) {
+                console.error('Cancel failed:', e);
+                window.showToast('Gagal membatalkan: ' + e.message, 'error');
+            } finally {
+                this.isCancelling = false;
             }
         },
 
