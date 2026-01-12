@@ -74,8 +74,6 @@ window.setupData = function () {
                     this.updateBrowserUrl();
                 }
 
-                // Auto-sync to URL whenever webappUrl changes
-                this.$watch('webappUrl', () => this.updateBrowserUrl());
 
             } catch (e) {
                 console.error('Error parsing config:', e);
