@@ -78,8 +78,10 @@ window.setupData = function () {
                     if (this.detectTimeout) clearTimeout(this.detectTimeout);
                     this.detectTimeout = setTimeout(() => {
                         this.detectConfig();
+                        // Only update address bar if focus is safe (stop typing)
+                        // This prevents redirect loops in Blogger
                         this.updateBrowserUrl();
-                    }, 1000);
+                    }, 2000); // Wait longer (2s) before updating address bar
                 });
 
                 // Also sync for Public role
@@ -180,6 +182,9 @@ window.setupData = function () {
                         this.setupMode = 'new';
                         this.dbName = '';
                     }
+
+                    // Detection successful: Safe to update address bar for copying
+                    this.updateBrowserUrl();
                 } else {
                     const msg = data ? (data.message || 'Unknown response') : 'No data received';
                     alert('Server error: ' + msg);
