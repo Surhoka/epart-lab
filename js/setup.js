@@ -13,7 +13,6 @@ window.setupData = function () {
         setupMode: 'new',
         originalConfig: {},
         isDetecting: false,
-        isCancelling: false,
         statusNote: 'no_database',
 
         // Compatibility Getters (Prevents ReferenceError if HTML is cached)
@@ -26,8 +25,6 @@ window.setupData = function () {
         errorMessage: '',
         statusInterval: null,
         setupTimeout: null,
-        detectTimeout: null, // For debouncing discovery
-        lastDetectedUrl: '',
 
         get downloadUrl() {
             // Gunakan gatewayUrl dari CONFIG jika tersedia (Unified Gateway)
@@ -74,24 +71,8 @@ window.setupData = function () {
                     this.updateBrowserUrl();
                 }
 
-                // Auto-sync to URL whenever webappUrl changes (DEBOUNCED to prevent focus loss)
-                this.$watch('webappUrl', (val) => {
-                    if (this.detectTimeout) clearTimeout(this.detectTimeout);
-                    this.detectTimeout = setTimeout(() => {
-                        this.detectConfig();
-                        // Only update address bar if focus is safe (stop typing)
-                        // This prevents redirect loops in Blogger
-                        this.updateBrowserUrl();
-                    }, 2000); // Wait longer (2s) before updating address bar
-                });
-
-                // Also sync for Public role
-                this.$watch('adminWebAppUrl', (val) => {
-                    if (this.detectTimeout) clearTimeout(this.detectTimeout);
-                    this.detectTimeout = setTimeout(() => {
-                        this.updateBrowserUrl();
-                    }, 1000);
-                });
+                // Auto-sync to URL whenever webappUrl changes
+                this.$watch('webappUrl', () => this.updateBrowserUrl());
 
             } catch (e) {
                 console.error('Error parsing config:', e);
@@ -99,12 +80,9 @@ window.setupData = function () {
         },
 
         updateBrowserUrl() {
-            const urlToSync = (this.role === 'Admin') ? this.webappUrl : this.adminWebAppUrl;
-            if (!urlToSync || !urlToSync.includes('script.google.com')) return;
-
+            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
             const currentHash = window.location.hash.split('?')[0] || '#setup';
-            const newHash = `${currentHash}?url=${encodeURIComponent(urlToSync)}`;
-
+            const newHash = `${currentHash}?url=${encodeURIComponent(this.webappUrl)}`;
             if (window.location.hash !== newHash) {
                 // Use replaceState to avoid triggering hashchange/navigation loops
                 const newUrl = window.location.pathname + window.location.search + newHash;
@@ -116,12 +94,7 @@ window.setupData = function () {
             if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) {
                 return;
             }
-            // Avoid duplicate pings or interfering with active setup
-            if (this.setupStatus === 'IN_PROGRESS') return;
-            if (this.webappUrl === this.lastDetectedUrl && this.setupStatus !== 'IDLE') return;
-
             this.isDetecting = true;
-            this.lastDetectedUrl = this.webappUrl;
             this.statusNote = null;
             let data = null;
 
@@ -184,25 +157,22 @@ window.setupData = function () {
                         this.setupMode = 'new';
                         this.dbName = '';
                     }
-
-                    // Detection successful: Safe to update address bar for copying
-                    this.updateBrowserUrl();
                 } else {
                     const msg = data ? (data.message || 'Unknown response') : 'No data received';
-                    // alert('Server error: ' + msg); // Alert bisa mengganggu flow, lebih baik pakai toast atau error di bawah
-                    console.warn(msg);
+                    alert('Server error: ' + msg);
                     this.statusNote = 'no_database';
                 }
             } catch (e) {
-                console.warn('Detection Error: ' + e.message);
+                alert('Detection Error: ' + e.message);
                 this.statusNote = 'no_database';
             } finally {
                 // Stop detecting ONLY if we are NOT in active setup or success
-                const isBusy = (this.setupStatus === 'IN_PROGRESS');
+                const isBusy = (this.setupStatus === 'IN_PROGRESS') || (this.statusNote === 'setup_in_progress');
                 const isDone = (this.setupStatus === 'COMPLETED') || (this.statusNote === 'active');
 
                 if (!isBusy && !isDone) {
                     this.isDetecting = false;
+                    this.setupStatus = 'IDLE';
                 }
             }
         },
@@ -373,53 +343,8 @@ window.setupData = function () {
                 this.isDetecting = false;
                 this.setupStatus = 'ERROR';
                 this.errorMessage = 'Status check failed: ' + e.message;
+                clearInterval(this.statusInterval);
                 clearTimeout(this.setupTimeout);
-            }
-        },
-
-        async cancelSetup() {
-            // Konfirmasi hanya jika sedang dalam proses berat (Setup Database), bukan sekedar deteksi URL
-            if (this.setupStatus === 'IN_PROGRESS' && !confirm('Proses setup database sedang berjalan. Yakin ingin membatalkan?')) {
-                return;
-            }
-
-            this.isCancelling = true;
-            this.statusMessage = 'Membatalkan...';
-
-            try {
-                // Coba beritahu server jika URL valid
-                if (this.webappUrl && this.webappUrl.includes('script.google.com')) {
-                    const baseUrl = this.webappUrl.split('?')[0];
-                    // Kita gunakan timeout pendek (3s) agar user tidak menunggu lama jika server macet
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000);
-                    
-                    try {
-                        await window.app.fetchJsonp(baseUrl, { action: 'reset_setup_status' });
-                        window.showToast('Setup dibatalkan di server.', 'info');
-                    } catch (e) {
-                        console.warn('Server reset timeout/error, forcing local reset.');
-                    } finally {
-                        clearTimeout(timeoutId);
-                    }
-                }
-            } catch (e) {
-                console.error('Cancel logic error:', e);
-            } finally {
-                // FORCE RESET LOCAL STATE (Ini yang membuka kunci)
-                if (this.statusInterval) clearInterval(this.statusInterval);
-                if (this.setupTimeout) clearTimeout(this.setupTimeout);
-                if (this.detectTimeout) clearTimeout(this.detectTimeout);
-
-                this.setupStatus = 'IDLE';
-                this.isDetecting = false;
-                this.isCancelling = false;
-                this.statusNote = null;
-                this.errorMessage = '';
-                this.statusMessage = '';
-                this.lastDetectedUrl = ''; // Penting: reset ini agar URL yang sama bisa dideteksi ulang
-                
-                window.showToast('Formulir di-reset. Silakan periksa URL Anda.', 'warning');
             }
         },
 
