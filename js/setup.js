@@ -73,13 +73,20 @@ window.setupData = function () {
                     this.updateBrowserUrl();
                 }
 
-                // Auto-sync to URL whenever webappUrl changes
+                // Auto-sync to URL whenever webappUrl changes (DEBOUNCED to prevent focus loss)
                 this.$watch('webappUrl', (val) => {
-                    this.updateBrowserUrl();
-                    // DEBOUNCE Detection: Only ping server 1s after user stops typing
                     if (this.detectTimeout) clearTimeout(this.detectTimeout);
                     this.detectTimeout = setTimeout(() => {
                         this.detectConfig();
+                        this.updateBrowserUrl();
+                    }, 1000);
+                });
+
+                // Also sync for Public role
+                this.$watch('adminWebAppUrl', (val) => {
+                    if (this.detectTimeout) clearTimeout(this.detectTimeout);
+                    this.detectTimeout = setTimeout(() => {
+                        this.updateBrowserUrl();
                     }, 1000);
                 });
 
@@ -89,9 +96,12 @@ window.setupData = function () {
         },
 
         updateBrowserUrl() {
-            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
+            const urlToSync = (this.role === 'Admin') ? this.webappUrl : this.adminWebAppUrl;
+            if (!urlToSync || !urlToSync.includes('script.google.com')) return;
+
             const currentHash = window.location.hash.split('?')[0] || '#setup';
-            const newHash = `${currentHash}?url=${encodeURIComponent(this.webappUrl)}`;
+            const newHash = `${currentHash}?url=${encodeURIComponent(urlToSync)}`;
+
             if (window.location.hash !== newHash) {
                 // Use replaceState to avoid triggering hashchange/navigation loops
                 const newUrl = window.location.pathname + window.location.search + newHash;
