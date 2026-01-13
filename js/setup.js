@@ -37,10 +37,26 @@ window.setupData = function () {
         init() {
             console.log('Setup initialized with role:', this.role);
             try {
+                // 1. Try URL parameters first (high priority for cross-browser sync)
+                const getParam = (p) => {
+                    const sp = new URLSearchParams(window.location.search);
+                    if (sp.get(p)) return sp.get(p);
+                    if (window.location.hash.includes('?')) {
+                        const hp = new URLSearchParams(window.location.hash.split('?')[1]);
+                        return hp.get(p);
+                    }
+                    return null;
+                };
+
+                const urlFromParam = getParam('url') || getParam('userWebAppUrl');
+                if (urlFromParam) {
+                    this.webappUrl = urlFromParam.trim();
+                }
+
                 const saved = localStorage.getItem('EzypartsConfig');
                 if (saved) {
                     const config = JSON.parse(saved);
-                    this.webappUrl = config.webappUrl || '';
+                    if (!this.webappUrl) this.webappUrl = config.webappUrl || '';
                     this.email = config.email || '';
                     this.siteKey = config.siteKey || '';
                     // Don't override role from localStorage - use template setting
@@ -48,8 +64,29 @@ window.setupData = function () {
                         this.adminWebAppUrl = config.adminWebAppUrl;
                     }
                 }
+
+                // If we have a URL (from params or cache), trigger detection
+                if (this.webappUrl) {
+                    this.detectConfig();
+                    this.updateBrowserUrl();
+                }
+
+                // Auto-sync to URL whenever webappUrl changes
+                this.$watch('webappUrl', () => this.updateBrowserUrl());
+
             } catch (e) {
                 console.error('Error parsing config:', e);
+            }
+        },
+
+        updateBrowserUrl() {
+            if (!this.webappUrl || !this.webappUrl.includes('script.google.com')) return;
+            const currentHash = window.location.hash.split('?')[0] || '#setup';
+            const newHash = `${currentHash}?url=${encodeURIComponent(this.webappUrl)}`;
+            if (window.location.hash !== newHash) {
+                // Use replaceState to avoid triggering hashchange/navigation loops
+                const newUrl = window.location.pathname + window.location.search + newHash;
+                window.history.replaceState(null, '', newUrl);
             }
         },
 
@@ -106,8 +143,14 @@ window.setupData = function () {
                         // Autostart polling if server reports progress
                         if (this.statusNote === 'setup_in_progress') {
                             this.setupStatus = 'IN_PROGRESS';
+                            this.isDetecting = true;
                             this.statusMessage = 'Setup sedang dikerjakan server...';
-                            setTimeout(() => this.checkStatus(), 1000);
+
+                            if (this.statusInterval) clearInterval(this.statusInterval);
+                            setTimeout(() => {
+                                this.checkStatus();
+                                this.statusInterval = setInterval(() => this.checkStatus(), 3000);
+                            }, 500);
                         }
                     } else {
                         this.hasExistingConfig = false;
@@ -123,11 +166,14 @@ window.setupData = function () {
                 alert('Detection Error: ' + e.message);
                 this.statusNote = 'no_database';
             } finally {
-                // Only stop detecting if we didn't succeed and redirect
-                if (!data || !(data.isSetup || data.statusNote === 'active')) {
+                // Stop detecting ONLY if we are NOT in active setup or success
+                const isBusy = (this.setupStatus === 'IN_PROGRESS') || (this.statusNote === 'setup_in_progress');
+                const isDone = (this.setupStatus === 'COMPLETED') || (this.statusNote === 'active');
+
+                if (!isBusy && !isDone) {
                     this.isDetecting = false;
+                    this.setupStatus = 'IDLE';
                 }
-                this.setupStatus = 'IDLE'; // Reset status if detection fails
             }
         },
 
