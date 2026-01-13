@@ -37,6 +37,7 @@ window.setupData = function () {
         init() {
             console.log('Setup initialized with role:', this.role);
             try {
+
                 const saved = localStorage.getItem('EzypartsConfig');
                 if (saved) {
                     const config = JSON.parse(saved);
@@ -48,6 +49,7 @@ window.setupData = function () {
                         this.adminWebAppUrl = config.adminWebAppUrl;
                     }
                 }
+
             } catch (e) {
                 console.error('Error parsing config:', e);
             }
@@ -106,8 +108,14 @@ window.setupData = function () {
                         // Autostart polling if server reports progress
                         if (this.statusNote === 'setup_in_progress') {
                             this.setupStatus = 'IN_PROGRESS';
+                            this.isDetecting = true;
                             this.statusMessage = 'Setup sedang dikerjakan server...';
-                            setTimeout(() => this.checkStatus(), 1000);
+
+                            if (this.statusInterval) clearInterval(this.statusInterval);
+                            setTimeout(() => {
+                                this.checkStatus();
+                                this.statusInterval = setInterval(() => this.checkStatus(), 3000);
+                            }, 500);
                         }
                     } else {
                         this.hasExistingConfig = false;
@@ -123,11 +131,15 @@ window.setupData = function () {
                 alert('Detection Error: ' + e.message);
                 this.statusNote = 'no_database';
             } finally {
-                // Only stop detecting if we didn't succeed and redirect
-                if (!data || !(data.isSetup || data.statusNote === 'active')) {
+                // Stop detecting ONLY if we are NOT in active setup or success
+                const isBusy = (this.setupStatus === 'IN_PROGRESS') || (this.statusNote === 'setup_in_progress');
+                const isDone = (this.setupStatus === 'COMPLETED') || (this.statusNote === 'active');
+
+                if (!isBusy && !isDone) {
+                    // Only stop detecting if we didn't succeed and redirect
                     this.isDetecting = false;
+                    this.setupStatus = 'IDLE';
                 }
-                this.setupStatus = 'IDLE'; // Reset status if detection fails
             }
         },
 
