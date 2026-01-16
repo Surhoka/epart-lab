@@ -16,11 +16,9 @@ function getConfig() {
 
 function getWebAppUrl() {
     const config = getConfig();
-    // Prioritize the URL saved during setup
-    if (config && config.webappUrl) {
+    if (config && config.webappUrl && config.webappUrl.startsWith('http')) {
         return config.webappUrl;
     }
-    // Fallback to the hardcoded dev URL only if setup hasn't been completed
     return CONFIG.WEBAPP_URL_DEV;
 }
 
