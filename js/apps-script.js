@@ -160,11 +160,16 @@ function applyRoleUrl(config) {
     const role = window.EzyApi.role;
     const DISCOVERY_URL = getGatewayUrl();
 
-    const targetUrl = (role === 'Admin') ?
-        (config.adminUrl || config.publicUrl) :
-        (config.publicUrl || config.adminUrl);
+    // CRITICAL FIX: Always use adminUrl if available, even if isSetup is false
+    // This ensures POST requests (SignIn, etc.) go to the correct Apps Script URL
+    let targetUrl;
+    if (role === 'Admin') {
+        targetUrl = config.adminUrl || config.publicUrl || DISCOVERY_URL;
+    } else {
+        targetUrl = config.publicUrl || config.adminUrl || DISCOVERY_URL;
+    }
 
-    window.EzyApi.url = (targetUrl ? targetUrl.trim() : '') || DISCOVERY_URL;
+    window.EzyApi.url = targetUrl ? targetUrl.trim() : DISCOVERY_URL;
     window.appsScriptUrl = window.EzyApi.url;
 
     if (window.app) {
