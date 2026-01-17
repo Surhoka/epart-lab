@@ -105,13 +105,14 @@ async function discoverEzyApi() {
             console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
             // ONLY sync to LocalStorage if it's a confirmed healthy PROJECT (not a gateway stub)
-            if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
-                localStorage.setItem(cacheKey, JSON.stringify(config));
-                applyRoleUrl(config);
-            } else if (config.statusNote === 'setup_in_progress') {
-                // Keep UI state if setup is in progress
-                applyRoleUrl(config);
-            }
+            applyRoleUrl(config); // Panggil SELALU jika config valid
+
+           if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
+           localStorage.setItem(cacheKey, JSON.stringify(config));
+           console.log('applyRoleUrl: window.EzyApi.url =', window.EzyApi.url);
+        }
+
+
         } else {
             console.warn('Discovery: Invalid or incomplete response received:', config);
             throw new Error('Invalid config response');
