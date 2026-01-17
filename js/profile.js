@@ -520,7 +520,7 @@ function getEffectiveUserId() {
     // Prioritize the actual logged-in user for any action.
     const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
     const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
-    
+
     if (sessionUserId) return sessionUserId;
 
     // Fallback to the ID of the profile currently being viewed on the page.
@@ -618,37 +618,35 @@ function saveAddress() {
         }
     };
 
-    if (typeof window.sendDataToGoogle === 'function') {
-        // BUG FIX: Action should be 'updatePublicProfile' for address data.
-        const action = isCreating ? 'createProfile' : 'updatePublicProfile';
-        const payload = {
-            profileData: JSON.stringify(profileData),
-            userId: userId
-        };
+    // Address is stored in Profile sheet (AdminDB), not PublicDB
+    const action = isCreating ? 'createProfile' : 'updateCoreProfile';
+    const payload = {
+        profileData: JSON.stringify(profileData),
+        userId: userId
+    };
 
-        window.sendDataToGoogle(action, payload, (response) => {
-            const saveBtn = document.getElementById('save-address-btn');
+    window.sendDataToGoogle(action, payload, (response) => {
+        const saveBtn = document.getElementById('save-address-btn');
 
-            if (response.status === 'success') {
-                if (window.showToast) window.showToast(isCreating ? 'Address saved and profile created' : 'Address updated successfully', 'success');
-                window.setButtonLoading(saveBtn, false); // BUG FIX: Stop the spinner on success.
+        if (response.status === 'success') {
+            if (window.showToast) window.showToast(isCreating ? 'Address saved and profile created' : 'Address updated successfully', 'success');
+            window.setButtonLoading(saveBtn, false); // BUG FIX: Stop the spinner on success.
 
-                if (isCreating && response.data && response.data.id) {
-                    window.currentProfileUserId = response.data.id;
-                }
-
-                // Clear cache before refetching
-                const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
-                localStorage.removeItem(cacheKey);
-
-                fetchProfileData(window.currentProfileUserId); // Refresh data
-            } else {
-                console.error('Failed to save address:', response.message);
-                if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
-                window.setButtonLoading(saveBtn, false);
+            if (isCreating && response.data && response.data.id) {
+                window.currentProfileUserId = response.data.id;
             }
-        });
-    }
+
+            // Clear cache before refetching
+            const cacheKey = window.currentProfileUserId ? `cached_profile_data_${window.currentProfileUserId}` : 'cached_profile_data_default';
+            localStorage.removeItem(cacheKey);
+
+            fetchProfileData(window.currentProfileUserId); // Refresh data
+        } else {
+            console.error('Failed to save address:', response.message);
+            if (window.showToast) window.showToast('Failed to save address: ' + response.message, 'error');
+            window.setButtonLoading(saveBtn, false);
+        }
+    });
 }
 
 /**
