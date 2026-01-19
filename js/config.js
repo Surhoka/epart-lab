@@ -19,7 +19,7 @@ function getWebAppUrl() {
     if (config && config.webappUrl && config.webappUrl.startsWith('http')) {
         return config.webappUrl;
     }
-    return CONFIG.WEBAPP_URL_DEV;
+    return '';
 }
 
 function getDatabaseConfig() {
