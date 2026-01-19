@@ -154,6 +154,10 @@ window.setupData = function () {
                     alert('Nama Database wajib diisi untuk instalasi baru');
                     return;
                 }
+                if (!this.email || !this.email.includes('@')) {
+                    alert('Admin Email wajib diisi dengan format yang benar');
+                    return;
+                }
             } else if (this.role === 'Public') {
                 if (!this.adminWebAppUrl) {
                     alert('Admin WebApp URL is required for connection');
