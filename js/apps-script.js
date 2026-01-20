@@ -129,6 +129,8 @@ async function discoverEzyApi() {
         if (window.EzyApi.role === 'Admin') {
             handleDiscoveryFailure();
         }
+        // Ensure URLs are set even if config fails so sendDataToGoogle has a base
+        applyRoleUrl({});
     } finally {
         window.EzyApi.isReady = true;
         window.dispatchEvent(new CustomEvent('ezy-api-ready', { detail: window.EzyApi }));
@@ -162,6 +164,7 @@ function handleDiscoveryFailure() {
  * Memilih URL yang tepat sesuai Role saat ini
  */
 function applyRoleUrl(config) {
+    config = config || {};
     const role = window.EzyApi.role;
     const DISCOVERY_URL = getGatewayUrl();
 
@@ -174,9 +177,12 @@ function applyRoleUrl(config) {
         targetUrl = config.publicUrl || config.adminUrl || DISCOVERY_URL;
     }
 
-    window.EzyApi.url = targetUrl ? targetUrl.trim() : DISCOVERY_URL;
+    // FINAL GUARD: Never let it be empty/relative
+    const finalUrl = (targetUrl && targetUrl.startsWith('http')) ? targetUrl.trim() : DISCOVERY_URL;
+
+    window.EzyApi.url = finalUrl;
     window.EzyApi.gatewayUrl = DISCOVERY_URL; // NEW: Explicitly expose Gateway
-    window.appsScriptUrl = window.EzyApi.url;
+    window.appsScriptUrl = finalUrl;
 
     if (window.app) {
         // Validation: For Public, we also need siteKey to be healthy
