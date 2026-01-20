@@ -8,7 +8,7 @@ window.initLibraryManagerPage = function () {
 
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Tools', 'Library Manager');
+        window.renderBreadcrumb(['Tools', 'Library Manager']);
     }
 
     // Initialize Alpine component if not already done by fetchPage
