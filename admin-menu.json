@@ -94,23 +94,12 @@
           "icon": "database",
           "link": "#database-settings",
           "page": "database-settings"
-        }
-      ]
-    },
-    {
-      "title": "AUTHENTICATION",
-      "items": [
-        {
-          "label": "Sign In",
-          "icon": "log-out",
-          "link": "#signin",
-          "page": "signin"
         },
         {
-          "label": "Sign Up",
-          "icon": "user",
-          "link": "#signup",
-          "page": "signup"
+          "label": "Library Manager",
+          "icon": "grid-01",
+          "link": "#library-manager",
+          "page": "library-manager"
         }
       ]
     }
