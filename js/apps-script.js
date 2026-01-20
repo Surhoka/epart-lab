@@ -105,14 +105,13 @@ async function discoverEzyApi() {
             console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
             // ONLY sync to LocalStorage if it's a confirmed healthy PROJECT (not a gateway stub)
-            applyRoleUrl(config); // Panggil SELALU jika config valid
-
-           if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
-           localStorage.setItem(cacheKey, JSON.stringify(config));
-           console.log('applyRoleUrl: window.EzyApi.url =', window.EzyApi.url);
-        }
-
-
+            if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
+                localStorage.setItem(cacheKey, JSON.stringify(config));
+                applyRoleUrl(config);
+            } else if (config.statusNote === 'setup_in_progress') {
+                // Keep UI state if setup is in progress
+                applyRoleUrl(config);
+            }
         } else {
             console.warn('Discovery: Invalid or incomplete response received:', config);
             throw new Error('Invalid config response');
@@ -171,6 +170,7 @@ function applyRoleUrl(config) {
     }
 
     window.EzyApi.url = targetUrl ? targetUrl.trim() : DISCOVERY_URL;
+    window.EzyApi.gatewayUrl = DISCOVERY_URL; // NEW: Explicitly expose Gateway
     window.appsScriptUrl = window.EzyApi.url;
 
     if (window.app) {
@@ -189,9 +189,9 @@ discoverEzyApi();
 /**
  * Universal Data Sender (POST/GET)
  */
-window.sendDataToGoogle = function (action, data, callback, errorHandler) {
+window.sendDataToGoogle = function (action, data, callback, errorHandler, customUrl = null) {
     if (!window.EzyApi.isReady) {
-        setTimeout(() => window.sendDataToGoogle(action, data, callback, errorHandler), 300);
+        setTimeout(() => window.sendDataToGoogle(action, data, callback, errorHandler, customUrl), 300);
         return;
     }
 
@@ -204,9 +204,16 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
 
     if (postActions.includes(action)) {
         // Use JSON body for POST to ensure reliability with large payloads
-        fetch(window.EzyApi.url, {
+        // INJECT gatewayUrl to POSTs automatically to help Admin project self-correct its proxy
+        const payload = {
+            action,
+            ...data,
+            gatewayUrl: window.EzyApi.gatewayUrl
+        };
+
+        fetch(customUrl || window.EzyApi.url, {
             method: 'POST',
-            body: JSON.stringify({ action, ...data })
+            body: JSON.stringify(payload)
         })
             .then(res => {
                 if (!res.ok) throw new Error('Network response was not ok');
@@ -229,7 +236,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler) {
         const query = new URLSearchParams({ action, callback: cbName, ...data }).toString();
         const script = document.createElement('script');
         script.id = cbName;
-        const baseUrl = window.EzyApi.url;
+        const baseUrl = customUrl || window.EzyApi.url;
         const separator = baseUrl.includes('?') ? '&' : '?';
         script.src = `${baseUrl}${separator}${query}`;
         (document.head || document.documentElement).appendChild(script);
