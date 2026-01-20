@@ -30,11 +30,42 @@ const registerLibraryManager = () => {
             modalOpen: false,
             editMode: false,
             submitting: false,
-            formData: { id: '', name: '', url: '', actions: '', description: '', active: true },
+            availablePlugins: [],
+            formData: {
+                id: '', name: '', url: '', actions: '', description: '', active: true,
+                showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: ''
+            },
 
             async init() {
                 console.log("Library Manager Component Init");
+                await this.fetchAvailablePlugins();
                 await this.fetchPlugins();
+            },
+
+            async fetchAvailablePlugins() {
+                if (!this.gatewayUrl) return;
+                try {
+                    const res = await window.app.fetchJsonp(this.gatewayUrl, { action: 'get_available_plugins' });
+                    if (res.status === 'success') {
+                        this.availablePlugins = res.plugins;
+                    }
+                } catch (e) {
+                    console.error("Fetch templates error:", e);
+                }
+            },
+
+            onPluginSelect() {
+                const template = this.availablePlugins.find(p => p.name === this.formData.name);
+                if (template) {
+                    this.formData.description = template.description;
+                    this.formData.url = template.url || '';
+                    this.formData.actions = template.actions || '';
+                    this.formData.template = template.template || '';
+                    this.formData.menuLabel = template.menuLabel || template.name;
+                    this.formData.menuIcon = template.menuIcon || 'zap';
+                    this.formData.menuGroup = template.menuGroup || 'TOOLS';
+                    this.formData.showInMenu = template.showInMenu !== false;
+                }
             },
 
             get gatewayUrl() {
@@ -61,7 +92,10 @@ const registerLibraryManager = () => {
 
             openAddModal() {
                 this.editMode = false;
-                this.formData = { id: '', name: '', url: '', actions: '', description: '', active: true };
+                this.formData = {
+                    id: '', name: '', url: '', actions: '', description: '', active: true,
+                    showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: ''
+                };
                 this.modalOpen = true;
             },
 
