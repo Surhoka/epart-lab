@@ -22,7 +22,12 @@ if (typeof window.getGatewayUrl === 'undefined') {
 
         if (typeof getWebAppUrl === 'function') {
             const url = getWebAppUrl();
-            return url ? url.trim() : '';
+            if (url) return url.trim();
+        }
+
+        // FALLBACK: Use CONFIG from setup/config.js if defined
+        if (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV) {
+            return CONFIG.WEBAPP_URL_DEV.trim();
         }
         return '';
     };
@@ -233,7 +238,12 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
             if (callback) callback(res);
         };
 
-        const query = new URLSearchParams({ action, callback: cbName, ...data }).toString();
+        const query = new URLSearchParams({
+            action,
+            callback: cbName,
+            gatewayUrl: window.EzyApi.gatewayUrl || '',
+            ...data
+        }).toString();
         const script = document.createElement('script');
         script.id = cbName;
         const baseUrl = customUrl || window.EzyApi.url;
