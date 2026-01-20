@@ -97,7 +97,7 @@
         },
         {
           "label": "Library Manager",
-          "icon": "grid-01",
+          "icon": "library",
           "link": "#library-manager",
           "page": "library-manager"
         }
@@ -105,3 +105,4 @@
     }
   ]
 }
+
