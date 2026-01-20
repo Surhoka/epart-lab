@@ -217,6 +217,21 @@ function populateProfileData(data) {
         });
     }
 
+    // Populate Status Display
+    const statusDisp = document.getElementById('profile-status-display');
+    if (statusDisp) {
+        statusDisp.textContent = personalInfo.status || 'Active';
+        // Add optional color styling
+        statusDisp.className = 'text-sm font-medium';
+        if (personalInfo.status === 'Active' || personalInfo.status === 'Verified') {
+            statusDisp.classList.add('text-success-600');
+        } else if (personalInfo.status === 'Inactive') {
+            statusDisp.classList.add('text-red-600');
+        } else {
+            statusDisp.classList.add('text-gray-800', 'dark:text-white/90');
+        }
+    }
+
     // Populate Address section
     const addressSection = document.querySelectorAll('.grid.grid-cols-1.gap-4')[1];
     if (addressSection) {
@@ -304,6 +319,9 @@ function populateModalFields(personalInfo, address, socialLinks, publicDisplay) 
     if (emailInput) emailInput.value = personalInfo.email || '';
     if (phoneInput) phoneInput.value = personalInfo.phone || '';
     if (bioInput) bioInput.value = personalInfo.bio || '';
+
+    const statusInput = document.getElementById('input-status');
+    if (statusInput) statusInput.value = personalInfo.status || 'Active';
 
     // Social Links - using IDs
     const facebookInput = document.getElementById('input-facebook');
@@ -438,7 +456,8 @@ function clearPersonalInfo() {
                 lastName: '',
                 email: '',
                 phone: '',
-                bio: ''
+                bio: '',
+                status: 'Active'
             },
             socialLinks: {
                 facebook: '',
@@ -541,6 +560,7 @@ function savePersonalInfo() {
     const email = document.getElementById('input-email')?.value || '';
     const phone = document.getElementById('input-phone')?.value || '';
     const bio = document.getElementById('input-bio')?.value || '';
+    const status = document.getElementById('input-status')?.value || 'Active';
 
     const facebook = document.getElementById('input-facebook')?.value || '';
     const twitter = document.getElementById('input-twitter')?.value || '';
@@ -553,7 +573,8 @@ function savePersonalInfo() {
             lastName,
             email,
             phone,
-            bio
+            bio,
+            status
         },
         socialLinks: {
             facebook,
