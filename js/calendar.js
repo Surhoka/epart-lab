@@ -168,6 +168,11 @@ window.initCalendarPage = function () {
       getModalAddBtnEl.style.display = "flex";
       getModalUpdateBtnEl.style.display = "none";
       if (getModalDeleteBtnEl) getModalDeleteBtnEl.style.display = "none";
+
+      resetModalFields();
+      getModalAllDayEl.checked = true;
+      toggleDateTimeInputs(true);
+
       openModal();
       getModalStartDateEl.value = combineDate;
     }
