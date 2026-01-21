@@ -98,7 +98,8 @@ window.initCalendarPage = function () {
     /*=====================*/
     function fetchEvents() {
       if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('read', null, (response) => {
+        // Use specific 'getEvents' action mapped in Admin-Code.gs
+        window.sendDataToGoogle('getEvents', {}, (response) => {
           if (response.status === 'success') {
             calendar.removeAllEvents();
             calendar.addEventSource(response.data);
@@ -247,17 +248,17 @@ window.initCalendarPage = function () {
           ? getModalUpdatedCheckedRadioBtnEl.value
           : "";
 
-      const eventData = {
+      const eventData = { // Data for updateEvent
         id: getPublicID,
         title: getTitleUpdatedValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: getModalAllDayEl.checked,
-        category: getModalUpdatedCheckedRadioBtnValue, // Send flat for Apps Script
+        extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
       };
 
       if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('update', eventData, (response) => {
+        window.sendDataToGoogle('updateEvent', eventData, (response) => {
           if (response.status === 'success') {
             const getEvent = calendar.getEventById(getPublicID);
             if (getEvent) {
@@ -291,7 +292,7 @@ window.initCalendarPage = function () {
           window.setButtonLoading(getModalDeleteBtnEl, true);
 
           if (typeof window.sendDataToGoogle === 'function') {
-            window.sendDataToGoogle('delete', { id: getPublicID }, (response) => {
+            window.sendDataToGoogle('deleteEvent', { id: getPublicID }, (response) => {
               if (response.status === 'success') {
                 const getEvent = calendar.getEventById(getPublicID);
                 if (getEvent) {
@@ -333,18 +334,18 @@ window.initCalendarPage = function () {
         : "Primary"; // Default to Primary if none selected
 
       const tempId = Date.now().toString();
-      const eventData = {
+      const eventData = { // Data for createEvent
         id: tempId,
         title: getTitleValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: getModalAllDayEl.checked, // Set allDay from checkbox
-        category: getModalCheckedRadioBtnValue, // Send flat for Apps Script
-        description: ""
+        extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
+        description: "",
       };
 
       if (typeof window.sendDataToGoogle === 'function') {
-        window.sendDataToGoogle('create', eventData, (response) => {
+        window.sendDataToGoogle('createEvent', eventData, (response) => {
           if (response.status === 'success') {
             // Use the ID returned from server if available, otherwise tempId
             const finalId = response.data && response.data.id ? response.data.id : tempId;
