@@ -340,7 +340,7 @@ window.initCalendarPage = function () {
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: getModalAllDayEl.checked, // Set allDay from checkbox
-        extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
+        extendedProps: { calendar: getModalCheckedRadioBtnValue },
         description: "",
       };
 
