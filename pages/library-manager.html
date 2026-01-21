@@ -106,6 +106,12 @@
                                 <span class="truncate text-xs text-gray-600 dark:text-slate-300"
                                     x-text="plugin.url"></span>
                             </div>
+                            <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-slate-800/50"
+                                x-show="plugin.scripts">
+                                <span class="text-[10px] font-bold uppercase text-gray-400">Scripts:</span>
+                                <span class="truncate text-xs text-gray-600 dark:text-slate-300"
+                                    x-text="plugin.scripts"></span>
+                            </div>
                             <div class="flex flex-wrap gap-1.5 pt-1">
                                 <template x-for="action in (plugin.actions || '').split(',').filter(a => a.trim())">
                                     <span
@@ -222,6 +228,7 @@
                             <input type="hidden" x-model="formData.menuLabel">
                             <input type="hidden" x-model="formData.menuIcon">
                             <input type="hidden" x-model="formData.menuGroup">
+                            <input type="hidden" x-model="formData.scripts">
                             <input type="checkbox" x-model="formData.showInMenu">
                         </div>
 
