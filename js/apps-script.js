@@ -209,8 +209,9 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
     const postActions = [
         'SignInUser', 'registerUser', 'SignOut',
         'saveEvent', 'updateProfile', 'createProfile',
-        'updateCoreProfile', 'updatePublicProfile',
-        'updateProfilePhoto', 'uploadImageAndGetUrl', 'setupUserDatabase'
+        'updateCoreProfile', 'updatePublicProfile', 'updateProfilePhoto',
+        'uploadImageAndGetUrl', 'setupUserDatabase',
+        'save_plugin', 'remove_plugin', 'ping_plugin'
     ];
 
     if (postActions.includes(action)) {
