@@ -186,6 +186,11 @@ window.setupData = function () {
                     this.statusMessage = 'Creating database... Please wait.';
                     const baseUrl = this.webappUrl.split('?')[0];
 
+                    // Determine Gateway URL to pass to Admin Backend (Automatic Registration)
+                    const gatewayUrl = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV)
+                        ? CONFIG.WEBAPP_URL_DEV
+                        : (window.EzyApi && window.EzyApi.gatewayUrl ? window.EzyApi.gatewayUrl : '');
+
                     if (window.app && window.app.fetchJsonp) {
                         window.app.fetchJsonp(baseUrl, {
                             action: 'setup',
@@ -194,7 +199,8 @@ window.setupData = function () {
                             email: this.email,
                             dbSetup: this.setupMode === 'new' ? 'force_new' : this.dbSetup,
                             dbName: this.dbName,
-                            sheetId: this.sheetId
+                            sheetId: this.sheetId,
+                            gatewayUrl: gatewayUrl
                         });
 
                         // Start polling for Admin setup
