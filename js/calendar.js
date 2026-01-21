@@ -99,7 +99,23 @@ window.initCalendarPage = function () {
         return [`event-fc-color`, `fc-bg-${getColorValue}`];
       },
       eventDidMount: function (info) {
-        info.el.setAttribute('title', info.event.title);
+        // Hapus tooltip bawaan browser
+        info.el.removeAttribute('title');
+
+        // Tambahkan class untuk trigger hover (sesuai style.css)
+        info.el.classList.add('group', 'relative', 'overflow-visible');
+
+        // Buat elemen tooltip kustom
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip z-50 w-max max-w-[200px] whitespace-normal text-left';
+
+        let content = `<div class="font-semibold">${info.event.title}</div>`;
+        if (info.event.extendedProps.description) {
+          content += `<div class="mt-1 pt-1 border-t border-white/20 text-xs font-normal opacity-90">${info.event.extendedProps.description}</div>`;
+        }
+
+        tooltip.innerHTML = content;
+        info.el.appendChild(tooltip);
       },
     });
 
