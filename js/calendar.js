@@ -98,6 +98,9 @@ window.initCalendarPage = function () {
           calendarsEvents[calendarEvent._def.extendedProps.calendar];
         return [`event-fc-color`, `fc-bg-${getColorValue}`];
       },
+      eventDidMount: function (info) {
+        info.el.setAttribute('title', info.event.title);
+      },
     });
 
     /*=====================*/
