@@ -538,9 +538,12 @@ function clearAddress() {
 function getEffectiveUserId() {
     // Prioritize the actual logged-in user for any action.
     const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
 
-    if (sessionUserId) return sessionUserId;
+    if (sessionUser) {
+        if (sessionUser.id) return sessionUser.id;
+        if (sessionUser.uid) return sessionUser.uid;
+        if (sessionUser.userId) return sessionUser.userId;
+    }
 
     // Fallback to the ID of the profile currently being viewed on the page.
     return window.currentProfileUserId;
@@ -566,6 +569,13 @@ function savePersonalInfo() {
     const twitter = document.getElementById('input-twitter')?.value || '';
     const linkedin = document.getElementById('input-linkedin')?.value || '';
     const instagram = document.getElementById('input-instagram')?.value || '';
+
+    if (!userId) {
+        console.error('savePersonalInfo: User ID is missing.');
+        if (window.showToast) window.showToast('User ID missing. Please sign in again.', 'error');
+        window.setButtonLoading(document.getElementById('save-personal-info-btn'), false);
+        return;
+    }
 
     const profileData = {
         personalInfo: {
@@ -629,6 +639,13 @@ function saveAddress() {
     const cityState = document.getElementById('input-citystate')?.value || '';
     const postalCode = document.getElementById('input-postalcode')?.value || '';
     const taxId = document.getElementById('input-taxid')?.value || '';
+
+    if (!userId) {
+        console.error('saveAddress: User ID is missing.');
+        if (window.showToast) window.showToast('User ID missing. Please sign in again.', 'error');
+        window.setButtonLoading(document.getElementById('save-address-btn'), false);
+        return;
+    }
 
     const profileData = {
         address: {
@@ -839,6 +856,13 @@ function resetUploadButton() {
 function savePublicInfo() {
     const isCreating = !window.currentProfileUserId;
     const userId = getEffectiveUserId();
+
+    if (!userId) {
+        console.error('savePublicInfo: User ID is missing.');
+        if (window.showToast) window.showToast('User ID missing. Please sign in again.', 'error');
+        window.setButtonLoading(document.getElementById('save-public-info-btn'), false);
+        return;
+    }
 
     const publicData = {
         publicDisplay: {
