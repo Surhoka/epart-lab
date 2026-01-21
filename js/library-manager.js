@@ -71,14 +71,17 @@ const registerLibraryManager = () => {
             get gatewayUrl() {
                 return (typeof CONFIG !== 'undefined') ? CONFIG.WEBAPP_URL_DEV : '';
             },
+            get apiUrl() {
+                return window.EzyApi ? window.EzyApi.url : '';
+            },
 
             async fetchPlugins() {
-                if (!this.gatewayUrl) {
-                    console.error("Gateway URL not found in CONFIG");
+                if (!this.apiUrl) {
+                    console.error("API URL not found");
                     return;
                 }
                 try {
-                    const res = await window.app.fetchJsonp(this.gatewayUrl, { action: 'get_all_plugins' });
+                    const res = await window.app.fetchJsonp(this.apiUrl, { action: 'get_all_plugins' });
                     if (res.status === 'success') {
                         this.plugins = res.plugins.map(p => ({ ...p, pinging: false, pingResult: null }));
                     } else {
@@ -112,7 +115,7 @@ const registerLibraryManager = () => {
             async savePlugin() {
                 this.submitting = true;
                 try {
-                    const res = await window.app.fetchJsonp(this.gatewayUrl, {
+                    const res = await window.app.fetchJsonp(this.apiUrl, {
                         action: 'save_plugin',
                         data: JSON.stringify(this.formData)
                     });
@@ -132,7 +135,7 @@ const registerLibraryManager = () => {
 
             async togglePlugin(plugin) {
                 try {
-                    const res = await window.app.fetchJsonp(this.gatewayUrl, {
+                    const res = await window.app.fetchJsonp(this.apiUrl, {
                         action: 'save_plugin',
                         data: JSON.stringify(plugin)
                     });
@@ -147,7 +150,7 @@ const registerLibraryManager = () => {
             async deletePlugin(id) {
                 if (!confirm('Are you sure you want to remove this plugin?')) return;
                 try {
-                    const res = await window.app.fetchJsonp(this.gatewayUrl, {
+                    const res = await window.app.fetchJsonp(this.apiUrl, {
                         action: 'remove_plugin',
                         id: id
                     });
@@ -163,7 +166,7 @@ const registerLibraryManager = () => {
             async pingPlugin(plugin) {
                 plugin.pinging = true;
                 try {
-                    const res = await window.app.fetchJsonp(this.gatewayUrl, {
+                    const res = await window.app.fetchJsonp(this.apiUrl, {
                         action: 'ping_plugin',
                         url: plugin.url
                     });
