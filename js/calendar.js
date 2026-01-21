@@ -21,6 +21,7 @@ window.initCalendarPage = function () {
     // Calender Modal Elements
     /*=================*/
     const getModalTitleEl = document.querySelector("#event-title");
+    const getModalDescriptionEl = document.querySelector("#event-description");
     const getModalStartDateEl = document.querySelector("#event-start-date");
     const getModalEndDateEl = document.querySelector("#event-end-date");
     const getModalAllDayEl = document.querySelector("#event-all-day");
@@ -153,6 +154,7 @@ window.initCalendarPage = function () {
       getModalStartDateEl.value = info.startStr;
       getModalEndDateEl.value = info.endStr || info.startStr;
       getModalTitleEl.value = "";
+      if (getModalDescriptionEl) getModalDescriptionEl.value = "";
     }
 
     /*=====================*/
@@ -198,6 +200,7 @@ window.initCalendarPage = function () {
         toggleDateTimeInputs(eventObj.allDay);
 
         getModalTitleEl.value = eventObj.title;
+        if (getModalDescriptionEl) getModalDescriptionEl.value = eventObj.extendedProps.description || "";
 
         // Use different formatting based on allDay status
         if (eventObj.allDay) {
@@ -242,6 +245,7 @@ window.initCalendarPage = function () {
 
       const getPublicID = getModalUpdateBtnEl.dataset.fcEventPublicId;
       const getTitleUpdatedValue = getModalTitleEl.value;
+      const getDescriptionValue = getModalDescriptionEl ? getModalDescriptionEl.value : "";
       const setModalStartDateValue = getModalStartDateEl.value;
       const setModalEndDateValue = getModalEndDateEl.value;
       const getModalUpdatedCheckedRadioBtnEl = document.querySelector(
@@ -259,7 +263,10 @@ window.initCalendarPage = function () {
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: getModalAllDayEl.checked,
-        extendedProps: { calendar: getModalUpdatedCheckedRadioBtnValue },
+        extendedProps: {
+          calendar: getModalUpdatedCheckedRadioBtnValue,
+          description: getDescriptionValue
+        },
       };
 
       if (typeof window.sendDataToGoogle === 'function') {
@@ -270,9 +277,12 @@ window.initCalendarPage = function () {
               getEvent.setProp("title", getTitleUpdatedValue);
               getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
               getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
+              getEvent.setExtendedProp("description", getDescriptionValue);
             }
 
             if (window.showToast) window.showToast('Event updated successfully');
+            window.setButtonLoading(getModalUpdateBtnEl, false);
+            closeModal();
           } else {
             console.error('Failed to update event:', response.message);
             if (window.showToast) window.showToast('Failed to update event', 'error');
@@ -305,6 +315,8 @@ window.initCalendarPage = function () {
                 }
 
                 if (window.showToast) window.showToast('Event deleted successfully');
+                window.setButtonLoading(getModalDeleteBtnEl, false);
+                closeModal();
               } else {
                 console.error('Failed to delete event:', response.message);
                 if (window.showToast) window.showToast('Failed to delete event', 'error');
@@ -332,6 +344,7 @@ window.initCalendarPage = function () {
       );
 
       const getTitleValue = getModalTitleEl.value;
+      const getDescriptionValue = getModalDescriptionEl ? getModalDescriptionEl.value : "";
       const setModalStartDateValue = getModalStartDateEl.value;
       const setModalEndDateValue = getModalEndDateEl.value;
       const getModalCheckedRadioBtnValue = getModalCheckedRadioBtnEl
@@ -345,8 +358,11 @@ window.initCalendarPage = function () {
         start: setModalStartDateValue,
         end: setModalEndDateValue,
         allDay: getModalAllDayEl.checked, // Set allDay from checkbox
-        extendedProps: { calendar: getModalCheckedRadioBtnValue },
-        description: "",
+        extendedProps: {
+          calendar: getModalCheckedRadioBtnValue,
+          description: getDescriptionValue
+        },
+        description: getDescriptionValue,
       };
 
       if (typeof window.sendDataToGoogle === 'function') {
@@ -359,6 +375,8 @@ window.initCalendarPage = function () {
             calendar.addEvent(eventData);
 
             if (window.showToast) window.showToast('Event created successfully');
+            window.setButtonLoading(getModalAddBtnEl, false);
+            closeModal();
           } else {
             console.error('Failed to create event:', response.message);
             if (window.showToast) window.showToast('Failed to create event', 'error');
@@ -387,6 +405,7 @@ window.initCalendarPage = function () {
 
     function resetModalFields() {
       getModalTitleEl.value = "";
+      if (getModalDescriptionEl) getModalDescriptionEl.value = "";
       getModalStartDateEl.value = "";
       getModalEndDateEl.value = "";
       getModalAllDayEl.checked = false; // Reset checkbox
