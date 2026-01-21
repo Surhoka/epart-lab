@@ -436,15 +436,34 @@ body {
   /* Set default text color */
 }
 
-/* For Remove Date Icon */
+/* Refactored Date/Time Input Styling */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color-scheme: light;
+  /* Force light theme (dark text) in light mode */
+}
+
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"] {
+  color-scheme: dark;
+  /* Force dark theme (light text) in dark mode */
+}
+
+/* Hide native icons completely */
 input[type="date"]::-webkit-inner-spin-button,
 input[type="time"]::-webkit-inner-spin-button,
 input[type="datetime-local"]::-webkit-inner-spin-button,
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  display: none;
+  display: none !important;
   -webkit-appearance: none;
+  opacity: 0;
 }
 
 .sidebar:hover {
