@@ -103,7 +103,7 @@ window.initCalendarPage = function () {
         info.el.removeAttribute('title');
 
         // Tambahkan class untuk trigger hover (sesuai style.css)
-        info.el.classList.add('group', 'relative', 'overflow-visible');
+        info.el.classList.add('group', 'relative', 'overflow-visible', 'cursor-pointer');
 
         // Buat elemen tooltip kustom
         const tooltip = document.createElement('div');
