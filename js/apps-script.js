@@ -211,7 +211,9 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'saveEvent', 'updateProfile', 'createProfile',
         'updateCoreProfile', 'updatePublicProfile', 'updateProfilePhoto',
         'uploadImageAndGetUrl', 'setupUserDatabase',
-        'save_plugin', 'remove_plugin', 'ping_plugin'
+        'save_plugin', 'remove_plugin', 'ping_plugin',
+        'dbCreate', 'dbUpdate', 'dbDelete', // Add generic DB actions for POST
+        'createEvent', 'updateEvent', 'deleteEvent' // Add Calendar specific actions
     ];
 
     if (postActions.includes(action)) {
