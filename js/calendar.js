@@ -77,6 +77,12 @@ window.initCalendarPage = function () {
       initialView: "dayGridMonth",
       initialDate: newDate,
       headerToolbar: calendarHeaderToolbar,
+      eventTimeFormat: {
+        hour: '2-digit',
+        minute: '2-digit',
+        meridiem: false,
+        hour12: false
+      },
       events: [], // Start empty, load via fetch
       select: calendarSelect,
       eventClick: calendarEventClick,
@@ -177,6 +183,7 @@ window.initCalendarPage = function () {
 
       openModal();
       getModalStartDateEl.value = combineDate;
+      getModalEndDateEl.value = combineDate;
     }
 
     /*=====================*/
@@ -219,7 +226,7 @@ window.initCalendarPage = function () {
           getModalStartDateEl.value = eventObj.startStr.slice(0, 16);
           getModalEndDateEl.value = eventObj.endStr
             ? eventObj.endStr.slice(0, 16)
-            : "";
+            : eventObj.startStr.slice(0, 16);
         }
 
         if (getModalCheckedRadioBtnEl) {
