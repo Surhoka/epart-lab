@@ -33,7 +33,7 @@ const registerLibraryManager = () => {
             availablePlugins: [],
             formData: {
                 id: '', name: '', url: '', actions: '', description: '', active: true,
-                showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: ''
+                showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '', scripts: ''
             },
 
             async init() {
@@ -65,6 +65,7 @@ const registerLibraryManager = () => {
                     this.formData.menuIcon = template.menuIcon || 'zap';
                     this.formData.menuGroup = template.menuGroup || 'TOOLS';
                     this.formData.showInMenu = template.showInMenu !== false;
+                    this.formData.scripts = template.scripts || '';
                 }
             },
 
