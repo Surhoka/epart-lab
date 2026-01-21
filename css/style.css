@@ -1213,14 +1213,16 @@ span.flatpickr-weekday,
   padding-left: 1rem;
 }
 
-.event-fc-color .fc-event-title {
+.event-fc-color .fc-event-title,
+.event-fc-color .fc-event-time {
   padding: 0;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-secondary);
 }
 
-.dark .event-fc-color .fc-event-title {
+.dark .event-fc-color .fc-event-title,
+.dark .event-fc-color .fc-event-time {
   color: var(--color-white);
 }
 
