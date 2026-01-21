@@ -183,7 +183,7 @@ window.setupData = function () {
             try {
                 if (this.role === 'Admin') {
                     // ADMIN: Create new database via user's WebApp
-                    this.statusMessage = 'Creating database... Please wait.';
+                    this.statusMessage = 'Sending initialization request to your WebApp...';
                     const baseUrl = this.webappUrl.split('?')[0];
 
                     // Determine Gateway URL to pass to Admin Backend (Automatic Registration)
@@ -286,8 +286,15 @@ window.setupData = function () {
                         this.siteKey = data.siteKey || '';
 
                         // Sync to LocalStorage immediately
-                        if (this.setupMode === 'new') localStorage.clear();
-                        else localStorage.removeItem('Ezyparts_Config_Cache');
+                        if (this.setupMode === 'new') {
+                            // Targeted cleanup: Remove App Data but keep UI Preferences (like Dark Mode)
+                            localStorage.removeItem('EzypartsConfig');
+                            localStorage.removeItem('signedInUser');
+                            localStorage.removeItem('Ezyparts_Config_Cache');
+                            localStorage.removeItem('menuSelected');
+                        } else {
+                            localStorage.removeItem('Ezyparts_Config_Cache');
+                        }
 
                         localStorage.setItem('EzypartsConfig', JSON.stringify({
                             webappUrl: this.webappUrl,
