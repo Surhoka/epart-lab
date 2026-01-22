@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-data="{ activeTab: 'chat' }">
     <!-- Breadcrumb Start -->
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
@@ -12,8 +12,23 @@
         </div>
     </div>
 
+    <!-- Tab Navigation -->
+    <div class="flex items-center gap-4 mb-6 border-b border-gray-200 dark:border-gray-800">
+        <button @click="activeTab = 'chat'"
+            :class="activeTab === 'chat' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+            class="pb-3 text-sm font-semibold border-b-2 transition-all">
+            AI Chat
+        </button>
+        <button @click="activeTab = 'rules'"
+            :class="activeTab === 'rules' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+            class="pb-3 text-sm font-semibold border-b-2 transition-all">
+            AI Rules
+        </button>
+    </div>
+
     <!-- Primary Card Wrapper -->
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+    <div x-show="activeTab === 'chat'" x-transition
+        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
 
         <!-- Search Section -->
         <div class="p-1">
@@ -63,6 +78,60 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- AI Rules Tab -->
+    <div x-show="activeTab === 'rules'" x-transition x-cloak
+        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Manage Rules</h3>
+                <button
+                    class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Rule Baru
+                </button>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                                Status</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                                Prompt</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                                Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-gray-800">
+                        <!-- Empty State or Example -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap" colspan="3">
+                                <div class="flex flex-col items-center justify-center py-6 text-center">
+                                    <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Belum ada rules yang
+                                        ditambahkan.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 </div>
