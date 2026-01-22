@@ -1,6 +1,6 @@
 /*======== AI Assistant JS =========*/
 
-window.initFaqAiPage = function () {
+window.initAiAssistantPage = function () {
     console.log('Initializing AI Assistant Page...');
 
     if (typeof window.renderBreadcrumb === 'function') {
@@ -117,32 +117,9 @@ function setupAiConfig() {
 /* -------------------------------------------------------------------------- */
 function setupRulesManager() {
     const tableBody = document.querySelector('table tbody');
-    const addRuleBtn = document.getElementById('btn-add-rule');
 
     // Load Rules
     loadRules(tableBody);
-
-    // Add Rule Handler
-    if (addRuleBtn) {
-        addRuleBtn.addEventListener('click', () => {
-            openRuleModal(); // Open in Create mode
-        });
-    }
-
-    // Bind Modal Events (moved from injectRuleModal)
-    const modal = document.getElementById('aiRuleModal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target === modal) {
-                closeRuleModal();
-            }
-        });
-    }
-
-    const saveBtn = document.getElementById('save-rule-btn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveRule);
-    }
 }
 
 function loadRules(tableBody) {
@@ -196,7 +173,7 @@ function renderRulesTable(tbody, rules) {
 /* -------------------------------------------------------------------------- */
 /*                                MODAL LOGIC                                 */
 /* -------------------------------------------------------------------------- */
-function openRuleModal(rule = null) {
+window.openRuleModal = function (rule = null) {
     const modal = document.getElementById('aiRuleModal');
     const title = document.getElementById('aiRuleModalTitle');
     const idInput = document.getElementById('rule-id');
@@ -222,13 +199,13 @@ function openRuleModal(rule = null) {
     modal.classList.add('show');
 }
 
-function closeRuleModal() {
+window.closeRuleModal = function () {
     const modal = document.getElementById('aiRuleModal');
     modal.classList.remove('show');
     modal.classList.add('hidden');
 }
 
-function saveRule() {
+window.saveRule = function () {
     const id = document.getElementById('rule-id').value;
     const prompt = document.getElementById('rule-prompt').value;
     const response = document.getElementById('rule-response').value;
@@ -248,7 +225,7 @@ function saveRule() {
     window.sendDataToGoogle(action, payload, (res) => {
         window.setButtonLoading(btn, false);
         if (res.status === 'success') {
-            closeRuleModal();
+            window.closeRuleModal();
             if (window.showToast) window.showToast('Rule berhasil disimpan', 'success');
             loadRules(document.querySelector('table tbody'));
         } else {
@@ -261,7 +238,7 @@ function saveRule() {
 window.editAiRule = function (id) {
     const rules = window._aiRulesCache || [];
     const rule = rules.find(r => r.id === id);
-    if (rule) openRuleModal(rule);
+    if (rule) window.openRuleModal(rule);
 };
 
 window.deleteAiRule = function (id) {
