@@ -155,9 +155,6 @@ function renderRulesTable(tbody, rules) {
                 <div class="text-sm font-medium text-gray-900 dark:text-white truncate max-w-xs" title="${rule.prompt}">
                     ${rule.prompt}
                 </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                    ${rule.response ? rule.response.substring(0, 50) + '...' : '-'}
-                </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="window.editAiRule('${rule.id}')" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Edit</button>
@@ -177,20 +174,17 @@ window.openRuleModal = function (rule = null) {
     const title = document.getElementById('aiRuleModalTitle');
     const idInput = document.getElementById('rule-id');
     const promptInput = document.getElementById('rule-prompt');
-    const responseInput = document.getElementById('rule-response');
     const activeInput = document.getElementById('rule-active');
 
     if (rule) {
         title.textContent = 'Edit Rule';
         idInput.value = rule.id;
         promptInput.value = rule.prompt;
-        responseInput.value = rule.response;
         activeInput.checked = rule.active;
     } else {
         title.textContent = 'Rule Baru';
         idInput.value = '';
         promptInput.value = '';
-        responseInput.value = '';
         activeInput.checked = true;
     }
 
@@ -218,19 +212,18 @@ window.closeRuleModal = function () {
 window.saveRule = function () {
     const id = document.getElementById('rule-id').value;
     const prompt = document.getElementById('rule-prompt').value;
-    const response = document.getElementById('rule-response').value;
     const active = document.getElementById('rule-active').checked;
     const btn = document.getElementById('save-rule-btn');
 
-    if (!prompt || !response) {
-        alert('Prompt dan Respon wajib diisi');
+    if (!prompt) {
+        alert('Prompt wajib diisi');
         return;
     }
 
     window.setButtonLoading(btn, true);
 
     const action = id ? 'updateAiRule' : 'createAiRule';
-    const payload = { id, prompt, response, active };
+    const payload = { id, prompt, active };
 
     window.sendDataToGoogle(action, payload, (res) => {
         window.setButtonLoading(btn, false);
