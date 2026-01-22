@@ -125,7 +125,8 @@ window.initCalendarPage = function () {
     function fetchEvents() {
       if (typeof window.sendDataToGoogle === 'function') {
         // Use specific 'getEvents' action mapped in Admin-Code.gs
-        window.sendDataToGoogle('getEvents', {}, (response) => {
+        const dbId = window.EzyApi?.config?.dbId || '';
+        window.sendDataToGoogle('getEvents', { dbId: dbId }, (response) => {
           if (response.status === 'success') {
             calendar.removeAllEvents();
             calendar.addEventSource(response.data);
@@ -285,6 +286,7 @@ window.initCalendarPage = function () {
 
       const eventData = { // Data for updateEvent
         id: getPublicID,
+        dbId: window.EzyApi?.config?.dbId || '',
         title: getTitleUpdatedValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
@@ -333,7 +335,7 @@ window.initCalendarPage = function () {
           window.setButtonLoading(getModalDeleteBtnEl, true);
 
           if (typeof window.sendDataToGoogle === 'function') {
-            window.sendDataToGoogle('deleteEvent', { id: getPublicID }, (response) => {
+            window.sendDataToGoogle('deleteEvent', { id: getPublicID, dbId: window.EzyApi?.config?.dbId || '' }, (response) => {
               if (response.status === 'success') {
                 const getEvent = calendar.getEventById(getPublicID);
                 if (getEvent) {
@@ -380,6 +382,7 @@ window.initCalendarPage = function () {
       const tempId = Date.now().toString();
       const eventData = { // Data for createEvent
         id: tempId,
+        dbId: window.EzyApi?.config?.dbId || '',
         title: getTitleValue,
         start: setModalStartDateValue,
         end: setModalEndDateValue,
