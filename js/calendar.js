@@ -123,6 +123,12 @@ window.initCalendarPage = function () {
     // Fetch Events from Backend
     /*=====================*/
     function fetchEvents() {
+      // Ensure EzyApi is ready so we have the correct dbId
+      if (!window.EzyApi || !window.EzyApi.isReady) {
+        setTimeout(fetchEvents, 300);
+        return;
+      }
+
       if (typeof window.sendDataToGoogle === 'function') {
         // Use specific 'getEvents' action mapped in Admin-Code.gs
         const dbId = window.EzyApi?.config?.dbId || '';
