@@ -117,9 +117,7 @@ function setupAiConfig() {
 /* -------------------------------------------------------------------------- */
 function setupRulesManager() {
     const tableBody = document.querySelector('table tbody');
-    // Find "Rule Baru" button by text content since it has no ID in the provided HTML
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const addRuleBtn = buttons.find(b => b.textContent.trim().includes('Rule Baru'));
+    const addRuleBtn = document.getElementById('btn-add-rule');
 
     // Inject Modal if not exists
     injectRuleModal();
