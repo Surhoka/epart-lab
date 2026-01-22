@@ -1,0 +1,148 @@
+<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+    <!-- Breadcrumb Start -->
+    <div id="breadcrumb-container"></div>
+    <!-- Breadcrumb End -->
+
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">AI Assistant</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Temukan jawaban cepat atau tanyakan langsung pada asisten AI kami.
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="ask-ai-trigger"
+                class="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 active:scale-95">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
+                </svg>
+                Tanya AI Sekarang
+            </button>
+        </div>
+    </div>
+
+    <!-- Primary Card Wrapper -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+
+        <!-- Search Section -->
+        <div class="mb-8 p-1">
+            <div class="relative group flex gap-3">
+                <div class="relative flex-1">
+                    <span
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-brand-500">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input type="text" id="faq-search"
+                        placeholder="Cari pertanyaan... (contoh: 'resi' atau 'pembayaran')"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-300 focus:ring-4 focus:ring-brand-500/5 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-800">
+                </div>
+                <button id="search-ask-ai"
+                    class="flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 dark:bg-brand-500 dark:hover:bg-brand-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
+                    </svg>
+                    Tanya AI
+                </button>
+            </div>
+
+            <!-- AI Search Result Container (Hidden by default) -->
+            <div id="ai-search-result"
+                class="mt-6 hidden animate-fadeIn overflow-hidden rounded-2xl border border-brand-100 bg-brand-50/30 p-6 dark:border-brand-500/20 dark:bg-brand-500/5">
+                <div class="mb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-brand-600 dark:text-brand-400">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">AI Insight</span>
+                    </div>
+                    <button id="close-ai-result" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l18 18"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="ai-result-content" class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    <!-- Typing content goes here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AI Chat Modal (Hidden by Default) -->
+    <div id="aiChatModal"
+        class="fixed inset-0 z-[99999] hidden items-center justify-center p-4 md:p-5 overflow-hidden modal">
+        <div
+            class="modal-close-btn fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300">
+        </div>
+        <div
+            class="modal-dialog relative flex w-full max-w-[600px] flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary shadow-2xl transition-all duration-300 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-theme-primary bg-theme-secondary p-6">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-lg shadow-brand-500/20">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.015 21.5a.5.5 0 0 0 .635.635L7.2 20.662C8.67 21.513 10.379 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z">
+                            </path>
+                            <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-white">AI Assistant</h4>
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="flex h-2 w-2 items-center justify-center rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Selalu Aktif</span>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="modal-close-btn flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Chat Body -->
+            <div id="ai-chat-body" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar min-h-[400px]">
+                <div class="flex gap-3">
+                    <div
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white text-xs font-bold">
+                        AI</div>
+                    <div
+                        class="rounded-2xl bg-gray-100 p-4 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300 max-w-[80%]">
+                        Halo! Saya asisten AI Ezyparts. Ada yang bisa saya bantu terkait layanan kami?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t border-theme-primary bg-theme-secondary p-6">
+                <form id="ai-chat-form" class="flex gap-3">
+                    <input type="text" id="ai-chat-input" placeholder="Ketik pertanyaan Anda..."
+                        class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <button type="submit"
+                        class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500 text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95">
+                        <svg class="h-5 w-5 rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
