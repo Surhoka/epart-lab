@@ -190,36 +190,47 @@ function injectRuleModal() {
     if (document.getElementById('aiRuleModal')) return;
 
     const modalHtml = `
-    <div id="aiRuleModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75 backdrop-blur-sm" aria-hidden="true" id="aiRuleModalBackdrop"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-gray-200 dark:border-gray-700">
-                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-1 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-bold text-gray-900 dark:text-white" id="aiRuleModalTitle">Rule Baru</h3>
-                            <div class="mt-4 space-y-4">
-                                <input type="hidden" id="rule-id">
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Prompt / Trigger</label>
-                                    <input type="text" id="rule-prompt" placeholder="Contoh: tanya harga, jam operasional" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Respon AI / Instruksi</label>
-                                    <textarea id="rule-response" rows="4" placeholder="Instruksi bagaimana AI harus menjawab..." class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"></textarea>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="rule-active" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="rule-active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Aktifkan Rule ini</label>
-                                </div>
-                            </div>
+    <div id="aiRuleModal" class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden modal flex justify-center items-center hidden">
+        <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"></div>
+        <div class="modal-dialog relative flex w-full max-w-[640px] flex-col max-h-[90vh] rounded-[32px] bg-white dark:bg-gray-800 p-8 shadow-2xl transition-all duration-300 lg:p-12 border border-gray-200 dark:border-gray-700">
+            <!-- close btn -->
+            <button class="modal-close-btn absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all hover:scale-110">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+
+            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+                <div class="modal-header border-b border-gray-200 dark:border-gray-700 pb-6 mb-8">
+                    <h5 class="font-bold text-gray-900 dark:text-white text-2xl lg:text-3xl" id="aiRuleModalTitle">
+                        Rule Baru
+                    </h5>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        Atur bagaimana AI merespon pertanyaan spesifik.
+                    </p>
+                </div>
+                <div class="mt-8 modal-body">
+                    <input type="hidden" id="rule-id">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Prompt / Trigger</label>
+                        <input type="text" id="rule-prompt" placeholder="Contoh: tanya harga, jam operasional" class="dark:bg-gray-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-hidden focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-blue-800">
+                    </div>
+                    <div class="mt-6">
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Respon AI / Instruksi</label>
+                        <textarea id="rule-response" rows="4" placeholder="Instruksi bagaimana AI harus menjawab..." class="dark:bg-gray-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-hidden focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-blue-800"></textarea>
+                    </div>
+                    <div class="mt-6">
+                        <div class="flex items-center">
+                            <input id="rule-active" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600">
+                            <label for="rule-active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Aktifkan Rule ini</label>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-800/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
-                    <button type="button" id="save-rule-btn" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:w-auto sm:text-sm">Simpan</button>
-                    <button type="button" id="close-rule-modal" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">Batal</button>
+                <div class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-gray-200 dark:border-gray-700 pt-8">
+                    <button type="button" id="close-rule-modal-btn" class="modal-close-btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                        Batal
+                    </button>
+                    <button type="button" id="save-rule-btn" class="w-full sm:w-auto flex justify-center items-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 hover:scale-105 ml-auto">
+                        Simpan
+                    </button>
                 </div>
             </div>
         </div>
@@ -228,8 +239,15 @@ function injectRuleModal() {
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
     // Bind Modal Events
-    document.getElementById('close-rule-modal').addEventListener('click', closeRuleModal);
-    document.getElementById('aiRuleModalBackdrop').addEventListener('click', closeRuleModal);
+    const modal = document.getElementById('aiRuleModal');
+
+    // Close on click outside or close button (delegation)
+    modal.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target === modal) {
+            closeRuleModal();
+        }
+    });
+
     document.getElementById('save-rule-btn').addEventListener('click', saveRule);
 }
 
@@ -256,10 +274,13 @@ function openRuleModal(rule = null) {
     }
 
     modal.classList.remove('hidden');
+    modal.classList.add('show');
 }
 
 function closeRuleModal() {
-    document.getElementById('aiRuleModal').classList.add('hidden');
+    const modal = document.getElementById('aiRuleModal');
+    modal.classList.remove('show');
+    modal.classList.add('hidden');
 }
 
 function saveRule() {
