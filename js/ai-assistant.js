@@ -174,7 +174,6 @@ function renderRulesTable(tbody, rules) {
 /*                                MODAL LOGIC                                 */
 /* -------------------------------------------------------------------------- */
 window.openRuleModal = function (rule = null) {
-    const modal = document.getElementById('aiRuleModal');
     const title = document.getElementById('aiRuleModalTitle');
     const idInput = document.getElementById('rule-id');
     const promptInput = document.getElementById('rule-prompt');
@@ -195,14 +194,25 @@ window.openRuleModal = function (rule = null) {
         activeInput.checked = true;
     }
 
-    modal.classList.remove('hidden');
-    modal.classList.add('show');
+    const container = document.getElementById('ai-assistant-container');
+    if (container && window.Alpine) {
+        window.Alpine.$data(container).isRuleModalOpen = true;
+    } else {
+        const modal = document.getElementById('aiRuleModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+    }
 }
 
 window.closeRuleModal = function () {
-    const modal = document.getElementById('aiRuleModal');
-    modal.classList.remove('show');
-    modal.classList.add('hidden');
+    const container = document.getElementById('ai-assistant-container');
+    if (container && window.Alpine) {
+        window.Alpine.$data(container).isRuleModalOpen = false;
+    } else {
+        const modal = document.getElementById('aiRuleModal');
+        modal.classList.remove('show');
+        modal.classList.add('hidden');
+    }
 }
 
 window.saveRule = function () {
