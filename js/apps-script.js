@@ -213,7 +213,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'uploadImageAndGetUrl', 'setupUserDatabase',
         'save_plugin', 'remove_plugin', 'ping_plugin',
         'dbCreate', 'dbUpdate', 'dbDelete', // Add generic DB actions for POST
-        'createEvent', 'updateEvent', 'deleteEvent' // Add Calendar specific actions
+        'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
+        'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule' // AI Assistant Actions
     ];
 
     if (postActions.includes(action)) {
