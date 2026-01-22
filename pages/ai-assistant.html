@@ -1,4 +1,5 @@
-<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-data="{ activeTab: 'chat' }">
+<div id="ai-assistant-container" class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6"
+    x-data="{ activeTab: 'chat', isRuleModalOpen: false }">
     <!-- Breadcrumb Start -->
     <div id="breadcrumb-container"></div>
     <!-- Breadcrumb End -->
@@ -133,7 +134,7 @@
         <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Manage Rules</h3>
-                <button id="btn-add-rule"
+                <button id="btn-add-rule" type="button" onclick="window.openRuleModal()"
                     class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -182,15 +183,16 @@
     </div>
 
     <!-- BEGIN MODAL AI RULE -->
-    <div id="aiRuleModal"
-        class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden modal flex justify-center items-center hidden">
-        <div
-            class="modal-close-btn fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300">
+    <div id="aiRuleModal" :class="{ 'show': isRuleModalOpen, 'hidden': !isRuleModalOpen }"
+        class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden modal flex justify-center items-center hidden"
+        x-cloak>
+        <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+            onclick="window.closeRuleModal()">
         </div>
         <div
             class="modal-dialog relative flex w-full max-w-[640px] flex-col max-h-[90vh] rounded-[32px] bg-white dark:bg-gray-800 p-8 shadow-2xl transition-all duration-300 lg:p-12 border border-gray-200 dark:border-gray-700">
             <!-- close btn -->
-            <button
+            <button onclick="window.closeRuleModal()"
                 class="modal-close-btn absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all hover:scale-110">
                 <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -233,11 +235,11 @@
                 </div>
                 <div
                     class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-gray-200 dark:border-gray-700 pt-8">
-                    <button type="button" id="close-rule-modal-btn"
+                    <button type="button" id="close-rule-modal-btn" onclick="window.closeRuleModal()"
                         class="modal-close-btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                         Batal
                     </button>
-                    <button type="button" id="save-rule-btn"
+                    <button type="button" id="save-rule-btn" onclick="window.saveRule()"
                         class="w-full sm:w-auto flex justify-center items-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 hover:scale-105 ml-auto">
                         Simpan
                     </button>
