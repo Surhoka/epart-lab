@@ -119,9 +119,6 @@ function setupRulesManager() {
     const tableBody = document.querySelector('table tbody');
     const addRuleBtn = document.getElementById('btn-add-rule');
 
-    // Inject Modal if not exists
-    injectRuleModal();
-
     // Load Rules
     loadRules(tableBody);
 
@@ -130,6 +127,21 @@ function setupRulesManager() {
         addRuleBtn.addEventListener('click', () => {
             openRuleModal(); // Open in Create mode
         });
+    }
+
+    // Bind Modal Events (moved from injectRuleModal)
+    const modal = document.getElementById('aiRuleModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target === modal) {
+                closeRuleModal();
+            }
+        });
+    }
+
+    const saveBtn = document.getElementById('save-rule-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveRule);
     }
 }
 
@@ -184,71 +196,6 @@ function renderRulesTable(tbody, rules) {
 /* -------------------------------------------------------------------------- */
 /*                                MODAL LOGIC                                 */
 /* -------------------------------------------------------------------------- */
-function injectRuleModal() {
-    if (document.getElementById('aiRuleModal')) return;
-
-    const modalHtml = `
-    <div id="aiRuleModal" class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden modal flex justify-center items-center hidden">
-        <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"></div>
-        <div class="modal-dialog relative flex w-full max-w-[640px] flex-col max-h-[90vh] rounded-[32px] bg-white dark:bg-gray-800 p-8 shadow-2xl transition-all duration-300 lg:p-12 border border-gray-200 dark:border-gray-700">
-            <!-- close btn -->
-            <button class="modal-close-btn absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all hover:scale-110">
-                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-
-            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-                <div class="modal-header border-b border-gray-200 dark:border-gray-700 pb-6 mb-8">
-                    <h5 class="font-bold text-gray-900 dark:text-white text-2xl lg:text-3xl" id="aiRuleModalTitle">
-                        Rule Baru
-                    </h5>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        Atur bagaimana AI merespon pertanyaan spesifik.
-                    </p>
-                </div>
-                <div class="mt-8 modal-body">
-                    <input type="hidden" id="rule-id">
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Prompt / Trigger</label>
-                        <input type="text" id="rule-prompt" placeholder="Contoh: tanya harga, jam operasional" class="dark:bg-gray-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-hidden focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-blue-800">
-                    </div>
-                    <div class="mt-6">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Respon AI / Instruksi</label>
-                        <textarea id="rule-response" rows="4" placeholder="Instruksi bagaimana AI harus menjawab..." class="dark:bg-gray-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-hidden focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-blue-800"></textarea>
-                    </div>
-                    <div class="mt-6">
-                        <div class="flex items-center">
-                            <input id="rule-active" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600">
-                            <label for="rule-active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Aktifkan Rule ini</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-gray-200 dark:border-gray-700 pt-8">
-                    <button type="button" id="close-rule-modal-btn" class="modal-close-btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-                        Batal
-                    </button>
-                    <button type="button" id="save-rule-btn" class="w-full sm:w-auto flex justify-center items-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 hover:scale-105 ml-auto">
-                        Simpan
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>`;
-
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    // Bind Modal Events
-    const modal = document.getElementById('aiRuleModal');
-
-    // Close on click outside or close button (delegation)
-    modal.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target === modal) {
-            closeRuleModal();
-        }
-    });
-
-    document.getElementById('save-rule-btn').addEventListener('click', saveRule);
-}
-
 function openRuleModal(rule = null) {
     const modal = document.getElementById('aiRuleModal');
     const title = document.getElementById('aiRuleModalTitle');
