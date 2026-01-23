@@ -1,364 +1,110 @@
 <div x-data="{ 
-    activeTab: 'all', 
     notifications: [], 
     isLoading: true, 
     notificationError: '',
-    rules: [],
-    // Editor State
-    editingRuleId: null,
-    ruleForm: {
-        prompt: '',
-        channel: 'email',
-        frequency: 'daily',
-        time: new Date().toTimeString().slice(0, 5), // Set default to current time
-        threshold: 5
-    },
-    // Helper Data
-    timeOptions: ['07:00', '08:00', '09:00', '12:00', '17:00'],
-    
-    isSavingSettings: false,
 
     init() {
-        // We focus on Rules now, but keeping fetch settings if needed for legacy or defaults
-        // If we strictly move to per-rule, we might not need global settings fetch here.
-        // For now, let's fetch rules.
-        if (window.fetchAiRules) {
-            this.fetchRulesList();
-        }
-    },
-
-    fetchRulesList() {
-        window.fetchAiRules((data) => {
-            this.rules = data;
-        });
-    },
-
-    openAddRule() {
-        this.editingRuleId = null;
-        // Default values for new rule
-        const now = new Date();
-        const currentTime = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
-        
-        this.ruleForm = {
-            prompt: '',
-            channel: 'email',
-            frequency: 'daily',
-            time: currentTime,
-            threshold: 5
-        };
-        this.activeTab = 'setting';
-    },
-
-    openEditRule(rule) {
-        this.editingRuleId = rule.id;
-        this.ruleForm = {
-            prompt: rule.prompt,
-            channel: rule.channel || 'email',
-            frequency: rule.frequency || 'daily',
-            time: rule.time || '07:00',
-            threshold: rule.threshold || 5
-        };
-        this.activeTab = 'setting';
-    },
-
-    cancelEdit() {
-        this.activeTab = 'rules';
-        this.editingRuleId = null;
-    },
-
-    saveRule() {
-        if (!this.ruleForm.prompt.trim()) {
-            alert('Prompt is required');
-            return;
-        }
-
-        this.isSavingSettings = true;
-        
-        const onComplete = () => {
-            this.isSavingSettings = false;
-            this.fetchRulesList();
-            this.activeTab = 'rules';
-            this.editingRuleId = null;
-        };
-
-        if (this.editingRuleId) {
-            // Update
-            window.updateAiRule(this.editingRuleId, this.ruleForm, onComplete);
-        } else {
-            // Add
-            window.addAiRule(this.ruleForm, (rule) => {
-                this.rules.push(rule);
-                onComplete();
-            });
-        }
-    },
-
-
-  toggleRule(rule) {
-  // Alpine x-model checkbox updates the value first, so rule.isActive is already the new value
-  window.updateAiRuleStatus(rule.id, rule.isActive, () => {
-  console.log('Rule updated');
-  });
-  },
-
-  removeRule(id) {
-  if(confirm('Hapus aturan ini?')) {
-  window.deleteAiRule(id, () => {
-  this.rules = this.rules.filter(r => r.id !== id);
-  });
-  }
-  }
-  }" @notifications-loaded.window="console.log('Event notifications-loaded heard', $event.detail); notifications =
-  $event.detail; isLoading = false" @notifications-error.window="notificationError = $event.detail; isLoading = false"
-  class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-init="init()">
-
-  <style>
-    /* Ensure time picker icon is visible in dark mode */
-    .dark input[type="time"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;
+        // Init logic handled by @notifications-loaded window event from notification.js
     }
-  </style>
+  }"
+  @notifications-loaded.window="console.log('Event notifications-loaded heard', $event.detail); notifications = $event.detail; isLoading = false"
+  @notifications-error.window="notificationError = $event.detail; isLoading = false"
+  class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-init="init()">
 
   <!-- Breadcrumb Start -->
   <div id="breadcrumb-container"></div>
   <!-- Breadcrumb End -->
 
-  <!-- Tab Navigation -->
-  <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
-    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-      <button @click="activeTab = 'all'"
-        :class="activeTab === 'all' 
-                  ? 'border-brand-500 text-brand-600 dark:text-brand-400' 
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
-        class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
-        All Notification
-      </button>
-
-      <button @click="activeTab = 'rules'"
-        :class="activeTab === 'rules' 
-                  ? 'border-brand-500 text-brand-600 dark:text-brand-400' 
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
-        class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
-        AI Rules
-      </button>
-
-      <!-- Setting Tab is now effectively the Editor, showing it only when active or as a generic 'Editor' -->
-      <button @click="activeTab = 'setting'" x-show="activeTab === 'setting'"
-        :class="activeTab === 'setting' 
-                  ? 'border-brand-500 text-brand-600 dark:text-brand-400' 
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
-        class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
-        <span x-text="editingRuleId ? 'Edit Rule' : 'New Rule'"></span>
-      </button>
-    </nav>
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">
+        Notifikasi
+      </h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Lihat riwayat notifikasi dan pembaruan sistem.
+      </p>
+    </div>
   </div>
 
   <!-- Card Container -->
   <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
     <div class="p-6">
 
-      <!-- Tab: All Notification -->
-      <div x-show="activeTab === 'all'">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white/90 mb-4">
-          Riwayat Notifikasi
-        </h2>
+      <!-- Loading State -->
+      <div x-show="isLoading" class="text-gray-500 text-center py-8">
+        <svg class="animate-spin h-8 w-8 mx-auto mb-2 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <p>Memuat notifikasi...</p>
+      </div>
 
-        <!-- Loading State -->
-        <div x-show="isLoading" class="text-gray-500">Memuat notifikasi...</div>
+      <!-- Error State -->
+      <div x-show="notificationError" class="text-red-500 text-center py-8" x-text="notificationError"></div>
 
-        <!-- Error State -->
-        <div x-show="notificationError" class="text-error-500" x-text="notificationError"></div>
-
-        <!-- Notification List -->
-        <div class="grid gap-4" x-show="!isLoading && !notificationError">
-          <template x-for="notif in notifications" :key="notif.id || notif.message">
-            <div
-              class="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-700 dark:bg-gray-900">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" x-text="notif.title"></span>
-                <span class="text-xs text-gray-400 dark:text-gray-500" x-text="notif.timestamp || ''"></span>
+      <!-- Notification List -->
+      <div class="grid gap-4" x-show="!isLoading && !notificationError">
+        <template x-for="notif in notifications" :key="notif.id || notif.createdAt">
+          <div
+            class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-900">
+            <div class="flex items-start gap-4">
+              <!-- Icon based on type -->
+              <div class="flex-shrink-0 mt-1">
+                <template x-if="notif.type === 'success'">
+                  <span
+                    class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </span>
+                </template>
+                <template x-if="notif.type === 'error' || notif.type === 'warning'">
+                  <span
+                    class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                      </path>
+                    </svg>
+                  </span>
+                </template>
+                <template x-if="notif.type !== 'success' && notif.type !== 'error' && notif.type !== 'warning'">
+                  <span
+                    class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </span>
+                </template>
               </div>
-              <p class="mt-2 text-gray-800 dark:text-white/90 text-sm" x-html="notif.message"></p>
-            </div>
-          </template>
-          <div x-show="notifications.length === 0" class="text-gray-500 text-sm">Tidak ada notifikasi.</div>
-        </div>
-      </div>
 
-      <!-- Tab: Setting (Now Rule Editor) -->
-      <div x-show="activeTab === 'setting'" style="display: none;">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-gray-800 dark:text-white/90"
-            x-text="editingRuleId ? 'Edit Aturan & Preferensi' : 'Buat Aturan Baru'"></h2>
-          <button @click="cancelEdit"
-            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-            &larr; Kembali ke Daftar
-          </button>
-        </div>
-
-        <form @submit.prevent="saveRule" class="space-y-4 max-w-lg">
-
-          <!-- Prompt -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prompt / Instruksi AI</label>
-            <textarea x-model="ruleForm.prompt" rows="3"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-              placeholder="Contoh: Berikan ide tentang fitur loyalitas..."></textarea>
-            <p class="text-xs text-gray-500 mt-1">Instruksi ini akan digunakan oleh AI untuk men-generate ide harian.
-            </p>
-          </div>
-
-          <!-- Channel -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Channel Notifikasi</label>
-            <select x-model="ruleForm.channel"
-              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-              <option value="email">Email</option>
-              <option value="sms">SMS</option>
-              <option value="push">Push Notification</option>
-            </select>
-          </div>
-
-          <!-- Frequency -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frekuensi</label>
-            <select x-model="ruleForm.frequency"
-              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-              <option value="daily">Harian</option>
-              <option value="weekly">Mingguan</option>
-              <option value="realtime">Real-time</option>
-            </select>
-          </div>
-
-          <!-- Time -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Waktu Notifikasi</label>
-            <input type="time" x-model="ruleForm.time" onclick="this.showPicker()"
-              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-
-            <!-- Quick Time Selection Buttons -->
-            <div class="mt-2 flex flex-wrap gap-2">
-              <template x-for="t in timeOptions">
-                <button type="button" @click="ruleForm.time = t"
-                  class="px-3 py-1 text-xs rounded-full border transition-colors duration-200"
-                  :class="ruleForm.time === t 
-                                ? 'bg-brand-50 text-brand-700 border-brand-200 dark:bg-brand-500/10 dark:text-brand-300 dark:border-brand-500/20' 
-                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700'">
-                  <span x-text="t"></span>
-                </button>
-              </template>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white"
+                    x-text="notif.type ? notif.type.toUpperCase() : 'INFO'"></span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500"
+                    x-text="new Date(notif.createdAt).toLocaleString()"></span>
+                </div>
+                <div class="mt-1 text-sm text-gray-600 dark:text-gray-300 prose prose-sm max-w-none dark:prose-invert"
+                  x-html="notif.message"></div>
+              </div>
             </div>
           </div>
-
-          <!-- Threshold -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Threshold (Batas
-              Minimum)</label>
-            <input type="number" x-model="ruleForm.threshold"
-              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
-              min="0">
-          </div>
-
-          <div class="pt-4 flex gap-3">
-            <button type="button" @click="cancelEdit"
-              class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-              Batal
-            </button>
-            <button type="submit"
-              class="rounded-lg bg-brand-500 px-6 py-2 text-white hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/25 disabled:opacity-50"
-              :disabled="isSavingSettings">
-              <span x-show="!isSavingSettings">Simpan Aturan</span>
-              <span x-show="isSavingSettings">Menyimpan...</span>
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Tab: AI Rules -->
-      <div x-show="activeTab === 'rules'" style="display: none;">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white/90 mb-4">
-          Aturan AI (Prompt Rules)
-        </h2>
-
-        <!-- Add New Rule Button -->
-        <div class="mb-6">
-          <button @click="openAddRule()"
-            class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/25">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Tambah Rule Baru
-          </button>
-        </div>
-
-        <!-- Rules Table -->
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Status</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Prompt / Aturan</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Settings</th>
-                <th
-                  class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-              <template x-for="rule in rules" :key="rule.id">
-                <tr>
-                  <td class="whitespace-nowrap px-6 py-4">
-                    <label class="items-center cursor-pointer">
-                      <input type="checkbox" x-model="rule.isActive" @change="toggleRule(rule)"
-                        class="form-checkbox h-4 w-4 text-brand-500 rounded border-gray-300 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700">
-                    </label>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate" x-text="rule.prompt">
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                    <div class="flex flex-col gap-1 text-xs">
-                      <span x-text="'Channel: ' + (rule.channel || 'email')"></span>
-                      <span x-text="'Freq: ' + (rule.frequency || 'daily') + ' @ ' + (rule.time || '07:00')"></span>
-                    </div>
-                  </td>
-                  <td class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium">
-                    <div class="flex items-center justify-center gap-2">
-                      <button @click="openEditRule(rule)"
-                        class="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300 p-1 hover:bg-brand-50 rounded-lg dark:hover:bg-brand-900/20 transition-colors"
-                        title="Edit Rule">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button @click="removeRule(rule.id)"
-                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1 hover:bg-red-50 rounded-lg dark:hover:bg-red-900/20 transition-colors"
-                        title="Hapus Rule">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </template>
-              <tr x-show="!rules || rules.length === 0">
-                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada aturan.</td>
-              </tr>
-            </tbody>
-          </table>
+        </template>
+        <div x-show="notifications.length === 0" class="text-center text-gray-500 py-8">
+          <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+            </path>
+          </svg>
+          <p>Tidak ada notifikasi baru.</p>
         </div>
       </div>
 
     </div>
   </div>
-
 </div>
