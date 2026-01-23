@@ -79,7 +79,7 @@ function setupAiConfig() {
     if (typeof window.sendDataToGoogle === 'function') {
         window.sendDataToGoogle('getAiConfig', {}, (res) => {
             if (res.status === 'success' && res.data) {
-                if (modelSelect) modelSelect.value = res.data.model || 'gemini-2.0-flash';
+                if (modelSelect) modelSelect.value = res.data.model || 'gemini-flash-latest';
                 // Don't show the actual key, just placeholder if it exists
                 if (apiKeyInput && res.data.hasKey) {
                     apiKeyInput.placeholder = "•••••••••••••••• (Terpasang)";
