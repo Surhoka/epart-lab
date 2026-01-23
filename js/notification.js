@@ -102,46 +102,7 @@ async function initNotificationsPage() {
 }
 
 // API Functions for Alpine.js
-window.fetchNotificationSettings = function (callback) {
-  sendDataToGoogle('getNotificationSettings', {}, (response) => {
-    if (response.status === 'success' && callback) callback(response.data);
-  }, (err) => console.error("Error fetching settings:", err));
-};
+// API Functions for Alpine.js
 
-window.saveNotificationSettings = function (settings, callback) {
-  sendDataToGoogle('saveNotificationSettings', { settings: JSON.stringify(settings) }, (response) => {
-    if (response.status === 'success' && callback) callback();
-  }, (err) => console.error("Error saving settings:", err));
-};
-
-window.fetchAiRules = function (callback) {
-  sendDataToGoogle('getAiRules', {}, (response) => {
-    if (response.status === 'success' && callback) callback(response.data);
-  }, (err) => console.error("Error fetching rules:", err));
-};
-
-window.addAiRule = function (ruleData, callback) {
-  // ruleData should be { prompt, channel, frequency, time, threshold }
-  sendDataToGoogle('addAiRule', ruleData, (response) => {
-    if (response.status === 'success' && callback) callback(response.data);
-  }, (err) => console.error("Error adding rule:", err));
-};
-
-window.updateAiRule = function (id, ruleData, callback) {
-  // ruleData: { prompt, channel, frequency, time, threshold }
-  sendDataToGoogle('updateAiRule', { id: id, ...ruleData }, (response) => {
-    if (response.status === 'success' && callback) callback(response.data);
-  }, (err) => console.error("Error updating rule:", err));
-};
-
-window.updateAiRuleStatus = function (id, isActive, callback) {
-  sendDataToGoogle('updateAiRuleStatus', { id: id, isActive: isActive }, (response) => {
-    if (response.status === 'success' && callback) callback();
-  }, (err) => console.error("Error updating rule status:", err));
-};
-
-window.deleteAiRule = function (id, callback) {
-  sendDataToGoogle('deleteAiRule', { id: id }, (response) => {
-    if (response.status === 'success' && callback) callback();
-  }, (err) => console.error("Error deleting rule:", err));
-};
+// Add any specific notification API functions here if needed by the UI
+// Currently the init function handles the initial load via dispatchEvent
