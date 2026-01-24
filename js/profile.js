@@ -4,7 +4,7 @@ window.initProfilePage = function () {
 
     // Initialize Breadcrumb
     if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('Profile');
+
     }
 
     // Get the logged-in user from session storage.
