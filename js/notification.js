@@ -22,18 +22,11 @@ window.initNotification = function () {
   console.log("Notification Page Initialized");
   initNotificationsPage();
 }
-if (typeof window.renderBreadcrumb === 'function') {
-  window.renderBreadcrumb('Notification');
-}
 
 window.initNotificationPage = initNotificationsPage;
 
 async function initNotificationsPage() {
   try {
-    // Initialize Breadcrumb
-    if (typeof window.renderBreadcrumb === 'function') {
-      window.renderBreadcrumb('Notification');
-    }
 
     // Load marked.js library
     await loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
