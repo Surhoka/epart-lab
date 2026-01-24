@@ -8,14 +8,20 @@
     }
   }"
   @notifications-loaded.window="console.log('Event notifications-loaded heard', $event.detail); notifications = $event.detail; isLoading = false"
-  @notifications-error.window="notificationError = $event.detail; isLoading = false"
-  class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6" x-init="init()">
+  @notifications-error.window="notificationError = $event.detail; isLoading = false" class="w-full" x-init="init()">
 
-  <!-- Breadcrumb Start -->
-  <div id="breadcrumb-container"></div>
+  <!-- Breadcrumb Start (Handled Globally) -->
   <!-- Breadcrumb End -->
 
   <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">
+        Notifikasi
+      </h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Lihat riwayat notifikasi dan pembaruan sistem.
+      </p>
+    </div>
   </div>
 
   <!-- Card Container -->
@@ -100,4 +106,3 @@
     </div>
   </div>
 </div>
-
