@@ -6,11 +6,6 @@
 window.initLibraryManagerPage = function () {
     console.log("Library Manager Page Initialized");
 
-    // Initialize Breadcrumb
-    if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb(['Tools', 'Library Manager']);
-    }
-
     // Initialize Alpine component if not already done by fetchPage
     // (In our SPA, fetchPage usually calls this after setting pageContent)
     setupLibraryManagerComponent();
