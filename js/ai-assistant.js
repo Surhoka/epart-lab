@@ -3,10 +3,6 @@
 window.initAiAssistantPage = function () {
     console.log('Initializing AI Assistant Page...');
 
-    if (typeof window.renderBreadcrumb === 'function') {
-        window.renderBreadcrumb('AI Assistant');
-    }
-
     // Initialize Components
     setupAiChat();
     setupAiConfig();
