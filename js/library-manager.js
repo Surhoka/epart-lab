@@ -160,6 +160,10 @@ const registerLibraryManager = () => {
             },
 
             async pingPlugin(plugin) {
+                if (!plugin.url) {
+                    window.showToast("Cannot ping: plugin URL is missing", "warning");
+                    return;
+                }
                 plugin.pinging = true;
                 try {
                     const res = await window.app.fetchJsonp(this.apiUrl, {
