@@ -11,11 +11,17 @@ window.initPostEditorPage = function () {
 const registerPostEditor = () => {
     if (window.Alpine && !window.Alpine.data('postEditor')) {
         window.Alpine.data('postEditor', () => ({
+            activeTab: 'list', // 'list' or 'editor'
             post: {
                 title: '',
                 slug: '',
                 status: 'Draft'
             },
+            samplePosts: [
+                { id: 1, title: 'Optimizing Automotive Supply Chains', status: 'Published', date: 'Jan 24, 2024' },
+                { id: 2, title: 'The Future of EV Battery Tech', status: 'Draft', date: 'Jan 26, 2024' },
+                { id: 3, title: 'Navigating New Import Regulations', status: 'Draft', date: 'Jan 27, 2024' }
+            ],
             categories: ['Automotive', 'Technology', 'News', 'Tutorials', 'Marketplace'],
             formattingTools: [
                 { icon: 'bold', cmd: 'bold', label: 'Bold' },
