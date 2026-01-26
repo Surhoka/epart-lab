@@ -55,7 +55,7 @@
                     <template x-for="tool in formattingTools">
                         <button @click="execCommand(tool.cmd)" :title="tool.label"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white">
-                            <span class="w-4 h-4" :x-icon="tool.icon"></span>
+                            <span class="w-4 h-4" x-icon="tool.icon"></span>
                         </button>
                     </template>
                 </div>
@@ -192,4 +192,5 @@
 
         </div>
     </div>
+
 </div>
