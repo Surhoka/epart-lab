@@ -120,6 +120,8 @@ const registerLibraryManager = () => {
                         window.showToast(res.message, "success");
                         this.closeModal();
                         await this.fetchPlugins();
+                        // Sync Sidebar Menu
+                        window.dispatchEvent(new CustomEvent('ezy:menu-update'));
                     } else {
                         window.showToast(res.message, "error");
                     }
@@ -137,6 +139,8 @@ const registerLibraryManager = () => {
                     });
                     if (res.status === 'success') {
                         window.showToast(`Plugin ${plugin.active ? 'enabled' : 'disabled'}`);
+                        // Sync Sidebar Menu
+                        window.dispatchEvent(new CustomEvent('ezy:menu-update'));
                     }
                 } catch (e) {
                     window.showToast("Failed to toggle plugin", "error");
@@ -153,6 +157,8 @@ const registerLibraryManager = () => {
                     if (res.status === 'success') {
                         window.showToast('Plugin removed', "success");
                         await this.fetchPlugins();
+                        // Sync Sidebar Menu
+                        window.dispatchEvent(new CustomEvent('ezy:menu-update'));
                     }
                 } catch (e) {
                     window.showToast("Failed to remove plugin", "error");
