@@ -12,13 +12,21 @@ const registerPostEditor = () => {
     if (window.Alpine && !window.Alpine.data('postEditor')) {
         window.Alpine.data('postEditor', () => ({
             activeTab: 'list', // 'list' or 'editor'
-            post: {
+            defaultPost: {
+                id: null,
                 title: '',
                 slug: '',
-                status: 'Draft'
+                content: '<p>Start telling your story...</p>',
+                status: 'Draft',
+                category: '',
+                tags: '',
+                image: ''
             },
+            post: {},
             posts: [],
             isLoading: false,
+            publicBlogUrl: window.app?.publicBlogUrl || '',
+            siteKey: window.app?.siteKey || '',
             categories: ['Automotive', 'Technology', 'News', 'Tutorials', 'Marketplace'],
             formattingTools: [
                 { icon: 'bold', cmd: 'bold', label: 'Bold' },
@@ -31,8 +39,14 @@ const registerPostEditor = () => {
             ],
 
             async init() {
+                this.post = { ...this.defaultPost };
                 this.$watch('post.title', value => {
-                    this.post.slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                    // Guard clause to prevent error on reset
+                    if (value) {
+                        this.post.slug = value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+                    } else {
+                        this.post.slug = '';
+                    }
                 });
                 await this.fetchPosts();
             },
@@ -42,7 +56,18 @@ const registerPostEditor = () => {
                 window.sendDataToGoogle('get_posts', {}, (res) => {
                     this.isLoading = false;
                     if (res.status === 'success') {
-                        this.posts = res.data || [];
+                        // Normalize keys to lowercase for frontend consistency
+                        this.posts = (res.data || []).map(p => ({
+                            id: p.ID,
+                            title: p.Title,
+                            slug: p.Slug,
+                            content: p.Content,
+                            status: p.Status,
+                            category: p.Category,
+                            tags: p.Tags,
+                            date: p.DateCreated ? new Date(p.DateCreated).toLocaleDateString() : '',
+                            lastModified: p.LastModified
+                        }));
                     } else {
                         console.error("Fetch posts failed:", res.message);
                     }
@@ -81,10 +106,10 @@ const registerPostEditor = () => {
                 const editorBody = document.getElementById('classic-editor-body');
                 if (editorBody) this.post.content = editorBody.innerHTML;
 
-                if (!this.post.date) this.post.date = new Date().toLocaleDateString();
+                if (!this.post.id) this.post.dateCreated = new Date().toISOString();
 
                 window.showToast("Saving post...", "info");
-                window.sendDataToGoogle('save_post', { post: this.post }, (res) => {
+                window.sendDataToGoogle('save_post', this.post, (res) => {
                     if (res.status === 'success') {
                         window.showToast("Post saved successfully!", "success");
                         this.fetchPosts();
@@ -110,13 +135,26 @@ const registerPostEditor = () => {
             },
 
             editPost(item) {
-                this.post = { ...item };
+                // Normalize incoming data (from DB, likely PascalCase) to our component's model (lowercase)
+                this.post = {
+                    id: item.id || item.ID,
+                    title: item.title || item.Title,
+                    slug: item.slug || item.Slug,
+                    content: item.content || item.Content,
+                    status: item.status || item.Status,
+                    category: item.category || item.Category,
+                    tags: item.tags || item.Tags,
+                    dateCreated: item.dateCreated || item.DateCreated
+                };
                 this.activeTab = 'editor';
                 // Small delay to ensure editor DOM is ready if needed
                 setTimeout(() => {
                     const editorBody = document.getElementById('classic-editor-body');
-                    if (editorBody) editorBody.innerHTML = item.content || '';
+                    if (editorBody) editorBody.innerHTML = this.post.content || this.defaultPost.content;
                 }, 50);
+            },
+            newPost() {
+                this.editPost(this.defaultPost); // Use editPost to reset the form correctly
             }
         }));
     }
