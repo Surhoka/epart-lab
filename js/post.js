@@ -283,10 +283,10 @@ const registerPostEditor = () => {
                 }, 50);
             },
             newPost() {
+                this.activeTab = 'editor';
                 // Reset the post object to a clean, deep copy of the default post
                 // Ini memastikan tidak ada data lama yang terbawa.
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
-                this.activeTab = 'editor';
 
                 // Pastikan konten visual di editor juga di-reset
                 setTimeout(() => {
