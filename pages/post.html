@@ -2,13 +2,13 @@
     <input type="file" x-ref="imageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
     <!-- Tab Navigation -->
     <div class="mb-8 flex border-b border-gray-100 dark:border-gray-800">
-        <button @click="activeTab = 'list'"
+        <button type="button" @click="activeTab = 'list'"
             :class="activeTab === 'list' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
             class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
             <span class="w-4 h-4" x-icon="'table'"></span>
             Posts
         </button>
-        <button @click="activeTab = 'editor'"
+        <button type="button" @click="activeTab = 'editor'"
             :class="activeTab === 'editor' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
             class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
             <span class="w-4 h-4" x-icon="'pencil'"></span>
@@ -20,7 +20,7 @@
     <div x-show="activeTab === 'list'" x-transition.immediate class="space-y-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-            <button type="button" @click="newPost()"
+            <button type="button" @click.prevent="newPost()"
                 class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Create New Post
