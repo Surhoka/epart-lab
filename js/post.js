@@ -12,6 +12,7 @@ const registerPostEditor = () => {
     if (window.Alpine && !window.Alpine.data('postEditor')) {
         window.Alpine.data('postEditor', () => ({
             activeTab: 'list', // 'list' or 'editor'
+            savedRange: null,
             defaultPost: {
                 id: null,
                 title: '',
@@ -51,6 +52,12 @@ const registerPostEditor = () => {
                 await this.fetchPosts();
             },
 
+            formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+            },
+
             async fetchPosts() {
                 this.isLoading = true;
                 window.sendDataToGoogle('get_posts', {}, (res) => {
@@ -65,7 +72,7 @@ const registerPostEditor = () => {
                             status: p.Status,
                             category: p.Category,
                             tags: p.Tags,
-                            date: p.DateCreated ? new Date(p.DateCreated).toLocaleDateString() : '',
+                            date: this.formatDate(p.DateCreated),
                             lastModified: p.LastModified
                         }));
                     } else {
@@ -86,6 +93,67 @@ const registerPostEditor = () => {
                 }
                 // Maintain focus on editor
                 document.getElementById('classic-editor-body').focus();
+            },
+
+            triggerImageUpload() {
+                this.saveSelection();
+                this.$refs.imageInput.click();
+            },
+
+            saveSelection() {
+                const sel = window.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                    this.savedRange = sel.getRangeAt(0);
+                }
+            },
+
+            restoreSelection() {
+                const editor = document.getElementById('classic-editor-body');
+                editor.focus();
+                if (this.savedRange) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(this.savedRange);
+                }
+            },
+
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    window.showToast("Image too large (max 5MB)", "error");
+                    return;
+                }
+
+                window.showToast("Uploading image...", "info");
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64Data = e.target.result.split(',')[1];
+                    const payload = {
+                        fileName: file.name,
+                        fileData: base64Data,
+                        mimeType: file.type
+                    };
+
+                    window.sendDataToGoogle('uploadImageAndGetUrl', payload, (res) => {
+                        if (res.status === 'success') {
+                            this.insertImageAtCursor(res.url);
+                            window.showToast("Image uploaded!", "success");
+                        } else {
+                            window.showToast("Upload failed: " + res.message, "error");
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+                event.target.value = ''; // Reset input
+            },
+
+            insertImageAtCursor(url) {
+                this.restoreSelection();
+                const imgHtml = `<img src="${url}" class="max-w-full h-auto rounded-lg my-4" alt="Image" />`;
+                document.execCommand('insertHTML', false, imgHtml);
             },
 
             async saveDraft() {
