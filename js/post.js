@@ -19,16 +19,21 @@ const registerPostEditor = () => {
                 slug: '',
                 content: '<p>Start telling your story...</p>',
                 status: 'Draft',
-                category: '',
+                category: [],
                 tags: '',
-                image: ''
+                image: '',
+                location: '',
+                commentOption: 'allow',
+                dateMode: 'auto',
+                publishDate: '',
+                permalinkMode: 'auto'
             },
             post: {},
             posts: [],
             isLoading: false,
             publicBlogUrl: window.app?.publicBlogUrl || '',
             siteKey: window.app?.siteKey || '',
-            categories: ['Automotive', 'Technology', 'News', 'Tutorials', 'Marketplace'],
+            categories: [],
             formattingTools: [
                 { icon: 'bold', cmd: 'bold', label: 'Bold' },
                 { icon: 'italic', cmd: 'italic', label: 'Italic' },
@@ -49,11 +54,15 @@ const registerPostEditor = () => {
                 this.$watch('post.title', value => {
                     // Guard clause to prevent error on reset
                     if (value) {
-                        this.post.slug = value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+                        // Only auto-generate slug if in auto mode
+                        if (this.post.permalinkMode === 'auto') {
+                            this.post.slug = value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+                        }
                     } else {
-                        this.post.slug = '';
+                        if (this.post.permalinkMode === 'auto') this.post.slug = '';
                     }
                 });
+                this.fetchCategories();
                 await this.fetchPosts();
             },
 
@@ -61,6 +70,19 @@ const registerPostEditor = () => {
                 if (!dateString) return '';
                 const date = new Date(dateString);
                 return isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+            },
+
+            async fetchCategories() {
+                window.sendDataToGoogle('get_categories', {}, (res) => {
+                    if (res.status === 'success' && Array.isArray(res.data)) {
+                        this.categories = res.data.map(item => {
+                            if (typeof item === 'object') {
+                                return item.name || item.Name || item.Category || item.value;
+                            }
+                            return item;
+                        }).filter(Boolean);
+                    }
+                });
             },
 
             async fetchPosts() {
@@ -191,7 +213,14 @@ const registerPostEditor = () => {
                 if (!this.post.id) this.post.dateCreated = new Date().toISOString();
 
                 window.showToast("Saving post...", "info");
-                window.sendDataToGoogle('save_post', this.post, (res) => {
+
+                // Prepare payload (convert array to string for category if needed)
+                const payload = { ...this.post };
+                if (Array.isArray(payload.category)) {
+                    payload.category = payload.category.join(',');
+                }
+
+                window.sendDataToGoogle('save_post', payload, (res) => {
                     if (res.status === 'success') {
                         window.showToast("Post saved successfully!", "success");
                         this.fetchPosts();
@@ -218,15 +247,21 @@ const registerPostEditor = () => {
 
             editPost(item) {
                 // Normalize incoming data (from DB, likely PascalCase) to our component's model (lowercase)
+                const categories = item.category || item.Category || '';
                 this.post = {
                     id: item.id || item.ID,
                     title: item.title || item.Title,
                     slug: item.slug || item.Slug,
                     content: item.content || item.Content,
                     status: item.status || item.Status,
-                    category: item.category || item.Category,
+                    category: Array.isArray(categories) ? categories : categories.split(',').map(c => c.trim()).filter(Boolean),
                     tags: item.tags || item.Tags,
-                    dateCreated: item.dateCreated || item.DateCreated
+                    dateCreated: item.dateCreated || item.DateCreated,
+                    location: item.location || item.Location || '',
+                    commentOption: item.commentOption || item.CommentOption || 'allow',
+                    dateMode: (item.publishDate || item.PublishDate) ? 'custom' : 'auto',
+                    publishDate: item.publishDate || item.PublishDate || '',
+                    permalinkMode: (item.slug || item.Slug) ? 'custom' : 'auto'
                 };
                 this.activeTab = 'editor';
                 // Small delay to ensure editor DOM is ready if needed
