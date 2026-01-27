@@ -248,75 +248,159 @@
             </div>
 
             <!-- Right: Sidebar Settings -->
-            <div class="lg:col-span-3 space-y-6">
+            <div class="lg:col-span-3 space-y-4">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">Setelan postingan</h3>
 
-                <!-- Publish Settings -->
                 <div
-                    class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-slate-900/50">
-                    <h3 class="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
-                        <span class="w-4 h-4" x-icon="'settings'"></span>
-                        Publish Configuration
-                    </h3>
-                    <div class="space-y-5">
-                        <div>
-                            <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-400">Status</label>
-                            <div class="flex items-center gap-2">
-                                <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Drafting</span>
+                    class="bg-white dark:bg-slate-900/50 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
+
+                    <!-- Label (Categories & Tags) -->
+                    <div x-data="{ open: false }" class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span>Label</span>
+                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <div class="space-y-3">
+                                <input type="text" placeholder="Pisahkan dengan koma..."
+                                    class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                                <div class="max-h-[150px] overflow-y-auto custom-scrollbar space-y-1">
+                                    <template x-for="cat in categories">
+                                        <label
+                                            class="flex cursor-pointer items-center gap-2 group/item rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+                                            <input type="checkbox"
+                                                class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800" />
+                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400"
+                                                x-text="cat"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                                <button class="text-xs text-brand-500 font-medium hover:underline">+ Buat Label
+                                    Baru</button>
                             </div>
                         </div>
-                        <div>
-                            <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-400">Permalinks</label>
-                            <div class="rounded-xl bg-gray-50 p-3 text-xs text-gray-500 dark:bg-black/20">
-                                publicBlogUrl + '/posts/<span class="text-brand-500 font-bold"
-                                    x-text="post.slug || 'your-title'">...</span>
+                    </div>
+
+                    <!-- Dipublikasikan pada -->
+                    <div x-data="{ open: false }" class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <div class="flex flex-col text-left">
+                                <span>Dipublikasikan pada</span>
+                                <span class="text-[10px] text-gray-400 font-normal mt-0.5"
+                                    x-text="new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})"></span>
+                            </div>
+                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="pubdate" id="auto-date"
+                                        class="text-brand-500 focus:ring-brand-500" checked>
+                                    <label for="auto-date"
+                                        class="text-xs text-gray-600 dark:text-gray-400">Otomatis</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="pubdate" id="custom-date"
+                                        class="text-brand-500 focus:ring-brand-500">
+                                    <label for="custom-date" class="text-xs text-gray-600 dark:text-gray-400">Setel
+                                        tanggal dan waktu</label>
+                                </div>
+                                <input type="datetime-local"
+                                    class="w-full mt-1 rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Categories -->
-                <div
-                    class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-slate-900/50">
-                    <h3 class="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
-                        <span class="w-4 h-4" x-icon="'plus'"></span>
-                        Categories
-                    </h3>
-                    <div class="max-h-[200px] space-y-2 overflow-y-auto no-scrollbar pr-2">
-                        <template x-for="cat in categories">
-                            <label
-                                class="flex cursor-pointer items-center gap-3 group rounded-xl p-2 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                <input type="checkbox"
-                                    class="h-5 w-5 rounded-lg border-gray-300 bg-white text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-slate-800" />
-                                <span
-                                    class="text-sm font-medium text-gray-600 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white transition-colors"
-                                    x-text="cat"></span>
-                            </label>
-                        </template>
+                    <!-- Permalink -->
+                    <div x-data="{ open: false }" class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span>Permalink</span>
+                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="permalink" id="auto-permalink"
+                                        class="text-brand-500 focus:ring-brand-500" checked>
+                                    <label for="auto-permalink"
+                                        class="text-xs text-gray-600 dark:text-gray-400">Permalink Otomatis</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="permalink" id="custom-permalink"
+                                        class="text-brand-500 focus:ring-brand-500">
+                                    <label for="custom-permalink"
+                                        class="text-xs text-gray-600 dark:text-gray-400">Permalink Khusus</label>
+                                </div>
+                                <input type="text" x-model="post.slug" placeholder="custom-slug-here"
+                                    class="w-full mt-1 rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                            </div>
+                        </div>
                     </div>
-                    <button
-                        class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-200 py-3 text-xs font-bold text-gray-400 transition-all hover:border-brand-500/50 hover:text-brand-500 dark:border-gray-800">
-                        Create New Category
-                    </button>
-                </div>
 
-                <!-- Meta / Tags -->
-                <div
-                    class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-slate-900/50">
-                    <h3 class="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
-                        <span class="w-4 h-4" x-icon="'link'"></span>
-                        Tags
-                    </h3>
-                    <input type="text" placeholder="Add tags separated by comma..."
-                        class="w-full rounded-xl border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-black/50" />
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <span
-                            class="rounded-lg bg-gray-50 px-2 py-1 text-[10px] font-bold text-gray-500 dark:bg-white/5">#automotive</span>
-                        <span
-                            class="rounded-lg bg-gray-50 px-2 py-1 text-[10px] font-bold text-gray-500 dark:bg-white/5">#business</span>
+                    <!-- Lokasi -->
+                    <div x-data="{ open: false }" class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span>Lokasi</span>
+                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <input type="text" placeholder="Telusuri lokasi"
+                                class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                        </div>
                     </div>
-                </div>
 
+                    <!-- Opsi -->
+                    <div x-data="{ open: false }" class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span>Opsi</span>
+                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <div class="space-y-3">
+                                <div>
+                                    <label
+                                        class="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">Komentar
+                                        Pembaca</label>
+                                    <div class="space-y-1">
+                                        <label
+                                            class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                                            <input type="radio" name="comments"
+                                                class="text-brand-500 focus:ring-brand-500" checked> Izinkan
+                                        </label>
+                                        <label
+                                            class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                                            <input type="radio" name="comments"
+                                                class="text-brand-500 focus:ring-brand-500"> Jangan izinkan, sembunyikan
+                                            yang ada
+                                        </label>
+                                        <label
+                                            class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                                            <input type="radio" name="comments"
+                                                class="text-brand-500 focus:ring-brand-500"> Jangan izinkan, tampilkan
+                                            yang ada
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
