@@ -33,10 +33,15 @@ const registerPostEditor = () => {
                 { icon: 'bold', cmd: 'bold', label: 'Bold' },
                 { icon: 'italic', cmd: 'italic', label: 'Italic' },
                 { icon: 'underline', cmd: 'underline', label: 'Underline' },
+                { icon: 'strikethrough', cmd: 'strikethrough', label: 'Strikethrough' },
+                { icon: 'eraser', cmd: 'removeFormat', label: 'Clear Formatting' },
                 { icon: 'list-bullet', cmd: 'insertUnorderedList', label: 'Bullet List' },
                 { icon: 'list-number', cmd: 'insertOrderedList', label: 'Numbered List' },
+                { icon: 'outdent', cmd: 'outdent', label: 'Decrease Indent' },
+                { icon: 'indent', cmd: 'indent', label: 'Increase Indent' },
                 { icon: 'quote', cmd: 'formatBlock:blockquote', label: 'Quote' },
-                { icon: 'code', cmd: 'formatBlock:pre', label: 'Code Block' }
+                { icon: 'code', cmd: 'formatBlock:pre', label: 'Code Block' },
+                { icon: 'minus', cmd: 'insertHorizontalRule', label: 'Horizontal Line' }
             ],
 
             async init() {
@@ -84,12 +89,12 @@ const registerPostEditor = () => {
                 });
             },
 
-            execCommand(command) {
+            execCommand(command, value = null) {
                 if (command.startsWith('formatBlock:')) {
                     const tag = command.split(':')[1];
                     document.execCommand('formatBlock', false, tag);
                 } else {
-                    document.execCommand(command, false, null);
+                    document.execCommand(command, false, value);
                 }
                 // Maintain focus on editor
                 document.getElementById('classic-editor-body').focus();
