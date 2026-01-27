@@ -50,7 +50,7 @@ const registerPostEditor = () => {
             ],
 
             async init() {
-                this.post = { ...this.defaultPost };
+                this.post = JSON.parse(JSON.stringify(this.defaultPost));
                 this.$watch('post.title', value => {
                     // Guard clause to prevent error on reset
                     if (value) {
