@@ -291,7 +291,7 @@
                             <div class="flex flex-col text-left">
                                 <span>Dipublikasikan pada</span>
                                 <span class="text-[10px] text-gray-400 font-normal mt-0.5"
-                                    x-text="new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})"></span>
+                                    x-text="post.dateMode === 'auto' ? 'Otomatis' : (post.publishDate ? new Date(post.publishDate).toLocaleString('id-ID') : 'Belum disetel')"></span>
                             </div>
                             <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
@@ -300,19 +300,22 @@
                             class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
-                                    <input type="radio" name="pubdate" id="auto-date"
-                                        class="text-brand-500 focus:ring-brand-500" checked>
+                                    <input type="radio" name="pubdate" id="auto-date" value="auto"
+                                        x-model="post.dateMode" class="text-brand-500 focus:ring-brand-500">
                                     <label for="auto-date"
                                         class="text-xs text-gray-600 dark:text-gray-400">Otomatis</label>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <input type="radio" name="pubdate" id="custom-date"
-                                        class="text-brand-500 focus:ring-brand-500">
+                                    <input type="radio" name="pubdate" id="custom-date" value="custom"
+                                        x-model="post.dateMode" class="text-brand-500 focus:ring-brand-500">
                                     <label for="custom-date" class="text-xs text-gray-600 dark:text-gray-400">Setel
                                         tanggal dan waktu</label>
                                 </div>
-                                <input type="datetime-local"
-                                    class="w-full mt-1 rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                                <div x-show="post.dateMode === 'custom'" class="mt-2">
+                                    <input type="text" x-model="post.publishDate" placeholder="Pilih tanggal..."
+                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50"
+                                        x-init="flatpickr($el, { enableTime: true, dateFormat: 'Y-m-d H:i', time_24hr: true, defaultDate: post.publishDate || new Date(), onChange: (selectedDates, dateStr) => { post.publishDate = dateStr } })" />
+                                </div>
                             </div>
                         </div>
                     </div>
