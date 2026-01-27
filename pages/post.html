@@ -16,7 +16,7 @@
     </div>
 
     <!-- Tab 1: Post List -->
-    <div x-show="activeTab === 'list'" x-transition class="space-y-6">
+    <div x-show="activeTab === 'list'" x-transition.immediate class="space-y-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
             <button @click="activeTab = 'editor'"
@@ -55,7 +55,8 @@
                         <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                             <td class="px-6 py-5">
                                 <div class="font-bold text-gray-900 dark:text-white" x-text="p.title"></div>
-                                <div class="text-[10px] text-gray-400 mt-0.5" x-text="publicBlogUrl + '/posts/' + siteKey + '/' + p.slug">
+                                <div class="text-[10px] text-gray-400 mt-0.5"
+                                    x-text="publicBlogUrl + '/posts/' + siteKey + '/' + p.slug">
                                 </div>
                             </td>
                             <td class="px-6 py-5">
@@ -84,7 +85,7 @@
     </div>
 
     <!-- Tab 2: Editor -->
-    <div x-show="activeTab === 'editor'" x-transition>
+    <div x-show="activeTab === 'editor'" x-transition.immediate>
         <!-- Editor Header (Legacy) -->
         <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex-1">
@@ -275,4 +276,3 @@
         </div>
     </div>
 </div>
-
