@@ -265,13 +265,13 @@
                         <div x-show="open" x-transition
                             class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
                             <div class="space-y-3">
-                                <input type="text" placeholder="Pisahkan dengan koma..."
+                                <input type="text" x-model="post.tags" placeholder="Pisahkan dengan koma..."
                                     class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
                                 <div class="max-h-[150px] overflow-y-auto custom-scrollbar space-y-1">
                                     <template x-for="cat in categories">
                                         <label
                                             class="flex cursor-pointer items-center gap-2 group/item rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
-                                            <input type="checkbox"
+                                            <input type="checkbox" x-model="post.category" :value="cat"
                                                 class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800" />
                                             <span class="text-xs font-medium text-gray-600 dark:text-gray-400"
                                                 x-text="cat"></span>
