@@ -17,11 +17,8 @@ const registerPostEditor = () => {
                 slug: '',
                 status: 'Draft'
             },
-            samplePosts: [
-                { id: 1, title: 'Optimizing Automotive Supply Chains', status: 'Published', date: 'Jan 24, 2024' },
-                { id: 2, title: 'The Future of EV Battery Tech', status: 'Draft', date: 'Jan 26, 2024' },
-                { id: 3, title: 'Navigating New Import Regulations', status: 'Draft', date: 'Jan 27, 2024' }
-            ],
+            posts: [],
+            isLoading: false,
             categories: ['Automotive', 'Technology', 'News', 'Tutorials', 'Marketplace'],
             formattingTools: [
                 { icon: 'bold', cmd: 'bold', label: 'Bold' },
@@ -33,9 +30,25 @@ const registerPostEditor = () => {
                 { icon: 'code', cmd: 'formatBlock:pre', label: 'Code Block' }
             ],
 
-            init() {
+            async init() {
                 this.$watch('post.title', value => {
                     this.post.slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                });
+                await this.fetchPosts();
+            },
+
+            async fetchPosts() {
+                this.isLoading = true;
+                window.sendDataToGoogle('get_posts', {}, (res) => {
+                    this.isLoading = false;
+                    if (res.status === 'success') {
+                        this.posts = res.data || [];
+                    } else {
+                        console.error("Fetch posts failed:", res.message);
+                    }
+                }, (err) => {
+                    this.isLoading = false;
+                    console.error("API Error fetching posts:", err);
                 });
             },
 
@@ -50,16 +63,60 @@ const registerPostEditor = () => {
                 document.getElementById('classic-editor-body').focus();
             },
 
-            saveDraft() {
-                window.showToast("Draft saved successfully", "info");
+            async saveDraft() {
+                this.post.status = 'Draft';
+                await this.savePost();
             },
 
-            publishPost() {
+            async publishPost() {
                 if (!this.post.title) {
                     window.showToast("Please enter a title before publishing", "warning");
                     return;
                 }
-                window.showToast("Post published successfully!", "success");
+                this.post.status = 'Published';
+                await this.savePost();
+            },
+
+            async savePost() {
+                const editorBody = document.getElementById('classic-editor-body');
+                if (editorBody) this.post.content = editorBody.innerHTML;
+
+                if (!this.post.date) this.post.date = new Date().toLocaleDateString();
+
+                window.showToast("Saving post...", "info");
+                window.sendDataToGoogle('save_post', { post: this.post }, (res) => {
+                    if (res.status === 'success') {
+                        window.showToast("Post saved successfully!", "success");
+                        this.fetchPosts();
+                        this.activeTab = 'list';
+                    } else {
+                        window.showToast("Error saving: " + res.message, "error");
+                    }
+                });
+            },
+
+            async deletePost(id) {
+                if (!confirm("Are you sure you want to delete this post?")) return;
+
+                window.showToast("Deleting...", "info");
+                window.sendDataToGoogle('delete_post', { id: id }, (res) => {
+                    if (res.status === 'success') {
+                        window.showToast("Post removed", "success");
+                        this.fetchPosts();
+                    } else {
+                        window.showToast("Delete failed", "error");
+                    }
+                });
+            },
+
+            editPost(item) {
+                this.post = { ...item };
+                this.activeTab = 'editor';
+                // Small delay to ensure editor DOM is ready if needed
+                setTimeout(() => {
+                    const editorBody = document.getElementById('classic-editor-body');
+                    if (editorBody) editorBody.innerHTML = item.content || '';
+                }, 50);
             }
         }));
     }
