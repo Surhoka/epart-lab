@@ -85,6 +85,18 @@ const registerPostEditor = () => {
                 });
             },
 
+            addCategory() {
+                const name = prompt("Nama Label Baru:");
+                if (name) {
+                    if (!this.categories.includes(name)) {
+                        this.categories.push(name);
+                    }
+                    if (!this.post.category.includes(name)) {
+                        this.post.category.push(name);
+                    }
+                }
+            },
+
             async fetchPosts() {
                 this.isLoading = true;
                 window.sendDataToGoogle('get_posts', {}, (res) => {
@@ -254,8 +266,8 @@ const registerPostEditor = () => {
                     slug: item.slug || item.Slug,
                     content: item.content || item.Content,
                     status: item.status || item.Status,
-                    category: Array.isArray(categories) ? categories : categories.split(',').map(c => c.trim()).filter(Boolean),
-                    tags: item.tags || item.Tags,
+                    category: Array.isArray(categories) ? [...categories] : categories.split(',').map(c => c.trim()).filter(Boolean),
+                    tags: item.tags || item.Tags || '',
                     dateCreated: item.dateCreated || item.DateCreated,
                     location: item.location || item.Location || '',
                     commentOption: item.commentOption || item.CommentOption || 'allow',
