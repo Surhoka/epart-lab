@@ -283,7 +283,18 @@ const registerPostEditor = () => {
                 }, 50);
             },
             newPost() {
-                this.editPost(this.defaultPost); // Use editPost to reset the form correctly
+                // Reset the post object to a clean, deep copy of the default post
+                // Ini memastikan tidak ada data lama yang terbawa.
+                this.post = JSON.parse(JSON.stringify(this.defaultPost));
+                this.activeTab = 'editor';
+
+                // Pastikan konten visual di editor juga di-reset
+                setTimeout(() => {
+                    const editorBody = document.getElementById('classic-editor-body');
+                    if (editorBody) {
+                        editorBody.innerHTML = this.post.content;
+                    }
+                }, 50);
             }
         }));
     }
