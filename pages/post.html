@@ -120,16 +120,70 @@
                 <div
                     class="sticky top-[86px] z-40 flex flex-wrap items-center gap-1 rounded-2xl border border-gray-200 bg-white/70 p-2 shadow-sm backdrop-blur-2xl dark:border-gray-800 dark:bg-black/60">
 
-                    <!-- Group: Text Style -->
+                    <!-- Group: Undo/Redo (Moved to Start) -->
+                    <div class="flex items-center gap-1 mr-1">
+                        <button @click="execCommand('undo')"
+                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                class="w-4 h-4" x-icon="'undo'"></span></button>
+                        <button @click="execCommand('redo')"
+                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                class="w-4 h-4" x-icon="'redo'"></span></button>
+                    </div>
+
+                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
+
+                    <!-- Group: Typography -->
                     <div class="flex items-center px-1">
                         <select @change="execCommand('formatBlock:' + $event.target.value)"
-                            class="h-9 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
-                            <option value="p">Paragraph</option>
+                            class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
+                            <option value="p">Normal</option>
                             <option value="h1">Heading 1</option>
                             <option value="h2">Heading 2</option>
                             <option value="h3">Heading 3</option>
                             <option value="blockquote">Quote</option>
+                            <option value="pre">Code</option>
                         </select>
+                    </div>
+
+                    <div class="flex items-center px-1 gap-1">
+                        <select @change="execCommand('fontName', $event.target.value)"
+                            class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
+                            <option value="Arial">Arial</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Times New Roman">Times</option>
+                            <option value="Courier New">Courier</option>
+                            <option value="Georgia">Georgia</option>
+                        </select>
+                        <select @change="execCommand('fontSize', $event.target.value)"
+                            class="h-9 w-16 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
+                            <option value="1">10px</option>
+                            <option value="2">13px</option>
+                            <option value="3" selected>16px</option>
+                            <option value="4">18px</option>
+                            <option value="5">24px</option>
+                            <option value="6">32px</option>
+                            <option value="7">48px</option>
+                        </select>
+                    </div>
+
+                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
+
+                    <!-- Group: Color -->
+                    <div class="flex items-center gap-1 px-1">
+                        <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
+                            title="Text Color">
+                            <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                @input="execCommand('foreColor', $event.target.value)">
+                            <span class="font-bold text-sm text-gray-700 dark:text-gray-300">A</span>
+                            <div class="absolute bottom-1.5 left-2 right-2 h-1 bg-brand-500 rounded-full"></div>
+                        </div>
+                        <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
+                            title="Highlight Color">
+                            <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                @input="execCommand('hiliteColor', $event.target.value)">
+                            <span
+                                class="font-bold text-sm text-gray-700 dark:text-gray-300 bg-yellow-300/50 px-1 rounded-sm">H</span>
+                        </div>
                     </div>
 
                     <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
@@ -169,15 +223,6 @@
                         <button @click="triggerImageUpload()"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'image'"></span></button>
-                    </div>
-
-                    <div class="ml-auto flex items-center gap-1">
-                        <button @click="execCommand('undo')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'undo'"></span></button>
-                        <button @click="execCommand('redo')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'redo'"></span></button>
                     </div>
                 </div>
 
