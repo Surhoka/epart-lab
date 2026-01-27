@@ -55,7 +55,7 @@
                         <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                             <td class="px-6 py-5">
                                 <div class="font-bold text-gray-900 dark:text-white" x-text="p.title"></div>
-                                <div class="text-[10px] text-gray-400 mt-0.5" x-text="'ezyparts.com/posts/' + p.slug">
+                                <div class="text-[10px] text-gray-400 mt-0.5" x-text="publicBlogUrl + '/posts/' + siteKey + '/' + p.slug">
                                 </div>
                             </td>
                             <td class="px-6 py-5">
@@ -222,7 +222,7 @@
                         <div>
                             <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-400">Permalinks</label>
                             <div class="rounded-xl bg-gray-50 p-3 text-xs text-gray-500 dark:bg-black/20">
-                                ezyparts.com/posts/<span class="text-brand-500 font-bold"
+                                publicBlogUrl + '/posts/<span class="text-brand-500 font-bold"
                                     x-text="post.slug || 'your-title'">...</span>
                             </div>
                         </div>
@@ -275,3 +275,4 @@
         </div>
     </div>
 </div>
+
