@@ -122,13 +122,13 @@
 
                     <!-- Group: Text Style -->
                     <div class="flex items-center px-1">
-                        <select
+                        <select @change="execCommand('formatBlock:' + $event.target.value)"
                             class="h-9 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
-                            <option>Paragraph</option>
-                            <option>Heading 1</option>
-                            <option>Heading 2</option>
-                            <option>Heading 3</option>
-                            <option>Quote</option>
+                            <option value="p">Paragraph</option>
+                            <option value="h1">Heading 1</option>
+                            <option value="h2">Heading 2</option>
+                            <option value="h3">Heading 3</option>
+                            <option value="blockquote">Quote</option>
                         </select>
                     </div>
 
@@ -148,13 +148,13 @@
 
                     <!-- Group: Alignment -->
                     <div class="flex items-center gap-0.5">
-                        <button
+                        <button @click="execCommand('justifyLeft')"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'align-left'"></span></button>
-                        <button
+                        <button @click="execCommand('justifyCenter')"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'align-center'"></span></button>
-                        <button
+                        <button @click="execCommand('justifyRight')"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'align-right'"></span></button>
                     </div>
@@ -163,7 +163,7 @@
 
                     <!-- Group: Insert -->
                     <div class="flex items-center gap-0.5">
-                        <button
+                        <button @click="insertLink()"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'link'"></span></button>
                         <button @click="triggerImageUpload()"
@@ -172,10 +172,10 @@
                     </div>
 
                     <div class="ml-auto flex items-center gap-1">
-                        <button
+                        <button @click="execCommand('undo')"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'undo'"></span></button>
-                        <button
+                        <button @click="execCommand('redo')"
                             class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                 class="w-4 h-4" x-icon="'redo'"></span></button>
                     </div>
