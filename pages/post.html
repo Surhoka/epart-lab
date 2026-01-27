@@ -40,11 +40,23 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <template x-for="p in samplePosts" :key="p.id">
+                    <template x-if="isLoading">
+                        <tr>
+                            <td colspan="4" class="px-6 py-10 text-center text-gray-400">Loading posts...</td>
+                        </tr>
+                    </template>
+                    <template x-if="!isLoading && posts.length === 0">
+                        <tr>
+                            <td colspan="4" class="px-6 py-10 text-center text-gray-400">No posts found. Create your
+                                first post!</td>
+                        </tr>
+                    </template>
+                    <template x-for="p in posts" :key="p.id">
                         <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                             <td class="px-6 py-5">
                                 <div class="font-bold text-gray-900 dark:text-white" x-text="p.title"></div>
-                                <div class="text-[10px] text-gray-400 mt-0.5">ezyparts.com/posts/sample-slug</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5" x-text="'ezyparts.com/posts/' + p.slug">
+                                </div>
                             </td>
                             <td class="px-6 py-5">
                                 <span
@@ -55,11 +67,11 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
                             <td class="px-6 py-5 text-right space-x-2">
-                                <button
+                                <button @click="editPost(p)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
                                 </button>
-                                <button
+                                <button @click="deletePost(p.id)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
                                 </button>
