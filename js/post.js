@@ -95,6 +95,15 @@ const registerPostEditor = () => {
                 document.getElementById('classic-editor-body').focus();
             },
 
+            insertLink() {
+                this.saveSelection();
+                const url = prompt("Enter URL:");
+                if (url) {
+                    this.restoreSelection();
+                    document.execCommand('createLink', false, url);
+                }
+            },
+
             triggerImageUpload() {
                 this.saveSelection();
                 this.$refs.imageInput.click();
