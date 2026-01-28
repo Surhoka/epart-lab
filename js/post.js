@@ -284,17 +284,16 @@ const registerPostEditor = () => {
             },
             newPost() {
                 this.activeTab = 'editor';
+                this.isLoading = false;
                 // Reset the post object to a clean, deep copy of the default post
                 // Ini memastikan tidak ada data lama yang terbawa.
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
 
                 // Pastikan konten visual di editor juga di-reset
-                setTimeout(() => {
+                this.$nextTick(() => {
                     const editorBody = document.getElementById('classic-editor-body');
-                    if (editorBody) {
-                        editorBody.innerHTML = this.post.content;
-                    }
-                }, 50);
+                    if (editorBody) editorBody.innerHTML = this.post.content;
+                });
             }
         }));
     }
