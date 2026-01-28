@@ -110,11 +110,11 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
                             <td class="px-6 py-5 text-right space-x-2">
-                                <button @click="editPost(p)"
+                                <button type="button" @click.prevent="editPost(p)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
                                 </button>
-                                <button @click="deletePost(p.id)"
+                                <button type="button" @click.prevent="deletePost(p.id)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
                                 </button>
