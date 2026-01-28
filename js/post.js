@@ -17,7 +17,7 @@ const registerPostEditor = () => {
                 id: null,
                 title: '',
                 slug: '',
-                content: '<p>Start telling your story...</p>',
+                content: '',
                 status: 'Draft',
                 category: [],
                 tags: '',
@@ -276,11 +276,11 @@ const registerPostEditor = () => {
                     permalinkMode: (item.slug || item.Slug) ? 'custom' : 'auto'
                 };
                 this.activeTab = 'editor';
-                // Small delay to ensure editor DOM is ready if needed
-                setTimeout(() => {
-                    const editorBody = document.getElementById('classic-editor-body');
+                // Use $nextTick to ensure editor DOM is ready
+                this.$nextTick(() => {
+                    const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
                     if (editorBody) editorBody.innerHTML = this.post.content || this.defaultPost.content;
-                }, 50);
+                });
             },
             newPost() {
                 this.activeTab = 'editor';
@@ -288,23 +288,16 @@ const registerPostEditor = () => {
                 // Reset the post object to a clean, deep copy of the default post
                 // Ini memastikan tidak ada data lama yang terbawa.
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
-                console.log('DEBUG: newPost triggered. activeTab set to:', this.activeTab);
 
-                // Pastikan konten visual di editor juga di-reset
-                setTimeout(() => {
-                    console.log('DEBUG: Timeout executed. Checking DOM for editor...');
+                // Pastikan konten visual di editor juga di-reset.
+                // Menggunakan $nextTick untuk menunggu AlpineJS selesai render tab.
+                this.$nextTick(() => {
                     const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
-
-                    console.log('DEBUG: Element found:', editorBody);
-
                     if (editorBody) {
-                        editorBody.innerHTML = this.post.content;
+                        editorBody.innerHTML = this.post.content; // Set to blank
                         editorBody.focus();
-                        console.log('DEBUG: Editor content reset successfully.');
-                    } else {
-                        console.error('DEBUG: Editor element NOT found!');
                     }
-                }, 100);
+                });
             }
         }));
     }
