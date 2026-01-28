@@ -290,10 +290,13 @@ const registerPostEditor = () => {
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
 
                 // Pastikan konten visual di editor juga di-reset
-                this.$nextTick(() => {
-                    const editorBody = document.getElementById('classic-editor-body');
-                    if (editorBody) editorBody.innerHTML = this.post.content;
-                });
+                setTimeout(() => {
+                    const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
+                    if (editorBody) {
+                        editorBody.innerHTML = this.post.content;
+                        editorBody.focus();
+                    }
+                }, 100);
             }
         }));
     }
