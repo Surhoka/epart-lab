@@ -66,6 +66,15 @@ const registerPostEditor = () => {
                 await this.fetchPosts();
             },
 
+            get selectedPostIds() {
+                return this.posts.filter(p => p.selected).map(p => p.id);
+            },
+
+            selectAll(event) {
+                const checked = event.target.checked;
+                this.posts.forEach(p => p.selected = checked);
+            },
+
             formatDate(dateString) {
                 if (!dateString) return '';
                 const date = new Date(dateString);
@@ -112,7 +121,8 @@ const registerPostEditor = () => {
                             category: p.Category,
                             tags: p.Tags,
                             date: this.formatDate(p.DateCreated),
-                            lastModified: p.LastModified
+                            lastModified: p.LastModified,
+                            selected: false
                         }));
                     } else {
                         console.error("Fetch posts failed:", res.message);
@@ -253,6 +263,24 @@ const registerPostEditor = () => {
                         this.fetchPosts();
                     } else {
                         window.showToast("Delete failed", "error");
+                    }
+                });
+            },
+
+            async bulkDelete() {
+                const ids = this.selectedPostIds;
+                if (ids.length === 0) return;
+                if (!confirm(`Are you sure you want to delete ${ids.length} selected posts?`)) return;
+
+                window.showToast(`Deleting ${ids.length} posts...`, "info");
+                // Note: Assuming your backend can handle an array of IDs.
+                // If not, you'll need to loop and call delete_post for each.
+                window.sendDataToGoogle('bulk_delete_posts', { ids: ids }, (res) => {
+                    if (res.status === 'success') {
+                        window.showToast("Posts deleted successfully!", "success");
+                        this.fetchPosts(); // Refresh the list
+                    } else {
+                        window.showToast("Bulk delete failed: " + res.message, "error");
                     }
                 });
             },
