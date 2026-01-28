@@ -209,7 +209,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
     const postActions = [
         'SignInUser', 'registerUser', 'SignOut',
         'saveEvent', 'updateProfile', 'createProfile',
-        'updateCoreProfile', 'updatePublicProfile', 'updateProfilePhoto',
+        'save_post', 'updateCoreProfile', 'updatePublicProfile', 'updateProfilePhoto',
         'uploadImageAndGetUrl', 'setupUserDatabase',
         'save_plugin', 'remove_plugin', 'ping_plugin',
         'dbCreate', 'dbUpdate', 'dbDelete', // Add generic DB actions for POST
