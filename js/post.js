@@ -283,21 +283,21 @@ const registerPostEditor = () => {
                 });
             },
             newPost() {
-                this.activeTab = 'editor';
                 this.isLoading = false;
+                this.activeTab = 'editor';
                 // Reset the post object to a clean, deep copy of the default post
                 // Ini memastikan tidak ada data lama yang terbawa.
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
 
                 // Pastikan konten visual di editor juga di-reset.
-                // Menggunakan $nextTick untuk menunggu AlpineJS selesai render tab.
-                this.$nextTick(() => {
+                // Menggunakan setTimeout untuk memastikan transisi x-show selesai
+                setTimeout(() => {
                     const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
                     if (editorBody) {
-                        editorBody.innerHTML = this.post.content; // Set to blank
+                        editorBody.innerHTML = ''; // Force blank
                         editorBody.focus();
                     }
-                });
+                }, 100);
             }
         }));
     }
