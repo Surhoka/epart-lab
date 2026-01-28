@@ -288,13 +288,21 @@ const registerPostEditor = () => {
                 // Reset the post object to a clean, deep copy of the default post
                 // Ini memastikan tidak ada data lama yang terbawa.
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
+                console.log('DEBUG: newPost triggered. activeTab set to:', this.activeTab);
 
                 // Pastikan konten visual di editor juga di-reset
                 setTimeout(() => {
+                    console.log('DEBUG: Timeout executed. Checking DOM for editor...');
                     const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
+
+                    console.log('DEBUG: Element found:', editorBody);
+
                     if (editorBody) {
                         editorBody.innerHTML = this.post.content;
                         editorBody.focus();
+                        console.log('DEBUG: Editor content reset successfully.');
+                    } else {
+                        console.error('DEBUG: Editor element NOT found!');
                     }
                 }, 100);
             }
