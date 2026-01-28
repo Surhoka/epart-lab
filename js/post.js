@@ -290,16 +290,32 @@ const registerPostEditor = () => {
                 });
             },
 
+            // NEW: Centralized function to handle switching to the editor view
+            _switchToEditor(postData) {
+                this.isLoading = false; // Explicitly turn off loading
+                this.activeTab = 'editor';
+                this.post = postData;
+
+                // Use setTimeout to ensure the x-show transition is complete before DOM manipulation
+                setTimeout(() => {
+                    const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
+                    if (editorBody) {
+                        editorBody.innerHTML = this.post.content || ''; // Use empty string as a safe fallback
+                        editorBody.focus();
+                    }
+                }, 150); // A slightly longer delay for robustness
+            },
+
             editPost(item) {
                 // Normalize incoming data (from DB, likely PascalCase) to our component's model (lowercase)
-                const categories = item.category || item.Category || '';
-                this.post = {
+                const categories = item.category || item.Category || []; // Default to empty array
+                const normalizedPost = {
                     id: item.id || item.ID,
-                    title: item.title || item.Title,
-                    slug: item.slug || item.Slug,
-                    content: item.content || item.Content,
-                    status: item.status || item.Status,
-                    category: Array.isArray(categories) ? [...categories] : categories.split(',').map(c => c.trim()).filter(Boolean),
+                    title: item.title || item.Title || '',
+                    slug: item.slug || item.Slug || '',
+                    content: item.content || item.Content || '',
+                    status: item.status || item.Status || 'Draft',
+                    category: Array.isArray(categories) ? [...categories] : String(categories).split(',').map(c => c.trim()).filter(Boolean),
                     tags: item.tags || item.Tags || '',
                     dateCreated: item.dateCreated || item.DateCreated,
                     location: item.location || item.Location || '',
@@ -308,29 +324,12 @@ const registerPostEditor = () => {
                     publishDate: item.publishDate || item.PublishDate || '',
                     permalinkMode: (item.slug || item.Slug) ? 'custom' : 'auto'
                 };
-                this.activeTab = 'editor';
-                // Use $nextTick to ensure editor DOM is ready
-                this.$nextTick(() => {
-                    const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
-                    if (editorBody) editorBody.innerHTML = this.post.content || this.defaultPost.content;
-                });
+                this._switchToEditor(normalizedPost);
             },
             newPost() {
-                this.isLoading = false;
-                this.activeTab = 'editor';
                 // Reset the post object to a clean, deep copy of the default post
-                // Ini memastikan tidak ada data lama yang terbawa.
-                this.post = JSON.parse(JSON.stringify(this.defaultPost));
-
-                // Pastikan konten visual di editor juga di-reset.
-                // Menggunakan setTimeout untuk memastikan transisi x-show selesai
-                setTimeout(() => {
-                    const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
-                    if (editorBody) {
-                        editorBody.innerHTML = ''; // Force blank
-                        editorBody.focus();
-                    }
-                }, 100);
+                const newPostObject = JSON.parse(JSON.stringify(this.defaultPost));
+                this._switchToEditor(newPostObject);
             }
         }));
     }
