@@ -245,6 +245,11 @@ const registerPostEditor = () => {
                 window.sendDataToGoogle('save_post', payload, (res) => {
                     if (res.status === 'success') {
                         window.showToast("Post saved successfully!", "success");
+                        // Sync back the new ID if it was a new post.
+                        // This prevents creating a duplicate on the next save.
+                        if (res.id && !this.post.id) {
+                            this.post.id = res.id;
+                        }
                         this.fetchPosts();
                         this.activeTab = 'list';
                     } else {
