@@ -1,7 +1,4 @@
 <div x-data="postEditor" id="post-editor-page" class="w-full animate-fade-in">
-    <div class="fixed top-24 right-4 z-50 bg-black/80 text-white p-2 text-xs rounded pointer-events-none font-mono">
-        ID: <span x-text="instanceId"></span> | Tab: <span x-text="activeTab"></span>
-    </div>
     <input type="file" x-ref="imageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
     <!-- Tab Navigation -->
     <div class="mb-8 flex border-b border-gray-100 dark:border-gray-800">
@@ -23,7 +20,7 @@
     <div x-show="activeTab === 'list'" class="space-y-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-            <button type="button" @click.prevent="console.log('DEBUG: Create New Post UI Clicked'); newPost()"
+            <button type="button" @click.prevent="newPost()"
                 class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Create New Post
@@ -113,8 +110,7 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
                             <td class="px-6 py-5 text-right space-x-2">
-                                <button type="button"
-                                    @click.prevent="console.log('DEBUG: Edit UI Clicked', p); editPost(p)"
+                                <button type="button" @click.prevent="editPost(p)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
                                 </button>
