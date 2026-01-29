@@ -1,64 +1,46 @@
-function initSignupPage() {
-    const signupButton = document.querySelector('button.bg-brand-500'); // Select the Sign Up button
-    if (signupButton) {
-        // Remove existing event listeners by cloning
-        const newButton = signupButton.cloneNode(true);
-        signupButton.parentNode.replaceChild(newButton, signupButton);
+const registerSignUpPage = () => {
+    if (window.Alpine && !window.Alpine.data('signUpPage')) {
+        window.Alpine.data('signUpPage', () => ({
+            fname: '',
+            lname: '',
+            email: '',
+            password: '',
 
-        newButton.addEventListener('click', handleSignup);
+            handleSignup(button) {
+                if (!this.fname || !this.lname || !this.email || !this.password) {
+                    window.showToast('All fields are required.', 'error');
+                    return;
+                }
+
+                window.setButtonLoading(button, true);
+
+                window.sendDataToGoogle('registerUser', {
+                    fname: this.fname,
+                    lname: this.lname,
+                    email: this.email,
+                    password: this.password
+                }, (response) => {
+                    window.setButtonLoading(button, false);
+
+                    if (response.status === 'success') {
+                        window.showToast('Registration successful! Please sign in.', 'success');
+                        setTimeout(() => {
+                            window.navigate('signin');
+                        }, 1500);
+                    } else {
+                        window.showToast(response.message || 'Registration failed.', 'error');
+                    }
+                }, (err) => {
+                    window.setButtonLoading(button, false);
+                    window.showToast('API Error: ' + err.message, 'error');
+                });
+            }
+        }));
     }
+};
+
+if (window.Alpine) {
+    registerSignUpPage();
+} else {
+    document.addEventListener('alpine:init', registerSignUpPage);
 }
-
-function handleSignup(e) {
-    if (e) e.preventDefault();
-
-    const fname = document.getElementById('fname').value;
-    const lname = document.getElementById('lname').value;
-    const email = document.getElementById('email').value;
-    // Assuming the password input is the one inside the relative div with toggle
-    const passwordInput = document.querySelector('input[type="password"]') || document.querySelector('input[placeholder="Enter your password"]');
-    const password = passwordInput ? passwordInput.value : '';
-
-    // Basic Validation
-    const btn = e.currentTarget;
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<div class="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></div>';
-    btn.disabled = true;
-
-    const toast = (msg, type) => {
-        if (typeof showToast === 'function') showToast(msg, type);
-        else if (typeof window.showToast === 'function') window.showToast(msg, type);
-        else alert(msg);
-    };
-
-    sendDataToGoogle('registerUser', {
-        fname: fname,
-        lname: lname,
-        email: email,
-        password: password
-    }, function (response) {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-
-        if (response.status === 'success') {
-            toast('Registration successful! Redirecting to login...', 'success');
-            setTimeout(() => {
-                const state = { page: 'profile', params: {} };
-                window.location.hash = window.encodeState ? window.encodeState(state) : '#profile';
-            }, 1500);
-        } else {
-            toast(response.message || 'Registration failed.', 'error');
-        }
-    });
-}
-
-// Initialize when script loads
-initSignupPage();
-
-// Also re-initialize when SPA navigates back to this page
-window.addEventListener('ezy:page-loaded', function (e) {
-    if (e.detail && e.detail.page === 'signup') {
-        console.log("Signup page loaded, re-initializing...");
-        initSignupPage();
-    }
-});
