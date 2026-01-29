@@ -20,7 +20,7 @@
     <div x-show="activeTab === 'list'" x-transition.immediate class="space-y-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-            <button type="button" @click.prevent="newPost()"
+            <button type="button" @click.prevent="console.log('DEBUG: Create New Post UI Clicked'); newPost()"
                 class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Create New Post
@@ -110,7 +110,8 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
                             <td class="px-6 py-5 text-right space-x-2">
-                                <button type="button" @click.prevent="editPost(p)"
+                                <button type="button"
+                                    @click.prevent="console.log('DEBUG: Edit UI Clicked', p); editPost(p)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
                                 </button>
@@ -347,70 +348,61 @@
                                         class="text-xs text-gray-600 dark:text-gray-400">Otomatis</label>
                                 </div>
                                 <div class="flex items-center gap-2">
-  <input type="radio" name="pubdate" id="custom-date" value="custom"
-    x-model="post.dateMode" class="text-brand-500 focus:ring-brand-500">
-  <label for="custom-date" class="text-xs text-gray-600 dark:text-gray-400">
-    Setel tanggal dan waktu
-  </label>
-</div>
+                                    <input type="radio" name="pubdate" id="custom-date" value="custom"
+                                        x-model="post.dateMode" class="text-brand-500 focus:ring-brand-500">
+                                    <label for="custom-date" class="text-xs text-gray-600 dark:text-gray-400">Setel
+                                        tanggal dan waktu</label>
+                                </div>
+                                <div x-show="post.dateMode === 'custom'" class="mt-4" x-data="{
+                                        initDate() {
+                                            const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+                                            
+                                            // Inline Calendar
+                                            this.fpDate = flatpickr(this.$refs.calendarMount, {
+                                                inline: true,
+                                                dateFormat: 'Y-m-d',
+                                                defaultDate: dateVal,
+                                                onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
+                                            });
 
-<div x-show="post.dateMode === 'custom'" class="mt-4"
-     x-data="{
-       initDate() {
-         const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
-         this.fpDate = flatpickr(this.$refs.calendarMount, {
-           inline: true,
-           dateFormat: 'Y-m-d',
-           defaultDate: dateVal,
-           onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
-         });
-         this.fpTime = flatpickr(this.$refs.timeInput, {
-           enableTime: true,
-           noCalendar: true,
-           dateFormat: 'H.i',
-           time_24hr: true,
-           defaultDate: dateVal,
-           onChange: (selectedDates) => this.updateTime(null, selectedDates[0])
-         });
-       },
-       updateTime(datePart, timePart) {
-         let current = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
-         if (datePart) {
-           current.setFullYear(datePart.getFullYear());
-           current.setMonth(datePart.getMonth());
-           current.setDate(datePart.getDate());
-         }
-         if (timePart) {
-           current.setHours(timePart.getHours());
-           current.setMinutes(timePart.getMinutes());
-         }
-         this.post.publishDate = current.toISOString();
-       }
-     }" x-init="initDate()">
-
-  <!-- Header input -->
-  <div class="flex gap-4 mb-3">
-    <div class="flex-1">
-      <input type="text" readonly
-        class="w-full border-b border-brand-500 bg-transparent py-0.5 text-[11px] font-medium text-gray-900 focus:outline-none dark:text-white"
-        :value="post.publishDate ? new Date(post.publishDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })">
-    </div>
-    <div class="w-20">
-      <input type="text" x-ref="timeInput"
-        class="w-full border-b border-brand-500 bg-transparent py-0.5 text-[11px] font-medium text-gray-900 focus:outline-none dark:text-white text-center">
-    </div>
-  </div>
-
-  <!-- Calendar mount -->
-  <div x-ref="calendarMount"
-  class="rounded-lg border border-gray-100 bg-white p-1 shadow-sm dark:border-gray-800 dark:bg-black/50 flex justify-center
-         [&_.flatpickr-calendar]:!shadow-none [&_.flatpickr-calendar]:!border-none [&_.flatpickr-calendar]:dark:!bg-transparent
-         [&_.flatpickr-day]:!h-6 [&_.flatpickr-day]:!w-6 [&_.flatpickr-day]:!leading-6 [&_.flatpickr-day]:text-[11px]
-         [&_.flatpickr-weekday]:text-[9px] [&_.flatpickr-months]:text-[11px]">
-</div>
-
-
-
+                                            // Time Picker
+                                            this.fpTime = flatpickr(this.$refs.timeInput, {
+                                                enableTime: true,
+                                                noCalendar: true,
+                                                dateFormat: 'H.i',
+                                                time_24hr: true,
+                                                defaultDate: dateVal,
+                                                onChange: (selectedDates) => this.updateTime(null, selectedDates[0])
+                                            });
+                                        },
+                                        updateTime(datePart, timePart) {
+                                            let current = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+                                            if (datePart) {
+                                                current.setFullYear(datePart.getFullYear());
+                                                current.setMonth(datePart.getMonth());
+                                                current.setDate(datePart.getDate());
+                                            }
+                                            if (timePart) {
+                                                current.setHours(timePart.getHours());
+                                                current.setMinutes(timePart.getMinutes());
+                                            }
+                                            this.post.publishDate = current.toISOString();
+                                        }
+                                    }" x-init="initDate()">
+                                    <div class="flex gap-4 mb-4">
+                                        <div class="flex-1">
+                                            <input type="text" readonly
+                                                class="w-full border-b border-brand-500 bg-transparent py-0.5 text-[11px] font-medium text-gray-900 focus:outline-none dark:text-white"
+                                                :value="post.publishDate ? new Date(post.publishDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })">
+                                        </div>
+                                        <div class="w-24">
+                                            <input type="text" x-ref="timeInput"
+                                                class="w-full border-b border-brand-500 bg-transparent py-0.5 text-[11px] font-medium text-gray-900 focus:outline-none dark:text-white text-center">
+                                        </div>
+                                    </div>
+                                    <div x-ref="calendarMount"
+                                        class="rounded-xl border border-gray-100 bg-white p-2 shadow-sm dark:border-gray-800 dark:bg-black/50 flex justify-center [&_.flatpickr-calendar]:!shadow-none [&_.flatpickr-calendar]:!border-none [&_.flatpickr-calendar]:dark:!bg-transparent [&_.flatpickr-day]:!h-7 [&_.flatpickr-day]:!w-7 [&_.flatpickr-day]:!leading-7 [&_.flatpickr-day]:text-xs [&_.flatpickr-weekday]:text-[10px] [&_.flatpickr-months]:text-sm">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -504,6 +496,3 @@
         </div>
     </div>
 </div>
-
-
-
