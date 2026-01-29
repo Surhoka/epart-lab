@@ -82,14 +82,18 @@ const registerPostEditor = () => {
             },
 
             async fetchCategories() {
-                window.sendDataToGoogle('get_categories', {}, (res) => {
+                // Use the generic 'dbRead' action to fetch from the 'Categories' sheet/table.
+                window.sendDataToGoogle('dbRead', { tableName: 'Categories' }, (res) => {
                     if (res.status === 'success' && Array.isArray(res.data)) {
                         this.categories = res.data.map(item => {
                             if (typeof item === 'object') {
+                                // Handle different possible column names for the category name.
                                 return item.name || item.Name || item.Category || item.value;
                             }
                             return item;
                         }).filter(Boolean);
+                    } else {
+                        console.error("Failed to fetch categories:", res.message || 'Unknown error');
                     }
                 });
             },
@@ -120,6 +124,11 @@ const registerPostEditor = () => {
                             status: p.Status,
                             category: p.Category,
                             tags: p.Tags,
+                            image: p.Image,
+                            location: p.Location,
+                            publishDate: p.PublishDate,
+                            commentOption: p.CommentOption,
+                            permalinkMode: p.PermalinkMode,
                             date: this.formatDate(p.DateCreated),
                             lastModified: p.LastModified,
                             selected: false
@@ -321,12 +330,13 @@ const registerPostEditor = () => {
                     status: item.status || item.Status || 'Draft',
                     category: Array.isArray(categories) ? [...categories] : String(categories).split(',').map(c => c.trim()).filter(Boolean),
                     tags: item.tags || item.Tags || '',
+                    image: item.image || item.Image || '',
                     dateCreated: item.dateCreated || item.DateCreated,
                     location: item.location || item.Location || '',
                     commentOption: item.commentOption || item.CommentOption || 'allow',
                     dateMode: (item.publishDate || item.PublishDate) ? 'custom' : 'auto',
                     publishDate: item.publishDate || item.PublishDate || '',
-                    permalinkMode: (item.slug || item.Slug) ? 'custom' : 'auto'
+                    permalinkMode: item.permalinkMode || item.PermalinkMode || 'auto'
                 };
                 this._switchToEditor(normalizedPost);
             },
