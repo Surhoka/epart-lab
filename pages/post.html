@@ -419,14 +419,14 @@
                             class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
-                                    <input type="radio" name="permalink" id="auto-permalink"
-                                        class="text-brand-500 focus:ring-brand-500" checked>
+                                    <input type="radio" name="permalink" id="auto-permalink" value="auto"
+                                        x-model="post.permalinkMode" class="text-brand-500 focus:ring-brand-500">
                                     <label for="auto-permalink"
                                         class="text-xs text-gray-600 dark:text-gray-400">Permalink Otomatis</label>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <input type="radio" name="permalink" id="custom-permalink"
-                                        class="text-brand-500 focus:ring-brand-500">
+                                    <input type="radio" name="permalink" id="custom-permalink" value="custom"
+                                        x-model="post.permalinkMode" class="text-brand-500 focus:ring-brand-500">
                                     <label for="custom-permalink"
                                         class="text-xs text-gray-600 dark:text-gray-400">Permalink Khusus</label>
                                 </div>
