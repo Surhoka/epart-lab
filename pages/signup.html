@@ -6,7 +6,7 @@
   }
 </style>
 
-<div x-data="globalData()"
+<div x-data="signUpPage"
   class="w-full max-w-[1000px] overflow-hidden bg-white rounded-2xl shadow-2xl dark:bg-gray-800 flex flex-col lg:flex-row lg:max-h-[90vh]">
   <!-- Form Section -->
   <div class="w-full lg:w-1/2 p-6 sm:p-8 2xl:p-12 flex flex-col overflow-y-auto">
@@ -29,7 +29,7 @@
 
 
 
-    <form>
+    <form @submit.prevent="handleSignup($el.querySelector('button'))">
       <div class="space-y-4 2xl:space-y-5">
         <div class="grid grid-cols-1 gap-4 2xl:gap-5 sm:grid-cols-2">
           <!-- First Name -->
@@ -37,7 +37,7 @@
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               First Name<span class="text-error-500">*</span>
             </label>
-            <input type="text" id="fname" name="fname" placeholder="Enter your first name"
+            <input type="text" x-model="fname" placeholder="Enter your first name" required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
           </div>
           <!-- Last Name -->
@@ -45,7 +45,7 @@
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Last Name<span class="text-error-500">*</span>
             </label>
-            <input type="text" id="lname" name="lname" placeholder="Enter your last name"
+            <input type="text" x-model="lname" placeholder="Enter your last name" required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
           </div>
         </div>
@@ -54,7 +54,7 @@
           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Email<span class="text-error-500">*</span>
           </label>
-          <input type="email" id="email" name="email" placeholder="info@gmail.com"
+          <input type="email" x-model="email" placeholder="info@gmail.com" required
             class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
         </div>
         <!-- Password -->
@@ -63,7 +63,8 @@
             Password<span class="text-error-500">*</span>
           </label>
           <div x-data="{ showPassword: false }" class="relative">
-            <input :type="showPassword ? 'text' : 'password'" placeholder="Enter your password"
+            <input x-model="password" :type="showPassword ? 'text' : 'password'" placeholder="Enter your password"
+              required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
             <span @click="showPassword = !showPassword"
               class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
@@ -99,7 +100,7 @@
         </div>
         <!-- Button -->
         <div>
-          <button
+          <button type="submit"
             class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
             Sign Up
           </button>
@@ -125,9 +126,9 @@
     </div>
 
     <div class="relative z-10 flex flex-col items-center">
-      <a href="/" class="flex items-center gap-3 mb-6">
-        <img :src="blogFavicon" alt="Logo" class="w-12 h-12" />
-        <span class="text-3xl font-bold text-white tracking-tight" x-text="blogTitle"></span>
+      <a href="#dashboard" class="flex items-center gap-3 mb-6">
+        <img :src="$store.app.blogFavicon" alt="Logo" class="w-12 h-12" />
+        <span class="text-3xl font-bold text-white tracking-tight" x-text="$store.app.blogTitle"></span>
       </a>
       <p class="text-gray-400 text-center max-w-sm">
         Join our Admin Dashboard to manage your content and analytics with ease.
