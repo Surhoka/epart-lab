@@ -12,6 +12,7 @@ const registerPostEditor = () => {
     if (window.Alpine && !window.Alpine.data('postEditor')) {
         window.Alpine.data('postEditor', () => ({
             activeTab: 'list', // 'list' or 'editor'
+            instanceId: Math.random().toString(36).substr(2, 9), // ID Unik untuk melacak lifecycle komponen
             savedRange: null,
             defaultPost: {
                 id: null,
@@ -50,7 +51,7 @@ const registerPostEditor = () => {
             ],
 
             async init() {
-                console.log('[POST.JS] Komponen postEditor sedang diinisialisasi.');
+                console.log(`[POST.JS] Init Instance ID: ${this.instanceId}. Komponen sedang diinisialisasi.`);
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
                 this.$watch('post.title', value => {
                     // Guard clause to prevent error on reset
