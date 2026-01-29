@@ -1,49 +1,269 @@
-// Profile page initialization
-window.initProfilePage = function () {
-    console.log("Profile Page Initialized");
+const registerProfilePage = () => {
+    if (window.Alpine && !window.Alpine.data('profilePage')) {
+        window.Alpine.data('profilePage', () => ({
+            // --- STATE ---
+            isLoading: true,
+            activeTab: 'general',
+            isProfileInfoModal: false,
+            isProfileAddressModal: false,
+            isPublicInfoModal: false,
 
-    // Initialize Breadcrumb
-    if (typeof window.renderBreadcrumb === 'function') {
+            // Data for display
+            profile: {
+                id: null,
+                personalInfo: { fullName: 'Loading...', bio: '-', profilePhoto: 'https://dummyimage.com/100', status: 'Active' },
+                address: { cityState: '-' },
+                publicDisplay: { supportEmail: '-', supportPhone: '-', storeAddress: '-', operatingHours: '-', operatingDays: '-', facebook: '', twitter: '', instagram: '', linkedin: '' }
+            },
 
+            // Separate data for editing in modals to avoid instant UI changes
+            editableProfile: {
+                personalInfo: {},
+                address: {},
+                socialLinks: {},
+                publicDisplay: {}
+            },
+
+            // --- LIFECYCLE & ACTIONS ---
+            async init() {
+                console.log("Profile Page Initialized with Alpine Component.");
+                const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+                await this.fetchProfileData(sessionUserId);
+                this.isLoading = false;
+            },
+
+            async fetchProfileData(userId) {
+                this.isLoading = true;
+                const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+                const cachedData = localStorage.getItem(cacheKey);
+
+                if (cachedData) {
+                    try {
+                        this.populateProfileData(JSON.parse(cachedData));
+                    } catch (e) {
+                        console.error('Error parsing cached profile data', e);
+                        localStorage.removeItem(cacheKey);
+                    }
+                }
+
+                if (typeof window.sendDataToGoogle !== 'function') {
+                    console.error('sendDataToGoogle is not available.');
+                    this.isLoading = false;
+                    return;
+                }
+
+                window.sendDataToGoogle('getProfile', { userId: userId || '' }, (response) => {
+                    if (response.status === 'success' && response.data) {
+                        this.populateProfileData(response.data);
+                        localStorage.setItem(cacheKey, JSON.stringify(response.data));
+
+                        // Sync header photo
+                        const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                        if (sessionUser && response.data.personalInfo?.profilePhoto) {
+                            sessionUser.pictureUrl = response.data.personalInfo.profilePhoto;
+                            localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                            if (window.app) window.app.currentUser = { ...sessionUser };
+                        }
+                    } else if (!cachedData) {
+                        window.showToast('Welcome! Please create your profile.', 'info');
+                        this.openInfoModal();
+                    }
+                    this.isLoading = false;
+                }, (err) => {
+                    console.error("API Error fetching profile:", err);
+                    window.showToast('Failed to load profile data.', 'error');
+                    this.isLoading = false;
+                });
+            },
+
+            populateProfileData(data) {
+                this.profile.id = data.id || null;
+                this.profile.personalInfo = {
+                    ...data.personalInfo,
+                    fullName: `${data.personalInfo?.firstName || ''} ${data.personalInfo?.lastName || ''}`.trim()
+                };
+                this.profile.address = data.address || {};
+                this.profile.socialLinks = data.socialLinks || {};
+                this.profile.publicDisplay = data.publicDisplay || {};
+            },
+
+            // --- MODAL CONTROLS ---
+            openInfoModal() {
+                // Deep copy current profile to editable profile to prevent reference issues
+                this.editableProfile.personalInfo = JSON.parse(JSON.stringify(this.profile.personalInfo || {}));
+                this.editableProfile.socialLinks = JSON.parse(JSON.stringify(this.profile.socialLinks || {}));
+                this.isProfileInfoModal = true;
+            },
+
+            openAddressModal() {
+                this.editableProfile.address = JSON.parse(JSON.stringify(this.profile.address || {}));
+                this.isProfileAddressModal = true;
+            },
+
+            openPublicInfoModal() {
+                this.editableProfile.publicDisplay = JSON.parse(JSON.stringify(this.profile.publicDisplay || {}));
+                this.isPublicInfoModal = true;
+            },
+
+            // --- SAVE ACTIONS ---
+            async savePersonalInfo(button) {
+                window.setButtonLoading(button, true);
+                const payload = {
+                    personalInfo: this.editableProfile.personalInfo,
+                    socialLinks: this.editableProfile.socialLinks
+                };
+                await this.updateProfile(payload, button, () => {
+                    this.isProfileInfoModal = false;
+                });
+            },
+
+            async saveAddress(button) {
+                window.setButtonLoading(button, true);
+                const payload = {
+                    address: this.editableProfile.address
+                };
+                await this.updateProfile(payload, button, () => {
+                    this.isProfileAddressModal = false;
+                });
+            },
+
+            async savePublicInfo(button) {
+                window.setButtonLoading(button, true);
+                const payload = {
+                    publicDisplay: this.editableProfile.publicDisplay
+                };
+                await this.updateProfile(payload, button, () => {
+                    this.isPublicInfoModal = false;
+                });
+            },
+
+            async updateProfile(profileData, button, onSuccess) {
+                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                if (!userId) {
+                    window.showToast('User ID not found. Cannot save.', 'error');
+                    if (button) window.setButtonLoading(button, false);
+                    return;
+                }
+
+                const action = this.profile.id ? 'updateCoreProfile' : 'createProfile';
+
+                window.sendDataToGoogle(action, {
+                    userId: userId,
+                    profileData: JSON.stringify(profileData)
+                }, (res) => {
+                    if (res.status === 'success') {
+                        window.showToast('Profile updated successfully!', 'success');
+                        if (onSuccess) onSuccess();
+                        // Refetch data to update UI
+                        this.fetchProfileData(userId);
+                    } else {
+                        window.showToast(`Error: ${res.message}`, 'error');
+                    }
+                    if (button) window.setButtonLoading(button, false);
+                }, (err) => {
+                    console.error('Update profile error:', err);
+                    window.showToast('API error while saving.', 'error');
+                    if (button) window.setButtonLoading(button, false);
+                });
+            },
+
+            // --- PHOTO UPLOAD ---
+            triggerPhotoUpload() {
+                this.$refs.photoInput.click();
+            },
+
+            handlePhotoFileChange(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    window.showToast('Please select an image file.', 'error');
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    window.showToast('Image size must be less than 5MB.', 'error');
+                    return;
+                }
+
+                window.showToast('Uploading profile photo...', 'info');
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64data = e.target.result.split(',')[1];
+                    this.uploadProfilePhoto(file.name, base64data, file.type);
+                };
+                reader.readAsDataURL(file);
+            },
+
+            uploadProfilePhoto(fileName, base64data, mimeType) {
+                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                if (!userId) {
+                    window.showToast('User ID not found. Cannot upload photo.', 'error');
+                    return;
+                }
+
+                window.sendDataToGoogle('uploadImageAndGetUrl', {
+                    fileName: `profile_${userId}_${Date.now()}`,
+                    fileData: base64data,
+                    mimeType: mimeType
+                }, (res) => {
+                    if (res.status === 'success' && res.url) {
+                        this.saveProfilePhotoUrl(res.url);
+                    } else {
+                        window.showToast(`Upload failed: ${res.message}`, 'error');
+                    }
+                });
+            },
+
+            saveProfilePhotoUrl(photoUrl) {
+                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                window.sendDataToGoogle('updateProfilePhoto', {
+                    userId: userId,
+                    photoUrl: photoUrl
+                }, (res) => {
+                    if (res.status === 'success') {
+                        window.showToast('Profile photo updated!', 'success');
+                        this.fetchProfileData(userId); // Refetch to update everything
+                    } else {
+                        window.showToast(`Failed to save photo URL: ${res.message}`, 'error');
+                    }
+                });
+            },
+
+            // --- DELETE ACTIONS ---
+            async deleteAccount(button) {
+                if (!confirm('Are you sure you want to delete this account? This action cannot be undone.')) return;
+                // This is a placeholder. A real delete would need a dedicated, secure backend function.
+                window.showToast('Delete functionality not implemented in this example.', 'warning');
+            },
+
+            async clearAddress(button) {
+                if (!confirm('Are you sure you want to clear address information?')) return;
+                window.setButtonLoading(button, true);
+                const payload = { address: { country: '', cityState: '', postalCode: '', taxId: '' } };
+                await this.updateProfile(payload, button, () => {
+                    this.isProfileAddressModal = false;
+                });
+            },
+
+            // --- HELPERS ---
+            getSocialStatus(url) {
+                return url && url.trim() !== '' ? 'Active' : 'Inactive';
+            },
+
+            getSocialStatusClass(url) {
+                return url && url.trim() !== '' ? 'text-success-600' : 'text-gray-600 dark:text-gray-400';
+            }
+        }));
     }
-
-    // Get the logged-in user from session storage.
-    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
-
-    // Fetch and populate profile data for the logged-in user.
-    // This is critical to ensure the page loads the correct user's data from the start.
-    fetchProfileData(sessionUserId);
-
-    // Setup event listeners for save buttons
-    setupEventListeners();
-
-    console.log('Profile page ready');
 };
 
-/**
- * Force reset button to original state
- * This ensures button is fully restored even if setButtonLoading fails
- */
-function forceResetButton(buttonId, originalText) {
-    const button = document.getElementById(buttonId);
-    if (button) {
-        button.disabled = false;
-        button.classList.remove('btn-loading', 'btn-success');
-        button.style.display = '';
-        button.style.opacity = '';
-        button.style.transform = '';
-        button.style.backgroundColor = '';
-        button.style.borderColor = '';
-        button.style.color = '';
-        if (originalText) {
-            button.innerHTML = originalText;
-        }
-        // Clean up any data attributes
-        delete button.dataset.originalText;
-        delete button.dataset.originalDisabled;
-        delete button.dataset.oldBg;
-    }
+// Immediate registration or wait for Alpine
+if (window.Alpine) {
+    registerProfilePage();
+} else {
+    document.addEventListener('alpine:init', registerProfilePage);
 }
 
 /**
