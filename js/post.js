@@ -298,7 +298,11 @@ const registerPostEditor = () => {
                 console.log(`DEBUG: _switchToEditor called [${this.instanceId}]`);
                 this.isLoading = false; // Explicitly turn off loading
                 this.post = postData;
-                this.activeTab = 'editor';
+
+                // Use nextTick to ensure data is ready before switching view
+                this.$nextTick(() => {
+                    this.activeTab = 'editor';
+                });
 
                 // Use setTimeout to ensure the x-show transition is complete before DOM manipulation
                 setTimeout(() => {
