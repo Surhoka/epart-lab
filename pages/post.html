@@ -17,7 +17,7 @@
     </div>
 
     <!-- Tab 1: Post List -->
-    <div x-show="activeTab === 'list'" class="space-y-6">
+    <div x-show="activeTab === 'list'" class="space-y-6" x-transition>
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
             <button type="button" @click.prevent="newPost()"
@@ -127,7 +127,7 @@
     </div>
 
     <!-- Tab 2: Editor -->
-    <div x-show="activeTab === 'editor'">
+    <div x-show="activeTab === 'editor'" x-transition x-cloak>
         <!-- Editor Header (Legacy) -->
         <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex-1">
