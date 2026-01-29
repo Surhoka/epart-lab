@@ -1,4 +1,4 @@
-<div id="ai-assistant-container" class="w-full" x-data="{ activeTab: 'chat', isRuleModalOpen: false }">
+<div id="ai-assistant-container" class="w-full" x-data="aiAssistantPage">
     <!-- Breadcrumb Start (Handled Globally) -->
     <!-- Breadcrumb End -->
 
@@ -39,10 +39,11 @@
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </span>
-                    <input type="text" id="faq-search" placeholder="Apa yang bisa saya bantu..."
+                    <input type="text" x-model="chatQuery" @keydown.enter="askAi()"
+                        placeholder="Apa yang bisa saya bantu..."
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-300 focus:ring-4 focus:ring-brand-500/5 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-800">
                 </div>
-                <button id="search-ask-ai"
+                <button @click="askAi()"
                     class="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-105 active:scale-95">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -53,8 +54,8 @@
             </div>
 
             <!-- AI Search Result Container (Hidden by default) -->
-            <div id="ai-search-result"
-                class="mt-6 hidden animate-fadeIn overflow-hidden rounded-2xl border border-brand-100 bg-brand-50/30 p-6 dark:border-brand-500/20 dark:bg-brand-500/5">
+            <div x-show="chatResponse || isChatLoading" x-cloak
+                class="mt-6 animate-fadeIn overflow-hidden rounded-2xl border border-brand-100 bg-brand-50/30 p-6 dark:border-brand-500/20 dark:bg-brand-500/5">
                 <div class="mb-3 flex items-center justify-between">
                     <div class="flex items-center gap-2 text-brand-600 dark:text-brand-400">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,15 +64,21 @@
                         </svg>
                         <span class="text-xs font-bold uppercase tracking-wider">AI Insight</span>
                     </div>
-                    <button id="close-ai-result" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <button @click="closeAiResult()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l18 18"></path>
                         </svg>
                     </button>
                 </div>
-                <div id="ai-result-content" class="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    <!-- Typing content goes here -->
+                <div x-show="isChatLoading" class="flex items-center gap-2 py-2">
+                    <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500"></span>
+                    <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:0.2s]"></span>
+                    <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:0.4s]"></span>
+                    <span class="text-xs text-gray-500 ml-2">AI sedang berpikir...</span>
+                </div>
+                <div x-show="!isChatLoading" x-html="chatResponse"
+                    class="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 dark:prose-invert">
                 </div>
             </div>
         </div>
@@ -99,7 +106,7 @@
                     <label class="mb-1.5 block text-xs font-medium text-gray-500 dark:text-gray-400">Gemini
                         Model</label>
                     <div class="relative">
-                        <select id="ai-model-select"
+                        <select x-model="aiConfig.model"
                             class="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                             <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                             <option value="gemini-flash-latest">Gemini Flash (Stable/Latest)</option>
@@ -117,11 +124,12 @@
                 </div>
                 <div class="md:col-span-6">
                     <label class="mb-1.5 block text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
-                    <input type="password" id="ai-api-key" placeholder="Paste your Gemini API Key here..."
+                    <input type="password" x-model="aiConfig.apiKey"
+                        :placeholder="aiConfig.hasKey ? '•••••••••••••••• (Terpasang)' : 'Paste your Gemini API Key here...'"
                         class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                 </div>
                 <div class="md:col-span-3">
-                    <button id="save-ai-config-btn"
+                    <button @click="saveAiConfig($el)"
                         class="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 whitespace-nowrap dark:bg-brand-500 dark:hover:bg-brand-600">
                         Save
                     </button>
@@ -132,7 +140,7 @@
         <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Manage Rules</h3>
-                <button id="btn-add-rule" type="button" onclick="window.openRuleModal()"
+                <button @click="openAddRuleModal()" type="button"
                     class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -157,23 +165,45 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-gray-800">
-                        <!-- Empty State or Example -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap" colspan="3">
-                                <div class="flex flex-col items-center justify-center py-6 text-center">
-                                    <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
-                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                                            </path>
-                                        </svg>
+                        <template x-if="rules.length === 0">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap" colspan="3">
+                                    <div class="flex flex-col items-center justify-center py-6 text-center">
+                                        <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Belum ada rules yang
+                                            ditambahkan.</p>
                                     </div>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Belum ada rules yang
-                                        ditambahkan.</p>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        </template>
+                        <template x-for="rule in rules" :key="rule.id">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                        :class="rule.active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'"
+                                        x-text="rule.active ? 'Active' : 'Inactive'">
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white truncate max-w-xs"
+                                        :title="rule.prompt" x-text="rule.prompt"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button @click="openEditRuleModal(rule)"
+                                        class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Edit</button>
+                                    <button @click="deleteRule(rule.id)"
+                                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
+                                </td>
+                            </tr>
+                        </template>
                     </tbody>
                 </table>
             </div>
@@ -181,17 +211,16 @@
     </div>
 
     <!-- BEGIN MODAL AI RULE -->
-    <div id="aiRuleModal" :class="{ 'show': isRuleModalOpen, 'hidden': !isRuleModalOpen }"
-        class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden modal flex justify-center items-center hidden"
-        x-cloak>
-        <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
-            onclick="window.closeRuleModal()">
+    <div x-show="isRuleModalOpen"
+        class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden modal flex justify-center items-center" x-cloak>
+        <div @click="closeRuleModal()"
+            class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300">
         </div>
         <div
             class="modal-dialog relative flex w-full max-w-[640px] flex-col max-h-[90vh] rounded-[32px] bg-white dark:bg-gray-800 p-8 shadow-2xl transition-all duration-300 lg:p-12 border border-gray-200 dark:border-gray-700">
             <!-- close btn -->
-            <button onclick="window.closeRuleModal()"
-                class="modal-close-btn absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all hover:scale-110">
+            <button @click="closeRuleModal()"
+                class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all hover:scale-110">
                 <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18" />
@@ -201,38 +230,37 @@
 
             <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
                 <div class="modal-header border-b border-gray-200 dark:border-gray-700 pb-6 mb-8">
-                    <h5 class="font-bold text-gray-900 dark:text-white text-2xl lg:text-3xl" id="aiRuleModalTitle">
-                        Rule Baru
+                    <h5 class="font-bold text-gray-900 dark:text-white text-2xl lg:text-3xl"
+                        x-text="modalMode === 'add' ? 'Rule Baru' : 'Edit Rule'">
                     </h5>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         Atur bagaimana AI merespon pertanyaan spesifik.
                     </p>
                 </div>
                 <div class="mt-8 modal-body">
-                    <input type="hidden" id="rule-id">
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Prompt /
                             Trigger</label>
-                        <textarea id="rule-prompt" rows="4"
+                        <textarea x-model="editingRule.prompt" rows="4"
                             placeholder="Contoh: Visi membangun CMS Modern berbasis Google Apps Script, kombinasi Blogger dan Alpine.js"
                             class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-hidden focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-blue-800"></textarea>
                     </div>
                     <div class="mt-6">
                         <div class="flex items-center">
-                            <input id="rule-active" type="checkbox"
+                            <input x-model="editingRule.active" type="checkbox"
                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600">
-                            <label for="rule-active"
-                                class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Aktifkan Rule ini</label>
+                            <label class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Aktifkan Rule
+                                ini</label>
                         </div>
                     </div>
                 </div>
                 <div
                     class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-gray-200 dark:border-gray-700 pt-8">
-                    <button type="button" id="close-rule-modal-btn" onclick="window.closeRuleModal()"
-                        class="modal-close-btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                    <button type="button" @click="closeRuleModal()"
+                        class="w-full sm:w-auto flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                         Batal
                     </button>
-                    <button type="button" id="save-rule-btn" onclick="window.saveRule()"
+                    <button type="button" @click="saveRule($el)"
                         class="w-full sm:w-auto flex justify-center items-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 hover:scale-105 ml-auto">
                         Simpan
                     </button>
