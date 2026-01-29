@@ -12,7 +12,6 @@ const registerPostEditor = () => {
     if (window.Alpine && !window.Alpine.data('postEditor')) {
         window.Alpine.data('postEditor', () => ({
             activeTab: 'list', // 'list' or 'editor'
-            instanceId: Math.random().toString(36).substr(2, 9), // ID Unik untuk melacak lifecycle komponen
             savedRange: null,
             defaultPost: {
                 id: null,
@@ -51,7 +50,7 @@ const registerPostEditor = () => {
             ],
 
             async init() {
-                console.log(`[POST.JS] Init Instance ID: ${this.instanceId}. Komponen sedang diinisialisasi.`);
+                console.log('[POST.JS] Komponen postEditor diinisialisasi.');
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
                 this.$watch('post.title', value => {
                     // Guard clause to prevent error on reset
@@ -103,7 +102,7 @@ const registerPostEditor = () => {
             },
 
             async fetchPosts() {
-                console.log('[POST.JS] fetchPosts() dipanggil. Memuat daftar post...');
+                console.log('[POST.JS] Memuat daftar post...');
                 this.isLoading = true;
                 window.sendDataToGoogle('get_posts', {}, (res) => {
                     this.isLoading = false;
@@ -317,7 +316,6 @@ const registerPostEditor = () => {
 
             // NEW: Centralized function to handle switching to the editor view
             _switchToEditor(postData) {
-                this.isLoading = false; // Explicitly turn off loading
                 this.post = postData;
 
                 // Use nextTick to ensure data is ready before switching view
@@ -325,18 +323,18 @@ const registerPostEditor = () => {
                     this.activeTab = 'editor';
                 });
 
-                // Use setTimeout to ensure the x-show transition is complete before DOM manipulation
                 setTimeout(() => {
                     const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
                     if (editorBody) {
                         editorBody.innerHTML = this.post.content || ''; // Use empty string as a safe fallback
                         editorBody.focus();
+                    } else {
+                        console.error('[POST.JS] Elemen editor (#classic-editor-body) tidak ditemukan.');
                     }
-                }, 150); // A slightly longer delay for robustness
+                }, 50); // Small delay for x-show transition to complete
             },
 
             editPost(item) {
-                // Normalize incoming data (from DB, likely PascalCase) to our component's model (lowercase)
                 const categories = item.category || item.Category || []; // Default to empty array
                 const normalizedPost = {
                     id: item.id || item.ID,
@@ -357,7 +355,6 @@ const registerPostEditor = () => {
                 this._switchToEditor(normalizedPost);
             },
             newPost() {
-                // Reset the post object to a clean, deep copy of the default post
                 const newPostObject = JSON.parse(JSON.stringify(this.defaultPost));
                 this._switchToEditor(newPostObject);
             }
