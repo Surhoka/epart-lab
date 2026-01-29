@@ -20,7 +20,7 @@
     <div x-show="activeTab === 'list'" class="space-y-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-            <button type="button" @click.prevent="newPost()"
+            <button type="button" @click.prevent="console.log('[UI] Tombol Create New Post diklik.'); newPost()"
                 class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Create New Post
@@ -110,11 +110,13 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
                             <td class="px-6 py-5 text-right space-x-2">
-                                <button type="button" @click.prevent="editPost(p)"
+                                <button type="button"
+                                    @click.prevent="console.log('[UI] Tombol Edit diklik untuk post:', p.id); editPost(p)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
                                 </button>
-                                <button type="button" @click.prevent="deletePost(p.id)"
+                                <button type="button"
+                                    @click.prevent="console.log('[UI] Tombol Delete diklik untuk post:', p.id); deletePost(p.id)"
                                     class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
                                     <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
                                 </button>
@@ -446,7 +448,7 @@
                         </button>
                         <div x-show="open" x-transition
                             class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
-                            <input type="text" placeholder="Telusuri lokasi"
+                            <input type="text" x-model="post.location" placeholder="Telusuri lokasi"
                                 class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
                         </div>
                     </div>
@@ -469,18 +471,21 @@
                                     <div class="space-y-1">
                                         <label
                                             class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
-                                            <input type="radio" name="comments"
-                                                class="text-brand-500 focus:ring-brand-500" checked> Izinkan
+                                            <input type="radio" name="comments" value="allow"
+                                                x-model="post.commentOption"
+                                                class="text-brand-500 focus:ring-brand-500"> Izinkan
                                         </label>
                                         <label
                                             class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
-                                            <input type="radio" name="comments"
+                                            <input type="radio" name="comments" value="disallow_hide"
+                                                x-model="post.commentOption"
                                                 class="text-brand-500 focus:ring-brand-500"> Jangan izinkan, sembunyikan
                                             yang ada
                                         </label>
                                         <label
                                             class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
-                                            <input type="radio" name="comments"
+                                            <input type="radio" name="comments" value="disallow_show"
+                                                x-model="post.commentOption"
                                                 class="text-brand-500 focus:ring-brand-500"> Jangan izinkan, tampilkan
                                             yang ada
                                         </label>
