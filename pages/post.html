@@ -20,8 +20,7 @@
     <div x-show="activeTab === 'list'" class="space-y-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-            <button type="button"
-                @click.prevent.stop="console.log('[UI] Click. Instance:', instanceId, '| Type of newPost:', typeof newPost); try { newPost() } catch(e) { console.error('[UI] Error calling newPost:', e) }"
+            <button type="button" @click.prevent="newPost()"
                 class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Create New Post
