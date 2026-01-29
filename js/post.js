@@ -50,6 +50,7 @@ const registerPostEditor = () => {
             ],
 
             async init() {
+                console.log('[POST.JS] Komponen postEditor sedang diinisialisasi.');
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
                 this.$watch('post.title', value => {
                     // Guard clause to prevent error on reset
@@ -101,6 +102,7 @@ const registerPostEditor = () => {
             },
 
             async fetchPosts() {
+                console.log('[POST.JS] fetchPosts() dipanggil. Memuat daftar post...');
                 this.isLoading = true;
                 window.sendDataToGoogle('get_posts', {}, (res) => {
                     this.isLoading = false;
@@ -133,8 +135,10 @@ const registerPostEditor = () => {
                         this.categories = Array.from(allCategories).sort();
                     } else {
                         console.error("Fetch posts failed:", res.message);
+                        window.showToast('Gagal memuat post: ' + res.message, 'error');
                     }
                 }, (err) => {
+                    window.showToast('Error API saat memuat post.', 'error');
                     this.isLoading = false;
                     console.error("API Error fetching posts:", err);
                 });
