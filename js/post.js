@@ -62,7 +62,6 @@ const registerPostEditor = () => {
                         if (this.post.permalinkMode === 'auto') this.post.slug = '';
                     }
                 });
-                this.fetchCategories();
                 await this.fetchPosts();
             },
 
@@ -82,27 +81,18 @@ const registerPostEditor = () => {
             },
 
             async fetchCategories() {
-                // Use the generic 'dbRead' action to fetch from the 'Categories' sheet/table.
-                window.sendDataToGoogle('dbRead', { tableName: 'Categories' }, (res) => {
-                    if (res.status === 'success' && Array.isArray(res.data)) {
-                        this.categories = res.data.map(item => {
-                            if (typeof item === 'object') {
-                                // Handle different possible column names for the category name.
-                                return item.name || item.Name || item.Category || item.value;
-                            }
-                            return item;
-                        }).filter(Boolean);
-                    } else {
-                        console.error("Failed to fetch categories:", res.message || 'Unknown error');
-                    }
-                });
+                // This function is disabled to avoid calling the 'Categories' sheet.
+                // Categories are now populated from existing posts in fetchPosts().
+                // The call in init() has been removed.
             },
 
             addCategory() {
                 const name = prompt("Nama Label Baru:");
-                if (name) {
+                if (name && name.trim()) {
+                    // Optimistically update UI
                     if (!this.categories.includes(name)) {
                         this.categories.push(name);
+                        this.categories.sort(); // Keep the list sorted
                     }
                     if (!this.post.category.includes(name)) {
                         this.post.category.push(name);
@@ -115,24 +105,32 @@ const registerPostEditor = () => {
                 window.sendDataToGoogle('get_posts', {}, (res) => {
                     this.isLoading = false;
                     if (res.status === 'success') {
+                        const allCategories = new Set();
                         // Normalize keys to lowercase for frontend consistency
-                        this.posts = (res.data || []).map(p => ({
-                            id: p.ID,
-                            title: p.Title,
-                            slug: p.Slug,
-                            content: p.Content,
-                            status: p.Status,
-                            category: p.Category,
-                            tags: p.Tags,
-                            image: p.Image,
-                            location: p.Location,
-                            publishDate: p.PublishDate,
-                            commentOption: p.CommentOption,
-                            permalinkMode: p.PermalinkMode,
-                            date: this.formatDate(p.DateCreated),
-                            lastModified: p.LastModified,
-                            selected: false
-                        }));
+                        this.posts = (res.data || []).map(p => {
+                            const postData = {
+                                id: p.ID,
+                                title: p.Title,
+                                slug: p.Slug,
+                                content: p.Content,
+                                status: p.Status,
+                                category: p.Category,
+                                tags: p.Tags,
+                                image: p.Image,
+                                location: p.Location,
+                                publishDate: p.PublishDate,
+                                commentOption: p.CommentOption,
+                                permalinkMode: p.PermalinkMode,
+                                date: this.formatDate(p.DateCreated),
+                                lastModified: p.LastModified,
+                                selected: false
+                            };
+                            if (Array.isArray(postData.category)) {
+                                postData.category.forEach(cat => allCategories.add(cat));
+                            }
+                            return postData;
+                        });
+                        this.categories = Array.from(allCategories).sort();
                     } else {
                         console.error("Fetch posts failed:", res.message);
                     }
@@ -287,16 +285,29 @@ const registerPostEditor = () => {
                 if (!confirm(`Are you sure you want to delete ${ids.length} selected posts?`)) return;
 
                 window.showToast(`Deleting ${ids.length} posts...`, "info");
-                // Note: Assuming your backend can handle an array of IDs.
-                // If not, you'll need to loop and call delete_post for each.
-                window.sendDataToGoogle('bulk_delete_posts', { ids: ids }, (res) => {
-                    if (res.status === 'success') {
-                        window.showToast("Posts deleted successfully!", "success");
-                        this.fetchPosts(); // Refresh the list
-                    } else {
-                        window.showToast("Bulk delete failed: " + res.message, "error");
-                    }
+
+                // Create an array of promises, one for each delete request.
+                const deletePromises = ids.map(id => {
+                    return new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('delete_post', { id: id }, (res) => {
+                            if (res.status === 'success') {
+                                resolve(res);
+                            } else {
+                                reject(res);
+                            }
+                        }, (err) => reject(err));
+                    });
                 });
+
+                try {
+                    await Promise.all(deletePromises);
+                    window.showToast(`${ids.length} post(s) deleted successfully!`, "success");
+                    this.fetchPosts(); // Refresh the list
+                } catch (error) {
+                    console.error("Bulk delete failed:", error);
+                    window.showToast("Bulk delete failed: " + (error.message || 'Some items could not be deleted.'), "error");
+                    this.fetchPosts(); // Refresh even on partial failure
+                }
             },
 
             // NEW: Centralized function to handle switching to the editor view
