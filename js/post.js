@@ -50,6 +50,8 @@ const registerPostEditor = () => {
             ],
 
             async init() {
+                console.log("DEBUG: postEditor init started");
+                this.$watch('activeTab', val => console.log("DEBUG: activeTab changed to:", val));
                 this.post = JSON.parse(JSON.stringify(this.defaultPost));
                 this.$watch('post.title', value => {
                     // Guard clause to prevent error on reset
@@ -292,6 +294,7 @@ const registerPostEditor = () => {
 
             // NEW: Centralized function to handle switching to the editor view
             _switchToEditor(postData) {
+                console.log("DEBUG: _switchToEditor called with data:", postData);
                 this.isLoading = false; // Explicitly turn off loading
                 this.activeTab = 'editor';
                 this.post = postData;
@@ -307,6 +310,7 @@ const registerPostEditor = () => {
             },
 
             editPost(item) {
+                console.log("DEBUG: editPost called with item:", item);
                 // Normalize incoming data (from DB, likely PascalCase) to our component's model (lowercase)
                 const categories = item.category || item.Category || []; // Default to empty array
                 const normalizedPost = {
@@ -327,6 +331,7 @@ const registerPostEditor = () => {
                 this._switchToEditor(normalizedPost);
             },
             newPost() {
+                console.log("DEBUG: newPost called");
                 // Reset the post object to a clean, deep copy of the default post
                 const newPostObject = JSON.parse(JSON.stringify(this.defaultPost));
                 this._switchToEditor(newPostObject);
