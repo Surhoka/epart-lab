@@ -1,4 +1,7 @@
 <div x-data="postEditor" id="post-editor-page" class="w-full animate-fade-in">
+    <div class="fixed top-24 right-4 z-50 bg-black/80 text-white p-2 text-xs rounded pointer-events-none font-mono">
+        ID: <span x-text="instanceId"></span> | Tab: <span x-text="activeTab"></span>
+    </div>
     <input type="file" x-ref="imageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
     <!-- Tab Navigation -->
     <div class="mb-8 flex border-b border-gray-100 dark:border-gray-800">
