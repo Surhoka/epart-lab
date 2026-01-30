@@ -2147,6 +2147,8 @@ span.flatpickr-weekday,
    ========================================= */
 .flatpickr-compact .flatpickr-calendar {
   width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   padding: 0.5rem !important;
   box-shadow: none !important;
   background: transparent !important;
@@ -2186,20 +2188,4 @@ span.flatpickr-weekday,
   font-size: 0.875rem !important;
   /* text-sm */
   padding: 0 !important;
-}
-
-/* Pastikan kontainer memiliki ruang */
-.flatpickr-compact {
-    display: block !important;
-    min-height: 250px; /* Memberi ruang agar kalender tidak terpotong */
-}
-
-/* Memastikan kalender yang di-append tetap terlihat */
-.flatpickr-compact .flatpickr-calendar.inline {
-    position: relative !important;
-    top: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-    font-size: 11px !important; /* Ukuran font yang Anda inginkan */
-    width: 100% !important;
 }
