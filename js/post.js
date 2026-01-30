@@ -400,9 +400,9 @@ const registerPostEditor = () => {
 
                     const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
 
-                    this.fpDate = flatpickr(container, {
+                    this.fpDate = flatpickr(this.$refs.calendarMount, {
                         inline: true,
-                        static: true,
+                        appendTo: this.$refs.calendarMount, 
                         dateFormat: 'Y-m-d',
                         defaultDate: dateVal,
                         onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
@@ -447,3 +447,4 @@ if (window.Alpine) {
 } else {
     document.addEventListener('alpine:init', registerPostEditor);
 }
+
