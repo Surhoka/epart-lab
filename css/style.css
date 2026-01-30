@@ -2189,3 +2189,48 @@ span.flatpickr-weekday,
   /* text-sm */
   padding: 0 !important;
 }
+
+/* Compact Header Adjustments */
+.flatpickr-compact .flatpickr-months {
+  margin-bottom: 0.25rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.flatpickr-compact .flatpickr-current-month {
+  padding-top: 0 !important;
+  font-size: 0.875rem !important;
+  height: 1.75rem !important;
+  left: 0 !important;
+  width: 100% !important;
+}
+
+.flatpickr-compact .flatpickr-current-month .flatpickr-monthDropdown-months {
+  padding: 0 !important;
+  height: auto !important;
+}
+
+.flatpickr-compact .flatpickr-months .flatpickr-prev-month,
+.flatpickr-compact .flatpickr-months .flatpickr-next-month {
+  top: 0 !important;
+  height: 1.75rem !important;
+  width: 1.75rem !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.flatpickr-compact .flatpickr-months .flatpickr-prev-month {
+  left: 0.25rem !important;
+}
+
+.flatpickr-compact .flatpickr-months .flatpickr-next-month {
+  right: 0.25rem !important;
+}
+
+.flatpickr-compact .flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-compact .flatpickr-months .flatpickr-next-month svg {
+  width: 10px !important;
+  height: 10px !important;
+}
