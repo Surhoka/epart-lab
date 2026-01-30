@@ -349,8 +349,8 @@
                     </div>
 
                     <!-- Dipublikasikan pada -->
-                    <div x-data="{ open: false }" class="group">
-                        <button @click="open = !open"
+                    <div class="group">
+                        <button @click="accordion.date = !accordion.date"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <div class="flex flex-col text-left">
                                 <span>Dipublikasikan pada</span>
@@ -358,9 +358,9 @@
                                     x-text="post.dateMode === 'auto' ? 'Otomatis' : (post.publishDate ? new Date(post.publishDate).toLocaleString('id-ID') : 'Belum disetel')"></span>
                             </div>
                             <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
-                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                                :class="accordion.date ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
-                        <div x-show="open" x-transition
+                        <div x-show="accordion.date" x-transition
                             class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
