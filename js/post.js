@@ -13,6 +13,7 @@ const registerPostEditor = () => {
         window.Alpine.data('postEditor', () => ({
             activeTab: 'list', // 'list' or 'editor'
             savedRange: null,
+            accordion: { date: false },
             defaultPost: {
                 id: null,
                 title: '',
