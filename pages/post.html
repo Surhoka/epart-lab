@@ -42,7 +42,7 @@
 
         <!-- Dashboard Table -->
         <div
-            class="rounded-[32px] border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.01]">
+            class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr
@@ -71,7 +71,7 @@
                                 first post!</td>
                         </tr>
                     </template>
-                    <template x-for="p in posts" :key="p.id">
+                    <template x-for="p in paginatedPosts" :key="p.id">
                         <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
                             :class="{'bg-brand-50/50 dark:bg-brand-900/10': p.selected}">
                             <td class="w-4 px-6 py-5">
@@ -123,6 +123,27 @@
                     </template>
                 </tbody>
             </table>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-gray-800"
+                x-show="posts.length > 0">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Showing <span x-text="(currentPage - 1) * itemsPerPage + 1"></span> to <span
+                        x-text="Math.min(currentPage * itemsPerPage, posts.length)"></span> of <span
+                        x-text="posts.length"></span> results
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1"
+                        class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Previous
+                    </button>
+                    <button type="button" @click="currentPage < totalPages ? currentPage++ : null"
+                        :disabled="currentPage === totalPages"
+                        class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Next
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
