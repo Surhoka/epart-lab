@@ -75,6 +75,13 @@ const registerPostEditor = () => {
                         if (this.post.permalinkMode === 'auto') this.post.slug = '';
                     }
                 });
+                this.$watch('post.dateMode', (val) => {
+                    if (val === 'custom') {
+                        this.$nextTick(() => this.initDatePicker());
+                    } else {
+                        this.destroyDatePicker();
+                    }
+                });
                 await this.fetchPosts();
             },
 
@@ -336,6 +343,11 @@ const registerPostEditor = () => {
                 this.$nextTick(() => {
                     // Scroll to top after tab is rendered
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    if (this.post.dateMode === 'custom') {
+                        this.initDatePicker();
+                    } else {
+                        this.destroyDatePicker();
+                    }
                 });
 
                 setTimeout(() => {
@@ -372,6 +384,58 @@ const registerPostEditor = () => {
             newPost() {
                 const newPostObject = JSON.parse(JSON.stringify(this.defaultPost));
                 this._switchToEditor(newPostObject);
+            },
+
+            fpDate: null,
+            fpTime: null,
+
+            initDatePicker() {
+                if (this.fpDate) return;
+
+                this.$nextTick(() => {
+                    const container = this.$refs.calendarMount;
+                    const timeInput = this.$refs.timeInput;
+
+                    if (!container || !timeInput) return;
+
+                    const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+
+                    this.fpDate = flatpickr(container, {
+                        inline: true,
+                        appendTo: container, // Force render inside container
+                        dateFormat: 'Y-m-d',
+                        defaultDate: dateVal,
+                        onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
+                    });
+
+                    this.fpTime = flatpickr(timeInput, {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: 'H.i',
+                        time_24hr: true,
+                        defaultDate: dateVal,
+                        onChange: (selectedDates) => this.updateTime(null, selectedDates[0])
+                    });
+                });
+            },
+
+            destroyDatePicker() {
+                if (this.fpDate) { this.fpDate.destroy(); this.fpDate = null; }
+                if (this.fpTime) { this.fpTime.destroy(); this.fpTime = null; }
+            },
+
+            updateTime(datePart, timePart) {
+                let current = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+                if (datePart) {
+                    current.setFullYear(datePart.getFullYear());
+                    current.setMonth(datePart.getMonth());
+                    current.setDate(datePart.getDate());
+                }
+                if (timePart) {
+                    current.setHours(timePart.getHours());
+                    current.setMinutes(timePart.getMinutes());
+                }
+                this.post.publishDate = current.toISOString();
             }
         }));
     }
