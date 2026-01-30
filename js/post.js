@@ -334,6 +334,8 @@ const registerPostEditor = () => {
                 // Use nextTick to ensure data is ready before switching view
                 this.$nextTick(() => {
                     this.activeTab = 'editor';
+                    // Scroll to top after tab is rendered
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
 
                 setTimeout(() => {
