@@ -330,10 +330,10 @@ const registerPostEditor = () => {
             // NEW: Centralized function to handle switching to the editor view
             _switchToEditor(postData) {
                 this.post = postData;
+                this.activeTab = 'editor';
 
                 // Use nextTick to ensure data is ready before switching view
                 this.$nextTick(() => {
-                    this.activeTab = 'editor';
                     // Scroll to top after tab is rendered
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
