@@ -3,6 +3,64 @@ const registerDashboardPage = () => {
         window.Alpine.data('dashboardPage', () => ({
             charts: {},
             map: null,
+            loading: false,
+
+            // Dummy Data
+            countries: [
+                { name: 'USA', count: 2379, percentage: 79, color: 'bg-brand-500', flag: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/country-01.svg' },
+                { name: 'France', count: 589, percentage: 23, color: 'bg-brand-500', flag: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/country-02.svg' },
+                { name: 'India', count: 402, percentage: 15, color: 'bg-brand-500', flag: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/country-03.svg' },
+                { name: 'Canada', count: 210, percentage: 10, color: 'bg-brand-500', flag: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/country-04.svg' },
+                { name: 'Brazil', count: 125, percentage: 5, color: 'bg-brand-500', flag: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/country-05.svg' },
+            ],
+
+            recentOrders: [
+                { 
+                    name: 'Macbook pro 13”', 
+                    variant: '2 Variants', 
+                    category: 'Laptop', 
+                    price: '$2399.00', 
+                    status: 'Delivered', 
+                    statusColor: 'text-success-600 bg-success-50 dark:bg-success-500/15 dark:text-success-500',
+                    image: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-01.jpg' 
+                },
+                { 
+                    name: 'Apple Watch Ultra', 
+                    variant: '1 Variants', 
+                    category: 'Watch', 
+                    price: '$879.00', 
+                    status: 'Pending', 
+                    statusColor: 'text-warning-600 bg-warning-50 dark:bg-warning-500/15 dark:text-orange-400',
+                    image: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-02.jpg' 
+                },
+                { 
+                    name: 'iPhone 15 Pro Max', 
+                    variant: '2 Variants', 
+                    category: 'SmartPhone', 
+                    price: '$1869.00', 
+                    status: 'Delivered', 
+                    statusColor: 'text-success-600 bg-success-50 dark:bg-success-500/15 dark:text-success-500',
+                    image: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-03.jpg' 
+                },
+                { 
+                    name: 'iPad Pro 3rd Gen', 
+                    variant: '2 Variants', 
+                    category: 'Electronics', 
+                    price: '$1699.00', 
+                    status: 'Canceled', 
+                    statusColor: 'text-error-600 bg-error-50 dark:bg-error-500/15 dark:text-error-500',
+                    image: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-04.jpg' 
+                },
+                { 
+                    name: 'Airpods Pro 2nd Gen', 
+                    variant: '1 Variants', 
+                    category: 'Accessories', 
+                    price: '$240.00', 
+                    status: 'Delivered', 
+                    statusColor: 'text-success-700 bg-success-50 dark:bg-success-500/15 dark:text-success-500',
+                    image: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-05.jpg' 
+                },
+            ],
 
             init() {
                 console.log("Dashboard Page Initialized with Alpine Component.");
