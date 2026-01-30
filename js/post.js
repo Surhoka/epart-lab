@@ -402,7 +402,7 @@ const registerPostEditor = () => {
 
                     this.fpDate = flatpickr(container, {
                         inline: true,
-                        appendTo: container, // Force render inside container
+                        static: true,
                         dateFormat: 'Y-m-d',
                         defaultDate: dateVal,
                         onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
