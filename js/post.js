@@ -31,6 +31,18 @@ const registerPostEditor = () => {
             post: {},
             posts: [],
             isLoading: false,
+            currentPage: 1,
+            itemsPerPage: 10,
+
+            get totalPages() {
+                return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
+            },
+
+            get paginatedPosts() {
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                const end = start + this.itemsPerPage;
+                return this.posts.slice(start, end);
+            },
             publicBlogUrl: window.app?.publicBlogUrl || '',
             siteKey: window.app?.siteKey || '',
             categories: [],
@@ -133,6 +145,7 @@ const registerPostEditor = () => {
                             return postData;
                         });
                         this.categories = Array.from(allCategories).sort();
+                        this.currentPage = 1;
                     } else {
                         console.error("Fetch posts failed:", res.message);
                         window.showToast('Gagal memuat post: ' + res.message, 'error');
