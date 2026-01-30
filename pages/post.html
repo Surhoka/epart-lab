@@ -16,261 +16,299 @@
         </button>
     </div>
 
-   <!-- Tab 1: Post List -->
-<div x-show="activeTab === 'list'" class="space-y-6" x-transition>
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-        <button type="button" @click.prevent="newPost(); activeTab = 'editor'; window.scrollTo({top: 0, behavior: 'smooth'})"
-            class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
-            <span class="w-4 h-4" x-icon="'plus'"></span>
-            Create New Post
-        </button>
-    </div>
+    <!-- Tab 1: Post List -->
+    <div x-show="activeTab === 'list'" class="space-y-6" x-transition>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
+            <button type="button" @click.prevent="newPost()"
+                class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
+                <span class="w-4 h-4" x-icon="'plus'"></span>
+                Create New Post
+            </button>
+        </div>
 
-    <!-- Dashboard Table -->
-    <div
-        class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr
-                    class="bg-gray-50/50 dark:bg-black/20 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    <th class="w-4 px-6 py-4">
-                        <input @change="selectAll($event)"
-                            class="rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800"
-                            type="checkbox" />
-                    </th>
-                    <th class="px-6 py-4">Title</th>
-                    <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4">Labels</th>
-                    <th class="px-6 py-4">Date</th>
-                    <th class="px-6 py-4 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                <template x-if="isLoading">
-                    <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-gray-400">Loading posts...</td>
-                    </tr>
-                </template>
-                <template x-if="!isLoading && posts.length === 0">
-                    <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-gray-400">No posts found. Create your
-                            first post!</td>
-                    </tr>
-                </template>
-                <template x-for="p in paginatedPosts" :key="p.id">
-                    <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
-                        :class="{'bg-brand-50/50 dark:bg-brand-900/10': p.selected}">
-                        <td class="w-4 px-6 py-5">
-                            <input x-model="p.selected"
+        <!-- Bulk Action Bar -->
+        <div x-show="selectedPostIds.length > 0" x-cloak
+            class="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 animate-fade-in-up">
+            <div
+                class="flex items-center gap-4 rounded-2xl bg-slate-900 px-6 py-3 text-white shadow-2xl dark:bg-black/80 dark:backdrop-blur-lg dark:border dark:border-gray-800">
+                <span class="text-sm font-bold"><span x-text="selectedPostIds.length"></span> item(s) selected</span>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <button @click="bulkDelete()" class="flex items-center gap-2 text-sm text-gray-300 hover:text-white">
+                    <span class="h-4 w-4" x-icon="'trash'"></span> Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Table -->
+        <div
+            class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr
+                        class="bg-gray-50/50 dark:bg-black/20 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        <th class="w-4 px-6 py-4">
+                            <input @change="selectAll($event)"
                                 class="rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800"
                                 type="checkbox" />
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="font-bold text-gray-900 dark:text-white" x-text="p.title || '[No Title]'">
-                            </div>
-                            <div class="text-[10px] text-gray-400 mt-0.5"
-                                x-text="publicBlogUrl ? (publicBlogUrl + '/posts/' + siteKey + '/' + p.slug) : p.slug">
-                            </div>
-                        </td>
-                        <td class="px-6 py-5">
-                            <span
-                                :class="p.status === 'Published' ? 'bg-success-50 text-success-600 dark:bg-success-900/20' : 'bg-gray-50 text-gray-600 dark:bg-white/5'"
-                                class="rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
-                                <span x-text="p.status"></span>
-                            </span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex flex-wrap gap-1 max-w-[200px]">
-                                <template x-if="p.category && p.category.length > 0">
-                                    <template x-for="cat in p.category.slice(0, 2)">
-                                        <span
-                                            class="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-400"
-                                            x-text="cat"></span>
-                                    </template>
-                                </template>
-                                <span x-show="!(p.category && p.category.length > 0)"
-                                    class="text-gray-400 text-xs">-</span>
-                                <span x-show="p.category && p.category.length > 2" class="text-gray-400 text-xs"
-                                    x-text="'+' + (p.category.length - 2)"></span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
-                        <td class="px-6 py-5 text-right space-x-2">
-                            <button type="button" @click.prevent="editPost(p); activeTab = 'editor'; window.scrollTo({top: 0, behavior: 'smooth'})"
-                                class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
-                                <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
-                            </button>
-                            <button type="button" @click.prevent="deletePost(p.id)"
-                                class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
-                                <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
-                            </button>
-                        </td>
+                        </th>
+                        <th class="px-6 py-4">Title</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Labels</th>
+                        <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
-                </template>
-            </tbody>
-        </table>
-    </div>
-</div>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <template x-if="isLoading">
+                        <tr>
+                            <td colspan="6" class="px-6 py-10 text-center text-gray-400">Loading posts...</td>
+                        </tr>
+                    </template>
+                    <template x-if="!isLoading && posts.length === 0">
+                        <tr>
+                            <td colspan="6" class="px-6 py-10 text-center text-gray-400">No posts found. Create your
+                                first post!</td>
+                        </tr>
+                    </template>
+                    <template x-for="p in paginatedPosts" :key="p.id">
+                        <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
+                            :class="{'bg-brand-50/50 dark:bg-brand-900/10': p.selected}">
+                            <td class="w-4 px-6 py-5">
+                                <input x-model="p.selected"
+                                    class="rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800"
+                                    type="checkbox" />
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="font-bold text-gray-900 dark:text-white" x-text="p.title || '[No Title]'">
+                                </div>
+                                <div class="text-[10px] text-gray-400 mt-0.5"
+                                    x-text="publicBlogUrl ? (publicBlogUrl + '/posts/' + siteKey + '/' + p.slug) : p.slug">
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span
+                                    :class="p.status === 'Published' ? 'bg-success-50 text-success-600 dark:bg-success-900/20' : 'bg-gray-50 text-gray-600 dark:bg-white/5'"
+                                    class="rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
+                                    <span x-text="p.status"></span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-wrap gap-1 max-w-[200px]">
+                                    <template x-if="p.category && p.category.length > 0">
+                                        <template x-for="cat in p.category.slice(0, 2)">
+                                            <span
+                                                class="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-400"
+                                                x-text="cat"></span>
+                                        </template>
+                                    </template>
+                                    <span x-show="!(p.category && p.category.length > 0)"
+                                        class="text-gray-400 text-xs">-</span>
+                                    <span x-show="p.category && p.category.length > 2" class="text-gray-400 text-xs"
+                                        x-text="'+' + (p.category.length - 2)"></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
+                            <td class="px-6 py-5 text-right space-x-2">
+                                <button type="button" @click.prevent="editPost(p)"
+                                    class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
+                                    <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
+                                </button>
+                                <button type="button" @click.prevent="deletePost(p.id)"
+                                    class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
+                                    <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
 
-<!-- Tab 2: Editor -->
-<div x-show="activeTab === 'editor'" x-transition x-cloak>
-    <!-- Editor Header -->
-    <div class="mb-6 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex-1">
-            <input type="text" x-model="post.title" placeholder="Masukkan judul postingan..."
-                class="w-full border-none bg-transparent p-0 text-3xl font-extrabold tracking-tight text-gray-900 placeholder:text-gray-200 focus:ring-0 dark:text-white dark:placeholder:text-gray-800 lg:text-4xl" />
-        </div>
-
-        <div class="flex items-center gap-3">
-            <button type="button" @click="saveDraft()"
-                class="group flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95 dark:border-gray-800 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10">
-                <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
-                    x-icon="'refresh'"></span>
-                Simpan Draft
-            </button>
-            <button type="button" @click="publishPost()"
-                class="flex items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95">
-                <span class="w-4 h-4" x-icon="'zap'"></span>
-                Publikasikan
-            </button>
-        </div>
-    </div>
-
-    <!-- Main Workspace -->
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
-
-        <!-- Left: Editor Body -->
-        <div class="lg:col-span-9">
-            <!-- Editor Content Area -->
-            <div
-                class="group relative min-h-[600px] rounded-[32px] border border-gray-200 bg-white shadow-sm transition-all focus-within:border-brand-500/30 focus-within:shadow-2xl focus-within:shadow-brand-500/5 dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden flex flex-col">
-                
-                <!-- Formatting Toolbar -->
-                <div
-                    class="sticky top-0 z-40 flex flex-wrap items-center gap-1 border-b border-gray-100 bg-white p-2 dark:border-gray-800 dark:bg-gray-900">
-
-                    <!-- Group: Undo/Redo -->
-                    <div class="flex items-center gap-1 mr-1">
-                        <button @click="execCommand('undo')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'undo'"></span></button>
-                        <button @click="execCommand('redo')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'redo'"></span></button>
-                    </div>
-
-                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
-
-                    <!-- Group: Typography -->
-                    <div class="flex items-center px-1">
-                        <select @change="execCommand('formatBlock:' + $event.target.value)"
-                            class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
-                            <option value="p">Normal</option>
-                            <option value="h1">Heading 1</option>
-                            <option value="h2">Heading 2</option>
-                            <option value="h3">Heading 3</option>
-                            <option value="blockquote">Quote</option>
-                            <option value="pre">Code</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-center px-1 gap-1">
-                        <select @change="execCommand('fontName', $event.target.value)"
-                            class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
-                            <option value="Arial">Arial</option>
-                            <option value="Verdana">Verdana</option>
-                            <option value="Times New Roman">Times</option>
-                            <option value="Courier New">Courier</option>
-                            <option value="Georgia">Georgia</option>
-                        </select>
-                        <select @change="execCommand('fontSize', $event.target.value)"
-                            class="h-9 w-16 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
-                            <option value="1">10px</option>
-                            <option value="2">13px</option>
-                            <option value="3" selected>16px</option>
-                            <option value="4">18px</option>
-                            <option value="5">24px</option>
-                            <option value="6">32px</option>
-                            <option value="7">48px</option>
-                        </select>
-                    </div>
-
-                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
-
-                    <!-- Group: Color -->
-                    <div class="flex items-center gap-1 px-1">
-                        <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
-                            title="Text Color">
-                            <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                                @input="execCommand('foreColor', $event.target.value)">
-                            <span class="font-bold text-sm text-gray-700 dark:text-gray-300">A</span>
-                            <div class="absolute bottom-1.5 left-2 right-2 h-1 bg-brand-500 rounded-full"></div>
-                        </div>
-                        <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
-                            title="Highlight Color">
-                            <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                                @input="execCommand('hiliteColor', $event.target.value)">
-                            <span
-                                class="font-bold text-sm text-gray-700 dark:text-gray-300 bg-yellow-300/50 px-1 rounded-sm">H</span>
-                        </div>
-                    </div>
-
-                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
-
-                    <!-- Group: Basic Formatting -->
-                    <div class="flex items-center gap-0.5">
-                        <template x-for="tool in [
-                            {cmd:'bold', icon:'bold', label:'Bold'},
-                            {cmd:'italic', icon:'italic', label:'Italic'},
-                            {cmd:'underline', icon:'underline', label:'Underline'},
-                            {cmd:'strikeThrough', icon:'strikethrough', label:'Strike'},
-                            {cmd:'removeFormat', icon:'eraser', label:'Clear'}
-                        ]">
-                            <button @click="execCommand(tool.cmd)" :title="tool.label"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white">
-                                <span class="w-4 h-4" x-icon="tool.icon"></span>
-                            </button>
-                        </template>
-                    </div>
-
-                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
-
-                    <!-- Group: Alignment -->
-                    <div class="flex items-center gap-0.5">
-                        <button @click="execCommand('justifyLeft')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'align-left'"></span></button>
-                        <button @click="execCommand('justifyCenter')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'align-center'"></span></button>
-                        <button @click="execCommand('justifyRight')"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'align-right'"></span></button>
-                    </div>
-
-                    <div class="h-6 w-px bg-gray-100 dark:bg-gray-800 mx-1"></div>
-
-                    <!-- Group: Insert -->
-                    <div class="flex items-center gap-0.5">
-                        <button @click="insertLink()"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'link'"></span></button>
-                        <button @click="triggerImageUpload()"
-                            class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                class="w-4 h-4" x-icon="'image'"></span></button>
-                    </div>
+            <!-- Pagination -->
+            <div class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-gray-800"
+                x-show="posts.length > 0">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Showing <span x-text="(currentPage - 1) * itemsPerPage + 1"></span> to <span
+                        x-text="Math.min(currentPage * itemsPerPage, posts.length)"></span> of <span
+                        x-text="posts.length"></span> results
                 </div>
-
-                <!-- Editor Content -->
-                <div class="flex-1 p-8 lg:p-10">
-                    <div id="classic-editor-body" x-ref="editor" contenteditable="true"
-                        class="prose prose-lg prose-slate dark:prose-invert max-w-none min-h-[500px] focus:outline-none"
-                        placeholder="Mulai menulis cerita Anda...">
-                    </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1"
+                        class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Previous
+                    </button>
+                    <button type="button" @click="currentPage < totalPages ? currentPage++ : null"
+                        :disabled="currentPage === totalPages"
+                        class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Next
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Tab 2: Editor -->
+    <div x-show="activeTab === 'editor'" x-transition x-cloak>
+        <!-- Editor Header (Legacy) -->
+        <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex-1">
+                <input type="text" x-model="post.title" placeholder="Enter post title here..."
+                    class="w-full border-none bg-transparent p-0 text-3xl font-extrabold tracking-tight text-gray-900 placeholder:text-gray-200 focus:ring-0 dark:text-white dark:placeholder:text-gray-800 lg:text-4xl" />
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button type="button" @click="saveDraft()"
+                    class="group flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95 dark:border-gray-800 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10">
+                    <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
+                        x-icon="'refresh'"></span>
+                    Save Draft
+                </button>
+                <button type="button" @click="publishPost()"
+                    class="flex items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95">
+                    <span class="w-4 h-4" x-icon="'zap'"></span>
+                    Publish
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+
+            <!-- Left: Editor Body -->
+            <div class="lg:col-span-9">
+                <!-- Editor Content Area -->
+                <div
+                    class="group relative min-h-[600px] rounded-[32px] border border-gray-200 bg-white shadow-sm transition-all focus-within:border-brand-500/30 focus-within:shadow-2xl focus-within:shadow-brand-500/5 dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden">
+                    <!-- Sticky Formatting Toolbar -->
+                    <div
+                        class="sticky top-0 z-40 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50/70 p-2 backdrop-blur-2xl dark:border-gray-800 dark:bg-gray-900/50">
+
+                        <!-- Group: Undo/Redo (Moved to Start) -->
+                        <div class="flex items-center gap-1 mr-1">
+                            <button @click="execCommand('undo')"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'undo'"></span></button>
+                            <button @click="execCommand('redo')"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'redo'"></span></button>
+                        </div>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <!-- Group: Typography -->
+                        <div class="flex items-center px-1">
+                            <select @change="execCommand('formatBlock:' + $event.target.value)"
+                                class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
+                                <option value="p">Normal</option>
+                                <option value="h1">Heading 1</option>
+                                <option value="h2">Heading 2</option>
+                                <option value="h3">Heading 3</option>
+                                <option value="blockquote">Quote</option>
+                                <option value="pre">Code</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center px-1 gap-1">
+                            <select @change="execCommand('fontName', $event.target.value)"
+                                class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
+                                <option value="Arial">Arial</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Times New Roman">Times</option>
+                                <option value="Courier New">Courier</option>
+                                <option value="Georgia">Georgia</option>
+                            </select>
+                            <select @change="execCommand('fontSize', $event.target.value)"
+                                class="h-9 w-16 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
+                                <option value="1">10px</option>
+                                <option value="2">13px</option>
+                                <option value="3" selected>16px</option>
+                                <option value="4">18px</option>
+                                <option value="5">24px</option>
+                                <option value="6">32px</option>
+                                <option value="7">48px</option>
+                            </select>
+                        </div>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <!-- Group: Color -->
+                        <div class="flex items-center gap-1 px-1">
+                            <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
+                                title="Text Color">
+                                <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                    @input="execCommand('foreColor', $event.target.value)">
+                                <span class="font-bold text-sm text-gray-700 dark:text-gray-300">A</span>
+                                <div class="absolute bottom-1.5 left-2 right-2 h-1 bg-brand-500 rounded-full"></div>
+                            </div>
+                            <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
+                                title="Highlight Color">
+                                <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                    @input="execCommand('hiliteColor', $event.target.value)">
+                                <span
+                                    class="font-bold text-sm text-gray-700 dark:text-gray-300 bg-yellow-300/50 px-1 rounded-sm">H</span>
+                            </div>
+                        </div>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <!-- Group: Basic Formatting -->
+                        <div class="flex items-center gap-0.5">
+                            <template x-for="tool in formattingTools">
+                                <button @click="execCommand(tool.cmd)" :title="tool.label"
+                                    class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white">
+                                    <span class="w-4 h-4" x-icon="tool.icon"></span>
+                                </button>
+                            </template>
+                        </div>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <!-- Group: Alignment -->
+                        <div class="flex items-center gap-0.5">
+                            <button @click="execCommand('justifyLeft')"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'align-left'"></span></button>
+                            <button @click="execCommand('justifyCenter')"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'align-center'"></span></button>
+                            <button @click="execCommand('justifyRight')"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'align-right'"></span></button>
+                        </div>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <!-- Group: Insert -->
+                        <div class="flex items-center gap-0.5">
+                            <button @click="insertLink()"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'link'"></span></button>
+                            <button @click="triggerImageUpload()"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'image'"></span></button>
+                        </div>
+                    </div>
+
+                    <div class="p-10">
+                        <div id="classic-editor-body" x-ref="editor" contenteditable="true"
+                            class="prose prose-lg prose-slate dark:prose-invert max-w-none min-h-[500px] focus:outline-none [&_p]:mb-4 [&_h1]:text-4xl [&_h2]:text-3xl [&_h3]:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
+                            placeholder="Start telling your story...">
+                        </div>
+
+                        <!-- Word Count & Info Overlay -->
+                        <div
+                            class="absolute bottom-6 left-10 flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                            <div class="flex items-center gap-1.5">
+                                <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                Auto-saved at 14:32
+                            </div>
+                            <div class="h-4 w-px bg-gray-100 dark:bg-gray-800"></div>
+                            <div>234 Words</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Right: Sidebar Settings -->
             <div class="lg:col-span-3 space-y-4">
                 <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">Setelan postingan</h3>
