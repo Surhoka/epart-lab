@@ -390,32 +390,48 @@ const registerPostEditor = () => {
             fpTime: null,
 
             initDatePicker() {
-                if (this.fpDate) return;
+                console.log('[DatePicker] initDatePicker triggered');
+                if (this.fpDate) {
+                    console.log('[DatePicker] Instance already exists, skipping');
+                    return;
+                }
 
                 this.$nextTick(() => {
                     const container = this.$refs.calendarMount;
                     const timeInput = this.$refs.timeInput;
 
-                    if (!container || !timeInput) return;
+                    console.log('[DatePicker] Refs check:', { container, timeInput });
+                    console.log('[DatePicker] Flatpickr loaded:', typeof flatpickr !== 'undefined');
+
+                    if (!container || !timeInput) {
+                        console.error('[DatePicker] Container or TimeInput ref is missing!');
+                        return;
+                    }
 
                     const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
 
-                    this.fpDate = flatpickr(this.$refs.calendarMount, {
-                        inline: true,
-                        appendTo: this.$refs.calendarMount, 
-                        dateFormat: 'Y-m-d',
-                        defaultDate: dateVal,
-                        onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
-                    });
+                    try {
+                        this.fpDate = flatpickr(container, {
+                            inline: true,
+                            static: true,
+                            dateFormat: 'Y-m-d',
+                            defaultDate: dateVal,
+                            onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
+                        });
+                        console.log('[DatePicker] Date instance created:', this.fpDate);
 
-                    this.fpTime = flatpickr(timeInput, {
-                        enableTime: true,
-                        noCalendar: true,
-                        dateFormat: 'H.i',
-                        time_24hr: true,
-                        defaultDate: dateVal,
-                        onChange: (selectedDates) => this.updateTime(null, selectedDates[0])
-                    });
+                        this.fpTime = flatpickr(timeInput, {
+                            enableTime: true,
+                            noCalendar: true,
+                            dateFormat: 'H.i',
+                            time_24hr: true,
+                            defaultDate: dateVal,
+                            onChange: (selectedDates) => this.updateTime(null, selectedDates[0])
+                        });
+                        console.log('[DatePicker] Time instance created:', this.fpTime);
+                    } catch (e) {
+                        console.error('[DatePicker] Initialization error:', e);
+                    }
                 });
             },
 
@@ -447,4 +463,3 @@ if (window.Alpine) {
 } else {
     document.addEventListener('alpine:init', registerPostEditor);
 }
-
