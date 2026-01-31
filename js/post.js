@@ -396,17 +396,51 @@ const registerPostEditor = () => {
                 this.$nextTick(() => {
                     const container = this.$refs.calendarMount;
                     const timeInput = this.$refs.timeInput;
+                    const compactYear = this.$refs.compactYear;
+                    const compactSelectedDate = this.$refs.compactSelectedDate;
+                    const compactMonthLabel = this.$refs.compactMonthLabel;
 
                     if (!container || !timeInput) return;
 
                     const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+
+                    // Update compact header with initial date
+                    this.updateCompactHeader(dateVal);
 
                     try {
                         this.fpDate = flatpickr(container, {
                             inline: true,
                             dateFormat: 'Y-m-d',
                             defaultDate: dateVal,
-                            onChange: (selectedDates) => this.updateTime(selectedDates[0], null)
+                            locale: {
+                                firstDayOfWeek: 1,
+                                weekdays: {
+                                    shorthand: ['M', 'S', 'S', 'R', 'K', 'J', 'S'],
+                                    longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+                                },
+                                months: {
+                                    shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                                    longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                                }
+                            },
+                            onChange: (selectedDates) => {
+                                this.updateTime(selectedDates[0], null);
+                                if (selectedDates[0]) {
+                                    this.updateCompactHeader(selectedDates[0]);
+                                }
+                            },
+                            onMonthChange: (selectedDates, dateStr, instance) => {
+                                const currentDate = instance.currentYear && instance.currentMonth !== undefined
+                                    ? new Date(instance.currentYear, instance.currentMonth, 1)
+                                    : new Date();
+                                this.updateMonthLabel(currentDate);
+                            },
+                            onYearChange: (selectedDates, dateStr, instance) => {
+                                const currentDate = instance.currentYear && instance.currentMonth !== undefined
+                                    ? new Date(instance.currentYear, instance.currentMonth, 1)
+                                    : new Date();
+                                this.updateMonthLabel(currentDate);
+                            }
                         });
 
                         this.fpTime = flatpickr(timeInput, {
@@ -440,6 +474,50 @@ const registerPostEditor = () => {
                     current.setMinutes(timePart.getMinutes());
                 }
                 this.post.publishDate = current.toISOString();
+            },
+
+            updateCompactHeader(date) {
+                const compactYear = this.$refs.compactYear;
+                const compactSelectedDate = this.$refs.compactSelectedDate;
+
+                if (compactYear && compactSelectedDate && date) {
+                    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+                    const dayName = dayNames[date.getDay()];
+                    const day = date.getDate();
+                    const monthName = monthNames[date.getMonth()];
+                    const year = date.getFullYear();
+
+                    compactYear.textContent = year;
+                    compactSelectedDate.textContent = `${dayName}, ${day} ${monthName}`;
+                }
+
+                this.updateMonthLabel(date);
+            },
+
+            updateMonthLabel(date) {
+                const compactMonthLabel = this.$refs.compactMonthLabel;
+
+                if (compactMonthLabel && date) {
+                    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    const monthName = monthNames[date.getMonth()];
+                    const year = date.getFullYear();
+
+                    compactMonthLabel.textContent = `${monthName} ${year}`;
+                }
+            },
+
+            prevMonth() {
+                if (this.fpDate) {
+                    this.fpDate.changeMonth(-1);
+                }
+            },
+
+            nextMonth() {
+                if (this.fpDate) {
+                    this.fpDate.changeMonth(1);
+                }
             }
         }));
     }
