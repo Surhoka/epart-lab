@@ -342,8 +342,6 @@ const registerPostEditor = () => {
 
                 // Use nextTick to ensure data is ready before switching view
                 this.$nextTick(() => {
-                    // Scroll to top after tab is rendered
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     if (this.post.dateMode === 'custom') {
                         this.initDatePicker();
                     } else {
@@ -359,6 +357,9 @@ const registerPostEditor = () => {
                     } else {
                         console.error('[POST.JS] Elemen editor (#classic-editor-body) tidak ditemukan.');
                     }
+
+                    // Scroll to top to ensure header is visible
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }, 50); // Small delay for x-show transition to complete
             },
 
