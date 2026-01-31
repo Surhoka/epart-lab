@@ -359,7 +359,7 @@ const registerPostEditor = () => {
                     }
 
                     // Scroll to top to ensure header is visible
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({ top: 0, behavior: 'instant' });
                 }, 50); // Small delay for x-show transition to complete
             },
 
