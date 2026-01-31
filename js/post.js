@@ -382,14 +382,32 @@ const registerPostEditor = () => {
                 };
                 this._switchToEditor(normalizedPost);
             },
+            _switchToEditor(postData) {
+                // Switch to editor tab
+                this.activeTab = 'editor';
+
+                // Load post data
+                this.post = postData;
+
+                // Wait for DOM update then scroll to top and update editor
+                this.$nextTick(() => {
+                    // Scroll to top smoothly
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    // Update editor content
+                    setTimeout(() => {
+                        const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
+                        if (editorBody) {
+                            editorBody.innerHTML = this.post.content || '';
+                            editorBody.focus();
+                        }
+                    }, 100); // Small delay for tab transition
+                });
+            },
+
             newPost() {
                 const newPostObject = JSON.parse(JSON.stringify(this.defaultPost));
                 this._switchToEditor(newPostObject);
-
-                // Scroll to top of the page smoothly
-                this.$nextTick(() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
             },
 
             fpDate: null,
