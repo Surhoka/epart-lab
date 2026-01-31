@@ -382,27 +382,16 @@ const registerPostEditor = () => {
                 };
                 this._switchToEditor(normalizedPost);
             },
-            _switchToEditor(postData) {
-                // Switch to editor tab
-                this.activeTab = 'editor';
 
-                // Load post data
-                this.post = postData;
+            cancelEditor() {
+                this.activeTab = 'list';
+                this.post = JSON.parse(JSON.stringify(this.defaultPost));
 
-                // Wait for DOM update then scroll to top and update editor
-                this.$nextTick(() => {
-                    // Scroll to top smoothly
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                    // Update editor content
-                    setTimeout(() => {
-                        const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
-                        if (editorBody) {
-                            editorBody.innerHTML = this.post.content || '';
-                            editorBody.focus();
-                        }
-                    }, 100); // Small delay for tab transition
-                });
+                // Clear editor content
+                setTimeout(() => {
+                    const editorBody = this.$refs.editor || document.getElementById('classic-editor-body');
+                    if (editorBody) editorBody.innerHTML = '';
+                }, 50);
             },
 
             newPost() {
