@@ -1,7 +1,9 @@
 const registerHotspotStudio = () => {
     if (window.Alpine && !window.Alpine.data('hotspotStudio')) {
         window.Alpine.data('hotspotStudio', () => ({
-            project: { title: '' },
+            activeTab: 'list',
+            projects: [],
+            project: { id: null, title: '', lastModified: Date.now() },
             hotspots: [],
             imageUrl: null,
             selectedId: null,
@@ -10,15 +12,39 @@ const registerHotspotStudio = () => {
             pan: { x: 0, y: 0 },
             isPanning: false,
             lastMouse: { x: 0, y: 0 },
+            isDraggingHotspot: false,
+            draggedHotspotId: null,
 
             init() {
                 console.log("Hotspot Studio Initialized");
+                // Mock data for projects
+                this.projects = [
+                    {
+                        id: 1,
+                        title: 'Living Room Setup',
+                        imageUrl: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-01.jpg',
+                        lastModified: Date.now(),
+                        hotspots: [
+                            { id: 101, x: 35, y: 45, title: 'Smart Lamp', description: 'Adjustable brightness', url: '#' },
+                            { id: 102, x: 65, y: 60, title: 'Sofa', description: 'Leather sofa', url: '#' }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        title: 'Kitchen Layout',
+                        imageUrl: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-02.jpg',
+                        lastModified: Date.now() - 86400000,
+                        hotspots: [
+                            { id: 201, x: 50, y: 50, title: 'Refrigerator', description: 'Double door fridge', url: '#' }
+                        ]
+                    }
+                ];
             },
 
             handleImageUpload(event) {
                 const file = event.target.files[0];
                 if (!file) return;
-                
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.imageUrl = e.target.result;
@@ -27,6 +53,29 @@ const registerHotspotStudio = () => {
                     this.resetView();
                 };
                 reader.readAsDataURL(file);
+            },
+
+            newProject() {
+                this.project = { id: null, title: '', lastModified: Date.now() };
+                this.hotspots = [];
+                this.imageUrl = null;
+                this.resetView();
+                this.activeTab = 'studio';
+            },
+
+            editProject(p) {
+                // Clone to avoid direct mutation of list item until saved
+                this.project = JSON.parse(JSON.stringify(p));
+                this.hotspots = p.hotspots || [];
+                this.imageUrl = p.imageUrl || null;
+                this.resetView();
+                this.activeTab = 'studio';
+            },
+
+            deleteProject(id) {
+                if (confirm('Delete this project?')) {
+                    this.projects = this.projects.filter(p => p.id !== id);
+                }
             },
 
             setTool(t) {
@@ -41,7 +90,7 @@ const registerHotspotStudio = () => {
                     const rect = event.target.getBoundingClientRect();
                     const x = ((event.clientX - rect.left) / rect.width) * 100;
                     const y = ((event.clientY - rect.top) / rect.height) * 100;
-                    
+
                     this.addHotspot(x, y);
                 } else {
                     this.selectedId = null;
@@ -106,8 +155,32 @@ const registerHotspotStudio = () => {
                 }
             },
 
+            startDragHotspot(e, id) {
+                if (this.tool !== 'select') return;
+                this.isDraggingHotspot = true;
+                this.draggedHotspotId = id;
+                this.selectHotspot(id);
+            },
+
             handleMouseMove(e) {
-                if (this.isPanning) {
+                if (this.isDraggingHotspot && this.draggedHotspotId && this.imageUrl) {
+                    const img = this.$refs.img;
+                    if (!img) return;
+
+                    const rect = img.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                    // Clamp values between 0 and 100
+                    const clampedX = Math.max(0, Math.min(100, x));
+                    const clampedY = Math.max(0, Math.min(100, y));
+
+                    const hotspot = this.hotspots.find(h => h.id === this.draggedHotspotId);
+                    if (hotspot) {
+                        hotspot.x = clampedX;
+                        hotspot.y = clampedY;
+                    }
+                } else if (this.isPanning) {
                     const dx = e.clientX - this.lastMouse.x;
                     const dy = e.clientY - this.lastMouse.y;
                     this.pan.x += dx;
@@ -118,12 +191,29 @@ const registerHotspotStudio = () => {
 
             endPan() {
                 this.isPanning = false;
+                this.isDraggingHotspot = false;
+                this.draggedHotspotId = null;
             },
 
             saveProject() {
                 // Logic to save to backend
                 console.log('Saving project:', this.project, this.hotspots);
+
+                if (!this.project.id) {
+                    this.project.id = Date.now();
+                    this.project.hotspots = this.hotspots;
+                    this.project.imageUrl = this.imageUrl;
+                    this.project.lastModified = Date.now();
+                    this.projects.push(this.project);
+                } else {
+                    const idx = this.projects.findIndex(p => p.id === this.project.id);
+                    if (idx !== -1) {
+                        this.projects[idx] = { ...this.project, hotspots: this.hotspots, imageUrl: this.imageUrl, lastModified: Date.now() };
+                    }
+                }
+
                 window.showToast('Project saved (Mock)', 'success');
+                this.activeTab = 'list';
             },
 
             exportCode() {
