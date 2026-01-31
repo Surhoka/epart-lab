@@ -422,6 +422,7 @@ const registerPostEditor = () => {
 
                     try {
                         this.fpDate = flatpickr(container, {
+                            className: 'flatpickr-compact
                             inline: true,
                             dateFormat: 'Y-m-d',
                             defaultDate: dateVal,
@@ -542,3 +543,4 @@ if (window.Alpine) {
 } else {
     document.addEventListener('alpine:init', registerPostEditor);
 }
+
