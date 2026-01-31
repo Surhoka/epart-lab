@@ -173,7 +173,7 @@
                     </button>
                     <div x-show="open" x-transition
                         class="absolute top-full right-0 mt-2 w-40 rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl dark:border-gray-800 dark:bg-gray-900 z-50">
-                        <button type="button" @click="activeTab = 'list'; open = false"
+                        <button type="button" @click="cancelEditor(); open = false"
                             class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"><span
                                 class="w-4 h-4" x-icon="'close'"></span>Cancel</button>
                     </div>
