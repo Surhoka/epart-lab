@@ -385,6 +385,11 @@ const registerPostEditor = () => {
             newPost() {
                 const newPostObject = JSON.parse(JSON.stringify(this.defaultPost));
                 this._switchToEditor(newPostObject);
+
+                // Scroll to top of the page smoothly
+                this.$nextTick(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
             },
 
             fpDate: null,
