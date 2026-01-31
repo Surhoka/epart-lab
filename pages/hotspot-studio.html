@@ -1,175 +1,285 @@
 <div x-data="hotspotStudio" id="hotspot-studio-page" class="w-full animate-fade-in">
     <input type="file" x-ref="imageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
-    
-    <!-- Header -->
-    <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex-1">
-            <input type="text" x-model="project.title" placeholder="Project Title..."
-                class="w-full border-none bg-transparent p-0 text-3xl font-extrabold tracking-tight text-gray-900 placeholder:text-gray-200 focus:ring-0 dark:text-white dark:placeholder:text-gray-800 lg:text-4xl" />
+
+    <!-- Tab Navigation -->
+    <div class="mb-8 flex border-b border-gray-100 dark:border-gray-800">
+        <button type="button" @click="activeTab = 'list'"
+            :class="activeTab === 'list' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
+            class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
+            <span class="w-4 h-4" x-icon="'table'"></span>
+            Projects
+        </button>
+        <button type="button" @click="activeTab = 'studio'"
+            :class="activeTab === 'studio' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
+            class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
+            <span class="w-4 h-4" x-icon="'pencil'"></span>
+            Studio
+        </button>
+    </div>
+
+    <!-- Tab 1: Project List -->
+    <div x-show="activeTab === 'list'" class="space-y-6" x-transition>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Hotspot Projects</h2>
+            <button type="button" @click.prevent="newProject()"
+                class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
+                <span class="w-4 h-4" x-icon="'plus'"></span>
+                Create New Project
+            </button>
         </div>
 
-        <div class="flex items-center gap-3">
-            <button type="button" @click="saveProject()"
-                class="group flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95 dark:border-gray-800 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10">
-                <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
-                    x-icon="'refresh'"></span>
-                Save Project
-            </button>
-            <button type="button" @click="exportCode()"
-                class="flex items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95">
-                <span class="w-4 h-4" x-icon="'code'"></span>
-                Export JSON
-            </button>
+        <div
+            class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr
+                        class="bg-gray-50/50 dark:bg-black/20 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        <th class="px-6 py-4">Project Name</th>
+                        <th class="px-6 py-4">Hotspots</th>
+                        <th class="px-6 py-4">Last Modified</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <template x-if="projects.length === 0">
+                        <tr>
+                            <td colspan="4" class="px-6 py-10 text-center text-gray-400">No projects found. Create your
+                                first one!</td>
+                        </tr>
+                    </template>
+                    <template x-for="p in projects" :key="p.id">
+                        <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                            <td class="px-6 py-5">
+                                <div class="font-bold text-gray-900 dark:text-white"
+                                    x-text="p.title || 'Untitled Project'"></div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span
+                                    class="rounded-lg bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-600 dark:bg-white/5"
+                                    x-text="(p.hotspots ? p.hotspots.length : 0) + ' Points'"></span>
+                            </td>
+                            <td class="px-6 py-5 text-sm font-medium text-gray-500"
+                                x-text="new Date(p.lastModified).toLocaleDateString()"></td>
+                            <td class="px-6 py-5 text-right space-x-2">
+                                <button type="button" @click.prevent="editProject(p)"
+                                    class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
+                                    <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
+                                </button>
+                                <button type="button" @click.prevent="deleteProject(p.id)"
+                                    class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
+                                    <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Main Workspace -->
-    <div class="flex flex-col gap-8 lg:flex-row">
+    <!-- Tab 2: Studio -->
+    <div x-show="activeTab === 'studio'" x-transition x-cloak>
+        <!-- Header -->
+        <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex-1">
+                <input type="text" x-model="project.title" placeholder="Project Title..."
+                    class="w-full border-none bg-transparent p-0 text-3xl font-extrabold tracking-tight text-gray-900 placeholder:text-gray-200 focus:ring-0 dark:text-white dark:placeholder:text-gray-800 lg:text-4xl" />
+            </div>
 
-        <!-- Left: Canvas Area -->
-        <div class="flex-1 min-w-0">
-            <div class="group relative min-h-[600px] rounded-2xl border border-gray-200 bg-white shadow-sm transition-all dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden flex flex-col">
-                
-                <!-- Toolbar -->
-                <div class="sticky top-0 z-40 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50/70 p-2 backdrop-blur-2xl dark:border-gray-800 dark:bg-gray-900/50">
-                    
-                    <button @click="$refs.imageInput.click()" class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
-                        <span class="w-4 h-4" x-icon="'image'"></span>
-                        <div class="tooltip">Upload Image</div>
-                    </button>
-
-                    <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
-
-                    <button @click="setTool('select')" :class="tool === 'select' ? 'bg-brand-50 text-brand-500 dark:bg-brand-900/20 dark:text-brand-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'" class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
-                        <span class="w-4 h-4" x-icon="'navigation'"></span>
-                        <div class="tooltip">Select Tool</div>
-                    </button>
-                    
-                    <button @click="setTool('point')" :class="tool === 'point' ? 'bg-brand-50 text-brand-500 dark:bg-brand-900/20 dark:text-brand-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'" class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
-                        <span class="w-4 h-4" x-icon="'map-pin'"></span>
-                        <div class="tooltip">Add Hotspot</div>
-                    </button>
-
-                    <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
-
-                    <button @click="zoomIn()" class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
-                        <span class="w-4 h-4" x-icon="'plus'"></span>
-                        <div class="tooltip">Zoom In</div>
-                    </button>
-                    <button @click="zoomOut()" class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
-                        <span class="w-4 h-4" x-icon="'minus'"></span>
-                        <div class="tooltip">Zoom Out</div>
-                    </button>
-                    <button @click="resetView()" class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
-                        <span class="w-4 h-4" x-icon="'refresh'"></span>
-                        <div class="tooltip">Reset View</div>
-                    </button>
-
-                    <div class="flex-1"></div>
-                    <div class="px-3 text-xs font-medium text-gray-500" x-text="hotspots.length + ' Points'"></div>
-                </div>
-
-                <!-- Canvas -->
-                <div class="relative flex-1 overflow-hidden bg-gray-100 dark:bg-black/50 flex items-center justify-center cursor-crosshair"
-                     @mousedown="startPan($event)"
-                     @mousemove="handleMouseMove($event)"
-                     @mouseup="endPan()"
-                     @mouseleave="endPan()"
-                     @wheel.prevent="handleWheel($event)">
-                    
-                    <div x-show="!imageUrl" class="text-center p-10 pointer-events-none">
-                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800">
-                            <span class="w-8 h-8 text-gray-400" x-icon="'image'"></span>
-                        </div>
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">No Image</h3>
-                        <p class="mt-1 text-sm text-gray-500">Upload an image to start</p>
-                    </div>
-
-                    <div x-show="imageUrl" class="relative transition-transform duration-75 ease-linear origin-center"
-                         :style="`transform: translate(${pan.x}px, ${pan.y}px) scale(${scale})`">
-                        <img x-ref="img" :src="imageUrl" class="max-w-none shadow-2xl pointer-events-none select-none" draggable="false">
-                        
-                        <!-- Click Layer for Adding Points -->
-                        <div class="absolute inset-0 z-10" @click="handleCanvasClick($event)"></div>
-
-                        <!-- Hotspots Layer -->
-                        <template x-for="(spot, index) in hotspots" :key="spot.id">
-                            <div class="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-20"
-                                 :style="`left: ${spot.x}%; top: ${spot.y}%;`"
-                                 @click.stop="selectHotspot(spot.id)">
-                                
-                                <div class="relative flex items-center justify-center w-8 h-8 transition-transform duration-200 hover:scale-110">
-                                    <span class="w-8 h-8 drop-shadow-md filter" 
-                                          :class="selectedId === spot.id ? 'text-brand-500' : 'text-white'"
-                                          x-icon="'map-pin'"></span>
-                                    <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-[10px] font-bold text-black" 
-                                          x-text="index + 1"></span>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
+            <div class="flex items-center gap-3">
+                <button type="button" @click="activeTab = 'list'"
+                    class="group flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold text-gray-600 transition-all hover:bg-gray-50 active:scale-95 dark:text-gray-400 dark:hover:bg-white/10">
+                    Cancel
+                </button>
+                <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+                <button type="button" @click="saveProject()"
+                    class="group flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95 dark:border-gray-800 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10">
+                    <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
+                        x-icon="'refresh'"></span>
+                    Save Project
+                </button>
+                <button type="button" @click="exportCode()"
+                    class="flex items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95">
+                    <span class="w-4 h-4" x-icon="'code'"></span>
+                    Export JSON
+                </button>
             </div>
         </div>
 
-        <!-- Right: Sidebar -->
-        <div class="w-full lg:w-80 flex-shrink-0 space-y-4">
-            <!-- Properties Panel -->
-            <div class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Properties</h3>
-                    <button x-show="selectedId" @click="deleteHotspot(selectedId)" class="text-red-500 hover:text-red-600 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
-                        <span class="w-4 h-4" x-icon="'trash'"></span>
-                    </button>
-                </div>
-                
-                <div class="p-4 space-y-4" x-show="selectedId">
-                    <template x-if="getSelectedHotspot()">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Label</label>
-                                <input type="text" x-model="getSelectedHotspot().title" class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white" placeholder="Label">
+        <!-- Main Workspace -->
+        <div class="flex flex-col gap-8 lg:flex-row">
+
+            <!-- Left: Canvas Area -->
+            <div class="flex-1 min-w-0">
+                <div
+                    class="group relative min-h-[600px] rounded-2xl border border-gray-200 bg-white shadow-sm transition-all dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden flex flex-col">
+
+                    <!-- Toolbar -->
+                    <div
+                        class="sticky top-0 z-40 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50/70 p-2 backdrop-blur-2xl dark:border-gray-800 dark:bg-gray-900/50">
+
+                        <button @click="$refs.imageInput.click()"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
+                            <span class="w-4 h-4" x-icon="'image'"></span>
+                            <div class="tooltip">Upload Image</div>
+                        </button>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <button @click="setTool('select')"
+                            :class="tool === 'select' ? 'bg-brand-50 text-brand-500 dark:bg-brand-900/20 dark:text-brand-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
+                            <span class="w-4 h-4" x-icon="'navigation'"></span>
+                            <div class="tooltip">Select Tool</div>
+                        </button>
+
+                        <button @click="setTool('point')"
+                            :class="tool === 'point' ? 'bg-brand-50 text-brand-500 dark:bg-brand-900/20 dark:text-brand-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
+                            <span class="w-4 h-4" x-icon="'map-pin'"></span>
+                            <div class="tooltip">Add Hotspot</div>
+                        </button>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
+                        <button @click="zoomIn()"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
+                            <span class="w-4 h-4" x-icon="'plus'"></span>
+                            <div class="tooltip">Zoom In</div>
+                        </button>
+                        <button @click="zoomOut()"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
+                            <span class="w-4 h-4" x-icon="'minus'"></span>
+                            <div class="tooltip">Zoom Out</div>
+                        </button>
+                        <button @click="resetView()"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
+                            <span class="w-4 h-4" x-icon="'refresh'"></span>
+                            <div class="tooltip">Reset View</div>
+                        </button>
+
+                        <div class="flex-1"></div>
+                        <div class="px-3 text-xs font-medium text-gray-500" x-text="hotspots.length + ' Points'"></div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="relative flex-1 overflow-hidden bg-gray-100 dark:bg-black/50 flex items-center justify-center cursor-crosshair"
+                        @mousedown="startPan($event)" @mousemove="handleMouseMove($event)" @mouseup="endPan()"
+                        @mouseleave="endPan()" @wheel.prevent="handleWheel($event)">
+
+                        <div x-show="!imageUrl" class="text-center p-10 pointer-events-none">
+                            <div
+                                class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800">
+                                <span class="w-8 h-8 text-gray-400" x-icon="'image'"></span>
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
-                                <textarea x-model="getSelectedHotspot().description" rows="3" class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white" placeholder="Description..."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Link</label>
-                                <input type="text" x-model="getSelectedHotspot().url" class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white" placeholder="https://...">
-                            </div>
-                            <div class="flex justify-between text-xs text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800">
-                                <span>X: <span x-text="getSelectedHotspot().x.toFixed(2) + '%'"></span></span>
-                                <span>Y: <span x-text="getSelectedHotspot().y.toFixed(2) + '%'"></span></span>
-                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">No Image</h3>
+                            <p class="mt-1 text-sm text-gray-500">Upload an image to start</p>
                         </div>
-                    </template>
-                </div>
-                <div class="p-8 text-center text-gray-400 text-sm" x-show="!selectedId">
-                    Select a hotspot to edit
+
+                        <div x-show="imageUrl"
+                            class="relative transition-transform duration-75 ease-linear origin-center"
+                            :style="`transform: translate(${pan.x}px, ${pan.y}px) scale(${scale})`">
+                            <img x-ref="img" :src="imageUrl"
+                                class="max-w-none shadow-2xl pointer-events-none select-none" draggable="false">
+
+                            <!-- Click Layer for Adding Points -->
+                            <div class="absolute inset-0 z-10" @click="handleCanvasClick($event)"></div>
+
+                            <!-- Hotspots Layer -->
+                            <template x-for="(spot, index) in hotspots" :key="spot.id">
+                                <div class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing group z-20"
+                                    :style="`left: ${spot.x}%; top: ${spot.y}%;`"
+                                    @mousedown.stop.prevent="startDragHotspot($event, spot.id)"
+                                    @click.stop="selectHotspot(spot.id)">
+
+                                    <div
+                                        class="relative flex items-center justify-center w-8 h-8 transition-transform duration-200 hover:scale-110">
+                                        <span class="w-8 h-8 drop-shadow-md filter"
+                                            :class="selectedId === spot.id ? 'text-brand-500' : 'text-white'"
+                                            x-icon="'map-pin'"></span>
+                                        <span
+                                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-[10px] font-bold text-black"
+                                            x-text="index + 1"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- List Panel -->
-            <div class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Hotspots</h3>
-                </div>
-                <div class="max-h-[300px] overflow-y-auto custom-scrollbar">
-                    <ul class="divide-y divide-gray-100 dark:divide-gray-800">
-                        <template x-for="(spot, index) in hotspots" :key="spot.id">
-                            <li class="group flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
-                                :class="selectedId === spot.id ? 'bg-brand-50 dark:bg-brand-900/10' : ''"
-                                @click="selectHotspot(spot.id)">
-                                <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                                      :class="selectedId === spot.id ? '!bg-brand-500 !text-white' : ''"
-                                      x-text="index + 1"></span>
-                                <div class="flex-1 min-w-0">
-                                    <p class="truncate text-sm font-medium text-gray-900 dark:text-white" x-text="spot.title || 'Untitled'"></p>
+            <!-- Right: Sidebar -->
+            <div class="w-full lg:w-80 flex-shrink-0 space-y-4">
+                <!-- Properties Panel -->
+                <div
+                    class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div
+                        class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Properties</h3>
+                        <button x-show="selectedId" @click="deleteHotspot(selectedId)"
+                            class="text-red-500 hover:text-red-600 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                            <span class="w-4 h-4" x-icon="'trash'"></span>
+                        </button>
+                    </div>
+
+                    <div class="p-4 space-y-4" x-show="selectedId">
+                        <template x-if="getSelectedHotspot()">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Label</label>
+                                    <input type="text" x-model="getSelectedHotspot().title"
+                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
+                                        placeholder="Label">
                                 </div>
-                            </li>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                                    <textarea x-model="getSelectedHotspot().description" rows="3"
+                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
+                                        placeholder="Description..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Link</label>
+                                    <input type="text" x-model="getSelectedHotspot().url"
+                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
+                                        placeholder="https://...">
+                                </div>
+                                <div
+                                    class="flex justify-between text-xs text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                    <span>X: <span x-text="getSelectedHotspot().x.toFixed(2) + '%'"></span></span>
+                                    <span>Y: <span x-text="getSelectedHotspot().y.toFixed(2) + '%'"></span></span>
+                                </div>
+                            </div>
                         </template>
-                    </ul>
+                    </div>
+                    <div class="p-8 text-center text-gray-400 text-sm" x-show="!selectedId">
+                        Select a hotspot to edit
+                    </div>
+                </div>
+
+                <!-- List Panel -->
+                <div
+                    class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Hotspots</h3>
+                    </div>
+                    <div class="max-h-[300px] overflow-y-auto custom-scrollbar">
+                        <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <template x-for="(spot, index) in hotspots" :key="spot.id">
+                                <li class="group flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                                    :class="selectedId === spot.id ? 'bg-brand-50 dark:bg-brand-900/10' : ''"
+                                    @click="selectHotspot(spot.id)">
+                                    <span
+                                        class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                        :class="selectedId === spot.id ? '!bg-brand-500 !text-white' : ''"
+                                        x-text="index + 1"></span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="spot.title || 'Untitled'"></p>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
