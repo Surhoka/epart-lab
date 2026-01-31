@@ -107,8 +107,8 @@ const registerPostEditor = () => {
                 // The call in init() has been removed.
             },
 
-            addCategory() {
-                const name = prompt("Nama Label Baru:");
+            addCategory(name = null) {
+                if (!name) name = prompt("Nama Label Baru:");
                 if (name && name.trim()) {
                     // Optimistically update UI
                     if (!this.categories.includes(name)) {
@@ -422,8 +422,8 @@ const registerPostEditor = () => {
 
                     try {
                         this.fpDate = flatpickr(container, {
-                            className: 'flatpickr-compact',
                             inline: true,
+                            className: 'flatpickr-compact',
                             dateFormat: 'Y-m-d',
                             defaultDate: dateVal,
                             locale: {
@@ -543,5 +543,3 @@ if (window.Alpine) {
 } else {
     document.addEventListener('alpine:init', registerPostEditor);
 }
-
-
