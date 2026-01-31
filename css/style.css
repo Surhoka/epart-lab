@@ -2185,8 +2185,8 @@ span.flatpickr-weekday,
 
 .flatpickr-compact .flatpickr-current-month .cur-month,
 .flatpickr-compact .flatpickr-current-month input.cur-year {
-  font-size: 0.875rem !important;
-  /* text-sm */
+  font-size: 0.75rem !important;
+  /* text-xs */
   padding: 0 !important;
 }
 
