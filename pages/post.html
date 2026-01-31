@@ -201,11 +201,15 @@
                         <!-- Group: Undo/Redo (Moved to Start) -->
                         <div class="flex items-center gap-1 mr-1">
                             <button @click="execCommand('undo')"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'undo'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'undo'"></span>
+                                <div class="tooltip">Undo</div>
+                            </button>
                             <button @click="execCommand('redo')"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'redo'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'redo'"></span>
+                                <div class="tooltip">Redo</div>
+                            </button>
                         </div>
 
                         <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
@@ -248,19 +252,21 @@
 
                         <!-- Group: Color -->
                         <div class="flex items-center gap-1 px-1">
-                            <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
-                                title="Text Color">
+                            <div
+                                class="group relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer transition-colors">
                                 <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                                     @input="execCommand('foreColor', $event.target.value)">
                                 <span class="font-bold text-sm text-gray-700 dark:text-gray-300">A</span>
                                 <div class="absolute bottom-1.5 left-2 right-2 h-1 bg-brand-500 rounded-full"></div>
+                                <div class="tooltip">Text Color</div>
                             </div>
-                            <div class="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer overflow-hidden transition-colors"
-                                title="Highlight Color">
+                            <div
+                                class="group relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer transition-colors">
                                 <input type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                                     @input="execCommand('hiliteColor', $event.target.value)">
                                 <span
                                     class="font-bold text-sm text-gray-700 dark:text-gray-300 bg-yellow-300/50 px-1 rounded-sm">H</span>
+                                <div class="tooltip">Highlight Color</div>
                             </div>
                         </div>
 
@@ -269,11 +275,15 @@
                         <!-- Group: Insert -->
                         <div class="flex items-center gap-0.5">
                             <button @click="insertLink()"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'link'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'link'"></span>
+                                <div class="tooltip">Insert Link</div>
+                            </button>
                             <button @click="triggerImageUpload()"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'image'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'image'"></span>
+                                <div class="tooltip">Insert Image</div>
+                            </button>
                         </div>
 
                         <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
@@ -281,9 +291,10 @@
                         <!-- Group: Basic Formatting -->
                         <div class="flex items-center gap-0.5">
                             <template x-for="tool in formattingTools">
-                                <button @click="execCommand(tool.cmd)" :title="tool.label"
-                                    class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white">
+                                <button @click="execCommand(tool.cmd)"
+                                    class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white">
                                     <span class="w-4 h-4" x-icon="tool.icon"></span>
+                                    <div class="tooltip" x-text="tool.label"></div>
                                 </button>
                             </template>
                         </div>
@@ -293,14 +304,20 @@
                         <!-- Group: Alignment -->
                         <div class="flex items-center gap-0.5">
                             <button @click="execCommand('justifyLeft')"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'align-left'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'align-left'"></span>
+                                <div class="tooltip">Align Left</div>
+                            </button>
                             <button @click="execCommand('justifyCenter')"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'align-center'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'align-center'"></span>
+                                <div class="tooltip">Align Center</div>
+                            </button>
                             <button @click="execCommand('justifyRight')"
-                                class="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'align-right'"></span></button>
+                                class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
+                                    class="w-4 h-4" x-icon="'align-right'"></span>
+                                <div class="tooltip">Align Right</div>
+                            </button>
                         </div>
 
                     </div>
