@@ -276,20 +276,25 @@
             <!-- Right: Sidebar -->
             <div class="w-full lg:w-80 flex-shrink-0 space-y-4">
                 <!-- Properties Panel -->
-                <div class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden"
-                    x-data="{ showHotspotList: true }">
+                <div
+                    class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
                     <div
                         class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">Properties</h3>
-                        <button x-show="selectedId" @click="deleteHotspot(selectedId)" <h3
-                            class="text-sm font-bold text-gray-900 dark:text-white">Hotspots List (<span
-                                x-text="hotspots.length"></span>)</h3>
+                        <div class="flex items-center gap-3">
+                            <button x-show="selectedId" @click.stop="deleteHotspot(selectedId)"
+                                class="text-gray-400 hover:text-red-500 transition-colors" title="Delete Selected">
+                                <span class="w-4 h-4" x-icon="'trash'"></span>
+                            </button>
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                List (<span x-text="hotspots.length"></span>)
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Hotspot List with Integrated Properties -->
                     <div class="border-t border-gray-100 dark:border-gray-800">
-                        <div x-show="showHotspotList"
-                            class="max-h-[500px] overflow-y-auto custom-scrollbar bg-gray-50/30 dark:bg-black/20">
+                        <div class="max-h-[500px] overflow-y-auto custom-scrollbar bg-gray-50/30 dark:bg-black/20">
                             <ul class="divide-y divide-gray-100 dark:divide-gray-800">
                                 <template x-for="(spot, index) in hotspots" :key="spot.id">
                                     <li class="group cursor-pointer transition-colors"
@@ -429,3 +434,5 @@
             </div>
         </div>
     </div>
+
+</div>
