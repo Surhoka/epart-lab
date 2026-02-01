@@ -171,7 +171,7 @@ const registerHotspotStudio = () => {
                     spot.type = 'polygon';
                     spot.points = [];
                     if (spot.x !== undefined && spot.y !== undefined) {
-                        spot.points.push({ x: spot.x, y: spot.y });
+                        spot.points.push({ x: spot.x, y: spot.y, label: '', description: '' });
                     }
                     this.isDrawing = true;
                     this.addToHistory();
@@ -190,7 +190,7 @@ const registerHotspotStudio = () => {
 
                 if (this.tool === 'polygon' && (!spot || spot.type !== 'polygon')) {
                     const id = Date.now();
-                    spot = { id, title: 'New Area', type: 'polygon', points: [], description: '', url: '' };
+                    spot = { id, x, y, title: 'New Area', type: 'polygon', points: [], description: '', url: '' };
                     this.hotspots.push(spot);
                     this.selectedId = id;
                     this.isDrawing = true;
@@ -198,7 +198,7 @@ const registerHotspotStudio = () => {
 
                 if (spot && spot.type === 'polygon') {
                     if (!spot.points) spot.points = [];
-                    spot.points.push({ x, y });
+                    spot.points.push({ x, y, label: '', description: '' });
                 }
                 this.addToHistory();
             },
@@ -284,7 +284,7 @@ const registerHotspotStudio = () => {
                                 hotspot.points[this.draggedPolygonPointIndex].x = clampedX;
                                 hotspot.points[this.draggedPolygonPointIndex].y = clampedY;
                             }
-                        } else if (!hotspot.type || hotspot.type === 'point') {
+                        } else {
                             hotspot.x = clampedX;
                             hotspot.y = clampedY;
                         }
