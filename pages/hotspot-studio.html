@@ -206,27 +206,40 @@
                                     <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100"
                                         preserveAspectRatio="none">
                                         <polygon :points="spot.points.map(p => p.x + ',' + p.y).join(' ')"
-                                            class="fill-brand-500/20 stroke-brand-500 stroke-1 cursor-pointer pointer-events-auto hover:fill-brand-500/40 transition-colors"
-                                            :class="selectedId === spot.id ? 'fill-brand-500/40 stroke-brand-600 stroke-2' : ''"
+                                            class="fill-brand-500/5 stroke-brand-500 stroke-1 stroke-dasharray-[4] cursor-pointer pointer-events-auto hover:fill-brand-500/10 transition-colors"
+                                            style="stroke-dasharray: 4;"
+                                            :class="selectedId === spot.id ? 'fill-brand-500/10 stroke-brand-600 stroke-2' : ''"
                                             @click.stop="selectHotspot(spot.id)"></polygon>
                                     </svg>
                                 </template>
                             </div>
 
-                            <!-- Polygon Handles (Only for selected polygon) -->
-                            <template x-for="spot in hotspots.filter(h => h.type === 'polygon' && h.id === selectedId)"
-                                :key="spot.id">
+                            <!-- Polygon Handles / Icons (Only for polygons) -->
+                            <template x-for="spot in hotspots.filter(h => h.type === 'polygon')" :key="spot.id">
                                 <div class="absolute inset-0 w-full h-full pointer-events-none z-20">
                                     <template x-for="(point, pIndex) in spot.points" :key="pIndex">
-                                        <div class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing pointer-events-auto w-3 h-3 bg-white border-2 border-brand-500 rounded-full shadow-sm hover:scale-125 transition-transform"
+                                        <div class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing pointer-events-auto group"
                                             :style="`left: ${point.x}%; top: ${point.y}%;`"
-                                            @mousedown.stop.prevent="startDragHotspot($event, spot.id, pIndex)"></div>
+                                            @mousedown.stop.prevent="startDragHotspot($event, spot.id, pIndex)"
+                                            @click.stop="selectHotspot(spot.id)">
+
+                                            <div
+                                                class="relative flex items-center justify-center w-8 h-8 transition-transform duration-200 hover:scale-110">
+                                                <span class="w-8 h-8 drop-shadow-md filter"
+                                                    :class="selectedId === spot.id ? 'text-brand-500' : 'text-white'"
+                                                    x-icon="'map-pin'"></span>
+                                                <!-- Only show index on the first point of a polygon to identify the item -->
+                                                <span x-show="pIndex === 0"
+                                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-[10px] font-bold text-black"
+                                                    x-text="hotspots.findIndex(h => h.id === spot.id) + 1"></span>
+                                            </div>
+                                        </div>
                                     </template>
                                 </div>
                             </template>
 
-                            <!-- Hotspots Layer -->
-                            <template x-for="(spot, index) in hotspots" :key="spot.id">
+                            <!-- Hotspots Layer (Points Only) -->
+                            <template x-for="(spot, index) in hotspots.filter(h => h.type === 'point')" :key="spot.id">
                                 <div class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing group z-20"
                                     :style="`left: ${spot.x}%; top: ${spot.y}%;`"
                                     @mousedown.stop.prevent="startDragHotspot($event, spot.id)"
@@ -239,7 +252,11 @@
                                             x-icon="'map-pin'"></span>
                                         <span
                                             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-[10px] font-bold text-black"
-                                            x-text="index + 1"></span>
+                                            x-text="index + hotspots.filter(h => h.type === 'polygon').length === 0 ? index + 1 : index + 1 + hotspots.filter(h => h.type === 'polygon').findIndex(p => hotspots.indexOf(h) < hotspots.indexOf(p)) + 1"></span>
+                                        <!-- Simple numbering fix: use findIndex from whole array -->
+                                        <span
+                                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-[10px] font-bold text-black"
+                                            x-text="hotspots.indexOf(spot) + 1"></span>
                                     </div>
                                 </div>
                             </template>
