@@ -186,15 +186,17 @@
                             <div class="absolute inset-0 z-10" @click="handleCanvasClick($event)"></div>
 
                             <!-- SVG Layer for Polygons -->
-                            <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100"
-                                preserveAspectRatio="none">
+                            <div class="absolute inset-0 w-full h-full pointer-events-none z-10">
                                 <template x-for="spot in hotspots.filter(h => h.type === 'polygon')" :key="spot.id">
-                                    <polygon :points="spot.points.map(p => p.x + ',' + p.y).join(' ')"
-                                        class="fill-brand-500/20 stroke-brand-500 stroke-1 cursor-pointer pointer-events-auto hover:fill-brand-500/40 transition-colors"
-                                        :class="selectedId === spot.id ? 'fill-brand-500/40 stroke-brand-600 stroke-2' : ''"
-                                        @click.stop="selectHotspot(spot.id)"></polygon>
+                                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100"
+                                        preserveAspectRatio="none">
+                                        <polygon :points="spot.points.map(p => p.x + ',' + p.y).join(' ')"
+                                            class="fill-brand-500/20 stroke-brand-500 stroke-1 cursor-pointer pointer-events-auto hover:fill-brand-500/40 transition-colors"
+                                            :class="selectedId === spot.id ? 'fill-brand-500/40 stroke-brand-600 stroke-2' : ''"
+                                            @click.stop="selectHotspot(spot.id)"></polygon>
+                                    </svg>
                                 </template>
-                            </svg>
+                            </div>
 
                             <!-- Hotspots Layer -->
                             <template x-for="(spot, index) in hotspots.filter(h => !h.type || h.type === 'point')"
