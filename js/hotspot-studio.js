@@ -14,6 +14,7 @@ const registerHotspotStudio = () => {
             lastMouse: { x: 0, y: 0 },
             isDraggingHotspot: false,
             draggedHotspotId: null,
+            isDrawing: false,
 
             init() {
                 console.log("Hotspot Studio Initialized");
@@ -81,19 +82,24 @@ const registerHotspotStudio = () => {
             setTool(t) {
                 this.tool = t;
                 if (t === 'select') {
-                    // Maybe change cursor
+                    this.isDrawing = false;
                 }
             },
 
             handleCanvasClick(event) {
-                if (this.tool === 'point' && this.imageUrl) {
-                    const rect = event.target.getBoundingClientRect();
-                    const x = ((event.clientX - rect.left) / rect.width) * 100;
-                    const y = ((event.clientY - rect.top) / rect.height) * 100;
+                if (!this.imageUrl) return;
 
+                const rect = event.target.getBoundingClientRect();
+                const x = ((event.clientX - rect.left) / rect.width) * 100;
+                const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+                if (this.tool === 'polygon' || (this.isDrawing && this.selectedId)) {
+                    this.addPolygonPoint(x, y);
+                } else if (this.tool === 'point') {
                     this.addHotspot(x, y);
                 } else {
                     this.selectedId = null;
+                    this.isDrawing = false;
                 }
             },
 
@@ -103,12 +109,49 @@ const registerHotspotStudio = () => {
                     id,
                     x,
                     y,
+                    type: 'point',
                     title: '',
                     description: '',
                     url: ''
                 });
                 this.selectedId = id;
                 this.tool = 'select'; // Switch back to select after adding
+            },
+
+            convertToPolygon() {
+                const spot = this.getSelectedHotspot();
+                if (spot) {
+                    spot.type = 'polygon';
+                    spot.points = [];
+                    if (spot.x !== undefined && spot.y !== undefined) {
+                        spot.points.push({ x: spot.x, y: spot.y });
+                    }
+                    this.isDrawing = true;
+                }
+            },
+
+            toggleDrawing() {
+                this.isDrawing = !this.isDrawing;
+            },
+
+            addPolygonPoint(x, y) {
+                let spot;
+                if (this.selectedId) {
+                    spot = this.hotspots.find(h => h.id === this.selectedId);
+                }
+
+                if (!spot && this.tool === 'polygon') {
+                    const id = Date.now();
+                    spot = { id, title: 'New Area', type: 'polygon', points: [], description: '', url: '' };
+                    this.hotspots.push(spot);
+                    this.selectedId = id;
+                    this.isDrawing = true;
+                }
+
+                if (spot && spot.type === 'polygon') {
+                    if (!spot.points) spot.points = [];
+                    spot.points.push({ x, y });
+                }
             },
 
             selectHotspot(id) {
