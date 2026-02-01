@@ -213,8 +213,12 @@ const registerHotspotStudio = () => {
                 }
             },
 
-            selectHotspot(id) {
-                this.selectedId = id;
+            selectHotspot(id, toggle = false) {
+                if (toggle && this.selectedId === id) {
+                    this.selectedId = null;
+                } else {
+                    this.selectedId = id;
+                }
             },
 
             getSelectedHotspot() {
