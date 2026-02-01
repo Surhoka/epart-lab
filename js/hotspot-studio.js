@@ -123,6 +123,18 @@ const registerHotspotStudio = () => {
                 this.addToHistory();
             },
 
+            cancelEdit() {
+                this.project = { id: null, title: '', lastModified: Date.now() };
+                this.hotspots = [];
+                this.imageUrl = null;
+                this.pendingImageData = null;
+                this.pendingFileName = null;
+                this.resetView();
+                this.activeTab = 'list';
+                this.history = [];
+                this.historyIndex = -1;
+            },
+
             deleteProject(id) {
                 if (confirm('Delete this project?')) {
                     window.sendDataToGoogle('deleteHotspotProject', { id: id }, (response) => {
