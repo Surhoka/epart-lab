@@ -19,6 +19,7 @@ const registerHotspotStudio = () => {
             isDrawing: false,
             isUploadingImage: false,
             pendingImageData: null,
+            pendingFileName: null,
             history: [],
             historyIndex: -1,
 
@@ -84,6 +85,7 @@ const registerHotspotStudio = () => {
                 reader.onload = (e) => {
                     this.imageUrl = e.target.result; // Local preview
                     this.pendingImageData = e.target.result; // Store for later upload
+                    this.pendingFileName = file.name; // Capture original filename
                     this.hotspots = [];
                     this.selectedId = null;
                     this.resetView();
@@ -99,6 +101,7 @@ const registerHotspotStudio = () => {
                 this.hotspots = [];
                 this.imageUrl = null;
                 this.pendingImageData = null;
+                this.pendingFileName = null;
                 this.resetView();
                 this.activeTab = 'studio';
                 this.history = [];
@@ -112,6 +115,7 @@ const registerHotspotStudio = () => {
                 this.hotspots = p.hotspots || [];
                 this.imageUrl = p.imageUrl || null;
                 this.pendingImageData = null;
+                this.pendingFileName = null;
                 this.resetView();
                 this.activeTab = 'studio';
                 this.history = [];
@@ -333,9 +337,11 @@ const registerHotspotStudio = () => {
                 // Check if there is a pending image to upload first
                 if (this.pendingImageData) {
                     this.isUploadingImage = true;
+                    const fileName = this.pendingFileName || `hotspot_${Date.now()}.png`;
+
                     window.sendDataToGoogle('uploadImageAndGetUrl', {
                         fileData: this.pendingImageData,
-                        fileName: `hotspot_${Date.now()}.png`
+                        fileName: fileName
                     }, (response) => {
                         this.isUploadingImage = false;
                         if (response.status === 'success') {
