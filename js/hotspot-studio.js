@@ -171,8 +171,17 @@ const registerHotspotStudio = () => {
                     spot.type = 'polygon';
                     spot.points = [];
                     if (spot.x !== undefined && spot.y !== undefined) {
-                        spot.points.push({ x: spot.x, y: spot.y, label: '', description: '' });
+                        spot.points.push({
+                            x: spot.x,
+                            y: spot.y,
+                            label: spot.title || '',
+                            description: spot.description || '',
+                            url: spot.url || ''
+                        });
                     }
+                    spot.title = 'Area';
+                    spot.description = '';
+                    spot.url = '';
                     this.isDrawing = true;
                     this.addToHistory();
                 }
@@ -198,7 +207,7 @@ const registerHotspotStudio = () => {
 
                 if (spot && spot.type === 'polygon') {
                     if (!spot.points) spot.points = [];
-                    spot.points.push({ x, y, label: '', description: '' });
+                    spot.points.push({ x, y, label: '', description: '', url: '' });
                 }
                 this.addToHistory();
             },
