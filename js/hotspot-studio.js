@@ -188,7 +188,7 @@ const registerHotspotStudio = () => {
                     spot = this.hotspots.find(h => h.id === this.selectedId);
                 }
 
-                if (!spot && this.tool === 'polygon') {
+                if (this.tool === 'polygon' && (!spot || spot.type !== 'polygon')) {
                     const id = Date.now();
                     spot = { id, title: 'New Area', type: 'polygon', points: [], description: '', url: '' };
                     this.hotspots.push(spot);
