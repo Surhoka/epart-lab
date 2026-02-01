@@ -17,6 +17,8 @@ const registerHotspotStudio = () => {
             draggedHotspotId: null,
             draggedPolygonPointIndex: null,
             isDrawing: false,
+            isUploadingImage: false,
+            pendingImageData: null,
             history: [],
             historyIndex: -1,
 
@@ -80,7 +82,8 @@ const registerHotspotStudio = () => {
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    this.imageUrl = e.target.result;
+                    this.imageUrl = e.target.result; // Local preview
+                    this.pendingImageData = e.target.result; // Store for later upload
                     this.hotspots = [];
                     this.selectedId = null;
                     this.resetView();
@@ -95,6 +98,7 @@ const registerHotspotStudio = () => {
                 this.project = { id: null, title: '', lastModified: Date.now() };
                 this.hotspots = [];
                 this.imageUrl = null;
+                this.pendingImageData = null;
                 this.resetView();
                 this.activeTab = 'studio';
                 this.history = [];
@@ -107,6 +111,7 @@ const registerHotspotStudio = () => {
                 this.project = JSON.parse(JSON.stringify(p));
                 this.hotspots = p.hotspots || [];
                 this.imageUrl = p.imageUrl || null;
+                this.pendingImageData = null;
                 this.resetView();
                 this.activeTab = 'studio';
                 this.history = [];
@@ -325,6 +330,33 @@ const registerHotspotStudio = () => {
 
                 if (button) window.setButtonLoading(button, true);
 
+                // Check if there is a pending image to upload first
+                if (this.pendingImageData) {
+                    this.isUploadingImage = true;
+                    window.sendDataToGoogle('uploadImageAndGetUrl', {
+                        fileData: this.pendingImageData,
+                        fileName: `hotspot_${Date.now()}.png`
+                    }, (response) => {
+                        this.isUploadingImage = false;
+                        if (response.status === 'success') {
+                            this.imageUrl = response.url;
+                            this.pendingImageData = null; // Clear pending data
+                            this.executeSave(button); // Proceed with project save
+                        } else {
+                            if (button) window.setButtonLoading(button, false);
+                            window.showToast('Failed to upload image: ' + response.message, 'error');
+                        }
+                    }, (error) => {
+                        this.isUploadingImage = false;
+                        if (button) window.setButtonLoading(button, false);
+                        window.showToast('API Error during image upload', 'error');
+                    });
+                } else {
+                    this.executeSave(button);
+                }
+            },
+
+            executeSave(button) {
                 const payload = {
                     id: this.project.id,
                     title: this.project.title,
