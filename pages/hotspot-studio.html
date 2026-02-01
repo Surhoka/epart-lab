@@ -213,6 +213,18 @@
                                 </template>
                             </div>
 
+                            <!-- Polygon Handles (Only for selected polygon) -->
+                            <template x-for="spot in hotspots.filter(h => h.type === 'polygon' && h.id === selectedId)"
+                                :key="spot.id">
+                                <div class="absolute inset-0 w-full h-full pointer-events-none z-20">
+                                    <template x-for="(point, pIndex) in spot.points" :key="pIndex">
+                                        <div class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing pointer-events-auto w-3 h-3 bg-white border-2 border-brand-500 rounded-full shadow-sm hover:scale-125 transition-transform"
+                                            :style="`left: ${point.x}%; top: ${point.y}%;`"
+                                            @mousedown.stop.prevent="startDragHotspot($event, spot.id, pIndex)"></div>
+                                    </template>
+                                </div>
+                            </template>
+
                             <!-- Hotspots Layer -->
                             <template x-for="(spot, index) in hotspots.filter(h => !h.type || h.type === 'point')"
                                 :key="spot.id">
@@ -281,20 +293,6 @@
                                     class="flex justify-between text-xs text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800">
                                     <span>Type: Area</span>
                                     <span>Points: <span x-text="getSelectedHotspot().points?.length"></span></span>
-                                </div>
-                                <div class="pt-2 border-t border-gray-100 dark:border-gray-800 mt-2">
-                                    <button x-show="!getSelectedHotspot().type || getSelectedHotspot().type === 'point'"
-                                        @click="convertToPolygon()" type="button"
-                                        class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-gray-500 transition-colors hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:text-gray-400 dark:hover:border-brand-400 dark:hover:text-brand-400">
-                                        <span class="w-3 h-3" x-icon="'hexagon'"></span> Convert to Area
-                                    </button>
-                                    <button x-show="getSelectedHotspot().type === 'polygon'" @click="toggleDrawing()"
-                                        type="button"
-                                        class="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold transition-colors"
-                                        :class="isDrawing ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400' : 'bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400'">
-                                        <span class="w-3 h-3" x-icon="isDrawing ? 'close' : 'plus'"></span>
-                                        <span x-text="isDrawing ? 'Stop Drawing' : 'Add Points'"></span>
-                                    </button>
                                 </div>
                             </div>
                         </template>
