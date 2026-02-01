@@ -2,6 +2,7 @@ const registerHotspotStudio = () => {
     if (window.Alpine && !window.Alpine.data('hotspotStudio')) {
         window.Alpine.data('hotspotStudio', () => ({
             activeTab: 'list',
+            isLoading: false,
             projects: [],
             project: { id: null, title: '', lastModified: Date.now() },
             hotspots: [],
@@ -21,28 +22,22 @@ const registerHotspotStudio = () => {
 
             init() {
                 console.log("Hotspot Studio Initialized");
-                // Mock data for projects
-                this.projects = [
-                    {
-                        id: 1,
-                        title: 'Living Room Setup',
-                        imageUrl: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-01.jpg',
-                        lastModified: Date.now(),
-                        hotspots: [
-                            { id: 101, x: 35, y: 45, title: 'Smart Lamp', description: 'Adjustable brightness', url: '#' },
-                            { id: 102, x: 65, y: 60, title: 'Sofa', description: 'Leather sofa', url: '#' }
-                        ]
-                    },
-                    {
-                        id: 2,
-                        title: 'Kitchen Layout',
-                        imageUrl: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/images/product-02.jpg',
-                        lastModified: Date.now() - 86400000,
-                        hotspots: [
-                            { id: 201, x: 50, y: 50, title: 'Refrigerator', description: 'Double door fridge', url: '#' }
-                        ]
+                this.fetchProjects();
+            },
+
+            fetchProjects() {
+                this.isLoading = true;
+                window.sendDataToGoogle('getHotspotProjects', {}, (response) => {
+                    this.isLoading = false;
+                    if (response.status === 'success') {
+                        this.projects = response.data || [];
+                    } else {
+                        window.showToast('Failed to load projects: ' + response.message, 'error');
                     }
-                ];
+                }, (error) => {
+                    this.isLoading = false;
+                    window.showToast('API Error loading projects', 'error');
+                });
             },
 
             addToHistory() {
@@ -121,7 +116,14 @@ const registerHotspotStudio = () => {
 
             deleteProject(id) {
                 if (confirm('Delete this project?')) {
-                    this.projects = this.projects.filter(p => p.id !== id);
+                    window.sendDataToGoogle('deleteHotspotProject', { id: id }, (response) => {
+                        if (response.status === 'success') {
+                            window.showToast('Project deleted', 'success');
+                            this.fetchProjects();
+                        } else {
+                            window.showToast('Delete failed: ' + response.message, 'error');
+                        }
+                    });
                 }
             },
 
@@ -315,25 +317,34 @@ const registerHotspotStudio = () => {
                 this.draggedPolygonPointIndex = null;
             },
 
-            saveProject() {
-                // Logic to save to backend
-                console.log('Saving project:', this.project, this.hotspots);
-
-                if (!this.project.id) {
-                    this.project.id = Date.now();
-                    this.project.hotspots = this.hotspots;
-                    this.project.imageUrl = this.imageUrl;
-                    this.project.lastModified = Date.now();
-                    this.projects.push(this.project);
-                } else {
-                    const idx = this.projects.findIndex(p => p.id === this.project.id);
-                    if (idx !== -1) {
-                        this.projects[idx] = { ...this.project, hotspots: this.hotspots, imageUrl: this.imageUrl, lastModified: Date.now() };
-                    }
+            saveProject(button) {
+                if (!this.project.title) {
+                    window.showToast('Project title is required', 'warning');
+                    return;
                 }
 
-                window.showToast('Project saved (Mock)', 'success');
-                this.activeTab = 'list';
+                if (button) window.setButtonLoading(button, true);
+
+                const payload = {
+                    id: this.project.id,
+                    title: this.project.title,
+                    imageUrl: this.imageUrl,
+                    hotspots: this.hotspots
+                };
+
+                window.sendDataToGoogle('saveHotspotProject', payload, (response) => {
+                    if (button) window.setButtonLoading(button, false);
+                    if (response.status === 'success') {
+                        window.showToast(response.message || 'Project saved!', 'success');
+                        this.activeTab = 'list';
+                        this.fetchProjects();
+                    } else {
+                        window.showToast('Save failed: ' + response.message, 'error');
+                    }
+                }, (error) => {
+                    if (button) window.setButtonLoading(button, false);
+                    window.showToast('API Error saving project', 'error');
+                });
             },
 
             exportCode() {
