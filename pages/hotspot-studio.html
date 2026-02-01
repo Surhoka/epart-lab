@@ -281,12 +281,9 @@
                     <div
                         class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">Properties</h3>
-                        <button @click="showHotspotList = !showHotspotList"
-                            class="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-brand-500 transition-colors">
-                            <span>Hotspots List (<span x-text="hotspots.length"></span>)</span>
-                            <span class="w-4 h-4 transition-transform duration-200"
-                                :class="showHotspotList ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
-                        </button>
+                        <button x-show="selectedId" @click="deleteHotspot(selectedId)" <h3
+                            class="text-sm font-bold text-gray-900 dark:text-white">Hotspots List (<span
+                                x-text="hotspots.length"></span>)</h3>
                     </div>
 
                     <!-- Hotspot List with Integrated Properties -->
@@ -432,4 +429,5 @@
             </div>
         </div>
     </div>
+
 </div>
