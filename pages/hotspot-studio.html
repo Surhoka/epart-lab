@@ -252,8 +252,8 @@
             <!-- Right: Sidebar -->
             <div class="w-full lg:w-80 flex-shrink-0 space-y-4">
                 <!-- Properties Panel -->
-                <div
-                    class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden"
+                    x-data="{ showHotspotList: true }">
                     <div
                         class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">Properties</h3>
@@ -261,6 +261,37 @@
                             class="text-red-500 hover:text-red-600 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
                             <span class="w-4 h-4" x-icon="'trash'"></span>
                         </button>
+                    </div>
+
+                    <!-- Hotspot List (Moved from separate card) -->
+                    <div class="border-b border-gray-100 dark:border-gray-800">
+                        <button @click="showHotspotList = !showHotspotList"
+                            class="w-full px-4 py-2 flex justify-between items-center text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span>Hotspots List (<span x-text="hotspots.length"></span>)</span>
+                            <span class="w-4 h-4 transition-transform duration-200"
+                                :class="showHotspotList ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="showHotspotList"
+                            class="max-h-[200px] overflow-y-auto custom-scrollbar bg-gray-50/30 dark:bg-black/20">
+                            <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <template x-for="(spot, index) in hotspots" :key="spot.id">
+                                    <li class="group flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer transition-colors"
+                                        :class="selectedId === spot.id ? 'bg-brand-50 dark:bg-brand-900/20' : ''"
+                                        @click="selectHotspot(spot.id)">
+                                        <span
+                                            class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                                            :class="selectedId === spot.id ? '!bg-brand-500 !text-white' : ''"
+                                            x-text="index + 1"></span>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="truncate text-xs font-medium text-gray-900 dark:text-white"
+                                                x-text="spot.title || 'Untitled'"></p>
+                                        </div>
+                                    </li>
+                                </template>
+                                <li x-show="hotspots.length === 0" class="px-4 py-3 text-xs text-center text-gray-400">
+                                    No hotspots added yet.</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="p-4 space-y-4" x-show="selectedId">
@@ -341,32 +372,6 @@
                     </div>
                     <div class="p-8 text-center text-gray-400 text-sm" x-show="!selectedId">
                         Select a hotspot to edit
-                    </div>
-                </div>
-
-                <!-- List Panel -->
-                <div
-                    class="bg-white dark:bg-slate-900/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Hotspots</h3>
-                    </div>
-                    <div class="max-h-[300px] overflow-y-auto custom-scrollbar">
-                        <ul class="divide-y divide-gray-100 dark:divide-gray-800">
-                            <template x-for="(spot, index) in hotspots" :key="spot.id">
-                                <li class="group flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
-                                    :class="selectedId === spot.id ? 'bg-brand-50 dark:bg-brand-900/10' : ''"
-                                    @click="selectHotspot(spot.id)">
-                                    <span
-                                        class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                                        :class="selectedId === spot.id ? '!bg-brand-500 !text-white' : ''"
-                                        x-text="index + 1"></span>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white"
-                                            x-text="spot.title || 'Untitled'"></p>
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
                     </div>
                 </div>
             </div>
