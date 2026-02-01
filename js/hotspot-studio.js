@@ -7,7 +7,7 @@ const registerHotspotStudio = () => {
             hotspots: [],
             imageUrl: null,
             selectedId: null,
-            tool: 'select', // 'select', 'point'
+            tool: 'select', // 'select', 'point', 'polygon', 'hand'
             scale: 1,
             pan: { x: 0, y: 0 },
             isPanning: false,
@@ -143,6 +143,8 @@ const registerHotspotStudio = () => {
                     this.addPolygonPoint(x, y);
                 } else if (this.tool === 'point') {
                     this.addHotspot(x, y);
+                } else if (this.tool === 'hand') {
+                    // Do nothing for clicks in hand mode
                 } else {
                     this.selectedId = null;
                     this.isDrawing = false;
@@ -250,7 +252,7 @@ const registerHotspotStudio = () => {
             },
 
             startPan(e) {
-                if (this.tool === 'select' && e.button === 0) { // Left click pan if in select mode and not clicking hotspot
+                if ((this.tool === 'select' || this.tool === 'hand') && e.button === 0) { // Left click pan if in select or hand mode
                     this.isPanning = true;
                     this.lastMouse = { x: e.clientX, y: e.clientY };
                 }
