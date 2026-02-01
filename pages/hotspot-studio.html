@@ -140,6 +140,13 @@
                             <div class="tooltip">Add Area</div>
                         </button>
 
+                        <button @click="setTool('hand')"
+                            :class="tool === 'hand' ? 'bg-brand-50 text-brand-500 dark:bg-brand-900/20 dark:text-brand-400' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
+                            <span class="w-4 h-4" x-icon="'hand'"></span>
+                            <div class="tooltip">Drag Tool</div>
+                        </button>
+
                         <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
 
                         <button @click="undo()" :disabled="historyIndex <= 0"
@@ -178,8 +185,13 @@
                     </div>
 
                     <!-- Canvas -->
-                    <div class="relative flex-1 overflow-hidden bg-gray-100 dark:bg-black/50 flex items-center justify-center cursor-crosshair"
-                        @mousedown="startPan($event)" @mousemove="handleMouseMove($event)" @mouseup="endPan()"
+                    <div class="relative flex-1 overflow-hidden bg-gray-100 dark:bg-black/50 flex items-center justify-center"
+                        :class="{
+                            'cursor-crosshair': tool === 'point' || tool === 'polygon',
+                            'cursor-default': tool === 'select' && !isPanning,
+                            'cursor-grab': tool === 'hand' && !isPanning,
+                            'cursor-grabbing': isPanning
+                        }" @mousedown="startPan($event)" @mousemove="handleMouseMove($event)" @mouseup="endPan()"
                         @mouseleave="endPan()" @wheel.prevent="handleWheel($event)">
 
                         <div x-show="!imageUrl" class="text-center p-10 pointer-events-none">
