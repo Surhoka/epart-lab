@@ -203,6 +203,14 @@ const registerHotspotStudio = () => {
                 this.addToHistory();
             },
 
+            removePolygonPoint(index) {
+                const spot = this.getSelectedHotspot();
+                if (spot && spot.type === 'polygon' && spot.points) {
+                    spot.points.splice(index, 1);
+                    this.addToHistory();
+                }
+            },
+
             selectHotspot(id) {
                 this.selectedId = id;
             },
