@@ -259,7 +259,8 @@ const registerHotspotStudio = () => {
             },
 
             startDragHotspot(e, id, pointIndex = null) {
-                if (this.tool !== 'select') return;
+                // Allow dragging in relevant tool modes
+                if (this.tool === 'hand') return;
                 this.isDraggingHotspot = true;
                 this.draggedHotspotId = id;
                 this.draggedPolygonPointIndex = pointIndex;
