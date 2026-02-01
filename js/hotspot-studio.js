@@ -15,6 +15,8 @@ const registerHotspotStudio = () => {
             isDraggingHotspot: false,
             draggedHotspotId: null,
             isDrawing: false,
+            history: [],
+            historyIndex: -1,
 
             init() {
                 console.log("Hotspot Studio Initialized");
@@ -42,6 +44,40 @@ const registerHotspotStudio = () => {
                 ];
             },
 
+            addToHistory() {
+                const state = JSON.stringify({
+                    hotspots: this.hotspots,
+                    selectedId: this.selectedId,
+                    isDrawing: this.isDrawing
+                });
+                if (this.historyIndex >= 0 && this.history[this.historyIndex] === state) return;
+                if (this.historyIndex < this.history.length - 1) {
+                    this.history = this.history.slice(0, this.historyIndex + 1);
+                }
+                this.history.push(state);
+                this.historyIndex++;
+            },
+
+            undo() {
+                if (this.historyIndex > 0) {
+                    this.historyIndex--;
+                    const state = JSON.parse(this.history[this.historyIndex]);
+                    this.hotspots = state.hotspots;
+                    this.selectedId = state.selectedId;
+                    this.isDrawing = state.isDrawing;
+                }
+            },
+
+            redo() {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    const state = JSON.parse(this.history[this.historyIndex]);
+                    this.hotspots = state.hotspots;
+                    this.selectedId = state.selectedId;
+                    this.isDrawing = state.isDrawing;
+                }
+            },
+
             handleImageUpload(event) {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -52,6 +88,9 @@ const registerHotspotStudio = () => {
                     this.hotspots = [];
                     this.selectedId = null;
                     this.resetView();
+                    this.history = [];
+                    this.historyIndex = -1;
+                    this.addToHistory();
                 };
                 reader.readAsDataURL(file);
             },
@@ -62,6 +101,9 @@ const registerHotspotStudio = () => {
                 this.imageUrl = null;
                 this.resetView();
                 this.activeTab = 'studio';
+                this.history = [];
+                this.historyIndex = -1;
+                this.addToHistory();
             },
 
             editProject(p) {
@@ -71,6 +113,9 @@ const registerHotspotStudio = () => {
                 this.imageUrl = p.imageUrl || null;
                 this.resetView();
                 this.activeTab = 'studio';
+                this.history = [];
+                this.historyIndex = -1;
+                this.addToHistory();
             },
 
             deleteProject(id) {
@@ -116,6 +161,7 @@ const registerHotspotStudio = () => {
                 });
                 this.selectedId = id;
                 this.tool = 'select'; // Switch back to select after adding
+                this.addToHistory();
             },
 
             convertToPolygon() {
@@ -127,6 +173,7 @@ const registerHotspotStudio = () => {
                         spot.points.push({ x: spot.x, y: spot.y });
                     }
                     this.isDrawing = true;
+                    this.addToHistory();
                 }
             },
 
@@ -152,6 +199,7 @@ const registerHotspotStudio = () => {
                     if (!spot.points) spot.points = [];
                     spot.points.push({ x, y });
                 }
+                this.addToHistory();
             },
 
             selectHotspot(id) {
@@ -165,6 +213,7 @@ const registerHotspotStudio = () => {
             deleteHotspot(id) {
                 this.hotspots = this.hotspots.filter(h => h.id !== id);
                 if (this.selectedId === id) this.selectedId = null;
+                this.addToHistory();
             },
 
             // Zoom & Pan Logic
@@ -233,6 +282,9 @@ const registerHotspotStudio = () => {
             },
 
             endPan() {
+                if (this.isDraggingHotspot) {
+                    this.addToHistory();
+                }
                 this.isPanning = false;
                 this.isDraggingHotspot = false;
                 this.draggedHotspotId = null;
