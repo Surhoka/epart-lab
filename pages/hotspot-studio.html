@@ -256,160 +256,148 @@
                     <div
                         class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white">Properties</h3>
-                        <button x-show="selectedId" @click="deleteHotspot(selectedId)"
-                            class="text-red-500 hover:text-red-600 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
-                            <span class="w-4 h-4" x-icon="'trash'"></span>
-                        </button>
+                        <button x-show="selectedId" @click="deleteHotspot(selectedId)" <h3
+                            class="text-sm font-bold text-gray-900 dark:text-white">Hotspots List (<span
+                                x-text="hotspots.length"></span>)</h3>
                     </div>
 
-                    <!-- Hotspot List (Moved from separate card) -->
-                    <div class="border-b border-gray-100 dark:border-gray-800">
-                        <button @click="showHotspotList = !showHotspotList"
-                            class="w-full px-4 py-2 flex justify-between items-center text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                            <span>Hotspots List (<span x-text="hotspots.length"></span>)</span>
-                            <span class="w-4 h-4 transition-transform duration-200"
-                                :class="showHotspotList ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
-                        </button>
+                    <!-- Hotspot List with Integrated Properties -->
+                    <div class="border-t border-gray-100 dark:border-gray-800">
                         <div x-show="showHotspotList"
-                            class="max-h-[200px] overflow-y-auto custom-scrollbar bg-gray-50/30 dark:bg-black/20">
+                            class="max-h-[500px] overflow-y-auto custom-scrollbar bg-gray-50/30 dark:bg-black/20">
                             <ul class="divide-y divide-gray-100 dark:divide-gray-800">
                                 <template x-for="(spot, index) in hotspots" :key="spot.id">
-                                    <li class="group flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer transition-colors"
-                                        :class="selectedId === spot.id ? 'bg-brand-50 dark:bg-brand-900/20' : ''"
-                                        @click="selectHotspot(spot.id)">
-                                        <span
-                                            class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                                            :class="selectedId === spot.id ? '!bg-brand-500 !text-white' : ''"
-                                            x-text="index + 1"></span>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="truncate text-xs font-medium text-gray-900 dark:text-white"
-                                                x-text="spot.title || 'Untitled'"></p>
+                                    <li class="group cursor-pointer transition-colors"
+                                        :class="selectedId === spot.id ? 'bg-white dark:bg-slate-900 shadow-sm' : 'hover:bg-gray-100 dark:hover:bg-white/10'">
+
+                                        <!-- Item Header -->
+                                        <div class="flex items-center gap-3 px-4 py-3" @click="selectHotspot(spot.id)">
+                                            <span
+                                                class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                                                :class="selectedId === spot.id ? '!bg-brand-500 !text-white' : ''"
+                                                x-text="index + 1"></span>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="truncate text-xs font-bold text-gray-900 dark:text-white"
+                                                    x-text="spot.title || 'Untitled'"></p>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <button x-show="selectedId === spot.id"
+                                                    @click.stop="deleteHotspot(spot.id)"
+                                                    class="text-gray-400 hover:text-red-500 p-1 rounded transition-colors">
+                                                    <span class="w-3.5 h-3.5" x-icon="'trash'"></span>
+                                                </button>
+                                                <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                                    :class="selectedId === spot.id ? 'rotate-180' : ''"
+                                                    x-icon="'chevron-down'"></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Integrated Properties (Accordion Content) -->
+                                        <div x-show="selectedId === spot.id" x-collapse
+                                            class="px-4 pb-4 space-y-5 border-t border-gray-100 dark:border-gray-800 pt-4">
+
+                                            <!-- Content Section -->
+                                            <div class="space-y-3">
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <span
+                                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Content</span>
+                                                    <div class="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Label</label>
+                                                    <input type="text" x-model="spot.title"
+                                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
+                                                        placeholder="Label" @click.stop>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Description</label>
+                                                    <textarea x-model="spot.description" rows="2"
+                                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
+                                                        placeholder="Description..." @click.stop></textarea>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Link</label>
+                                                    <input type="text" x-model="spot.url"
+                                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
+                                                        placeholder="https://..." @click.stop>
+                                                </div>
+                                            </div>
+
+                                            <!-- Configuration Section -->
+                                            <div class="space-y-3">
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <span
+                                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Config</span>
+                                                    <div class="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
+                                                </div>
+                                                <div x-show="!spot.type || spot.type === 'point'"
+                                                    class="flex justify-between text-[10px] font-medium text-gray-400">
+                                                    <span>X: <span x-text="spot.x?.toFixed(2) + '%'"></span></span>
+                                                    <span>Y: <span x-text="spot.y?.toFixed(2) + '%'"></span></span>
+                                                </div>
+                                                <div x-show="spot.type === 'polygon'">
+                                                    <div
+                                                        class="flex justify-between text-[10px] font-bold text-gray-400 uppercase mb-2">
+                                                        <span>Type: Area</span>
+                                                        <span>Points: <span x-text="spot.points?.length"></span></span>
+                                                    </div>
+                                                    <div class="space-y-2 max-h-[120px] overflow-y-auto custom-scrollbar pr-1"
+                                                        @click.stop>
+                                                        <template x-for="(point, pIdx) in spot.points" :key="pIdx">
+                                                            <div
+                                                                class="rounded-lg border border-gray-100 bg-gray-50/50 p-2 dark:border-gray-800 dark:bg-white/5">
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="flex-1 grid grid-cols-2 gap-2">
+                                                                        <div class="relative">
+                                                                            <span
+                                                                                class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">X</span>
+                                                                            <input type="number" x-model="point.x"
+                                                                                step="0.1"
+                                                                                class="w-full rounded border border-gray-200 bg-white py-1 pl-5 pr-1 text-[10px] focus:border-brand-500 focus:ring-0 dark:border-gray-700 dark:bg-black/50 dark:text-white">
+                                                                        </div>
+                                                                        <div class="relative">
+                                                                            <span
+                                                                                class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">Y</span>
+                                                                            <input type="number" x-model="point.y"
+                                                                                step="0.1"
+                                                                                class="w-full rounded border border-gray-200 bg-white py-1 pl-5 pr-1 text-[10px] focus:border-brand-500 focus:ring-0 dark:border-gray-700 dark:bg-black/50 dark:text-white">
+                                                                        </div>
+                                                                    </div>
+                                                                    <button @click.stop="removePolygonPoint(pIdx)"
+                                                                        class="text-gray-400 hover:text-red-500 transition-colors">
+                                                                        <span class="w-3 h-3" x-icon="'close'"></span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                                <div class="pt-2">
+                                                    <button x-show="!spot.type || spot.type === 'point'"
+                                                        @click.stop="convertToPolygon()" type="button"
+                                                        class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-2 text-[10px] font-bold text-gray-500 transition-colors hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:text-gray-400 dark:hover:border-brand-400 dark:hover:text-brand-400">
+                                                        <span class="w-3 h-3" x-icon="'hexagon'"></span> Convert to Area
+                                                    </button>
+                                                    <button x-show="spot.type === 'polygon'"
+                                                        @click.stop="toggleDrawing()" type="button"
+                                                        class="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-[10px] font-bold transition-colors"
+                                                        :class="isDrawing ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400' : 'bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400'">
+                                                        <span class="w-3 h-3"
+                                                            x-icon="isDrawing ? 'close' : 'plus'"></span>
+                                                        <span x-text="isDrawing ? 'Stop Drawing' : 'Add Points'"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </li>
                                 </template>
-                                <li x-show="hotspots.length === 0" class="px-4 py-3 text-xs text-center text-gray-400">
+                                <li x-show="hotspots.length === 0" class="px-4 py-8 text-center text-gray-400 text-xs">
                                     No hotspots added yet.</li>
                             </ul>
                         </div>
-                    </div>
-
-                    <div class="p-4 space-y-4" x-show="selectedId">
-                        <template x-if="getSelectedHotspot()">
-                            <div class="space-y-3" x-data="{ expanded: true }">
-                                <!-- Group Header Toggle -->
-                                <button @click="expanded = !expanded"
-                                    class="flex w-full items-center justify-between rounded-xl bg-gray-50/50 dark:bg-white/5 px-4 py-3 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border border-gray-200 dark:border-gray-800">
-                                    <span x-text="getSelectedHotspot().title || 'Untitled Hotspot'"></span>
-                                    <span class="w-4 h-4 transition-transform duration-200"
-                                        :class="expanded ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
-                                </button>
-
-                                <!-- Expanded Content & Configuration -->
-                                <div x-show="expanded" class="space-y-6 pt-2">
-                                    <!-- Content Section -->
-                                    <div class="space-y-4">
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
-                                            <span
-                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Content</span>
-                                            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 mb-1">Label</label>
-                                            <input type="text" x-model="getSelectedHotspot().title"
-                                                class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
-                                                placeholder="Label">
-                                        </div>
-                                        <div>
-                                            <label
-                                                class="block text-xs font-medium text-gray-500 mb-1">Description</label>
-                                            <textarea x-model="getSelectedHotspot().description" rows="3"
-                                                class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
-                                                placeholder="Description..."></textarea>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-500 mb-1">Link</label>
-                                            <input type="text" x-model="getSelectedHotspot().url"
-                                                class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white"
-                                                placeholder="https://...">
-                                        </div>
-                                    </div>
-
-                                    <!-- Configuration Section -->
-                                    <div class="space-y-4">
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
-                                            <span
-                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Configuration</span>
-                                            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
-                                        </div>
-                                        <div x-show="!getSelectedHotspot().type || getSelectedHotspot().type === 'point'"
-                                            class="flex justify-between text-xs text-gray-400">
-                                            <span>X: <span
-                                                    x-text="getSelectedHotspot().x?.toFixed(2) + '%'"></span></span>
-                                            <span>Y: <span
-                                                    x-text="getSelectedHotspot().y?.toFixed(2) + '%'"></span></span>
-                                        </div>
-                                        <div x-show="getSelectedHotspot().type === 'polygon'">
-                                            <div class="flex justify-between text-xs text-gray-400 mb-2">
-                                                <span>Type: Area</span>
-                                                <span>Points: <span
-                                                        x-text="getSelectedHotspot().points?.length"></span></span>
-                                            </div>
-                                            <div class="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-1">
-                                                <template x-for="(point, index) in getSelectedHotspot().points"
-                                                    :key="index">
-                                                    <div
-                                                        class="rounded-lg border border-gray-100 bg-gray-50/50 p-2 dark:border-gray-800 dark:bg-white/5">
-                                                        <div class="flex items-center gap-2">
-                                                            <span class="text-[10px] font-bold text-gray-500 w-4"
-                                                                x-text="'#' + (index + 1)"></span>
-                                                            <div class="flex-1 grid grid-cols-2 gap-2">
-                                                                <div class="relative">
-                                                                    <span
-                                                                        class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">X</span>
-                                                                    <input type="number" x-model="point.x" step="0.1"
-                                                                        class="w-full rounded border border-gray-200 bg-white py-1 pl-5 pr-1 text-xs focus:border-brand-500 focus:ring-0 dark:border-gray-700 dark:bg-black/50 dark:text-white">
-                                                                </div>
-                                                                <div class="relative">
-                                                                    <span
-                                                                        class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">Y</span>
-                                                                    <input type="number" x-model="point.y" step="0.1"
-                                                                        class="w-full rounded border border-gray-200 bg-white py-1 pl-5 pr-1 text-xs focus:border-brand-500 focus:ring-0 dark:border-gray-700 dark:bg-black/50 dark:text-white">
-                                                                </div>
-                                                            </div>
-                                                            <button @click="removePolygonPoint(index)"
-                                                                class="text-gray-400 hover:text-red-500 transition-colors"
-                                                                title="Remove Point">
-                                                                <span class="w-3 h-3" x-icon="'close'"></span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                        <div class="pt-2">
-                                            <button
-                                                x-show="!getSelectedHotspot().type || getSelectedHotspot().type === 'point'"
-                                                @click="convertToPolygon()" type="button"
-                                                class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-gray-500 transition-colors hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:text-gray-400 dark:hover:border-brand-400 dark:hover:text-brand-400">
-                                                <span class="w-3 h-3" x-icon="'hexagon'"></span> Convert to Area
-                                            </button>
-                                            <button x-show="getSelectedHotspot().type === 'polygon'"
-                                                @click="toggleDrawing()" type="button"
-                                                class="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold transition-colors"
-                                                :class="isDrawing ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400' : 'bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400'">
-                                                <span class="w-3 h-3" x-icon="isDrawing ? 'close' : 'plus'"></span>
-                                                <span x-text="isDrawing ? 'Stop Drawing' : 'Add Points'"></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="p-8 text-center text-gray-400 text-sm" x-show="!selectedId">
-                        Select a hotspot to edit
                     </div>
                 </div>
             </div>
