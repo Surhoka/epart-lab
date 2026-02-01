@@ -142,6 +142,21 @@
 
                         <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
 
+                        <button @click="undo()" :disabled="historyIndex <= 0"
+                            :class="historyIndex <= 0 ? 'text-gray-300 cursor-not-allowed dark:text-gray-700' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
+                            <span class="w-4 h-4" x-icon="'undo'"></span>
+                            <div class="tooltip">Undo</div>
+                        </button>
+                        <button @click="redo()" :disabled="historyIndex >= history.length - 1"
+                            :class="historyIndex >= history.length - 1 ? 'text-gray-300 cursor-not-allowed dark:text-gray-700' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'"
+                            class="group relative flex h-9 w-9 items-center justify-center rounded-xl transition-colors">
+                            <span class="w-4 h-4" x-icon="'redo'"></span>
+                            <div class="tooltip">Redo</div>
+                        </button>
+
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
+
                         <button @click="zoomIn()"
                             class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5">
                             <span class="w-4 h-4" x-icon="'plus'"></span>
