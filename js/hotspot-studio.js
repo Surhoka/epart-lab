@@ -14,6 +14,7 @@ const registerHotspotStudio = () => {
             lastMouse: { x: 0, y: 0 },
             isDraggingHotspot: false,
             draggedHotspotId: null,
+            draggedPolygonPointIndex: null,
             isDrawing: false,
             history: [],
             historyIndex: -1,
@@ -247,10 +248,11 @@ const registerHotspotStudio = () => {
                 }
             },
 
-            startDragHotspot(e, id) {
+            startDragHotspot(e, id, pointIndex = null) {
                 if (this.tool !== 'select') return;
                 this.isDraggingHotspot = true;
                 this.draggedHotspotId = id;
+                this.draggedPolygonPointIndex = pointIndex;
                 this.selectHotspot(id);
             },
 
@@ -269,8 +271,15 @@ const registerHotspotStudio = () => {
 
                     const hotspot = this.hotspots.find(h => h.id === this.draggedHotspotId);
                     if (hotspot) {
-                        hotspot.x = clampedX;
-                        hotspot.y = clampedY;
+                        if (this.draggedPolygonPointIndex !== null && hotspot.type === 'polygon') {
+                            if (hotspot.points && hotspot.points[this.draggedPolygonPointIndex]) {
+                                hotspot.points[this.draggedPolygonPointIndex].x = clampedX;
+                                hotspot.points[this.draggedPolygonPointIndex].y = clampedY;
+                            }
+                        } else if (!hotspot.type || hotspot.type === 'point') {
+                            hotspot.x = clampedX;
+                            hotspot.y = clampedY;
+                        }
                     }
                 } else if (this.isPanning) {
                     const dx = e.clientX - this.lastMouse.x;
@@ -288,6 +297,7 @@ const registerHotspotStudio = () => {
                 this.isPanning = false;
                 this.isDraggingHotspot = false;
                 this.draggedHotspotId = null;
+                this.draggedPolygonPointIndex = null;
             },
 
             saveProject() {
