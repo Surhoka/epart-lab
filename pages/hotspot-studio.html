@@ -206,9 +206,9 @@
                                     <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100"
                                         preserveAspectRatio="none">
                                         <polygon :points="spot.points.map(p => p.x + ',' + p.y).join(' ')"
-                                            class="fill-brand-500/5 stroke-brand-500 stroke-1 stroke-dasharray-[4] cursor-pointer pointer-events-auto hover:fill-brand-500/10 transition-colors"
+                                            class="fill-none stroke-brand-500 stroke-1 stroke-dasharray-[4] cursor-pointer pointer-events-auto hover:stroke-brand-600 transition-colors"
                                             style="stroke-dasharray: 4;"
-                                            :class="selectedId === spot.id ? 'fill-brand-500/10 stroke-brand-600 stroke-2' : ''"
+                                            :class="selectedId === spot.id ? 'stroke-brand-600 stroke-2' : ''"
                                             @click.stop="selectHotspot(spot.id)"></polygon>
                                     </svg>
                                 </template>
