@@ -135,6 +135,18 @@ const registerHotspotStudio = () => {
                 this.historyIndex = -1;
             },
 
+            getCenter(spot) {
+                if (spot.type !== 'polygon' || !spot.points || spot.points.length === 0) {
+                    return { x: spot.x, y: spot.y };
+                }
+                const sumX = spot.points.reduce((acc, p) => acc + p.x, 0);
+                const sumY = spot.points.reduce((acc, p) => acc + p.y, 0);
+                return {
+                    x: sumX / spot.points.length,
+                    y: sumY / spot.points.length
+                };
+            },
+
             deleteProject(id) {
                 if (confirm('Delete this project?')) {
                     window.sendDataToGoogle('deleteHotspotProject', { id: id }, (response) => {
