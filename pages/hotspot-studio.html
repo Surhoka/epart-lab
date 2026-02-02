@@ -504,15 +504,18 @@
                         <img :src="imageUrl" class="max-w-full block">
 
                         <!-- SVG Layer for Polygons in Preview -->
-                        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100"
-                            preserveAspectRatio="none">
+                        <div class="absolute inset-0 w-full h-full pointer-events-none">
                             <template x-for="spot in hotspots.filter(h => h.type === 'polygon')" :key="spot.id">
-                                <polygon :points="spot.points.map(p => p.x + ',' + p.y).join(' ')"
-                                    class="fill-brand-500/10 stroke-brand-500 transition-all pointer-events-auto cursor-pointer hover:fill-brand-500/30"
-                                    @click="if(spot.url) window.open(spot.url, '_blank')" stroke-width="0.5">
-                                </polygon>
+                                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100"
+                                    preserveAspectRatio="none">
+                                    <polygon
+                                        :points="spot.points ? spot.points.map(p => p.x + ',' + p.y).join(' ') : ''"
+                                        class="fill-brand-500/10 stroke-brand-500 transition-all pointer-events-auto cursor-pointer hover:fill-brand-500/30"
+                                        @click="if(spot.url) window.open(spot.url, '_blank')" stroke-width="0.5">
+                                    </polygon>
+                                </svg>
                             </template>
-                        </svg>
+                        </div>
 
                         <!-- Hotspots Rendering -->
                         <template x-for="spot in hotspots" :key="spot.id">
