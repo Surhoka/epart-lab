@@ -112,7 +112,7 @@ const registerHotspotStudio = () => {
             editProject(p) {
                 // Clone to avoid direct mutation of list item until saved
                 this.project = JSON.parse(JSON.stringify(p));
-                this.hotspots = (p.hotspots || []).map(h => ({ animation: 'none', ...h }));
+                this.hotspots = (p.hotspots || []).map(h => ({ animation: 'none', animationSize: 'md', ...h }));
                 this.imageUrl = p.imageUrl || null;
                 this.pendingImageData = null;
                 this.pendingFileName = null;
@@ -194,6 +194,7 @@ const registerHotspotStudio = () => {
                     y,
                     type: 'point',
                     animation: 'none',
+                    animationSize: 'md',
                     title: '',
                     description: '',
                     url: ''
@@ -228,7 +229,7 @@ const registerHotspotStudio = () => {
 
                 if (this.tool === 'polygon' && (!spot || spot.type !== 'polygon')) {
                     const id = Date.now();
-                    spot = { id, x, y, title: 'New Area', type: 'polygon', animation: 'none', points: [], description: '', url: '' };
+                    spot = { id, x, y, title: 'New Area', type: 'polygon', animation: 'none', animationSize: 'md', points: [], description: '', url: '' };
                     this.hotspots.push(spot);
                     this.selectedId = id;
                     this.isDrawing = true;
