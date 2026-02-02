@@ -510,8 +510,9 @@
                                     preserveAspectRatio="none">
                                     <polygon
                                         :points="spot.points ? spot.points.map(p => p.x + ',' + p.y).join(' ') : ''"
-                                        class="fill-brand-500/10 stroke-brand-500 transition-all pointer-events-auto cursor-pointer hover:fill-brand-500/30"
-                                        @click="if(spot.url) window.open(spot.url, '_blank')" stroke-width="0.5">
+                                        class="fill-blue-500/10 stroke-brand-500 transition-all pointer-events-auto cursor-pointer hover:fill-blue-500/30"
+                                        @click="if(spot.url) window.open(spot.url, '_blank')"
+                                        style="stroke-width: 0.5;">
                                     </polygon>
                                 </svg>
                             </template>
@@ -520,7 +521,7 @@
                         <!-- Hotspots Rendering -->
                         <template x-for="spot in hotspots" :key="spot.id">
                             <div class="absolute"
-                                :style="`left: ${spot.x}%; top: ${spot.y}%; transform: translate(-50%, -50%);`"
+                                :style="`left: ${getCenter(spot).x}%; top: ${getCenter(spot).y}%; transform: translate(-50%, -50%);`"
                                 @click="if(spot.url) window.open(spot.url, '_blank')"
                                 :class="spot.url ? 'cursor-pointer' : ''">
 
