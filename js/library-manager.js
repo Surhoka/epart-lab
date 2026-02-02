@@ -27,8 +27,8 @@ const registerLibraryManager = () => {
             submitting: false,
             availablePlugins: [],
             formData: {
-                id: '', name: '', url: '', actions: '', description: '', active: true,
-                showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '', scripts: ''
+                showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '', scripts: '',
+                children: null
             },
 
             async init() {
@@ -61,6 +61,7 @@ const registerLibraryManager = () => {
                     this.formData.menuGroup = template.menuGroup || 'TOOLS';
                     this.formData.showInMenu = template.showInMenu !== false;
                     this.formData.scripts = template.scripts || '';
+                    this.formData.children = template.children || null;
                 }
             },
 
@@ -93,7 +94,8 @@ const registerLibraryManager = () => {
                 this.editMode = false;
                 this.formData = {
                     id: '', name: '', url: '', actions: '', description: '', active: true,
-                    showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: ''
+                    showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '',
+                    children: null
                 };
                 this.modalOpen = true;
             },
