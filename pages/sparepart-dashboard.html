@@ -1,4 +1,5 @@
 <div class="p-4 sm:p-6 lg:p-8" x-data="sparepartManager">
+    <!-- Pastikan script 'sparepart-manager.js' dimuat untuk halaman ini agar x-data berfungsi -->
     <!-- Header -->
     <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -8,12 +9,12 @@
         <div class="flex items-center gap-3">
             <button @click="fetchSpareparts()"
                 class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
-                <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh-cw'"></span>
+                <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                 Refresh
             </button>
             <a href="#sparepart-inventory"
                 class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 shadow-sm transition-all active:scale-95">
-                <span class="w-4 h-4" x-icon="'list'"></span>
+                <span class="w-4 h-4" x-icon="'table'"></span>
                 Buka Inventory
             </a>
         </div>
@@ -26,7 +27,12 @@
             <div class="flex items-center gap-4">
                 <div
                     class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
-                    <span class="w-6 h-6" x-icon="'archive'"></span>
+                    <!-- Icon: Archive/Box -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Macam Item</p>
@@ -40,7 +46,13 @@
             <div class="flex items-center gap-4">
                 <div
                     class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400">
-                    <span class="w-6 h-6" x-icon="'box'"></span>
+                    <!-- Icon: Layers/Stock -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pcs Tersedia</p>
@@ -54,7 +66,13 @@
             <div class="flex items-center gap-4">
                 <div
                     class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
-                    <span class="w-6 h-6" x-icon="'dollar-sign'"></span>
+                    <!-- Icon: Dollar/Value -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Estimasi Nilai Aset</p>
@@ -69,7 +87,13 @@
             <div class="flex items-center gap-4">
                 <div
                     class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400">
-                    <span class="w-6 h-6" x-icon="'alert-triangle'"></span>
+                    <!-- Icon: Alert/Low Stock -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Stok Hampir Habis</p>
@@ -84,7 +108,11 @@
         <div
             class="mt-8 flex items-center gap-4 rounded-xl border border-red-100 bg-red-50 p-4 text-red-800 shadow-sm dark:border-red-900/50 dark:bg-red-900/10 dark:text-red-400">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/50 dark:bg-black/20">
-                <span class="w-5 h-5" x-icon="'alert-octagon'"></span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
             </div>
             <div class="grow">
                 <p class="text-sm font-semibold">Tindakan Diperlukan!</p>
