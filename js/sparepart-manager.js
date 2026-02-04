@@ -3,8 +3,8 @@
  * Manages state for Inventory and Dashboard views.
  */
 
-document.addEventListener('alpine:init', () => {
-    Alpine.data('sparepartManager', () => ({
+const registerSparepartManager = () => {
+    window.Alpine.data('sparepartManager', () => ({
         spareparts: [],
         isLoading: false,
         filter: {
@@ -166,4 +166,10 @@ document.addEventListener('alpine:init', () => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price);
         }
     }));
-});
+};
+
+if (window.Alpine) {
+    registerSparepartManager();
+} else {
+    document.addEventListener('alpine:init', registerSparepartManager);
+}
