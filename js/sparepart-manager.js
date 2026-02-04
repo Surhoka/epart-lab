@@ -27,13 +27,6 @@ const registerSparepartManager = () => {
         async init() {
             console.log('Sparepart Manager Initialized');
             await this.fetchSpareparts();
-
-            // Re-fetch when page is loaded (to ensure we have latest data on navigation)
-            window.addEventListener('ezy:page-loaded', (e) => {
-                if (e.detail.page.startsWith('sparepart-')) {
-                    this.fetchSpareparts();
-                }
-            });
         },
 
         async fetchSpareparts() {
