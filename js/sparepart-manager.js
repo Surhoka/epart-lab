@@ -7,6 +7,7 @@ const registerSparepartManager = () => {
     window.Alpine.data('sparepartManager', () => ({
         spareparts: [],
         isLoading: false,
+        isUploading: false,
         filter: {
             search: '',
             category: 'All'
@@ -153,6 +154,44 @@ const registerSparepartManager = () => {
             } catch (err) {
                 window.showToast?.('Gagal menyesuaikan stok: ' + err, 'error');
             }
+        },
+
+        async handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            this.isUploading = true;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64Data = e.target.result.split(',')[1];
+                const mimeType = file.type;
+                const fileName = file.name;
+
+                try {
+                    const response = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            imageData: base64Data,
+                            mimeType: mimeType,
+                            fileName: fileName,
+                            folderName: 'Spareparts'
+                        }, (res) => {
+                            if (res.status === 'success') resolve(res);
+                            else reject(res.message);
+                        }, (err) => reject(err));
+                    });
+
+                    this.editingItem.imageurl = response.url;
+                    window.showToast?.('Foto berhasil diupload');
+                } catch (err) {
+                    console.error('Upload failed:', err);
+                    window.showToast?.('Gagal upload foto: ' + err, 'error');
+                } finally {
+                    this.isUploading = false;
+                    event.target.value = '';
+                }
+            };
+            reader.readAsDataURL(file);
         },
 
         formatPrice(price) {
