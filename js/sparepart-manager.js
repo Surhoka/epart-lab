@@ -171,7 +171,7 @@ const registerSparepartManager = () => {
                 try {
                     const response = await new Promise((resolve, reject) => {
                         window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            imageData: base64Data,
+                            fileData: base64Data,
                             mimeType: mimeType,
                             fileName: fileName,
                             folderName: 'Spareparts'
