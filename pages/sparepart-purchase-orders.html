@@ -1,0 +1,307 @@
+<div class="w-full animate-fade-in" x-data="purchaseOrders">
+    <!-- Purchase Orders Management -->
+    <div class="space-y-6">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Purchase Orders</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Manage orders to suppliers</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button @click="refreshPurchaseOrders()"
+                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                    <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span>
+                    Refresh
+                </button>
+                <button @click="openCreatePOModal()"
+                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
+                    <span class="w-4 h-4" x-icon="'plus'"></span>
+                    New Purchase Order
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                    <select x-model="filters.status" @change="applyFilters()"
+                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">All Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="sent">Sent</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="partial">Partially Received</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier</label>
+                    <input type="text" x-model="filters.supplier" @input="applyFilters()"
+                        placeholder="Search supplier..."
+                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date</label>
+                    <input type="date" x-model="filters.dateFrom" @change="applyFilters()"
+                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date</label>
+                    <input type="date" x-model="filters.dateTo" @change="applyFilters()"
+                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchase Orders List -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">PO Number</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Supplier</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Items</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        <template x-for="po in filteredPurchaseOrders" :key="po.id">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white" x-text="po.ponumber"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 dark:text-white" x-text="po.supplier"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400" x-text="formatDate(po.date)"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 dark:text-white" x-text="getItemCount(po.items) + ' items'"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white" x-text="formatPrice(po.total)"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                        :class="getStatusColor(po.status)"
+                                        x-text="getStatusLabel(po.status)"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center gap-2">
+                                        <button @click="viewPODetails(po)"
+                                            class="text-brand-600 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300">
+                                            View
+                                        </button>
+                                        <template x-if="po.status === 'confirmed' || po.status === 'partial'">
+                                            <button @click="openReceivingModal(po)"
+                                                class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                                Receive
+                                            </button>
+                                        </template>
+                                        <template x-if="po.status === 'draft'">
+                                            <button @click="editPO(po)"
+                                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                                Edit
+                                            </button>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <template x-if="filteredPurchaseOrders.length === 0">
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="w-8 h-8 text-gray-400" x-icon="'package'"></span>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400">No purchase orders found</p>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Create/Edit PO Modal -->
+    <div :class="{ 'show': showPOModal }"
+        class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
+        <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+            @click="closePOModal()"></div>
+        <div class="modal-dialog relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white" x-text="isEditingPO ? 'Edit Purchase Order' : 'Create Purchase Order'"></h3>
+                <button @click="closePOModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="w-6 h-6" x-icon="'close'"></span>
+                </button>
+            </div>
+
+            <form @submit.prevent="savePO()">
+                <!-- PO Header -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier *</label>
+                        <input type="text" x-model="editingPO.supplier" required
+                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expected Date</label>
+                        <input type="date" x-model="editingPO.expecteddate"
+                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
+                        <textarea x-model="editingPO.notes" rows="3"
+                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
+                    </div>
+                </div>
+
+                <!-- PO Items -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Items</h4>
+                        <button type="button" @click="addPOItem()"
+                            class="flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                            <span class="w-4 h-4" x-icon="'plus'"></span>
+                            Add Item
+                        </button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <template x-for="(item, index) in editingPO.items" :key="index">
+                            <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div class="flex-1">
+                                    <input type="text" x-model="item.partnumber" placeholder="Part Number *" required
+                                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white mb-2" />
+                                    <input type="text" x-model="item.name" placeholder="Item Name *" required
+                                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" x-model="item.quantity" placeholder="Qty" min="1" required
+                                        @input="calculatePOTotals()"
+                                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                </div>
+                                <div class="w-32">
+                                    <input type="number" x-model="item.unitprice" placeholder="Unit Price" min="0" step="0.01"
+                                        @input="calculatePOTotals()"
+                                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                </div>
+                                <div class="w-32 text-right">
+                                    <span class="font-semibold" x-text="formatPrice((item.quantity || 0) * (item.unitprice || 0))"></span>
+                                </div>
+                                <button type="button" @click="removePOItem(index)"
+                                    class="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600">
+                                    <span class="w-4 h-4" x-icon="'trash'"></span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- PO Total -->
+                    <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-semibold text-gray-900 dark:text-white">Total:</span>
+                            <span class="text-xl font-bold text-brand-600" x-text="formatPrice(editingPO.total)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end gap-3">
+                    <button type="button" @click="closePOModal()"
+                        class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                        <span x-text="isEditingPO ? 'Update PO' : 'Create PO'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receiving Modal -->
+    <div :class="{ 'show': showReceivingModal }"
+        class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
+        <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+            @click="closeReceivingModal()"></div>
+        <div class="modal-dialog relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Receive Items - PO: <span x-text="selectedPO?.ponumber"></span></h3>
+                <button @click="closeReceivingModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="w-6 h-6" x-icon="'close'"></span>
+                </button>
+            </div>
+
+            <form @submit.prevent="processReceiving()">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving Date</label>
+                    <input type="date" x-model="receivingData.date" required
+                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                </div>
+
+                <!-- Items to Receive -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Items to Receive</h4>
+                    <div class="space-y-3">
+                        <template x-for="(item, index) in receivingData.items" :key="index">
+                            <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900 dark:text-white" x-text="item.name"></div>
+                                    <div class="text-sm text-gray-500 font-mono" x-text="item.partnumber"></div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-sm text-gray-500">Ordered</div>
+                                    <div class="font-semibold" x-text="item.orderedqty"></div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-sm text-gray-500">Previously Received</div>
+                                    <div class="font-semibold" x-text="item.receivedqty || 0"></div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-sm text-gray-500">Remaining</div>
+                                    <div class="font-semibold text-orange-600" x-text="item.orderedqty - (item.receivedqty || 0)"></div>
+                                </div>
+                                <div class="w-24">
+                                    <label class="block text-sm text-gray-500 mb-1">Receive Now</label>
+                                    <input type="number" x-model="item.receivingnow" 
+                                        :max="item.orderedqty - (item.receivedqty || 0)" min="0"
+                                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving Notes</label>
+                    <textarea x-model="receivingData.notes" rows="3" placeholder="Any notes about the received items..."
+                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end gap-3">
+                    <button type="button" @click="closeReceivingModal()"
+                        class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
+                        Process Receiving
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
