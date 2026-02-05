@@ -1,0 +1,502 @@
+<div class="w-full animate-fade-in" x-data="posReports">
+    <!-- Header -->
+    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Sales Reports</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Analyze your sales performance and trends.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click="refreshReports()"
+                class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span>
+                Refresh
+            </button>
+            <button @click="exportReport()"
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 shadow-sm transition-all active:scale-95">
+                <span class="w-4 h-4" x-icon="'download'"></span>
+                Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div class="flex flex-col sm:flex-row gap-4 items-end">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Date</label>
+                <input type="date" x-model="dateRange.from" @change="loadReports()"
+                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Date</label>
+                <input type="date" x-model="dateRange.to" @change="loadReports()"
+                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            </div>
+            <div class="flex gap-2">
+                <button @click="setDateRange('today')"
+                    class="px-3 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                    Today
+                </button>
+                <button @click="setDateRange('week')"
+                    class="px-3 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                    This Week
+                </button>
+                <button @click="setDateRange('month')"
+                    class="px-3 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                    This Month
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                    <span class="w-6 h-6" x-icon="'dollar-sign'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Sales</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="formatPrice(summary.totalSales)">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400">
+                    <span class="w-6 h-6" x-icon="'receipt'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="summary.totalTransactions">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
+                    <span class="w-6 h-6" x-icon="'trending-up'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="formatPrice(summary.averageTransaction)">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
+                    <span class="w-6 h-6" x-icon="'package'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Items Sold</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="summary.totalItemsSold">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="mb-8 grid gap-6 lg:grid-cols-2">
+        <!-- Daily Sales Chart -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Daily Sales Trend</h3>
+            <div class="h-64">
+                <canvas x-ref="dailySalesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Payment Methods Chart -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Payment Methods</h3>
+            <div class="h-64">
+                <canvas x-ref="paymentMethodsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Selling Items -->
+    <div class="mb-8 rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+            <h3 class="font-bold text-gray-900 dark:text-white">Top Selling Items</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-black/20 dark:text-gray-400">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">Rank</th>
+                        <th class="px-6 py-3 font-semibold">Item</th>
+                        <th class="px-6 py-3 font-semibold">Quantity Sold</th>
+                        <th class="px-6 py-3 font-semibold text-right">Revenue</th>
+                        <th class="px-6 py-3 font-semibold text-right">Avg. Price</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <template x-for="(item, index) in topItems" :key="item.partnumber">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold"
+                                    :class="{
+                                        'bg-yellow-100 text-yellow-800': index === 0,
+                                        'bg-gray-100 text-gray-800': index === 1,
+                                        'bg-orange-100 text-orange-800': index === 2,
+                                        'bg-blue-100 text-blue-800': index > 2
+                                    }">
+                                    <span x-text="index + 1"></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white" x-text="item.name"></div>
+                                    <div class="text-xs text-gray-500 font-mono" x-text="item.partnumber"></div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-semibold text-gray-900 dark:text-white" x-text="item.quantity + ' pcs'"></span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="font-bold text-green-600" x-text="formatPrice(item.revenue)"></span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="text-gray-600 dark:text-gray-400" x-text="formatPrice(item.revenue / item.quantity)"></span>
+                            </td>
+                        </tr>
+                    </template>
+                    
+                    <template x-if="topItems.length === 0">
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                No sales data available for the selected period.
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800 flex items-center justify-between">
+            <h3 class="font-bold text-gray-900 dark:text-white">Recent Transactions</h3>
+            <a href="#sparepart-transactions" class="text-sm text-brand-500 hover:text-brand-600 font-medium">View All</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-black/20 dark:text-gray-400">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">Transaction</th>
+                        <th class="px-6 py-3 font-semibold">Date</th>
+                        <th class="px-6 py-3 font-semibold">Customer</th>
+                        <th class="px-6 py-3 font-semibold">Items</th>
+                        <th class="px-6 py-3 font-semibold text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <template x-for="transaction in recentTransactions.slice(0, 5)" :key="transaction.transactionid">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900 dark:text-white" x-text="transaction.transactionnumber"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 dark:text-gray-400" x-text="formatDate(transaction.date)"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 dark:text-white" x-text="transaction.customername || 'Walk-in'"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 dark:text-gray-400" x-text="getItemCount(transaction.items) + ' items'"></div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="font-semibold text-gray-900 dark:text-white" x-text="formatPrice(transaction.total)"></div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+const registerPosReports = () => {
+    window.Alpine.data('posReports', () => ({
+        // Data
+        reportData: null,
+        isLoading: false,
+        
+        // Date Range
+        dateRange: {
+            from: '',
+            to: ''
+        },
+
+        // Charts
+        dailySalesChart: null,
+        paymentMethodsChart: null,
+
+        // Computed Properties
+        get summary() {
+            return this.reportData?.summary || {
+                totalSales: 0,
+                totalTransactions: 0,
+                averageTransaction: 0
+            };
+        },
+
+        get topItems() {
+            return this.reportData?.topItems || [];
+        },
+
+        get recentTransactions() {
+            return this.reportData?.transactions || [];
+        },
+
+        get totalItemsSold() {
+            return this.topItems.reduce((sum, item) => sum + item.quantity, 0);
+        },
+
+        async init() {
+            console.log('POS Reports Initialized');
+            
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            this.dateRange.to = today.toISOString().split('T')[0];
+            this.dateRange.from = thirtyDaysAgo.toISOString().split('T')[0];
+            
+            await this.loadReports();
+        },
+
+        async loadReports() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getSalesReport', {
+                        dateFrom: this.dateRange.from,
+                        dateTo: this.dateRange.to
+                    }, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                this.reportData = response;
+                
+                // Update charts
+                this.$nextTick(() => {
+                    this.updateCharts();
+                });
+                
+            } catch (err) {
+                console.error('Failed to load reports:', err);
+                window.showToast?.('Failed to load reports: ' + err, 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async refreshReports() {
+            await this.loadReports();
+            window.showToast?.('Reports refreshed');
+        },
+
+        setDateRange(period) {
+            const today = new Date();
+            let fromDate;
+
+            switch (period) {
+                case 'today':
+                    fromDate = new Date(today);
+                    break;
+                case 'week':
+                    fromDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    break;
+                case 'month':
+                    fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    break;
+                default:
+                    return;
+            }
+
+            this.dateRange.from = fromDate.toISOString().split('T')[0];
+            this.dateRange.to = today.toISOString().split('T')[0];
+            
+            this.loadReports();
+        },
+
+        updateCharts() {
+            this.updateDailySalesChart();
+            this.updatePaymentMethodsChart();
+        },
+
+        updateDailySalesChart() {
+            if (!this.reportData?.dailySales) return;
+
+            const ctx = this.$refs.dailySalesChart.getContext('2d');
+            
+            if (this.dailySalesChart) {
+                this.dailySalesChart.destroy();
+            }
+
+            const dailySales = this.reportData.dailySales;
+            
+            this.dailySalesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dailySales.map(d => new Date(d.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Daily Sales',
+                        data: dailySales.map(d => d.sales),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('id-ID', { 
+                                        style: 'currency', 
+                                        currency: 'IDR',
+                                        notation: 'compact'
+                                    }).format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        },
+
+        updatePaymentMethodsChart() {
+            if (!this.reportData?.transactions) return;
+
+            const ctx = this.$refs.paymentMethodsChart.getContext('2d');
+            
+            if (this.paymentMethodsChart) {
+                this.paymentMethodsChart.destroy();
+            }
+
+            // Calculate payment method distribution
+            const paymentMethods = {};
+            this.reportData.transactions.forEach(t => {
+                const method = t.paymentmethod || 'Unknown';
+                paymentMethods[method] = (paymentMethods[method] || 0) + Number(t.total || 0);
+            });
+
+            const labels = Object.keys(paymentMethods);
+            const data = Object.values(paymentMethods);
+            const colors = [
+                'rgb(34, 197, 94)',   // Green for Cash
+                'rgb(59, 130, 246)',  // Blue for Transfer
+                'rgb(168, 85, 247)',  // Purple for Credit
+                'rgb(249, 115, 22)',  // Orange for Debit
+                'rgb(156, 163, 175)'  // Gray for others
+            ];
+
+            this.paymentMethodsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        },
+
+        exportReport() {
+            if (!this.reportData) {
+                window.showToast?.('No data to export', 'error');
+                return;
+            }
+
+            // Generate CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Summary
+            csvContent += "SALES REPORT SUMMARY\n";
+            csvContent += `Period,${this.dateRange.from} to ${this.dateRange.to}\n`;
+            csvContent += `Total Sales,${this.summary.totalSales}\n`;
+            csvContent += `Total Transactions,${this.summary.totalTransactions}\n`;
+            csvContent += `Average Transaction,${this.summary.averageTransaction}\n\n`;
+            
+            // Top Items
+            csvContent += "TOP SELLING ITEMS\n";
+            csvContent += "Rank,Part Number,Name,Quantity Sold,Revenue\n";
+            this.topItems.forEach((item, index) => {
+                csvContent += `${index + 1},${item.partnumber},${item.name},${item.quantity},${item.revenue}\n`;
+            });
+
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `sales-report-${this.dateRange.from}-to-${this.dateRange.to}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            window.showToast?.('Report exported successfully');
+        },
+
+        getItemCount(items) {
+            try {
+                const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+                return Array.isArray(parsedItems) ? parsedItems.reduce((sum, item) => sum + (item.quantity || 0), 0) : 0;
+            } catch (e) {
+                return 0;
+            }
+        },
+
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR', 
+                maximumFractionDigits: 0 
+            }).format(price || 0);
+        },
+
+        formatDate(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleDateString('id-ID');
+        }
+    }));
+};
+
+// Register the component
+if (window.Alpine) {
+    registerPosReports();
+} else {
+    document.addEventListener('alpine:init', registerPosReports);
+}
+</script>

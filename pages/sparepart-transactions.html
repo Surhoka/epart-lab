@@ -1,0 +1,287 @@
+<div class="w-full animate-fade-in" x-data="posTransactions">
+    <!-- Header -->
+    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Transaction History</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">View and manage all sales transactions.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click="refreshTransactions()"
+                class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span>
+                Refresh
+            </button>
+            <a href="#sparepart-cashier"
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 shadow-sm transition-all active:scale-95">
+                <span class="w-4 h-4" x-icon="'plus'"></span>
+                New Transaction
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Date From -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Date</label>
+                <input type="date" x-model="filters.dateFrom" @change="applyFilters()"
+                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            </div>
+            
+            <!-- Date To -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Date</label>
+                <input type="date" x-model="filters.dateTo" @change="applyFilters()"
+                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <select x-model="filters.status" @change="applyFilters()"
+                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                    <option value="">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="voided">Voided</option>
+                </select>
+            </div>
+            
+            <!-- Search -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                <input type="text" x-model="filters.search" @input="applyFilters()" 
+                    placeholder="Transaction number, customer..."
+                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                    <span class="w-6 h-6" x-icon="'receipt'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Transactions</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.totalTransactions">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400">
+                    <span class="w-6 h-6" x-icon="'dollar-sign'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Sales</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="formatPrice(stats.totalSales)">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
+                    <span class="w-6 h-6" x-icon="'trending-up'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Transaction</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="formatPrice(stats.averageTransaction)">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
+                    <span class="w-6 h-6" x-icon="'calendar'"></span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Sales</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="formatPrice(stats.todaySales)">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-black/20 dark:text-gray-400">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">Transaction</th>
+                        <th class="px-6 py-4 font-semibold">Date & Time</th>
+                        <th class="px-6 py-4 font-semibold">Customer</th>
+                        <th class="px-6 py-4 font-semibold">Items</th>
+                        <th class="px-6 py-4 font-semibold">Payment</th>
+                        <th class="px-6 py-4 font-semibold text-right">Total</th>
+                        <th class="px-6 py-4 font-semibold">Status</th>
+                        <th class="px-6 py-4 font-semibold text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <template x-for="transaction in filteredTransactions" :key="transaction.transactionid">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-bold text-gray-900 dark:text-white" x-text="transaction.transactionnumber"></div>
+                                    <div class="text-xs text-gray-500" x-text="transaction.transactionid"></div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 dark:text-white" x-text="formatDate(transaction.date)"></div>
+                                <div class="text-xs text-gray-500" x-text="formatTime(transaction.date)"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 dark:text-white" x-text="transaction.customername || 'Walk-in Customer'"></div>
+                                <div class="text-xs text-gray-500" x-text="transaction.customerphone || ''"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 dark:text-white" x-text="getItemCount(transaction.items) + ' items'"></div>
+                                <div class="text-xs text-gray-500" x-text="getItemSummary(transaction.items)"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                    :class="{
+                                        'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': transaction.paymentmethod === 'Cash',
+                                        'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400': transaction.paymentmethod === 'Transfer',
+                                        'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400': transaction.paymentmethod === 'Credit',
+                                        'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400': transaction.paymentmethod === 'Debit'
+                                    }"
+                                    x-text="transaction.paymentmethod"></span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="text-sm font-bold text-gray-900 dark:text-white" x-text="formatPrice(transaction.total)"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                    :class="{
+                                        'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': transaction.status === 'completed',
+                                        'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': transaction.status === 'voided'
+                                    }"
+                                    x-text="transaction.status"></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @click="viewTransactionDetails(transaction)"
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-700 dark:bg-gray-800 transition-all shadow-sm active:scale-95"
+                                        title="View Details">
+                                        <span class="w-4 h-4" x-icon="'eye'"></span>
+                                    </button>
+                                    <button @click="printTransactionReceipt(transaction)"
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-green-50 hover:text-green-600 dark:border-gray-700 dark:bg-gray-800 transition-all shadow-sm active:scale-95"
+                                        title="Print Receipt">
+                                        <span class="w-4 h-4" x-icon="'printer'"></span>
+                                    </button>
+                                    <button @click="voidTransaction(transaction)"
+                                        x-show="transaction.status === 'completed'"
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-red-50 hover:text-red-600 dark:border-gray-700 dark:bg-gray-800 transition-all shadow-sm active:scale-95"
+                                        title="Void Transaction">
+                                        <span class="w-4 h-4" x-icon="'x-circle'"></span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    
+                    <template x-if="filteredTransactions.length === 0">
+                        <tr>
+                            <td colspan="8" class="px-6 py-20 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-300 dark:bg-gray-800/50">
+                                        <span class="w-8 h-8" x-icon="'receipt'"></span>
+                                    </div>
+                                    <p class="font-medium text-gray-500 dark:text-gray-400">No transactions found.</p>
+                                    <a href="#sparepart-cashier" class="mt-4 text-sm font-bold text-brand-500 hover:underline">Create your first transaction</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div :class="{ 'show': showDetailsModal }"
+        class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
+        <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+            @click="closeDetailsModal()"></div>
+        <div class="modal-dialog relative w-full max-w-2xl rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300 max-h-[90vh] overflow-y-auto">
+            <button @click="closeDetailsModal()"
+                class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 transition-all hover:scale-110">
+                <span class="w-6 h-6" x-icon="'close'"></span>
+            </button>
+
+            <div x-show="selectedTransaction">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Transaction Details</h3>
+                
+                <!-- Transaction Info -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Transaction Number</label>
+                        <p class="font-mono text-lg" x-text="selectedTransaction?.transactionnumber"></p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Date & Time</label>
+                        <p x-text="formatDateTime(selectedTransaction?.date)"></p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Customer</label>
+                        <p x-text="selectedTransaction?.customername || 'Walk-in Customer'"></p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Payment Method</label>
+                        <p x-text="selectedTransaction?.paymentmethod"></p>
+                    </div>
+                </div>
+
+                <!-- Items List -->
+                <div class="mb-6">
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Items Purchased</h4>
+                    <div class="space-y-2">
+                        <template x-for="item in getTransactionItems(selectedTransaction)" :key="item.partnumber">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div>
+                                    <p class="font-medium" x-text="item.name"></p>
+                                    <p class="text-sm text-gray-500" x-text="item.partnumber"></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold" x-text="item.quantity + ' x ' + formatPrice(item.price)"></p>
+                                    <p class="text-sm text-gray-500" x-text="formatPrice(item.quantity * item.price)"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Transaction Summary -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span x-text="formatPrice(selectedTransaction?.subtotal)"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tax:</span>
+                            <span x-text="formatPrice(selectedTransaction?.tax)"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Discount:</span>
+                            <span x-text="formatPrice(selectedTransaction?.discount)"></span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-gray-700 pt-2">
+                            <span>Total:</span>
+                            <span x-text="formatPrice(selectedTransaction?.total)"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
