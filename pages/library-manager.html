@@ -16,7 +16,7 @@
                     <div>
                         <p class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400 tracking-wider">Total Plugins</p>
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="plugins.length">0</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="totalPlugins">0</p>
                             <span class="text-xs text-gray-400">Registered</span>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                     <div>
                         <p class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400 tracking-wider">Active Engines</p>
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="plugins.filter(p => p.active).length">0</p>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="activePlugins">0</p>
                             <span class="text-xs text-gray-400">Ready</span>
                         </div>
                     </div>
@@ -50,8 +50,8 @@
                     <div>
                         <p class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400 tracking-wider">Registry Status</p>
                         <div class="flex items-center gap-2">
-                            <span class="h-2 w-2 rounded-full bg-green-500"></span>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Cloud Synced</p>
+                            <span class="h-2 w-2 rounded-full" :class="registryHealthy ? 'bg-green-500' : 'bg-red-500'"></span>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white" x-text="registryStatus">Cloud Synced</p>
                         </div>
                     </div>
                 </div>
