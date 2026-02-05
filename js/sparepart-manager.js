@@ -1,6 +1,6 @@
 /**
- * @fileoverview Frontend logic for Sparepart Management.
- * Manages state for Inventory and Dashboard views.
+ * @fileoverview Frontend logic for Sparepart Management with POS Integration
+ * Manages state for Inventory, Dashboard, POS Cashier, Transactions, and Reports views.
  */
 
 const registerSparepartManager = () => {
@@ -200,8 +200,970 @@ const registerSparepartManager = () => {
     }));
 };
 
+// ===== POS MANAGER COMPONENT =====
+
+const registerPosManager = () => {
+    window.Alpine.data('posManager', () => ({
+        // Product Management
+        products: [],
+        filteredProducts: [],
+        searchQuery: '',
+        isLoading: false,
+
+        // Cart Management
+        cart: {
+            items: [],
+            subtotal: 0,
+            tax: 0,
+            discount: 0,
+            total: 0
+        },
+
+        // Customer & Payment
+        customerInfo: {
+            name: '',
+            phone: ''
+        },
+        paymentMethod: 'Cash',
+        paymentAmount: 0,
+
+        // Transaction Processing
+        isProcessing: false,
+        showSuccessModal: false,
+        lastTransaction: {},
+
+        async init() {
+            console.log('POS Manager Initialized');
+            await this.loadProducts();
+            this.calculateCartTotals();
+            
+            // Watch for cart changes
+            this.$watch('cart.items', () => {
+                this.calculateCartTotals();
+            });
+            
+            // Watch for payment amount changes
+            this.$watch('paymentAmount', (value) => {
+                if (this.paymentMethod !== 'Cash') {
+                    this.paymentAmount = this.cart.total;
+                }
+            });
+            
+            // Watch for payment method changes
+            this.$watch('paymentMethod', (value) => {
+                if (value === 'Cash') {
+                    this.paymentAmount = this.cart.total;
+                } else {
+                    this.paymentAmount = this.cart.total;
+                }
+            });
+        },
+
+        async loadProducts() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getSpareparts', {}, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                // Filter only products with stock > 0
+                this.products = response.filter(product => Number(product.stock || 0) > 0);
+                this.filteredProducts = [...this.products];
+                
+            } catch (err) {
+                console.error('Failed to load products:', err);
+                window.showToast?.('Failed to load products: ' + err, 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async refreshProducts() {
+            await this.loadProducts();
+            window.showToast?.('Products refreshed');
+        },
+
+        searchProducts() {
+            if (!this.searchQuery.trim()) {
+                this.filteredProducts = [...this.products];
+                return;
+            }
+
+            const query = this.searchQuery.toLowerCase();
+            this.filteredProducts = this.products.filter(product => 
+                (product.name || '').toLowerCase().includes(query) ||
+                (product.partnumber || '').toLowerCase().includes(query) ||
+                (product.category || '').toLowerCase().includes(query)
+            );
+        },
+
+        handleBarcodeInput(event) {
+            const barcode = event.target.value.trim();
+            if (!barcode) return;
+
+            // Find product by part number (assuming barcode = part number)
+            const product = this.products.find(p => 
+                (p.partnumber || '').toLowerCase() === barcode.toLowerCase()
+            );
+
+            if (product) {
+                this.addToCart(product);
+                this.searchQuery = '';
+                this.filteredProducts = [...this.products];
+                window.showToast?.(`Added ${product.name} to cart`);
+            } else {
+                window.showToast?.('Product not found', 'error');
+            }
+        },
+
+        addToCart(product) {
+            // Check if product already in cart
+            const existingItem = this.cart.items.find(item => item.id === product.id);
+            
+            if (existingItem) {
+                // Check stock availability
+                if (existingItem.quantity >= Number(product.stock)) {
+                    window.showToast?.('Insufficient stock available', 'error');
+                    return;
+                }
+                existingItem.quantity += 1;
+            } else {
+                // Add new item to cart
+                this.cart.items.push({
+                    id: product.id,
+                    partnumber: product.partnumber,
+                    name: product.name,
+                    price: Number(product.price || 0),
+                    quantity: 1,
+                    stock: Number(product.stock || 0),
+                    imageurl: product.imageurl
+                });
+            }
+            
+            this.calculateCartTotals();
+        },
+
+        removeFromCart(productId) {
+            this.cart.items = this.cart.items.filter(item => item.id !== productId);
+            this.calculateCartTotals();
+        },
+
+        updateCartItemQuantity(productId, newQuantity) {
+            if (newQuantity <= 0) {
+                this.removeFromCart(productId);
+                return;
+            }
+
+            const item = this.cart.items.find(item => item.id === productId);
+            if (item) {
+                // Check stock availability
+                if (newQuantity > item.stock) {
+                    window.showToast?.('Insufficient stock available', 'error');
+                    return;
+                }
+                item.quantity = newQuantity;
+                this.calculateCartTotals();
+            }
+        },
+
+        clearCart() {
+            if (this.cart.items.length === 0) return;
+            
+            if (confirm('Are you sure you want to clear the cart?')) {
+                this.cart.items = [];
+                this.calculateCartTotals();
+                this.resetCustomerInfo();
+            }
+        },
+
+        calculateCartTotals() {
+            this.cart.subtotal = this.cart.items.reduce((sum, item) => 
+                sum + (item.price * item.quantity), 0
+            );
+            
+            // Calculate tax (10% for example, can be configurable)
+            this.cart.tax = Math.round(this.cart.subtotal * 0.1);
+            
+            // Discount can be applied here (for now, set to 0)
+            this.cart.discount = 0;
+            
+            this.cart.total = this.cart.subtotal + this.cart.tax - this.cart.discount;
+            
+            // Update payment amount if not cash or if cash and amount is less than total
+            if (this.paymentMethod !== 'Cash' || this.paymentAmount < this.cart.total) {
+                this.paymentAmount = this.cart.total;
+            }
+        },
+
+        async processCheckout() {
+            if (this.cart.items.length === 0) {
+                window.showToast?.('Cart is empty', 'error');
+                return;
+            }
+
+            if (this.paymentMethod === 'Cash' && this.paymentAmount < this.cart.total) {
+                window.showToast?.('Payment amount is insufficient', 'error');
+                return;
+            }
+
+            this.isProcessing = true;
+
+            try {
+                const transactionData = {
+                    items: this.cart.items,
+                    subtotal: this.cart.subtotal,
+                    tax: this.cart.tax,
+                    discount: this.cart.discount,
+                    total: this.cart.total,
+                    paymentMethod: this.paymentMethod,
+                    paymentAmount: this.paymentAmount,
+                    customerName: this.customerInfo.name,
+                    customerPhone: this.customerInfo.phone,
+                    cashier: this.getCurrentUser()
+                };
+
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('createTransaction', transactionData, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                // Store transaction details for receipt
+                this.lastTransaction = {
+                    transactionNumber: response.data.transactionNumber,
+                    total: response.data.total,
+                    change: response.data.change
+                };
+
+                // Show success modal
+                this.showSuccessModal = true;
+                
+                // Clear cart and reset form
+                this.cart.items = [];
+                this.calculateCartTotals();
+                this.resetCustomerInfo();
+                
+                window.showToast?.('Transaction completed successfully!', 'success');
+
+            } catch (err) {
+                console.error('Transaction failed:', err);
+                window.showToast?.('Transaction failed: ' + err, 'error');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        closeSuccessModal() {
+            this.showSuccessModal = false;
+            this.lastTransaction = {};
+        },
+
+        printReceipt() {
+            // Generate receipt content
+            const receiptContent = this.generateReceiptHTML();
+            
+            // Open print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(receiptContent);
+            printWindow.document.close();
+            printWindow.print();
+            printWindow.close();
+        },
+
+        generateReceiptHTML() {
+            const now = new Date();
+            const transaction = this.lastTransaction;
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Receipt - ${transaction.transactionNumber}</title>
+                    <style>
+                        body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 20px; }
+                        .receipt { max-width: 300px; margin: 0 auto; }
+                        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                        .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                        .total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt">
+                        <div class="header">
+                            <h2>SPAREPART STORE</h2>
+                            <p>Transaction: ${transaction.transactionNumber}</p>
+                            <p>Date: ${now.toLocaleString()}</p>
+                            <p>Cashier: ${this.getCurrentUser()}</p>
+                        </div>
+                        
+                        <div class="items">
+                            ${this.cart.items.map(item => `
+                                <div class="item">
+                                    <span>${item.name}</span>
+                                </div>
+                                <div class="item">
+                                    <span>${item.quantity} x ${this.formatPrice(item.price)}</span>
+                                    <span>${this.formatPrice(item.quantity * item.price)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="total">
+                            <div class="item">
+                                <span>Subtotal:</span>
+                                <span>${this.formatPrice(this.cart.subtotal)}</span>
+                            </div>
+                            <div class="item">
+                                <span>Tax:</span>
+                                <span>${this.formatPrice(this.cart.tax)}</span>
+                            </div>
+                            <div class="item">
+                                <span>Total:</span>
+                                <span>${this.formatPrice(transaction.total)}</span>
+                            </div>
+                            <div class="item">
+                                <span>Payment (${this.paymentMethod}):</span>
+                                <span>${this.formatPrice(this.paymentAmount)}</span>
+                            </div>
+                            ${transaction.change > 0 ? `
+                                <div class="item">
+                                    <span>Change:</span>
+                                    <span>${this.formatPrice(transaction.change)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Thank you for your purchase!</p>
+                            <p>Please keep this receipt for your records</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+        },
+
+        resetCustomerInfo() {
+            this.customerInfo = {
+                name: '',
+                phone: ''
+            };
+            this.paymentMethod = 'Cash';
+            this.paymentAmount = 0;
+        },
+
+        getCurrentUser() {
+            // Get current user from localStorage or return default
+            try {
+                const user = JSON.parse(localStorage.getItem('signedInUser') || '{}');
+                return user.firstName || 'Cashier';
+            } catch (e) {
+                return 'Cashier';
+            }
+        },
+
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR', 
+                maximumFractionDigits: 0 
+            }).format(price || 0);
+        }
+    }));
+};
+
+// ===== POS TRANSACTIONS COMPONENT =====
+
+const registerPosTransactions = () => {
+    window.Alpine.data('posTransactions', () => ({
+        // Data Management
+        transactions: [],
+        filteredTransactions: [],
+        isLoading: false,
+
+        // Filters
+        filters: {
+            dateFrom: '',
+            dateTo: '',
+            status: '',
+            search: ''
+        },
+
+        // Statistics
+        stats: {
+            totalTransactions: 0,
+            totalSales: 0,
+            averageTransaction: 0,
+            todaySales: 0
+        },
+
+        // Modal Management
+        showDetailsModal: false,
+        selectedTransaction: null,
+
+        async init() {
+            console.log('POS Transactions Initialized');
+            
+            // Set default date filters (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            this.filters.dateTo = today.toISOString().split('T')[0];
+            this.filters.dateFrom = thirtyDaysAgo.toISOString().split('T')[0];
+            
+            await this.loadTransactions();
+        },
+
+        async loadTransactions() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getTransactions', this.filters, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                this.transactions = response || [];
+                this.applyFilters();
+                this.calculateStats();
+                
+            } catch (err) {
+                console.error('Failed to load transactions:', err);
+                window.showToast?.('Failed to load transactions: ' + err, 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async refreshTransactions() {
+            await this.loadTransactions();
+            window.showToast?.('Transactions refreshed');
+        },
+
+        applyFilters() {
+            let filtered = [...this.transactions];
+
+            // Apply search filter
+            if (this.filters.search.trim()) {
+                const search = this.filters.search.toLowerCase();
+                filtered = filtered.filter(t => 
+                    (t.transactionnumber || '').toLowerCase().includes(search) ||
+                    (t.customername || '').toLowerCase().includes(search) ||
+                    (t.customerphone || '').toLowerCase().includes(search)
+                );
+            }
+
+            // Apply status filter
+            if (this.filters.status) {
+                filtered = filtered.filter(t => t.status === this.filters.status);
+            }
+
+            // Apply date filters
+            if (this.filters.dateFrom) {
+                const fromDate = new Date(this.filters.dateFrom);
+                filtered = filtered.filter(t => new Date(t.date) >= fromDate);
+            }
+
+            if (this.filters.dateTo) {
+                const toDate = new Date(this.filters.dateTo + 'T23:59:59');
+                filtered = filtered.filter(t => new Date(t.date) <= toDate);
+            }
+
+            // Sort by date descending
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            this.filteredTransactions = filtered;
+        },
+
+        calculateStats() {
+            const completedTransactions = this.transactions.filter(t => t.status === 'completed');
+            
+            this.stats.totalTransactions = completedTransactions.length;
+            this.stats.totalSales = completedTransactions.reduce((sum, t) => sum + Number(t.total || 0), 0);
+            this.stats.averageTransaction = this.stats.totalTransactions > 0 ? 
+                this.stats.totalSales / this.stats.totalTransactions : 0;
+
+            // Calculate today's sales
+            const today = new Date().toDateString();
+            const todayTransactions = completedTransactions.filter(t => 
+                new Date(t.date).toDateString() === today
+            );
+            this.stats.todaySales = todayTransactions.reduce((sum, t) => sum + Number(t.total || 0), 0);
+        },
+
+        viewTransactionDetails(transaction) {
+            this.selectedTransaction = transaction;
+            this.showDetailsModal = true;
+        },
+
+        closeDetailsModal() {
+            this.showDetailsModal = false;
+            this.selectedTransaction = null;
+        },
+
+        async voidTransaction(transaction) {
+            if (!confirm(`Are you sure you want to void transaction ${transaction.transactionnumber}? This action cannot be undone and will restore the stock levels.`)) {
+                return;
+            }
+
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('voidTransaction', {
+                        transactionId: transaction.transactionid
+                    }, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                window.showToast?.('Transaction voided successfully', 'success');
+                await this.loadTransactions();
+
+            } catch (err) {
+                console.error('Failed to void transaction:', err);
+                window.showToast?.('Failed to void transaction: ' + err, 'error');
+            }
+        },
+
+        printTransactionReceipt(transaction) {
+            const receiptContent = this.generateTransactionReceiptHTML(transaction);
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(receiptContent);
+            printWindow.document.close();
+            printWindow.print();
+            printWindow.close();
+        },
+
+        generateTransactionReceiptHTML(transaction) {
+            const items = this.getTransactionItems(transaction);
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Receipt - ${transaction.transactionnumber}</title>
+                    <style>
+                        body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 20px; }
+                        .receipt { max-width: 300px; margin: 0 auto; }
+                        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                        .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                        .total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt">
+                        <div class="header">
+                            <h2>SPAREPART STORE</h2>
+                            <p>Transaction: ${transaction.transactionnumber}</p>
+                            <p>Date: ${this.formatDateTime(transaction.date)}</p>
+                            <p>Cashier: ${transaction.cashier || 'System'}</p>
+                            ${transaction.customername ? `<p>Customer: ${transaction.customername}</p>` : ''}
+                        </div>
+                        
+                        <div class="items">
+                            ${items.map(item => `
+                                <div class="item">
+                                    <span>${item.name}</span>
+                                </div>
+                                <div class="item">
+                                    <span>${item.quantity} x ${this.formatPrice(item.price)}</span>
+                                    <span>${this.formatPrice(item.quantity * item.price)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="total">
+                            <div class="item">
+                                <span>Subtotal:</span>
+                                <span>${this.formatPrice(transaction.subtotal)}</span>
+                            </div>
+                            <div class="item">
+                                <span>Tax:</span>
+                                <span>${this.formatPrice(transaction.tax)}</span>
+                            </div>
+                            ${transaction.discount > 0 ? `
+                                <div class="item">
+                                    <span>Discount:</span>
+                                    <span>-${this.formatPrice(transaction.discount)}</span>
+                                </div>
+                            ` : ''}
+                            <div class="item">
+                                <span>Total:</span>
+                                <span>${this.formatPrice(transaction.total)}</span>
+                            </div>
+                            <div class="item">
+                                <span>Payment (${transaction.paymentmethod}):</span>
+                                <span>${this.formatPrice(transaction.paymentamount)}</span>
+                            </div>
+                            ${transaction.change > 0 ? `
+                                <div class="item">
+                                    <span>Change:</span>
+                                    <span>${this.formatPrice(transaction.change)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="footer">
+                            <p>Thank you for your purchase!</p>
+                            <p>Please keep this receipt for your records</p>
+                            ${transaction.status === 'voided' ? '<p><strong>*** VOIDED TRANSACTION ***</strong></p>' : ''}
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+        },
+
+        getTransactionItems(transaction) {
+            if (!transaction || !transaction.items) return [];
+            
+            try {
+                if (typeof transaction.items === 'string') {
+                    return JSON.parse(transaction.items);
+                }
+                return Array.isArray(transaction.items) ? transaction.items : [];
+            } catch (e) {
+                console.error('Failed to parse transaction items:', e);
+                return [];
+            }
+        },
+
+        getItemCount(items) {
+            const parsedItems = this.getTransactionItems({ items });
+            return parsedItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+        },
+
+        getItemSummary(items) {
+            const parsedItems = this.getTransactionItems({ items });
+            if (parsedItems.length === 0) return 'No items';
+            
+            const firstItem = parsedItems[0];
+            if (parsedItems.length === 1) {
+                return `${firstItem.quantity}x ${firstItem.name}`;
+            }
+            
+            return `${firstItem.name} +${parsedItems.length - 1} more`;
+        },
+
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR', 
+                maximumFractionDigits: 0 
+            }).format(price || 0);
+        },
+
+        formatDate(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleDateString('id-ID');
+        },
+
+        formatTime(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleTimeString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        },
+
+        formatDateTime(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleString('id-ID');
+        }
+    }));
+};
+
+// ===== POS REPORTS COMPONENT =====
+
+const registerPosReports = () => {
+    window.Alpine.data('posReports', () => ({
+        // Data
+        reportData: null,
+        isLoading: false,
+        
+        // Date Range
+        dateRange: {
+            from: '',
+            to: ''
+        },
+
+        // Charts
+        dailySalesChart: null,
+        paymentMethodsChart: null,
+
+        // Computed Properties
+        get summary() {
+            return this.reportData?.summary || {
+                totalSales: 0,
+                totalTransactions: 0,
+                averageTransaction: 0
+            };
+        },
+
+        get topItems() {
+            return this.reportData?.topItems || [];
+        },
+
+        get recentTransactions() {
+            return this.reportData?.transactions || [];
+        },
+
+        get totalItemsSold() {
+            return this.topItems.reduce((sum, item) => sum + item.quantity, 0);
+        },
+
+        async init() {
+            console.log('POS Reports Initialized');
+            
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            this.dateRange.to = today.toISOString().split('T')[0];
+            this.dateRange.from = thirtyDaysAgo.toISOString().split('T')[0];
+            
+            await this.loadReports();
+        },
+
+        async loadReports() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getSalesReport', {
+                        dateFrom: this.dateRange.from,
+                        dateTo: this.dateRange.to
+                    }, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                this.reportData = response;
+                
+                // Update charts
+                this.$nextTick(() => {
+                    this.updateCharts();
+                });
+                
+            } catch (err) {
+                console.error('Failed to load reports:', err);
+                window.showToast?.('Failed to load reports: ' + err, 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async refreshReports() {
+            await this.loadReports();
+            window.showToast?.('Reports refreshed');
+        },
+
+        setDateRange(period) {
+            const today = new Date();
+            let fromDate;
+
+            switch (period) {
+                case 'today':
+                    fromDate = new Date(today);
+                    break;
+                case 'week':
+                    fromDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    break;
+                case 'month':
+                    fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    break;
+                default:
+                    return;
+            }
+
+            this.dateRange.from = fromDate.toISOString().split('T')[0];
+            this.dateRange.to = today.toISOString().split('T')[0];
+            
+            this.loadReports();
+        },
+
+        updateCharts() {
+            this.updateDailySalesChart();
+            this.updatePaymentMethodsChart();
+        },
+
+        updateDailySalesChart() {
+            if (!this.reportData?.dailySales) return;
+
+            const ctx = this.$refs.dailySalesChart.getContext('2d');
+            
+            if (this.dailySalesChart) {
+                this.dailySalesChart.destroy();
+            }
+
+            const dailySales = this.reportData.dailySales;
+            
+            this.dailySalesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dailySales.map(d => new Date(d.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Daily Sales',
+                        data: dailySales.map(d => d.sales),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('id-ID', { 
+                                        style: 'currency', 
+                                        currency: 'IDR',
+                                        notation: 'compact'
+                                    }).format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        },
+
+        updatePaymentMethodsChart() {
+            if (!this.reportData?.transactions) return;
+
+            const ctx = this.$refs.paymentMethodsChart.getContext('2d');
+            
+            if (this.paymentMethodsChart) {
+                this.paymentMethodsChart.destroy();
+            }
+
+            // Calculate payment method distribution
+            const paymentMethods = {};
+            this.reportData.transactions.forEach(t => {
+                const method = t.paymentmethod || 'Unknown';
+                paymentMethods[method] = (paymentMethods[method] || 0) + Number(t.total || 0);
+            });
+
+            const labels = Object.keys(paymentMethods);
+            const data = Object.values(paymentMethods);
+            const colors = [
+                'rgb(34, 197, 94)',   // Green for Cash
+                'rgb(59, 130, 246)',  // Blue for Transfer
+                'rgb(168, 85, 247)',  // Purple for Credit
+                'rgb(249, 115, 22)',  // Orange for Debit
+                'rgb(156, 163, 175)'  // Gray for others
+            ];
+
+            this.paymentMethodsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        },
+
+        exportReport() {
+            if (!this.reportData) {
+                window.showToast?.('No data to export', 'error');
+                return;
+            }
+
+            // Generate CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Summary
+            csvContent += "SALES REPORT SUMMARY\n";
+            csvContent += `Period,${this.dateRange.from} to ${this.dateRange.to}\n`;
+            csvContent += `Total Sales,${this.summary.totalSales}\n`;
+            csvContent += `Total Transactions,${this.summary.totalTransactions}\n`;
+            csvContent += `Average Transaction,${this.summary.averageTransaction}\n\n`;
+            
+            // Top Items
+            csvContent += "TOP SELLING ITEMS\n";
+            csvContent += "Rank,Part Number,Name,Quantity Sold,Revenue\n";
+            this.topItems.forEach((item, index) => {
+                csvContent += `${index + 1},${item.partnumber},${item.name},${item.quantity},${item.revenue}\n`;
+            });
+
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `sales-report-${this.dateRange.from}-to-${this.dateRange.to}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            window.showToast?.('Report exported successfully');
+        },
+
+        getItemCount(items) {
+            try {
+                const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+                return Array.isArray(parsedItems) ? parsedItems.reduce((sum, item) => sum + (item.quantity || 0), 0) : 0;
+            } catch (e) {
+                return 0;
+            }
+        },
+
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR', 
+                maximumFractionDigits: 0 
+            }).format(price || 0);
+        },
+
+        formatDate(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleDateString('id-ID');
+        }
+    }));
+};
+
+// Register all components
 if (window.Alpine) {
     registerSparepartManager();
+    registerPosManager();
+    registerPosTransactions();
+    registerPosReports();
 } else {
-    document.addEventListener('alpine:init', registerSparepartManager);
+    document.addEventListener('alpine:init', () => {
+        registerSparepartManager();
+        registerPosManager();
+        registerPosTransactions();
+        registerPosReports();
+    });
 }
