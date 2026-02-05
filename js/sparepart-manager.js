@@ -1157,6 +1157,9 @@ const registerPosReports = () => {
 
 const registerPurchaseOrders = () => {
     window.Alpine.data('purchaseOrders', () => ({
+        // Tab Management
+        activeTab: 'list',
+
         // Data Management
         purchaseOrders: [],
         filteredPurchaseOrders: [],
@@ -1170,10 +1173,8 @@ const registerPurchaseOrders = () => {
             dateTo: ''
         },
 
-        // Modal Management
-        showPOModal: false,
+        // Modal Management (only for receiving)
         showReceivingModal: false,
-        isEditingPO: false,
         selectedPO: null,
 
         // Form Data
@@ -1253,8 +1254,23 @@ const registerPurchaseOrders = () => {
             this.filteredPurchaseOrders = filtered;
         },
 
-        openCreatePOModal() {
-            this.isEditingPO = false;
+        // Tab-based functions
+        openCreatePOTab() {
+            this.resetPOForm();
+            this.activeTab = 'editor';
+        },
+
+        editPOInTab(po) {
+            this.editingPO = { ...po };
+            try {
+                this.editingPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
+            } catch (e) {
+                this.editingPO.items = [];
+            }
+            this.activeTab = 'editor';
+        },
+
+        resetPOForm() {
             this.editingPO = {
                 id: '',
                 supplier: '',
@@ -1263,30 +1279,13 @@ const registerPurchaseOrders = () => {
                 items: [{ partnumber: '', name: '', quantity: 1, unitprice: 0 }],
                 total: 0
             };
-            this.showPOModal = true;
         },
 
-        editPO(po) {
-            this.isEditingPO = true;
-            this.editingPO = { ...po };
-            try {
-                this.editingPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
-            } catch (e) {
-                this.editingPO.items = [];
+        cancelPOEditor() {
+            if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+                this.resetPOForm();
+                this.activeTab = 'list';
             }
-            this.showPOModal = true;
-        },
-
-        closePOModal() {
-            this.showPOModal = false;
-            this.editingPO = {
-                id: '',
-                supplier: '',
-                expecteddate: '',
-                notes: '',
-                items: [],
-                total: 0
-            };
         },
 
         addPOItem() {
@@ -1309,8 +1308,43 @@ const registerPurchaseOrders = () => {
             }, 0);
         },
 
+        async saveDraftPO() {
+            if (!this.editingPO.supplier.trim()) {
+                window.showToast?.('Please enter supplier name', 'error');
+                return;
+            }
+
+            this.editingPO.status = 'draft';
+            await this.savePO();
+        },
+
+        async createPO() {
+            if (!this.editingPO.supplier.trim()) {
+                window.showToast?.('Please enter supplier name', 'error');
+                return;
+            }
+
+            if (this.editingPO.items.length === 0) {
+                window.showToast?.('Please add at least one item', 'error');
+                return;
+            }
+
+            // Validate items
+            for (const item of this.editingPO.items) {
+                if (!item.partnumber.trim() || !item.name.trim() || !item.quantity || !item.unitprice) {
+                    window.showToast?.('Please fill in all item details', 'error');
+                    return;
+                }
+            }
+
+            this.editingPO.status = 'confirmed';
+            await this.savePO();
+        },
+
         async savePO() {
             try {
+                this.calculatePOTotals();
+                
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('savePurchaseOrder', this.editingPO, (res) => {
                         if (res.status === 'success') resolve(res);
@@ -1319,7 +1353,8 @@ const registerPurchaseOrders = () => {
                 });
 
                 window.showToast?.(response.message, 'success');
-                this.closePOModal();
+                this.resetPOForm();
+                this.activeTab = 'list';
                 await this.loadPurchaseOrders();
 
             } catch (err) {
