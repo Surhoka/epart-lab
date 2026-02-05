@@ -216,7 +216,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
         'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule', // AI Assistant Actions
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
-        'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock' // POS and Sparepart Actions
+        'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock', // POS and Sparepart Actions
+        'savePurchaseOrder', 'processReceiving' // Purchase Order Actions
     ];
 
     if (postActions.includes(action)) {
