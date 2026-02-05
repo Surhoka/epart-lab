@@ -38,14 +38,23 @@ const registerLibraryManager = () => {
             },
 
             async fetchAvailablePlugins() {
-                if (!this.gatewayUrl) return;
+                if (!this.gatewayUrl) {
+                    console.warn("Gateway URL not found - using empty available plugins list");
+                    this.availablePlugins = [];
+                    return;
+                }
                 try {
                     const res = await window.app.fetchJsonp(this.gatewayUrl, { action: 'get_available_plugins' });
-                    if (res.status === 'success') {
-                        this.availablePlugins = res.plugins;
+                    if (res && res.status === 'success') {
+                        this.availablePlugins = res.plugins || [];
+                        console.log(`Loaded ${this.availablePlugins.length} available plugins`);
+                    } else {
+                        console.warn("Failed to load available plugins:", res?.message);
+                        this.availablePlugins = [];
                     }
                 } catch (e) {
-                    console.error("Fetch templates error:", e);
+                    console.error("Fetch available plugins error:", e);
+                    this.availablePlugins = [];
                 }
             },
 
@@ -74,19 +83,32 @@ const registerLibraryManager = () => {
 
             async fetchPlugins() {
                 if (!this.apiUrl) {
-                    console.error("API URL not found");
+                    console.warn("API URL not found - using empty plugin list");
+                    this.plugins = [];
                     return;
                 }
                 try {
                     const res = await window.app.fetchJsonp(this.apiUrl, { action: 'get_all_plugins' });
-                    if (res.status === 'success') {
-                        this.plugins = res.plugins.map(p => ({ ...p, pinging: false, pingResult: null }));
+                    if (res && res.status === 'success') {
+                        this.plugins = (res.plugins || []).map(p => ({ 
+                            ...p, 
+                            pinging: false, 
+                            pingResult: null 
+                        }));
+                        console.log(`Loaded ${this.plugins.length} plugins`);
                     } else {
-                        window.showToast(res.message || "Failed to load plugins", "error");
+                        console.warn("Failed to load plugins:", res?.message);
+                        this.plugins = [];
+                        if (window.showToast) {
+                            window.showToast(res?.message || "Failed to load plugins", "error");
+                        }
                     }
                 } catch (e) {
                     console.error("Fetch plugins error:", e);
-                    window.showToast("Connection error to Gateway", "error");
+                    this.plugins = [];
+                    if (window.showToast) {
+                        window.showToast("Connection error to Gateway", "error");
+                    }
                 }
             },
 
@@ -189,6 +211,34 @@ const registerLibraryManager = () => {
                     plugin.pinging = false;
                     window.showToast("Ping connection error", "error");
                 }
+            },
+
+            async refreshStats() {
+                console.log('Refreshing stats...');
+                try {
+                    await this.fetchPlugins();
+                    window.showToast('Stats refreshed successfully', 'success');
+                } catch (e) {
+                    console.error('Error refreshing stats:', e);
+                    window.showToast('Failed to refresh stats', 'error');
+                }
+            },
+
+            // Computed properties for stats
+            get totalPlugins() {
+                return this.plugins.length;
+            },
+
+            get activePlugins() {
+                return this.plugins.filter(p => p.active).length;
+            },
+
+            get registryStatus() {
+                return this.apiUrl ? 'Cloud Synced' : 'Disconnected';
+            },
+
+            get registryHealthy() {
+                return !!this.apiUrl;
             }
         }));
     }
