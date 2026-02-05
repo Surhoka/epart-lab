@@ -215,7 +215,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'dbCreate', 'dbUpdate', 'dbDelete', // Add generic DB actions for POST
         'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
         'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule', // AI Assistant Actions
-        'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject' // Hotspot Studio Actions
+        'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
+        'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock' // POS and Sparepart Actions
     ];
 
     if (postActions.includes(action)) {
