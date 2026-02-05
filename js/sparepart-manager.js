@@ -1153,17 +1153,432 @@ const registerPosReports = () => {
     }));
 };
 
+// ===== PURCHASE ORDERS COMPONENT =====
+
+const registerPurchaseOrders = () => {
+    window.Alpine.data('purchaseOrders', () => ({
+        // Data Management
+        purchaseOrders: [],
+        filteredPurchaseOrders: [],
+        isLoading: false,
+
+        // Filters
+        filters: {
+            status: '',
+            supplier: '',
+            dateFrom: '',
+            dateTo: ''
+        },
+
+        // Modal Management
+        showPOModal: false,
+        showReceivingModal: false,
+        isEditingPO: false,
+        selectedPO: null,
+
+        // Form Data
+        editingPO: {
+            id: '',
+            supplier: '',
+            expecteddate: '',
+            notes: '',
+            items: [],
+            total: 0
+        },
+
+        receivingData: {
+            date: '',
+            items: [],
+            notes: ''
+        },
+
+        async init() {
+            console.log('Purchase Orders Initialized');
+            await this.loadPurchaseOrders();
+        },
+
+        async loadPurchaseOrders() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getPurchaseOrders', {}, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                this.purchaseOrders = response || [];
+                this.applyFilters();
+                
+            } catch (err) {
+                console.error('Failed to load purchase orders:', err);
+                window.showToast?.('Failed to load purchase orders: ' + err, 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async refreshPurchaseOrders() {
+            await this.loadPurchaseOrders();
+            window.showToast?.('Purchase orders refreshed');
+        },
+
+        applyFilters() {
+            let filtered = [...this.purchaseOrders];
+
+            if (this.filters.status) {
+                filtered = filtered.filter(po => po.status === this.filters.status);
+            }
+
+            if (this.filters.supplier.trim()) {
+                const search = this.filters.supplier.toLowerCase();
+                filtered = filtered.filter(po => 
+                    (po.supplier || '').toLowerCase().includes(search)
+                );
+            }
+
+            if (this.filters.dateFrom) {
+                const fromDate = new Date(this.filters.dateFrom);
+                filtered = filtered.filter(po => new Date(po.date) >= fromDate);
+            }
+
+            if (this.filters.dateTo) {
+                const toDate = new Date(this.filters.dateTo + 'T23:59:59');
+                filtered = filtered.filter(po => new Date(po.date) <= toDate);
+            }
+
+            // Sort by date descending
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            this.filteredPurchaseOrders = filtered;
+        },
+
+        openCreatePOModal() {
+            this.isEditingPO = false;
+            this.editingPO = {
+                id: '',
+                supplier: '',
+                expecteddate: '',
+                notes: '',
+                items: [{ partnumber: '', name: '', quantity: 1, unitprice: 0 }],
+                total: 0
+            };
+            this.showPOModal = true;
+        },
+
+        editPO(po) {
+            this.isEditingPO = true;
+            this.editingPO = { ...po };
+            try {
+                this.editingPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
+            } catch (e) {
+                this.editingPO.items = [];
+            }
+            this.showPOModal = true;
+        },
+
+        closePOModal() {
+            this.showPOModal = false;
+            this.editingPO = {
+                id: '',
+                supplier: '',
+                expecteddate: '',
+                notes: '',
+                items: [],
+                total: 0
+            };
+        },
+
+        addPOItem() {
+            this.editingPO.items.push({
+                partnumber: '',
+                name: '',
+                quantity: 1,
+                unitprice: 0
+            });
+        },
+
+        removePOItem(index) {
+            this.editingPO.items.splice(index, 1);
+            this.calculatePOTotals();
+        },
+
+        calculatePOTotals() {
+            this.editingPO.total = this.editingPO.items.reduce((sum, item) => {
+                return sum + ((item.quantity || 0) * (item.unitprice || 0));
+            }, 0);
+        },
+
+        async savePO() {
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('savePurchaseOrder', this.editingPO, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                window.showToast?.(response.message, 'success');
+                this.closePOModal();
+                await this.loadPurchaseOrders();
+
+            } catch (err) {
+                console.error('Failed to save purchase order:', err);
+                window.showToast?.('Failed to save purchase order: ' + err, 'error');
+            }
+        },
+
+        openReceivingModal(po) {
+            this.selectedPO = po;
+            
+            // Parse PO items
+            let poItems = [];
+            try {
+                poItems = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
+            } catch (e) {
+                poItems = [];
+            }
+
+            // Prepare receiving data
+            this.receivingData = {
+                date: new Date().toISOString().split('T')[0],
+                items: poItems.map(item => ({
+                    ...item,
+                    orderedqty: item.quantity,
+                    receivedqty: item.receivedqty || 0,
+                    receivingnow: 0
+                })),
+                notes: ''
+            };
+
+            this.showReceivingModal = true;
+        },
+
+        closeReceivingModal() {
+            this.showReceivingModal = false;
+            this.selectedPO = null;
+            this.receivingData = {
+                date: '',
+                items: [],
+                notes: ''
+            };
+        },
+
+        async processReceiving() {
+            try {
+                const receivingData = {
+                    poid: this.selectedPO.id,
+                    ponumber: this.selectedPO.ponumber,
+                    supplier: this.selectedPO.supplier,
+                    date: this.receivingData.date,
+                    items: this.receivingData.items.filter(item => item.receivingnow > 0),
+                    notes: this.receivingData.notes
+                };
+
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('processReceiving', receivingData, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                window.showToast?.(response.message, 'success');
+                this.closeReceivingModal();
+                await this.loadPurchaseOrders();
+
+            } catch (err) {
+                console.error('Failed to process receiving:', err);
+                window.showToast?.('Failed to process receiving: ' + err, 'error');
+            }
+        },
+
+        viewPODetails(po) {
+            // Implementation for viewing PO details
+            console.log('View PO Details:', po);
+        },
+
+        getStatusColor(status) {
+            const colors = {
+                'draft': 'bg-gray-100 text-gray-800',
+                'sent': 'bg-blue-100 text-blue-800',
+                'confirmed': 'bg-yellow-100 text-yellow-800',
+                'partial': 'bg-orange-100 text-orange-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        },
+
+        getStatusLabel(status) {
+            const labels = {
+                'draft': 'Draft',
+                'sent': 'Sent',
+                'confirmed': 'Confirmed',
+                'partial': 'Partially Received',
+                'completed': 'Completed',
+                'cancelled': 'Cancelled'
+            };
+            return labels[status] || status;
+        },
+
+        getItemCount(items) {
+            try {
+                const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+                return Array.isArray(parsedItems) ? parsedItems.length : 0;
+            } catch (e) {
+                return 0;
+            }
+        },
+
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR', 
+                maximumFractionDigits: 0 
+            }).format(price || 0);
+        },
+
+        formatDate(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleDateString('id-ID');
+        }
+    }));
+};
+
+// ===== RECEIVING HISTORY COMPONENT =====
+
+const registerReceivingHistory = () => {
+    window.Alpine.data('receivingHistory', () => ({
+        // Data Management
+        receivings: [],
+        filteredReceivings: [],
+        isLoading: false,
+
+        // Filters
+        filters: {
+            ponumber: '',
+            supplier: '',
+            dateFrom: '',
+            dateTo: ''
+        },
+
+        // Modal Management
+        showDetailsModal: false,
+        selectedReceiving: null,
+
+        async init() {
+            console.log('Receiving History Initialized');
+            await this.loadReceivingHistory();
+        },
+
+        async loadReceivingHistory() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getReceivingHistory', {}, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                this.receivings = response || [];
+                this.applyFilters();
+                
+            } catch (err) {
+                console.error('Failed to load receiving history:', err);
+                window.showToast?.('Failed to load receiving history: ' + err, 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async refreshReceivingHistory() {
+            await this.loadReceivingHistory();
+            window.showToast?.('Receiving history refreshed');
+        },
+
+        applyFilters() {
+            let filtered = [...this.receivings];
+
+            if (this.filters.ponumber.trim()) {
+                const search = this.filters.ponumber.toLowerCase();
+                filtered = filtered.filter(r => 
+                    (r.ponumber || '').toLowerCase().includes(search)
+                );
+            }
+
+            if (this.filters.supplier.trim()) {
+                const search = this.filters.supplier.toLowerCase();
+                filtered = filtered.filter(r => 
+                    (r.supplier || '').toLowerCase().includes(search)
+                );
+            }
+
+            if (this.filters.dateFrom) {
+                const fromDate = new Date(this.filters.dateFrom);
+                filtered = filtered.filter(r => new Date(r.date) >= fromDate);
+            }
+
+            if (this.filters.dateTo) {
+                const toDate = new Date(this.filters.dateTo + 'T23:59:59');
+                filtered = filtered.filter(r => new Date(r.date) <= toDate);
+            }
+
+            // Sort by date descending
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            this.filteredReceivings = filtered;
+        },
+
+        viewReceivingDetails(receiving) {
+            this.selectedReceiving = receiving;
+            this.showDetailsModal = true;
+        },
+
+        closeDetailsModal() {
+            this.showDetailsModal = false;
+            this.selectedReceiving = null;
+        },
+
+        getReceivingItems(receiving) {
+            try {
+                return typeof receiving.items === 'string' ? JSON.parse(receiving.items) : receiving.items || [];
+            } catch (e) {
+                return [];
+            }
+        },
+
+        getItemCount(items) {
+            try {
+                const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+                return Array.isArray(parsedItems) ? parsedItems.length : 0;
+            } catch (e) {
+                return 0;
+            }
+        },
+
+        formatDate(date) {
+            if (!date) return '';
+            return new Date(date).toLocaleDateString('id-ID');
+        }
+    }));
+};
+
 // Register all components
 if (window.Alpine) {
     registerSparepartManager();
     registerPosManager();
     registerPosTransactions();
     registerPosReports();
+    registerPurchaseOrders();
+    registerReceivingHistory();
 } else {
     document.addEventListener('alpine:init', () => {
         registerSparepartManager();
         registerPosManager();
         registerPosTransactions();
         registerPosReports();
+        registerPurchaseOrders();
+        registerReceivingHistory();
     });
 }
