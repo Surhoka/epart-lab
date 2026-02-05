@@ -16,63 +16,141 @@ const registerCalendarPage = () => {
 
       init() {
         console.log("Calendar Page Initialized with Alpine Component.");
-        const calendarEl = this.$refs.calendar;
-        if (!calendarEl) {
-          console.error("Calendar element not found!");
+        
+        // Check if FullCalendar is available
+        if (typeof FullCalendar === 'undefined') {
+          console.error("FullCalendar library not loaded!");
+          this.showError("Calendar library not available. Please refresh the page.");
           return;
         }
 
-        this.calendar = new FullCalendar.Calendar(calendarEl, {
-          selectable: true,
-          initialView: 'dayGridMonth',
-          headerToolbar: {
-            left: 'prev,next today addEventButton',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-          },
-          events: this.fetchEvents.bind(this),
-          select: this.handleDateSelect.bind(this),
-          eventClick: this.handleEventClick.bind(this),
-          customButtons: {
-            addEventButton: {
-              text: 'Add Event',
-              click: () => this.openModalForNew()
-            }
-          },
-          eventClassNames: ({ event }) => {
-            const colorMap = { 'Primary': 'primary', 'Success': 'success', 'Warning': 'warning', 'Danger': 'danger' };
-            const color = colorMap[event.extendedProps.calendar] || 'primary';
-            return [`event-fc-color`, `fc-bg-${color}`];
-          },
-          eventDidMount: (info) => {
-            info.el.removeAttribute('title');
-            info.el.classList.add('group', 'relative', 'overflow-visible', 'cursor-pointer');
-            const tooltip = document.createElement('div');
-            tooltip.className = 'tooltip z-50 w-max max-w-[200px] whitespace-normal text-left';
-            let content = `<div class="font-semibold">${info.event.title}</div>`;
-            if (info.event.extendedProps.description) {
-              content += `<div class="mt-1 pt-1 border-t border-white/20 text-xs font-normal opacity-90">${info.event.extendedProps.description}</div>`;
-            }
-            tooltip.innerHTML = content;
-            info.el.appendChild(tooltip);
-          }
-        });
+        const calendarEl = this.$refs.calendar;
+        if (!calendarEl) {
+          console.error("Calendar element not found!");
+          this.showError("Calendar container not found.");
+          return;
+        }
 
-        this.calendar.render();
+        try {
+          this.calendar = new FullCalendar.Calendar(calendarEl, {
+            selectable: true,
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+              left: 'prev,next today addEventButton',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: this.fetchEvents.bind(this),
+            select: this.handleDateSelect.bind(this),
+            eventClick: this.handleEventClick.bind(this),
+            customButtons: {
+              addEventButton: {
+                text: 'Add Event',
+                click: () => this.openModalForNew()
+              }
+            },
+            eventClassNames: ({ event }) => {
+              const colorMap = { 'Primary': 'primary', 'Success': 'success', 'Warning': 'warning', 'Danger': 'danger' };
+              const color = colorMap[event.extendedProps.calendar] || 'primary';
+              return [`event-fc-color`, `fc-bg-${color}`];
+            },
+            eventDidMount: (info) => {
+              info.el.removeAttribute('title');
+              info.el.classList.add('group', 'relative', 'overflow-visible', 'cursor-pointer');
+              const tooltip = document.createElement('div');
+              tooltip.className = 'tooltip z-50 w-max max-w-[200px] whitespace-normal text-left';
+              let content = `<div class="font-semibold">${info.event.title}</div>`;
+              if (info.event.extendedProps.description) {
+                content += `<div class="mt-1 pt-1 border-t border-white/20 text-xs font-normal opacity-90">${info.event.extendedProps.description}</div>`;
+              }
+              tooltip.innerHTML = content;
+              info.el.appendChild(tooltip);
+            },
+            loading: (isLoading) => {
+              console.log('Calendar loading state:', isLoading);
+            }
+          });
+
+          this.calendar.render();
+          console.log("Calendar rendered successfully.");
+        } catch (error) {
+          console.error("Error initializing calendar:", error);
+          this.showError("Failed to initialize calendar: " + error.message);
+        }
+      },
+
+      showError(message) {
+        const calendarEl = this.$refs.calendar;
+        if (calendarEl) {
+          calendarEl.innerHTML = `
+            <div class="flex items-center justify-center min-h-[400px] text-center p-8">
+              <div>
+                <div class="w-16 h-16 mx-auto mb-4 text-red-500">
+                  <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Calendar Error</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">${message}</p>
+                <button onclick="window.location.reload()" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors">
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          `;
+        }
       },
 
       fetchEvents(fetchInfo, successCallback, failureCallback) {
-        window.sendDataToGoogle('getEvents', {}, (response) => {
-          if (response.status === 'success') {
-            successCallback(response.data);
-          } else {
-            failureCallback(new Error(response.message));
-            window.showToast('Failed to load events', 'error');
+        console.log('Fetching events...');
+        
+        // Check if API function exists
+        if (typeof window.sendDataToGoogle !== 'function') {
+          console.warn('sendDataToGoogle function not available, using fallback data');
+          // Provide fallback empty events to prevent hanging
+          successCallback([]);
+          return;
+        }
+
+        // Add timeout to prevent hanging
+        let timeoutId = setTimeout(() => {
+          console.error('Event fetch timeout');
+          failureCallback(new Error('Request timeout'));
+          if (window.showToast) {
+            window.showToast('Calendar data loading timeout', 'warning');
           }
-        }, (error) => {
+        }, 10000); // 10 second timeout
+
+        try {
+          window.sendDataToGoogle('getEvents', {}, (response) => {
+            clearTimeout(timeoutId);
+            console.log('Events response:', response);
+            
+            if (response && response.status === 'success') {
+              successCallback(response.data || []);
+            } else {
+              console.warn('Events fetch failed:', response?.message);
+              failureCallback(new Error(response?.message || 'Failed to load events'));
+              if (window.showToast) {
+                window.showToast('Failed to load events', 'error');
+              }
+            }
+          }, (error) => {
+            clearTimeout(timeoutId);
+            console.error('Events API error:', error);
+            failureCallback(error);
+            if (window.showToast) {
+              window.showToast('API error loading events', 'error');
+            }
+          });
+        } catch (error) {
+          clearTimeout(timeoutId);
+          console.error('Exception in fetchEvents:', error);
           failureCallback(error);
-          window.showToast('API error loading events', 'error');
-        });
+          if (window.showToast) {
+            window.showToast('Error loading calendar events', 'error');
+          }
+        }
       },
 
       handleDateSelect(info) {
@@ -120,10 +198,23 @@ const registerCalendarPage = () => {
 
       async saveEvent(button) {
         if (!this.editingEvent.title) {
-          window.showToast('Event title is required.', 'warning');
+          if (window.showToast) {
+            window.showToast('Event title is required.', 'warning');
+          }
           return;
         }
-        window.setButtonLoading(button, true);
+
+        // Check if API function exists
+        if (typeof window.sendDataToGoogle !== 'function') {
+          if (window.showToast) {
+            window.showToast('API not available. Please refresh the page.', 'error');
+          }
+          return;
+        }
+
+        if (window.setButtonLoading) {
+          window.setButtonLoading(button, true);
+        }
 
         const payload = {
           id: this.editingEvent.id,
@@ -140,38 +231,91 @@ const registerCalendarPage = () => {
 
         const action = this.modalMode === 'add' ? 'createEvent' : 'updateEvent';
 
-        window.sendDataToGoogle(action, payload, (res) => {
-          window.setButtonLoading(button, false);
-          if (res.status === 'success') {
-            window.showToast(`Event ${this.modalMode === 'add' ? 'created' : 'updated'}!`, 'success');
-            this.calendar.refetchEvents();
-            this.closeModal();
-          } else {
-            window.showToast(`Error: ${res.message}`, 'error');
+        try {
+          window.sendDataToGoogle(action, payload, (res) => {
+            if (window.setButtonLoading) {
+              window.setButtonLoading(button, false);
+            }
+            if (res && res.status === 'success') {
+              if (window.showToast) {
+                window.showToast(`Event ${this.modalMode === 'add' ? 'created' : 'updated'}!`, 'success');
+              }
+              if (this.calendar) {
+                this.calendar.refetchEvents();
+              }
+              this.closeModal();
+            } else {
+              if (window.showToast) {
+                window.showToast(`Error: ${res?.message || 'Unknown error'}`, 'error');
+              }
+            }
+          }, (err) => {
+            if (window.setButtonLoading) {
+              window.setButtonLoading(button, false);
+            }
+            if (window.showToast) {
+              window.showToast('API Error while saving event.', 'error');
+            }
+          });
+        } catch (error) {
+          if (window.setButtonLoading) {
+            window.setButtonLoading(button, false);
           }
-        }, (err) => {
-          window.setButtonLoading(button, false);
-          window.showToast('API Error while saving event.', 'error');
-        });
+          if (window.showToast) {
+            window.showToast('Error saving event: ' + error.message, 'error');
+          }
+        }
       },
 
       async deleteEvent(button) {
         if (!confirm('Are you sure you want to delete this event?')) return;
-        window.setButtonLoading(button, true);
 
-        window.sendDataToGoogle('deleteEvent', { id: this.editingEvent.id }, (res) => {
-          window.setButtonLoading(button, false);
-          if (res.status === 'success') {
-            window.showToast('Event deleted!', 'success');
-            this.calendar.refetchEvents();
-            this.closeModal();
-          } else {
-            window.showToast(`Error: ${res.message}`, 'error');
+        // Check if API function exists
+        if (typeof window.sendDataToGoogle !== 'function') {
+          if (window.showToast) {
+            window.showToast('API not available. Please refresh the page.', 'error');
           }
-        }, (err) => {
-          window.setButtonLoading(button, false);
-          window.showToast('API Error while deleting event.', 'error');
-        });
+          return;
+        }
+
+        if (window.setButtonLoading) {
+          window.setButtonLoading(button, true);
+        }
+
+        try {
+          window.sendDataToGoogle('deleteEvent', { id: this.editingEvent.id }, (res) => {
+            if (window.setButtonLoading) {
+              window.setButtonLoading(button, false);
+            }
+            if (res && res.status === 'success') {
+              if (window.showToast) {
+                window.showToast('Event deleted!', 'success');
+              }
+              if (this.calendar) {
+                this.calendar.refetchEvents();
+              }
+              this.closeModal();
+            } else {
+              if (window.showToast) {
+                window.showToast(`Error: ${res?.message || 'Unknown error'}`, 'error');
+              }
+            }
+          }, (err) => {
+            if (window.setButtonLoading) {
+              window.setButtonLoading(button, false);
+            }
+            if (window.showToast) {
+              window.showToast('API Error while deleting event.', 'error');
+            }
+          });
+        } catch (error) {
+          if (window.setButtonLoading) {
+            window.setButtonLoading(button, false);
+          }
+          if (window.showToast) {
+            window.showToast('Error deleting event: ' + error.message, 'error');
+          }
+        }
       },
 
       toggleAllDay() {
