@@ -35,17 +35,25 @@ const registerCalendarPage = () => {
           this.calendar = new FullCalendar.Calendar(calendarEl, {
             selectable: true,
             initialView: 'dayGridMonth',
+            height: 'auto',
+            aspectRatio: 1.8,
             headerToolbar: {
-              left: 'prev,next today addEventButton',
+              left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay'
+              right: 'addEventButton dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            buttonText: {
+              today: 'Today',
+              month: 'Month',
+              week: 'Week',
+              day: 'Day'
             },
             events: this.fetchEvents.bind(this),
             select: this.handleDateSelect.bind(this),
             eventClick: this.handleEventClick.bind(this),
             customButtons: {
               addEventButton: {
-                text: 'Add Event',
+                text: '+ Add Event',
                 click: () => this.openModalForNew()
               }
             },
@@ -68,10 +76,41 @@ const registerCalendarPage = () => {
             },
             loading: (isLoading) => {
               console.log('Calendar loading state:', isLoading);
-            }
+            },
+            dayMaxEvents: 3,
+            moreLinkClick: 'popover',
+            eventDisplay: 'block',
+            displayEventTime: true,
+            eventTimeFormat: {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            },
+            // Ensure proper rendering
+            viewDidMount: () => {
+              console.log('Calendar view mounted successfully');
+            },
+            // Add theme class to calendar
+            themeSystem: 'standard'
           });
 
           this.calendar.render();
+          
+          // Apply additional styling after render
+          setTimeout(() => {
+            const calendarEl = this.$refs.calendar;
+            if (calendarEl) {
+              // Add theme classes
+              calendarEl.classList.add('fc-theme-ezyparts');
+              
+              // Ensure proper font family
+              const fcEl = calendarEl.querySelector('.fc');
+              if (fcEl) {
+                fcEl.style.fontFamily = 'Outfit, sans-serif';
+              }
+            }
+          }, 100);
+          
           console.log("Calendar rendered successfully.");
         } catch (error) {
           console.error("Error initializing calendar:", error);
