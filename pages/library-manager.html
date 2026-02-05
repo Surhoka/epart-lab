@@ -49,119 +49,145 @@
             </button>
         </div>
 
-        <!-- Plugin Grid -->
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Plugin List -->
+        <div class="space-y-4" x-data="{ expandedPlugin: null }">
             <template x-for="plugin in plugins" :key="plugin.id">
-                <div
-                    class="group relative flex flex-col rounded-2xl border border-gray-200 bg-white transition-all hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
-
-                    <!-- Top Badge & Actions -->
-                    <div class="flex items-start justify-between p-6 pb-4">
-                        <div
-                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400">
+                <div class="group relative rounded-2xl border border-gray-200 bg-white transition-all hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
+                    
+                    <!-- Main Plugin Row -->
+                    <div class="flex items-center gap-4 p-4">
+                        <!-- Plugin Icon -->
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400">
                             <span class="w-6 h-6" x-icon="'library'"></span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button @click="pingPlugin(plugin)"
-                                class="p-2 text-gray-400 hover:text-orange-500 transition-colors" title="Ping Test">
-                                <span :class="plugin.pinging ? 'animate-spin' : ''" class="w-5 h-5 block"
-                                    x-icon="'zap'"></span>
-                            </button>
-                            <button @click="editPlugin(plugin)"
-                                class="p-2 text-gray-400 hover:text-blue-500 transition-colors">
-                                <span class="w-5 h-5 block" x-icon="'pencil'"></span>
-                            </button>
-                            <button @click="deletePlugin(plugin.id)"
-                                class="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                                <span class="w-5 h-5 block" x-icon="'trash'"></span>
-                            </button>
-                        </div>
-                    </div>
 
-                    <!-- Content -->
-                    <div class="flex-1 px-6 pt-2 pb-4">
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-xl font-bold text-gray-900 dark:text-white" x-text="plugin.name">Plugin
-                                Name
-                            </h3>
-                            <span class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                                :class="plugin.active ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-slate-500'"
-                                x-text="plugin.active ? 'Active' : 'Disabled'"></span>
-                        </div>
-                        <p class="mt-2 text-sm text-gray-500 dark:text-slate-400 line-clamp-2"
-                            x-text="plugin.description || 'No description provided.'"></p>
-
-                        <div class="mt-4 space-y-2">
-                            <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-slate-800/50">
-                                <span
-                                    class="text-[10px] font-bold uppercase text-gray-400 whitespace-nowrap shrink-0">Endpoint:</span>
-                                <span class="truncate text-xs text-gray-600 dark:text-slate-300"
-                                    x-text="plugin.url"></span>
+                        <!-- Plugin Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white truncate" x-text="plugin.name">Plugin Name</h3>
+                                <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shrink-0"
+                                    :class="plugin.active ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-slate-500'"
+                                    x-text="plugin.active ? 'Active' : 'Disabled'"></span>
                             </div>
-                            <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-slate-800/50"
-                                x-show="plugin.scripts">
-                                <span
-                                    class="text-[10px] font-bold uppercase text-gray-400 whitespace-nowrap shrink-0">Scripts:</span>
-                                <span class="truncate text-xs text-gray-600 dark:text-slate-300"
-                                    x-text="plugin.scripts"></span>
-                            </div>
-                            <div class="flex flex-wrap gap-1.5 pt-1">
-                                <template x-for="action in (plugin.actions || '').split(',').filter(a => a.trim())">
-                                    <span
-                                        class="rounded bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
+                            <p class="text-sm text-gray-500 dark:text-slate-400 line-clamp-1" x-text="plugin.description || 'No description provided.'"></p>
+                            
+                            <!-- Actions Tags -->
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                <template x-for="action in (plugin.actions || '').split(',').filter(a => a.trim()).slice(0, 3)">
+                                    <span class="rounded bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
                                         x-text="action.trim()"></span>
+                                </template>
+                                <template x-if="(plugin.actions || '').split(',').filter(a => a.trim()).length > 3">
+                                    <span class="rounded bg-gray-50 px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:bg-slate-800 dark:text-slate-400">
+                                        +<span x-text="(plugin.actions || '').split(',').filter(a => a.trim()).length - 3"></span> more
+                                    </span>
                                 </template>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Footer -->
-                    <div
-                        class="mt-auto flex items-center justify-between border-t border-gray-100 p-4 dark:border-slate-800">
-                        <div class="flex items-center gap-1.5">
+                        <!-- Status & Ping -->
+                        <div class="flex items-center gap-3 shrink-0">
                             <template x-if="plugin.pingResult">
-                                <div class="flex items-center gap-1.5 text-[10px]"
+                                <div class="flex items-center gap-1.5 text-xs"
                                     :class="plugin.pingResult.status === 'success' ? 'text-green-600' : 'text-red-500'">
-                                    <span class="h-1.5 w-1.5 rounded-full"
+                                    <span class="h-2 w-2 rounded-full"
                                         :class="plugin.pingResult.status === 'success' ? 'bg-green-500' : 'bg-red-500'"></span>
-                                    <span
-                                        x-text="plugin.pingResult.status === 'success' ? plugin.pingResult.latency : 'Timeout'"></span>
+                                    <span x-text="plugin.pingResult.status === 'success' ? plugin.pingResult.latency : 'Timeout'"></span>
                                 </div>
                             </template>
                         </div>
-                        <label class="relative inline-flex cursor-pointer items-center">
-                            <input type="checkbox" x-model="plugin.active" @change="togglePlugin(plugin)"
-                                class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600 shadow-sm">
+
+                        <!-- Actions -->
+                        <div class="flex items-center gap-2 shrink-0">
+                            <!-- Expand/Collapse Button -->
+                            <button @click="expandedPlugin = expandedPlugin === plugin.id ? null : plugin.id"
+                                class="p-2 text-gray-400 hover:text-gray-600 transition-colors" title="Show Details">
+                                <span class="w-4 h-4 transition-transform duration-200" 
+                                    :class="expandedPlugin === plugin.id ? 'rotate-180' : ''"
+                                    x-icon="'chevron-down'"></span>
+                            </button>
+                            
+                            <button @click="pingPlugin(plugin)"
+                                class="p-2 text-gray-400 hover:text-orange-500 transition-colors" title="Ping Test">
+                                <span :class="plugin.pinging ? 'animate-spin' : ''" class="w-4 h-4 block" x-icon="'zap'"></span>
+                            </button>
+                            
+                            <button @click="editPlugin(plugin)"
+                                class="p-2 text-gray-400 hover:text-blue-500 transition-colors" title="Edit">
+                                <span class="w-4 h-4 block" x-icon="'pencil'"></span>
+                            </button>
+                            
+                            <button @click="deletePlugin(plugin.id)"
+                                class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                <span class="w-4 h-4 block" x-icon="'trash'"></span>
+                            </button>
+
+                            <!-- Toggle Switch -->
+                            <label class="relative inline-flex cursor-pointer items-center ml-2">
+                                <input type="checkbox" x-model="plugin.active" @change="togglePlugin(plugin)" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600 shadow-sm">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Details -->
+                    <div x-show="expandedPlugin === plugin.id" x-collapse class="border-t border-gray-100 dark:border-slate-800">
+                        <div class="p-4 space-y-3">
+                            <!-- Endpoint -->
+                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-slate-800/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-4 h-4 text-gray-500" x-icon="'link'"></span>
+                                    <span class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400 tracking-wider">Endpoint</span>
+                                </div>
+                                <div class="font-mono text-sm text-gray-700 dark:text-slate-300 break-all bg-white dark:bg-slate-900 rounded px-3 py-2 border border-gray-200 dark:border-slate-700" 
+                                    x-text="plugin.url"></div>
                             </div>
-                        </label>
+
+                            <!-- Scripts (if available) -->
+                            <div x-show="plugin.scripts" class="rounded-lg bg-gray-50 p-3 dark:bg-slate-800/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-4 h-4 text-gray-500" x-icon="'code'"></span>
+                                    <span class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400 tracking-wider">Scripts</span>
+                                </div>
+                                <div class="font-mono text-sm text-gray-700 dark:text-slate-300 break-all bg-white dark:bg-slate-900 rounded px-3 py-2 border border-gray-200 dark:border-slate-700" 
+                                    x-text="plugin.scripts"></div>
+                            </div>
+
+                            <!-- All Actions -->
+                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-slate-800/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-4 h-4 text-gray-500" x-icon="'zap'"></span>
+                                    <span class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400 tracking-wider">Available Actions</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <template x-for="action in (plugin.actions || '').split(',').filter(a => a.trim())">
+                                        <span class="rounded bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
+                                            x-text="action.trim()"></span>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
 
             <!-- Empty State -->
             <template x-if="plugins.length === 0">
-                <div
-                    class="col-span-full flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 py-24 dark:border-slate-800">
-                    <div
-                        class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100 text-gray-400 dark:bg-slate-900 dark:text-slate-700">
+                <div class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 py-24 dark:border-slate-800">
+                    <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100 text-gray-400 dark:bg-slate-900 dark:text-slate-700">
                         <span class="w-10 h-10" x-icon="'library'"></span>
                     </div>
                     <h3 class="mt-6 text-xl font-bold text-gray-900 dark:text-white">No Plugins Registered</h3>
-                    <p class="mt-2 text-center text-gray-500 dark:text-slate-400">Ready to expand? Add your first
-                        plugin
-                        to
-                        enable dynamic features.</p>
+                    <p class="mt-2 text-center text-gray-500 dark:text-slate-400">Ready to expand? Add your first plugin to enable dynamic features.</p>
                     <button @click="openAddModal()"
-                        class="mt-8 rounded-xl bg-orange-600 px-6 py-2.5 font-bold text-white shadow-lg shadow-orange-500/30 hover:bg-orange-700 active:scale-95 transition-all">Add
-                        First Plugin</button>
+                        class="mt-8 rounded-xl bg-orange-600 px-6 py-2.5 font-bold text-white shadow-lg shadow-orange-500/30 hover:bg-orange-700 active:scale-95 transition-all">Add First Plugin</button>
                 </div>
             </template>
         </div>
     </div>
 
-    <!-- Add/Edit Modal (Profile Style) -->
+    <!-- Add/Edit Modal  -->
     <template x-teleport="body">
         <div :class="{ 'show': modalOpen }"
             class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
@@ -170,7 +196,7 @@
             <div
                 class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
 
-                <!-- Close button (Profile Style) -->
+                <!-- Close button  -->
                 <button @click="closeModal()"
                     class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
                     <span class="w-5 h-5 flex items-center justify-center" x-icon="'close'"></span>
