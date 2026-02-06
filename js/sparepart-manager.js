@@ -1521,8 +1521,9 @@ const registerPurchaseOrders = () => {
 
                 this.calculatePOTotals();
 
+                const poData = JSON.parse(JSON.stringify(this.editingPO));
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('savePurchaseOrder', this.editingPO, (res) => {
+                    window.sendDataToGoogle('savePurchaseOrder', poData, (res) => {
                         if (res.status === 'success') resolve(res);
                         else reject(res.message);
                     }, (err) => reject(err));
