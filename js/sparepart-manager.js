@@ -1491,6 +1491,26 @@ const registerPurchaseOrders = () => {
             this.selectedPO = null;
         },
 
+        editPOFromModal(po) {
+            // Save PO data before closing modal
+            const poData = { ...po };
+            this.closeDetailsModal();
+            // Use setTimeout to ensure modal is closed before opening editor
+            setTimeout(() => {
+                this.editPOInTab(poData);
+            }, 100);
+        },
+
+        receiveFromModal(po) {
+            // Save PO data before closing modal
+            const poData = { ...po };
+            this.closeDetailsModal();
+            // Use setTimeout to ensure modal is closed before opening receiving modal
+            setTimeout(() => {
+                this.openReceivingModal(poData);
+            }, 100);
+        },
+
         getStatusColor(status) {
             const colors = {
                 'draft': 'bg-gray-100 text-gray-800',
