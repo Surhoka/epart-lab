@@ -352,7 +352,7 @@
 </div>
 
 <!-- Receiving Modal -->
-<div :class="{ 'show': showReceivingModal }"
+<div x-show="showReceivingModal" x-transition
     class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
         @click="closeReceivingModal()"></div>
