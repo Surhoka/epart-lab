@@ -1459,7 +1459,7 @@ const registerPurchaseOrders = () => {
             }
 
             this.editingPO.status = 'draft';
-            await this.savePO();
+            await this.savePO('btn-save-draft');
         },
 
         async createPO() {
@@ -1483,7 +1483,7 @@ const registerPurchaseOrders = () => {
 
             this.editingPO.status = 'confirmed';
             this.editingPO.createdby = this.getCurrentUser();
-            await this.savePO();
+            await this.savePO('btn-save-po');
         },
 
         async updatePO() {
@@ -1510,11 +1510,15 @@ const registerPurchaseOrders = () => {
                 this.editingPO.status = 'confirmed';
             }
 
-            await this.savePO();
+            await this.savePO('btn-save-po');
         },
 
-        async savePO() {
+        async savePO(buttonId = null) {
             try {
+                if (buttonId && window.setButtonLoadingById) {
+                    window.setButtonLoadingById(buttonId, true);
+                }
+
                 this.calculatePOTotals();
 
                 const response = await new Promise((resolve, reject) => {
@@ -1525,12 +1529,21 @@ const registerPurchaseOrders = () => {
                 });
 
                 const isUpdate = !!this.editingPO.id;
-                window.showToast?.(response.message, 'success');
+
+                if (buttonId && window.setButtonSuccessById) {
+                    window.setButtonSuccessById(buttonId, { closeModal: false, message: 'Saved!' });
+                } else {
+                    window.showToast?.(response.message, 'success');
+                }
+
                 this.resetPOForm();
                 this.activeTab = 'list';
                 await this.loadPurchaseOrders();
 
             } catch (err) {
+                if (buttonId && window.setButtonLoadingById) {
+                    window.setButtonLoadingById(buttonId, false);
+                }
                 console.error('Failed to save purchase order:', err);
                 window.showToast?.('Failed to save purchase order: ' + err, 'error');
             }
