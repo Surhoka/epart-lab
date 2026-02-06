@@ -1175,6 +1175,7 @@ const registerPurchaseOrders = () => {
 
         // Modal Management (only for receiving)
         showReceivingModal: false,
+        showDetailsModal: false,
         selectedPO: null,
 
         // Form Data
@@ -1428,8 +1429,18 @@ const registerPurchaseOrders = () => {
         },
 
         viewPODetails(po) {
-            // Implementation for viewing PO details
-            console.log('View PO Details:', po);
+            this.selectedPO = po;
+            try {
+                this.selectedPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
+            } catch (e) {
+                this.selectedPO.items = [];
+            }
+            this.showDetailsModal = true;
+        },
+
+        closeDetailsModal() {
+            this.showDetailsModal = false;
+            this.selectedPO = null;
         },
 
         getStatusColor(status) {
