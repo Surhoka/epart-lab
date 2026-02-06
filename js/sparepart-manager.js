@@ -1492,8 +1492,8 @@ const registerPurchaseOrders = () => {
         },
 
         editPOFromModal(po) {
-            // Save PO data before closing modal
-            const poData = { ...po };
+            // Deep copy PO data before closing modal to prevent null reference
+            const poData = JSON.parse(JSON.stringify(po));
             this.closeDetailsModal();
             // Use setTimeout to ensure modal is closed before opening editor
             setTimeout(() => {
@@ -1502,8 +1502,8 @@ const registerPurchaseOrders = () => {
         },
 
         receiveFromModal(po) {
-            // Save PO data before closing modal
-            const poData = { ...po };
+            // Deep copy PO data before closing modal to prevent null reference
+            const poData = JSON.parse(JSON.stringify(po));
             this.closeDetailsModal();
             // Use setTimeout to ensure modal is closed before opening receiving modal
             setTimeout(() => {
