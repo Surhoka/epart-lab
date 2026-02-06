@@ -182,7 +182,28 @@
     </div>
 
     <!-- Tab 2: PO Editor -->
-    <div x-show="activeTab === 'editor'" x-transition x-cloak>
+    <div x-show="activeTab === 'editor'" x-transition x-cloak x-init="
+    $watch('editingPO.date', (newPoDate) => {
+        if (!newPoDate) return;
+
+        const poDateObj = new Date(newPoDate);
+        if (isNaN(poDateObj.getTime())) return;
+
+        const currentExpectedDateObj = editingPO.expecteddate ? new Date(editingPO.expecteddate) : null;
+
+        // Update if expected date is not set, or if it's now before the PO date.
+        if (!currentExpectedDateObj || currentExpectedDateObj < poDateObj) {
+            const newExpectedDate = new Date(poDateObj);
+            newExpectedDate.setDate(newExpectedDate.getDate() + 14); // Add 14 days
+
+            // Format to 'YYYY-MM-DD' for the input
+            const year = newExpectedDate.getFullYear();
+            const month = String(newExpectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(newExpectedDate.getDate()).padStart(2, '0');
+            
+            editingPO.expecteddate = `${year}-${month}-${day}`;
+        }
+    })">
         <!-- Editor Header -->
         <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex-1">
