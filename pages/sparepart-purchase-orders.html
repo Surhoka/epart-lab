@@ -198,15 +198,6 @@
 
 
             <div class="flex items-center gap-2">
-                <!-- Delete Button (Existing PO) -->
-                <template x-if="editingPO.id">
-                    <button type="button" @click="deletePO(editingPO)"
-                        class="flex items-center justify-center w-10 h-10 rounded-full text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-white/10 transition-colors"
-                        title="Delete PO">
-                        <span class="w-5 h-5" x-icon="'trash'"></span>
-                    </button>
-                </template>
-
                 <!-- Send Button (Draft PO) -->
                 <template x-if="editingPO.id && editingPO.status === 'draft'">
                     <button type="button" @click="sendPOToSupplier(editingPO)"
@@ -332,7 +323,7 @@
                     </div>
 
                     <!-- Notes -->
-                    <div class="md:col-span-2 lg:col-span-3">
+                    <div class="md:col-span-2 lg:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
                         <textarea x-model="editingPO.notes" rows="2" placeholder="Additional notes..."
                             class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
