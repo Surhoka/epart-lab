@@ -1262,12 +1262,32 @@ const registerPurchaseOrders = () => {
         },
 
         editPOInTab(po) {
-            this.editingPO = { ...po };
+            this.editingPO = { 
+                id: po.id,
+                ponumber: po.ponumber,
+                supplier: po.supplier,
+                expecteddate: po.expecteddate ? new Date(po.expecteddate).toISOString().split('T')[0] : '',
+                notes: po.notes || '',
+                status: po.status,
+                total: po.total || 0
+            };
+            
             try {
-                this.editingPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
+                this.editingPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : (po.items || []);
             } catch (e) {
                 this.editingPO.items = [];
             }
+            
+            // Ensure items have proper structure
+            this.editingPO.items = this.editingPO.items.map(item => ({
+                partnumber: item.partnumber || '',
+                name: item.name || '',
+                quantity: item.quantity || 1,
+                unitprice: item.unitprice || 0,
+                receivedqty: item.receivedqty || 0
+            }));
+            
+            this.calculatePOTotals();
             this.activeTab = 'editor';
         },
 
@@ -1342,6 +1362,33 @@ const registerPurchaseOrders = () => {
             await this.savePO();
         },
 
+        async updatePO() {
+            if (!this.editingPO.supplier.trim()) {
+                window.showToast?.('Please enter supplier name', 'error');
+                return;
+            }
+
+            if (this.editingPO.items.length === 0) {
+                window.showToast?.('Please add at least one item', 'error');
+                return;
+            }
+
+            // Validate items
+            for (const item of this.editingPO.items) {
+                if (!item.partnumber.trim() || !item.name.trim() || !item.quantity || !item.unitprice) {
+                    window.showToast?.('Please fill in all item details', 'error');
+                    return;
+                }
+            }
+
+            // Keep existing status or set to confirmed if it was draft
+            if (!this.editingPO.status || this.editingPO.status === 'draft') {
+                this.editingPO.status = 'confirmed';
+            }
+            
+            await this.savePO();
+        },
+
         async savePO() {
             try {
                 this.calculatePOTotals();
@@ -1353,6 +1400,7 @@ const registerPurchaseOrders = () => {
                     }, (err) => reject(err));
                 });
 
+                const isUpdate = !!this.editingPO.id;
                 window.showToast?.(response.message, 'success');
                 this.resetPOForm();
                 this.activeTab = 'list';
