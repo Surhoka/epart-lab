@@ -1387,6 +1387,7 @@ const registerPurchaseOrders = () => {
                 id: po.id,
                 ponumber: po.ponumber,
                 supplier: po.supplier,
+                supplieremail: po.supplieremail || '',
                 date: po.date ? new Date(po.date).toISOString() : '',
                 expecteddate: po.expecteddate ? new Date(po.expecteddate).toISOString().split('T')[0] : '',
                 notes: po.notes || '',
@@ -1418,6 +1419,7 @@ const registerPurchaseOrders = () => {
             this.editingPO = {
                 id: '',
                 supplier: '',
+                supplieremail: '',
                 expecteddate: '',
                 notes: '',
                 items: [{ partnumber: '', name: '', quantity: 1, unitprice: 0 }],
@@ -1715,8 +1717,13 @@ const registerPurchaseOrders = () => {
         },
 
         async sendPOToSupplier(po) {
-            const email = prompt("Enter Supplier Email:", "");
-            if (email === null) return; // Cancelled
+            let email = po.supplieremail;
+
+            if (!email) {
+                email = prompt("Enter Supplier Email:", "");
+                if (email === null) return; // Cancelled
+            }
+
             if (!email.trim()) {
                 window.showToast?.('Email is required', 'error');
                 return;
