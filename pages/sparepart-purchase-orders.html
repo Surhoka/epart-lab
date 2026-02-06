@@ -353,7 +353,7 @@
     </div>
 
     <!-- Receiving Modal -->
-    <div x-show="showReceivingModal" x-transition
+    <div x-show="showReceivingModal" :class="{ 'show': showReceivingModal }" x-transition
         class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
         <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
             @click="closeReceivingModal()"></div>
@@ -432,7 +432,7 @@
     </div>
 
     <!-- PO Details Modal -->
-    <div x-show="showDetailsModal" x-transition
+    <div x-show="showDetailsModal" :class="{ 'show': showDetailsModal }" x-transition
         class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
         <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
             @click="closeDetailsModal()"></div>
