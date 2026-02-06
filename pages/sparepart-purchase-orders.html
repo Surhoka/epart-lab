@@ -481,7 +481,7 @@
                             Close
                         </button>
                         <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'sent' || selectedPO.status === 'confirmed'">
-                            <button type="button" @click="closeDetailsModal(); editPOInTab(selectedPO)"
+                            <button type="button" @click="editPOFromModal(selectedPO)"
                                 class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
                                 <span class="inline-flex items-center gap-2">
                                     <span class="w-4 h-4" x-icon="'pencil'"></span>
@@ -490,7 +490,7 @@
                             </button>
                         </template>
                         <template x-if="selectedPO.status === 'confirmed' || selectedPO.status === 'partial'">
-                            <button type="button" @click="closeDetailsModal(); openReceivingModal(selectedPO)"
+                            <button type="button" @click="receiveFromModal(selectedPO)"
                                 class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
                                 <span class="inline-flex items-center gap-2">
                                     <span class="w-4 h-4" x-icon="'package'"></span>
