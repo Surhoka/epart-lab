@@ -220,7 +220,7 @@
 
                 <div class="relative flex items-center rounded-2xl border border-gray-200 bg-white transition-all hover:border-gray-300 dark:border-gray-800 dark:bg-white/5 dark:hover:border-gray-700"
                     x-data="{ open: false }">
-                    <button type="button" @click="saveDraftPO()"
+                    <button type="button" @click="saveDraftPO()" id="btn-save-draft"
                         class="group flex items-center gap-2 rounded-l-2xl px-4 py-3 text-sm font-bold text-gray-600 transition-all hover:bg-gray-50 active:scale-95 dark:text-gray-400 dark:hover:bg-white/10">
                         <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
                             x-icon="'save'"></span>
@@ -240,7 +240,7 @@
                         </button>
                     </div>
                 </div>
-                <button type="button" @click="editingPO.id ? updatePO() : createPO()"
+                <button type="button" @click="editingPO.id ? updatePO() : createPO()" id="btn-save-po"
                     class="flex items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95">
                     <span class="w-4 h-4" x-icon="'check'"></span>
                     <span x-text="editingPO.id ? 'Update PO' : 'Create PO'"></span>
