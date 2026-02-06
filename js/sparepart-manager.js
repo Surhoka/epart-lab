@@ -236,19 +236,19 @@ const registerPosManager = () => {
             console.log('POS Manager Initialized');
             await this.loadProducts();
             this.calculateCartTotals();
-            
+
             // Watch for cart changes
             this.$watch('cart.items', () => {
                 this.calculateCartTotals();
             });
-            
+
             // Watch for payment amount changes
             this.$watch('paymentAmount', (value) => {
                 if (this.paymentMethod !== 'Cash') {
                     this.paymentAmount = this.cart.total;
                 }
             });
-            
+
             // Watch for payment method changes
             this.$watch('paymentMethod', (value) => {
                 if (value === 'Cash') {
@@ -272,7 +272,7 @@ const registerPosManager = () => {
                 // Filter only products with stock > 0
                 this.products = response.filter(product => Number(product.stock || 0) > 0);
                 this.filteredProducts = [...this.products];
-                
+
             } catch (err) {
                 console.error('Failed to load products:', err);
                 window.showToast?.('Failed to load products: ' + err, 'error');
@@ -293,7 +293,7 @@ const registerPosManager = () => {
             }
 
             const query = this.searchQuery.toLowerCase();
-            this.filteredProducts = this.products.filter(product => 
+            this.filteredProducts = this.products.filter(product =>
                 (product.name || '').toLowerCase().includes(query) ||
                 (product.partnumber || '').toLowerCase().includes(query) ||
                 (product.category || '').toLowerCase().includes(query)
@@ -305,7 +305,7 @@ const registerPosManager = () => {
             if (!barcode) return;
 
             // Find product by part number (assuming barcode = part number)
-            const product = this.products.find(p => 
+            const product = this.products.find(p =>
                 (p.partnumber || '').toLowerCase() === barcode.toLowerCase()
             );
 
@@ -322,7 +322,7 @@ const registerPosManager = () => {
         addToCart(product) {
             // Check if product already in cart
             const existingItem = this.cart.items.find(item => item.id === product.id);
-            
+
             if (existingItem) {
                 // Check stock availability
                 if (existingItem.quantity >= Number(product.stock)) {
@@ -342,7 +342,7 @@ const registerPosManager = () => {
                     imageurl: product.imageurl
                 });
             }
-            
+
             this.calculateCartTotals();
         },
 
@@ -371,7 +371,7 @@ const registerPosManager = () => {
 
         clearCart() {
             if (this.cart.items.length === 0) return;
-            
+
             if (confirm('Are you sure you want to clear the cart?')) {
                 this.cart.items = [];
                 this.calculateCartTotals();
@@ -380,18 +380,18 @@ const registerPosManager = () => {
         },
 
         calculateCartTotals() {
-            this.cart.subtotal = this.cart.items.reduce((sum, item) => 
+            this.cart.subtotal = this.cart.items.reduce((sum, item) =>
                 sum + (item.price * item.quantity), 0
             );
-            
+
             // Calculate tax (10% for example, can be configurable)
             this.cart.tax = Math.round(this.cart.subtotal * 0.1);
-            
+
             // Discount can be applied here (for now, set to 0)
             this.cart.discount = 0;
-            
+
             this.cart.total = this.cart.subtotal + this.cart.tax - this.cart.discount;
-            
+
             // Update payment amount if not cash or if cash and amount is less than total
             if (this.paymentMethod !== 'Cash' || this.paymentAmount < this.cart.total) {
                 this.paymentAmount = this.cart.total;
@@ -441,12 +441,12 @@ const registerPosManager = () => {
 
                 // Show success modal
                 this.showSuccessModal = true;
-                
+
                 // Clear cart and reset form
                 this.cart.items = [];
                 this.calculateCartTotals();
                 this.resetCustomerInfo();
-                
+
                 window.showToast?.('Transaction completed successfully!', 'success');
 
             } catch (err) {
@@ -465,7 +465,7 @@ const registerPosManager = () => {
         printReceipt() {
             // Generate receipt content
             const receiptContent = this.generateReceiptHTML();
-            
+
             // Open print window
             const printWindow = window.open('', '_blank');
             printWindow.document.write(receiptContent);
@@ -477,7 +477,7 @@ const registerPosManager = () => {
         generateReceiptHTML() {
             const now = new Date();
             const transaction = this.lastTransaction;
-            
+
             return `
                 <!DOCTYPE html>
                 <html>
@@ -568,10 +568,10 @@ const registerPosManager = () => {
         },
 
         formatPrice(price) {
-            return new Intl.NumberFormat('id-ID', { 
-                style: 'currency', 
-                currency: 'IDR', 
-                maximumFractionDigits: 0 
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
             }).format(price || 0);
         }
     }));
@@ -608,14 +608,14 @@ const registerPosTransactions = () => {
 
         async init() {
             console.log('POS Transactions Initialized');
-            
+
             // Set default date filters (last 30 days)
             const today = new Date();
             const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
-            
+
             this.filters.dateTo = today.toISOString().split('T')[0];
             this.filters.dateFrom = thirtyDaysAgo.toISOString().split('T')[0];
-            
+
             await this.loadTransactions();
         },
 
@@ -632,7 +632,7 @@ const registerPosTransactions = () => {
                 this.transactions = response || [];
                 this.applyFilters();
                 this.calculateStats();
-                
+
             } catch (err) {
                 console.error('Failed to load transactions:', err);
                 window.showToast?.('Failed to load transactions: ' + err, 'error');
@@ -652,7 +652,7 @@ const registerPosTransactions = () => {
             // Apply search filter
             if (this.filters.search.trim()) {
                 const search = this.filters.search.toLowerCase();
-                filtered = filtered.filter(t => 
+                filtered = filtered.filter(t =>
                     (t.transactionnumber || '').toLowerCase().includes(search) ||
                     (t.customername || '').toLowerCase().includes(search) ||
                     (t.customerphone || '').toLowerCase().includes(search)
@@ -683,15 +683,15 @@ const registerPosTransactions = () => {
 
         calculateStats() {
             const completedTransactions = this.transactions.filter(t => t.status === 'completed');
-            
+
             this.stats.totalTransactions = completedTransactions.length;
             this.stats.totalSales = completedTransactions.reduce((sum, t) => sum + Number(t.total || 0), 0);
-            this.stats.averageTransaction = this.stats.totalTransactions > 0 ? 
+            this.stats.averageTransaction = this.stats.totalTransactions > 0 ?
                 this.stats.totalSales / this.stats.totalTransactions : 0;
 
             // Calculate today's sales
             const today = new Date().toDateString();
-            const todayTransactions = completedTransactions.filter(t => 
+            const todayTransactions = completedTransactions.filter(t =>
                 new Date(t.date).toDateString() === today
             );
             this.stats.todaySales = todayTransactions.reduce((sum, t) => sum + Number(t.total || 0), 0);
@@ -733,7 +733,7 @@ const registerPosTransactions = () => {
 
         printTransactionReceipt(transaction) {
             const receiptContent = this.generateTransactionReceiptHTML(transaction);
-            
+
             const printWindow = window.open('', '_blank');
             printWindow.document.write(receiptContent);
             printWindow.document.close();
@@ -743,7 +743,7 @@ const registerPosTransactions = () => {
 
         generateTransactionReceiptHTML(transaction) {
             const items = this.getTransactionItems(transaction);
-            
+
             return `
                 <!DOCTYPE html>
                 <html>
@@ -824,7 +824,7 @@ const registerPosTransactions = () => {
 
         getTransactionItems(transaction) {
             if (!transaction || !transaction.items) return [];
-            
+
             try {
                 if (typeof transaction.items === 'string') {
                     return JSON.parse(transaction.items);
@@ -844,20 +844,20 @@ const registerPosTransactions = () => {
         getItemSummary(items) {
             const parsedItems = this.getTransactionItems({ items });
             if (parsedItems.length === 0) return 'No items';
-            
+
             const firstItem = parsedItems[0];
             if (parsedItems.length === 1) {
                 return `${firstItem.quantity}x ${firstItem.name}`;
             }
-            
+
             return `${firstItem.name} +${parsedItems.length - 1} more`;
         },
 
         formatPrice(price) {
-            return new Intl.NumberFormat('id-ID', { 
-                style: 'currency', 
-                currency: 'IDR', 
-                maximumFractionDigits: 0 
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
             }).format(price || 0);
         },
 
@@ -868,9 +868,9 @@ const registerPosTransactions = () => {
 
         formatTime(date) {
             if (!date) return '';
-            return new Date(date).toLocaleTimeString('id-ID', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            return new Date(date).toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
             });
         },
 
@@ -888,7 +888,7 @@ const registerPosReports = () => {
         // Data
         reportData: null,
         isLoading: false,
-        
+
         // Date Range
         dateRange: {
             from: '',
@@ -922,14 +922,14 @@ const registerPosReports = () => {
 
         async init() {
             console.log('POS Reports Initialized');
-            
+
             // Set default date range (last 30 days)
             const today = new Date();
             const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
-            
+
             this.dateRange.to = today.toISOString().split('T')[0];
             this.dateRange.from = thirtyDaysAgo.toISOString().split('T')[0];
-            
+
             await this.loadReports();
         },
 
@@ -947,12 +947,12 @@ const registerPosReports = () => {
                 });
 
                 this.reportData = response;
-                
+
                 // Update charts
                 this.$nextTick(() => {
                     this.updateCharts();
                 });
-                
+
             } catch (err) {
                 console.error('Failed to load reports:', err);
                 window.showToast?.('Failed to load reports: ' + err, 'error');
@@ -986,7 +986,7 @@ const registerPosReports = () => {
 
             this.dateRange.from = fromDate.toISOString().split('T')[0];
             this.dateRange.to = today.toISOString().split('T')[0];
-            
+
             this.loadReports();
         },
 
@@ -999,13 +999,13 @@ const registerPosReports = () => {
             if (!this.reportData?.dailySales) return;
 
             const ctx = this.$refs.dailySalesChart.getContext('2d');
-            
+
             if (this.dailySalesChart) {
                 this.dailySalesChart.destroy();
             }
 
             const dailySales = this.reportData.dailySales;
-            
+
             this.dailySalesChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -1031,9 +1031,9 @@ const registerPosReports = () => {
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: function(value) {
-                                    return new Intl.NumberFormat('id-ID', { 
-                                        style: 'currency', 
+                                callback: function (value) {
+                                    return new Intl.NumberFormat('id-ID', {
+                                        style: 'currency',
                                         currency: 'IDR',
                                         notation: 'compact'
                                     }).format(value);
@@ -1049,7 +1049,7 @@ const registerPosReports = () => {
             if (!this.reportData?.transactions) return;
 
             const ctx = this.$refs.paymentMethodsChart.getContext('2d');
-            
+
             if (this.paymentMethodsChart) {
                 this.paymentMethodsChart.destroy();
             }
@@ -1102,14 +1102,14 @@ const registerPosReports = () => {
 
             // Generate CSV content
             let csvContent = "data:text/csv;charset=utf-8,";
-            
+
             // Summary
             csvContent += "SALES REPORT SUMMARY\n";
             csvContent += `Period,${this.dateRange.from} to ${this.dateRange.to}\n`;
             csvContent += `Total Sales,${this.summary.totalSales}\n`;
             csvContent += `Total Transactions,${this.summary.totalTransactions}\n`;
             csvContent += `Average Transaction,${this.summary.averageTransaction}\n\n`;
-            
+
             // Top Items
             csvContent += "TOP SELLING ITEMS\n";
             csvContent += "Rank,Part Number,Name,Quantity Sold,Revenue\n";
@@ -1139,10 +1139,10 @@ const registerPosReports = () => {
         },
 
         formatPrice(price) {
-            return new Intl.NumberFormat('id-ID', { 
-                style: 'currency', 
-                currency: 'IDR', 
-                maximumFractionDigits: 0 
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
             }).format(price || 0);
         },
 
@@ -1211,7 +1211,7 @@ const registerPurchaseOrders = () => {
 
                 this.purchaseOrders = response || [];
                 this.applyFilters();
-                
+
             } catch (err) {
                 console.error('Failed to load purchase orders:', err);
                 window.showToast?.('Failed to load purchase orders: ' + err, 'error');
@@ -1234,7 +1234,7 @@ const registerPurchaseOrders = () => {
 
             if (this.filters.supplier.trim()) {
                 const search = this.filters.supplier.toLowerCase();
-                filtered = filtered.filter(po => 
+                filtered = filtered.filter(po =>
                     (po.supplier || '').toLowerCase().includes(search)
                 );
             }
@@ -1262,22 +1262,23 @@ const registerPurchaseOrders = () => {
         },
 
         editPOInTab(po) {
-            this.editingPO = { 
+            this.editingPO = {
                 id: po.id,
                 ponumber: po.ponumber,
                 supplier: po.supplier,
                 expecteddate: po.expecteddate ? new Date(po.expecteddate).toISOString().split('T')[0] : '',
                 notes: po.notes || '',
                 status: po.status,
+                createdby: po.createdby,
                 total: po.total || 0
             };
-            
+
             try {
                 this.editingPO.items = typeof po.items === 'string' ? JSON.parse(po.items) : (po.items || []);
             } catch (e) {
                 this.editingPO.items = [];
             }
-            
+
             // Ensure items have proper structure
             this.editingPO.items = this.editingPO.items.map(item => ({
                 partnumber: item.partnumber || '',
@@ -1286,7 +1287,7 @@ const registerPurchaseOrders = () => {
                 unitprice: item.unitprice || 0,
                 receivedqty: item.receivedqty || 0
             }));
-            
+
             this.calculatePOTotals();
             this.activeTab = 'editor';
         },
@@ -1359,6 +1360,7 @@ const registerPurchaseOrders = () => {
             }
 
             this.editingPO.status = 'confirmed';
+            this.editingPO.createdby = this.getCurrentUser();
             await this.savePO();
         },
 
@@ -1385,14 +1387,14 @@ const registerPurchaseOrders = () => {
             if (!this.editingPO.status || this.editingPO.status === 'draft') {
                 this.editingPO.status = 'confirmed';
             }
-            
+
             await this.savePO();
         },
 
         async savePO() {
             try {
                 this.calculatePOTotals();
-                
+
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('savePurchaseOrder', this.editingPO, (res) => {
                         if (res.status === 'success') resolve(res);
@@ -1414,7 +1416,7 @@ const registerPurchaseOrders = () => {
 
         openReceivingModal(po) {
             this.selectedPO = po;
-            
+
             // Parse PO items
             let poItems = [];
             try {
@@ -1545,16 +1547,74 @@ const registerPurchaseOrders = () => {
         },
 
         formatPrice(price) {
-            return new Intl.NumberFormat('id-ID', { 
-                style: 'currency', 
-                currency: 'IDR', 
-                maximumFractionDigits: 0 
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
             }).format(price || 0);
         },
 
         formatDate(date) {
             if (!date) return '';
             return new Date(date).toLocaleDateString('id-ID');
+        },
+
+        async deletePO(po) {
+            if (!confirm(`Are you sure you want to delete PO ${po.ponumber}?`)) return;
+
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('deletePurchaseOrder', { id: po.id }, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                window.showToast?.(response.message, 'success');
+                await this.loadPurchaseOrders();
+            } catch (err) {
+                console.error('Failed to delete PO:', err);
+                window.showToast?.('Failed to delete PO: ' + err, 'error');
+            }
+        },
+
+        async sendPOToSupplier(po) {
+            const email = prompt("Enter Supplier Email:", "");
+            if (email === null) return; // Cancelled
+            if (!email.trim()) {
+                window.showToast?.('Email is required', 'error');
+                return;
+            }
+
+            if (!confirm(`Send PO ${po.ponumber} to ${email}? This will lock the PO.`)) return;
+
+            try {
+                window.showToast?.('Sending email...', 'info');
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('sendPOToSupplier', {
+                        po: po,
+                        supplierEmail: email
+                    }, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                window.showToast?.(response.message, 'success');
+                await this.loadPurchaseOrders();
+            } catch (err) {
+                console.error('Failed to send PO:', err);
+                window.showToast?.('Failed to send PO: ' + err, 'error');
+            }
+        },
+
+        getCurrentUser() {
+            try {
+                const user = JSON.parse(localStorage.getItem('signedInUser') || '{}');
+                return user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'System';
+            } catch (e) {
+                return 'System';
+            }
         }
     }));
 };
@@ -1597,7 +1657,7 @@ const registerReceivingHistory = () => {
 
                 this.receivings = response || [];
                 this.applyFilters();
-                
+
             } catch (err) {
                 console.error('Failed to load receiving history:', err);
                 window.showToast?.('Failed to load receiving history: ' + err, 'error');
@@ -1616,14 +1676,14 @@ const registerReceivingHistory = () => {
 
             if (this.filters.ponumber.trim()) {
                 const search = this.filters.ponumber.toLowerCase();
-                filtered = filtered.filter(r => 
+                filtered = filtered.filter(r =>
                     (r.ponumber || '').toLowerCase().includes(search)
                 );
             }
 
             if (this.filters.supplier.trim()) {
                 const search = this.filters.supplier.toLowerCase();
-                filtered = filtered.filter(r => 
+                filtered = filtered.filter(r =>
                     (r.supplier || '').toLowerCase().includes(search)
                 );
             }
