@@ -142,6 +142,13 @@
                                                     <span class="w-4 h-4" x-icon="'package'"></span>
                                                 </button>
                                                 <template x-if="po.status === 'confirmed'">
+                                                    <button @click="sendPOToSupplier(po)"
+                                                        class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                                                        title="Send to Supplier">
+                                                        <span class="w-4 h-4" x-icon="'paper-airplane'"></span>
+                                                    </button>
+                                                </template>
+                                                <template x-if="po.status === 'confirmed'">
                                                     <button @click="deletePO(po)"
                                                         class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                                         title="Delete PO">
@@ -707,7 +714,7 @@
                                 Close
                             </button>
 
-                            <template x-if="selectedPO.status === 'draft'">
+                            <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
                                 <button type="button" @click="sendPOToSupplier(selectedPO)"
                                     class="rounded-lg bg-purple-500 px-4 py-2 text-sm font-medium text-white hover:bg-purple-600">
                                     <span class="inline-flex items-center gap-2">
