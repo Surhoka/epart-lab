@@ -742,8 +742,7 @@
                                 </button>
                             </template>
 
-                            <template
-                                x-if="selectedPO.status === 'draft' || selectedPO.status === 'sent' || selectedPO.status === 'confirmed'">
+                            <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
                                 <button type="button" @click="editPOFromModal(selectedPO)"
                                     class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
                                     <span class="inline-flex items-center gap-2">
