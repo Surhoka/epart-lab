@@ -1553,7 +1553,7 @@ const registerPurchaseOrders = () => {
             await this.savePO('btn-save-draft');
         },
 
-        async createPO() {
+        async createPO(closeAfterSave = true) {
             if (!this.editingPO.supplier.trim()) {
                 window.showToast?.('Please enter supplier name', 'error');
                 return;
@@ -1574,10 +1574,10 @@ const registerPurchaseOrders = () => {
 
             this.editingPO.status = 'confirmed';
             this.editingPO.createdby = this.getCurrentUser();
-            await this.savePO('btn-save-po');
+            await this.savePO('btn-save-po', closeAfterSave);
         },
 
-        async updatePO() {
+        async updatePO(closeAfterSave = true) {
             if (!this.editingPO.supplier.trim()) {
                 window.showToast?.('Please enter supplier name', 'error');
                 return;
@@ -1601,10 +1601,10 @@ const registerPurchaseOrders = () => {
                 this.editingPO.status = 'confirmed';
             }
 
-            await this.savePO('btn-save-po');
+            await this.savePO('btn-save-po', closeAfterSave);
         },
 
-        async savePO(buttonId = null) {
+        async savePO(buttonId = null, closeAfterSave = true) {
             try {
                 if (buttonId && window.setButtonLoadingById) {
                     window.setButtonLoadingById(buttonId, true);
@@ -1620,7 +1620,11 @@ const registerPurchaseOrders = () => {
                     }, (err) => reject(err));
                 });
 
-                const isUpdate = !!this.editingPO.id;
+                // Update local state with returned data (important for new POs to become updates)
+                if (response.data) {
+                    this.editingPO.id = response.data.id;
+                    this.editingPO.ponumber = response.data.ponumber;
+                }
 
                 if (buttonId && window.setButtonSuccessById) {
                     window.setButtonSuccessById(buttonId, { closeModal: false, message: 'Saved!' });
@@ -1628,8 +1632,10 @@ const registerPurchaseOrders = () => {
                     window.showToast?.(response.message, 'success');
                 }
 
-                this.resetPOForm();
-                this.activeTab = 'list';
+                if (closeAfterSave) {
+                    this.resetPOForm();
+                    this.activeTab = 'list';
+                }
                 await this.loadPurchaseOrders();
 
             } catch (err) {
