@@ -98,7 +98,7 @@
                                 Status</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Actions</th>
+                                Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -539,9 +539,15 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
                             class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
                 </div>
-                <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
-                    <span class="w-6 h-6" x-icon="'close'"></span>
-                </button>
+                <div class="flex items-center gap-3">
+                    <button @click="sendPOToSupplier(selectedPO)"
+                        class="text-gray-400 hover:text-purple-600 transition-colors" title="Send Email to Supplier">
+                        <span class="w-6 h-6" x-icon="'paper-airplane'"></span>
+                    </button>
+                    <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                        <span class="w-6 h-6" x-icon="'close'"></span>
+                    </button>
+                </div>
             </div>
 
             <template x-if="selectedPO">
