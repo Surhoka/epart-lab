@@ -5,6 +5,7 @@
 
 const registerSparepartManager = () => {
     window.Alpine.data('sparepartManager', () => ({
+        dbId: null,
         spareparts: [],
         isLoading: false,
         isUploading: false,
@@ -27,6 +28,16 @@ const registerSparepartManager = () => {
 
         async init() {
             console.log('Sparepart Manager Initialized');
+            try {
+                const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                this.dbId = config.sheetId;
+                if (!this.dbId) {
+                    console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    window.showToast?.('Database configuration is missing. Please re-setup.', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to parse EzypartsConfig', e);
+            }
             await this.fetchSpareparts();
         },
 
@@ -34,7 +45,7 @@ const registerSparepartManager = () => {
             this.isLoading = true;
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('getSpareparts', {}, (res) => {
+                    window.sendDataToGoogle('getSpareparts', { dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res.data);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -106,7 +117,7 @@ const registerSparepartManager = () => {
 
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('saveSparepart', this.editingItem, (res) => {
+                    window.sendDataToGoogle('saveSparepart', { ...this.editingItem, dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -127,7 +138,7 @@ const registerSparepartManager = () => {
 
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('deleteSparepart', { id }, (res) => {
+                    window.sendDataToGoogle('deleteSparepart', { id, dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -143,7 +154,7 @@ const registerSparepartManager = () => {
         async adjustStock(id, amount) {
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('adjustStock', { id, amount }, (res) => {
+                    window.sendDataToGoogle('adjustStock', { id, amount, dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -204,6 +215,7 @@ const registerSparepartManager = () => {
 
 const registerPosManager = () => {
     window.Alpine.data('posManager', () => ({
+        dbId: null,
         // Product Management
         products: [],
         filteredProducts: [],
@@ -234,6 +246,16 @@ const registerPosManager = () => {
 
         async init() {
             console.log('POS Manager Initialized');
+            try {
+                const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                this.dbId = config.sheetId;
+                if (!this.dbId) {
+                    console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    window.showToast?.('Database configuration is missing. Please re-setup.', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to parse EzypartsConfig', e);
+            }
             await this.loadProducts();
             this.calculateCartTotals();
 
@@ -263,7 +285,7 @@ const registerPosManager = () => {
             this.isLoading = true;
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('getSpareparts', {}, (res) => {
+                    window.sendDataToGoogle('getSpareparts', { dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res.data);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -413,6 +435,7 @@ const registerPosManager = () => {
 
             try {
                 const transactionData = {
+                    dbId: this.dbId,
                     items: this.cart.items,
                     subtotal: this.cart.subtotal,
                     tax: this.cart.tax,
@@ -581,6 +604,7 @@ const registerPosManager = () => {
 
 const registerPosTransactions = () => {
     window.Alpine.data('posTransactions', () => ({
+        dbId: null,
         // Data Management
         transactions: [],
         filteredTransactions: [],
@@ -608,6 +632,16 @@ const registerPosTransactions = () => {
 
         async init() {
             console.log('POS Transactions Initialized');
+            try {
+                const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                this.dbId = config.sheetId;
+                if (!this.dbId) {
+                    console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    window.showToast?.('Database configuration is missing. Please re-setup.', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to parse EzypartsConfig', e);
+            }
 
             // Set default date filters (last 30 days)
             const today = new Date();
@@ -623,7 +657,7 @@ const registerPosTransactions = () => {
             this.isLoading = true;
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('getTransactions', this.filters, (res) => {
+                    window.sendDataToGoogle('getTransactions', { ...this.filters, dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res.data);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -715,7 +749,8 @@ const registerPosTransactions = () => {
             try {
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('voidTransaction', {
-                        transactionId: transaction.transactionid
+                        transactionId: transaction.transactionid,
+                        dbId: this.dbId
                     }, (res) => {
                         if (res.status === 'success') resolve(res);
                         else reject(res.message);
@@ -885,6 +920,7 @@ const registerPosTransactions = () => {
 
 const registerPosReports = () => {
     window.Alpine.data('posReports', () => ({
+        dbId: null,
         // Data
         reportData: null,
         isLoading: false,
@@ -922,6 +958,16 @@ const registerPosReports = () => {
 
         async init() {
             console.log('POS Reports Initialized');
+            try {
+                const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                this.dbId = config.sheetId;
+                if (!this.dbId) {
+                    console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    window.showToast?.('Database configuration is missing. Please re-setup.', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to parse EzypartsConfig', e);
+            }
 
             // Set default date range (last 30 days)
             const today = new Date();
@@ -938,6 +984,7 @@ const registerPosReports = () => {
             try {
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('getSalesReport', {
+                        dbId: this.dbId,
                         dateFrom: this.dateRange.from,
                         dateTo: this.dateRange.to
                     }, (res) => {
@@ -1157,6 +1204,7 @@ const registerPosReports = () => {
 
 const registerPurchaseOrders = () => {
     window.Alpine.data('purchaseOrders', () => ({
+        dbId: null,
         // Tab Management
         activeTab: 'list',
 
@@ -1317,6 +1365,16 @@ const registerPurchaseOrders = () => {
 
         async init() {
             console.log('Purchase Orders Initialized');
+            try {
+                const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                this.dbId = config.sheetId;
+                if (!this.dbId) {
+                    console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    window.showToast?.('Database configuration is missing. Please re-setup.', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to parse EzypartsConfig', e);
+            }
             await this.loadPurchaseOrders();
         },
 
@@ -1324,7 +1382,7 @@ const registerPurchaseOrders = () => {
             this.isLoading = true;
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('getPurchaseOrders', {}, (res) => {
+                    window.sendDataToGoogle('getPurchaseOrders', { dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res.data);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -1523,7 +1581,7 @@ const registerPurchaseOrders = () => {
 
                 this.calculatePOTotals();
 
-                const poData = JSON.parse(JSON.stringify(this.editingPO));
+                const poData = { ...JSON.parse(JSON.stringify(this.editingPO)), dbId: this.dbId };
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('savePurchaseOrder', poData, (res) => {
                         if (res.status === 'success') resolve(res);
@@ -1591,6 +1649,7 @@ const registerPurchaseOrders = () => {
         async processReceiving() {
             try {
                 const receivingData = {
+                    dbId: this.dbId,
                     poid: this.selectedPO.id,
                     ponumber: this.selectedPO.ponumber,
                     supplier: this.selectedPO.supplier,
@@ -1702,7 +1761,7 @@ const registerPurchaseOrders = () => {
 
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('deletePurchaseOrder', { id: po.id }, (res) => {
+                    window.sendDataToGoogle('deletePurchaseOrder', { id: po.id, dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res);
                         else reject(res.message);
                     }, (err) => reject(err));
@@ -1735,6 +1794,7 @@ const registerPurchaseOrders = () => {
                 window.showToast?.('Sending email...', 'info');
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('sendPOToSupplier', {
+                        dbId: this.dbId,
                         po: po,
                         supplierEmail: email
                     }, (res) => {
@@ -1766,6 +1826,7 @@ const registerPurchaseOrders = () => {
 
 const registerReceivingHistory = () => {
     window.Alpine.data('receivingHistory', () => ({
+        dbId: null,
         // Data Management
         receivings: [],
         filteredReceivings: [],
@@ -1785,6 +1846,16 @@ const registerReceivingHistory = () => {
 
         async init() {
             console.log('Receiving History Initialized');
+            try {
+                const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                this.dbId = config.sheetId;
+                if (!this.dbId) {
+                    console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    window.showToast?.('Database configuration is missing. Please re-setup.', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to parse EzypartsConfig', e);
+            }
             await this.loadReceivingHistory();
         },
 
@@ -1792,7 +1863,7 @@ const registerReceivingHistory = () => {
             this.isLoading = true;
             try {
                 const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('getReceivingHistory', {}, (res) => {
+                    window.sendDataToGoogle('getReceivingHistory', { dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res.data);
                         else reject(res.message);
                     }, (err) => reject(err));
