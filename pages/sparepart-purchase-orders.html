@@ -412,7 +412,8 @@
                             class="flex flex-col md:grid md:grid-cols-[auto_1fr_auto_auto_auto_auto] gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg items-center">
                             <div class="w-8 text-center font-medium text-gray-500" x-text="index + 1"></div>
                             <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <input type="text" x-model="item.partnumber" placeholder="Part Number *" required
+                                <input type="text" x-model="item.partnumber" @change="lookupPart(index)"
+                                    list="master-parts-list" placeholder="Part Number *" required
                                     class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
                                 <input type="text" x-model="item.name" placeholder="Item Name *" required
                                     class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
@@ -445,6 +446,12 @@
                             </div>
                         </div>
                     </template>
+
+                    <datalist id="master-parts-list">
+                        <template x-for="part in masterParts" :key="part.id">
+                            <option :value="part.partnumber" x-text="part.name"></option>
+                        </template>
+                    </datalist>
 
                     <!-- Empty State -->
                     <template x-if="editingPO.items.length === 0">
