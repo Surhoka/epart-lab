@@ -217,7 +217,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule', // AI Assistant Actions
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
         'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock', // POS and Sparepart Actions
-        'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier' // Purchase Order Actions
+        'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier', 'getMasterParts', 'saveMasterPart' // Purchase Order Actions
     ];
 
     if (postActions.includes(action)) {
