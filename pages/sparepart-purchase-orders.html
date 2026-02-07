@@ -198,28 +198,7 @@
     </div>
 
     <!-- Tab 2: PO Editor -->
-    <div x-show="activeTab === 'editor'" x-transition x-cloak x-init="
-    $watch('editingPO.date', (newPoDate) => {
-        if (!newPoDate) return;
-
-        const poDateObj = new Date(newPoDate);
-        if (isNaN(poDateObj.getTime())) return;
-
-        const currentExpectedDateObj = editingPO.expecteddate ? new Date(editingPO.expecteddate) : null;
-
-        // Update if expected date is not set, or if it's now before the PO date.
-        if (!currentExpectedDateObj || currentExpectedDateObj < poDateObj) {
-            const newExpectedDate = new Date(poDateObj);
-            newExpectedDate.setDate(newExpectedDate.getDate() + 14); // Add 14 days
-
-            // Format to 'YYYY-MM-DD' for the input
-            const year = newExpectedDate.getFullYear();
-            const month = String(newExpectedDate.getMonth() + 1).padStart(2, '0');
-            const day = String(newExpectedDate.getDate()).padStart(2, '0');
-            
-            editingPO.expecteddate = `${year}-${month}-${day}`;
-        }
-    })">
+    <div x-show="activeTab === 'editor'" x-transition x-cloak>
         <!-- Editor Header -->
         <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex-1">
@@ -315,11 +294,27 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PO Date</label>
                         <div class="relative">
-                            <input x-model="editingPO.date" x-init="flatpickr($el, {
+                            <input x-model="editingPO.date" x-init="
+                            const fp = flatpickr($el, {
                                 dateFormat: 'Y-m-d',
                                 defaultDate: editingPO.date,
-                                onChange: (selectedDates, dateStr) => { editingPO.date = dateStr }
-                            })" class="w-full rounded-lg border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                onChange: (selectedDates, dateStr) => { 
+                                    editingPO.date = dateStr;
+                                    // Auto-calculate Expected Date (PO Date + 14 days)
+                                    if (selectedDates.length > 0) {
+                                        const poDate = selectedDates[0];
+                                        const currentExpected = editingPO.expecteddate ? new Date(editingPO.expecteddate) : null;
+                                        // Only update if expected date is empty or invalid (before PO date)
+                                        if (!currentExpected || currentExpected < poDate) {
+                                            const newExpected = new Date(poDate);
+                                            newExpected.setDate(newExpected.getDate() + 14);
+                                            editingPO.expecteddate = newExpected.toISOString().split('T')[0];
+                                        }
+                                    }
+                                }
+                            });
+                            $watch('editingPO.date', (val) => val ? fp.setDate(val) : fp.clear());
+                            " class="w-full rounded-lg border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                 placeholder="Select Date" />
                             <div
                                 class="absolute inset-0 right-auto flex items-center pointer-events-none left-3 text-gray-500 dark:text-gray-400">
@@ -333,11 +328,14 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expected
                             Date</label>
                         <div class="relative">
-                            <input x-model="editingPO.expecteddate" x-init="flatpickr($el, {
+                            <input x-model="editingPO.expecteddate" x-init="
+                            const fp = flatpickr($el, {
                                 dateFormat: 'Y-m-d',
                                 defaultDate: editingPO.expecteddate,
                                 onChange: (selectedDates, dateStr) => { editingPO.expecteddate = dateStr }
-                            })" class="w-full rounded-lg border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                            });
+                            $watch('editingPO.expecteddate', (val) => val ? fp.setDate(val) : fp.clear());
+                            " class="w-full rounded-lg border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                 placeholder="Select Date" />
                             <div
                                 class="absolute inset-0 right-auto flex items-center pointer-events-none left-3 text-gray-500 dark:text-gray-400">
