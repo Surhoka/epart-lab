@@ -977,6 +977,36 @@ const registerPosReports = () => {
             this.dateRange.from = thirtyDaysAgo.toISOString().split('T')[0];
 
             await this.loadReports();
+
+            this.$nextTick(() => {
+                this.initDatePicker();
+            });
+        },
+
+        initDatePicker() {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr(".datepicker", {
+                    mode: "range",
+                    static: true,
+                    monthSelectorType: "static",
+                    dateFormat: "M j, Y",
+                    defaultDate: [this.dateRange.from, this.dateRange.to],
+                    prevArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8L1.4 6.8 5.4 2.8 6.8 4.2 4.2 6.8 6.8 9.4z" /></svg>',
+                    nextArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L5.4 6.8 1.4 2.8 0 4.2 2.6 6.8 0 9.4z" /></svg>',
+                    onChange: (selectedDates, dateStr, instance) => {
+                        if (selectedDates.length === 2) {
+                            const format = (d) => {
+                                const offset = d.getTimezoneOffset();
+                                const local = new Date(d.getTime() - (offset * 60 * 1000));
+                                return local.toISOString().split('T')[0];
+                            };
+                            this.dateRange.from = format(selectedDates[0]);
+                            this.dateRange.to = format(selectedDates[1]);
+                            this.loadReports();
+                        }
+                    }
+                });
+            }
         },
 
         async loadReports() {
