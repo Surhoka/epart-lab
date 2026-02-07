@@ -1211,6 +1211,7 @@ const registerPurchaseOrders = () => {
         // Data Management
         purchaseOrders: [],
         filteredPurchaseOrders: [],
+        masterParts: [],
         isLoading: false,
 
         // Filters
@@ -1376,6 +1377,7 @@ const registerPurchaseOrders = () => {
                 console.error('Failed to parse EzypartsConfig', e);
             }
             await this.loadPurchaseOrders();
+            this.loadMasterParts();
         },
 
         async loadPurchaseOrders() {
@@ -1396,6 +1398,20 @@ const registerPurchaseOrders = () => {
                 window.showToast?.('Failed to load purchase orders: ' + err, 'error');
             } finally {
                 this.isLoading = false;
+            }
+        },
+
+        async loadMasterParts() {
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getMasterParts', { dbId: this.dbId }, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+                this.masterParts = response || [];
+            } catch (err) {
+                console.error('Failed to load master parts:', err);
             }
         },
 
@@ -1504,6 +1520,21 @@ const registerPurchaseOrders = () => {
         removePOItem(index) {
             this.editingPO.items.splice(index, 1);
             this.calculatePOTotals();
+        },
+
+        lookupPart(index) {
+            const item = this.editingPO.items[index];
+            if (!item.partnumber) return;
+
+            const part = this.masterParts.find(p =>
+                String(p.partnumber).toLowerCase() === String(item.partnumber).toLowerCase()
+            );
+
+            if (part) {
+                item.name = part.name || '';
+                item.unitprice = Number(part.purchaseprice) || Number(part.sellingprice) || 0;
+                this.calculatePOTotals();
+            }
         },
 
         calculatePOTotals() {
