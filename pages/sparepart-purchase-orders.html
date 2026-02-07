@@ -415,8 +415,8 @@
                                 <input type="text" x-model="item.partnumber" @change="lookupPart(index)"
                                     list="master-parts-list" placeholder="Part Number *" required
                                     class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
-                                <input type="text" x-model="item.name" placeholder="Item Name *" required
-                                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                <input type="text" x-model="item.name" placeholder="Item Name *" required readonly
+                                    class="w-full rounded-lg border-gray-200 bg-gray-100 py-2 px-3 text-sm text-gray-500 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed capitalize" />
                             </div>
                             <div class="w-20">
                                 <input type="number" x-model="item.quantity" placeholder="Qty" min="1" required
@@ -425,8 +425,8 @@
                             </div>
                             <div class="w-28">
                                 <input type="number" x-model="item.unitprice" placeholder="Unit Price" min="0"
-                                    step="0.01" @input="calculatePOTotals()"
-                                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                    step="0.01" @input="calculatePOTotals()" readonly
+                                    class="w-full rounded-lg border-gray-200 bg-gray-100 py-2 px-3 text-sm text-gray-500 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed" />
                             </div>
                             <div class="w-28 text-right">
                                 <span class="font-semibold text-gray-900 dark:text-white"
@@ -510,7 +510,8 @@
                         <template x-for="(item, index) in receivingData.items" :key="index">
                             <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                 <div class="flex-1">
-                                    <div class="font-medium text-gray-900 dark:text-white" x-text="item.name"></div>
+                                    <div class="font-medium text-gray-900 dark:text-white capitalize"
+                                        x-text="item.name"></div>
                                     <div class="text-sm text-gray-500 font-mono" x-text="item.partnumber"></div>
                                 </div>
                                 <div class="text-center">
@@ -670,7 +671,7 @@
                                         <tr>
                                             <td class="px-4 py-3 text-sm font-mono text-gray-900 dark:text-white"
                                                 x-text="item.partnumber"></td>
-                                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-white"
+                                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-white capitalize"
                                                 x-text="item.name">
                                             </td>
                                             <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white"
