@@ -1704,6 +1704,7 @@ const registerReceivingHistory = () => {
         receivingForm: {
             date: new Date().toISOString().split('T')[0],
             discount: 0,
+            discountType: 'fixed',
             items: [],
             notes: ''
         },
@@ -1866,6 +1867,7 @@ const registerReceivingHistory = () => {
             this.receivingForm = {
                 date: new Date().toISOString().split('T')[0],
                 discount: 0,
+                discountType: 'fixed',
                 items: poItems.map(item => ({
                     ...item,
                     orderedqty: item.quantity,
@@ -1878,7 +1880,13 @@ const registerReceivingHistory = () => {
 
         calculateProcessingTotal() {
             const subtotal = this.receivingForm.items.reduce((sum, item) => sum + (item.quantity * item.unitprice), 0);
-            return subtotal - (Number(this.receivingForm.discount) || 0);
+            let discount = Number(this.receivingForm.discount) || 0;
+
+            if (this.receivingForm.discountType === 'percent') {
+                discount = (subtotal * discount) / 100;
+            }
+
+            return subtotal - discount;
         },
 
         async submitProcessing() {
