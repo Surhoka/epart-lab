@@ -1252,8 +1252,7 @@ const registerPurchaseOrders = () => {
             dateTo: ''
         },
 
-        // Modal Management (only for receiving)
-        showReceivingModal: false,
+        // Modal Management
         showDetailsModal: false,
         selectedPO: null,
 
@@ -1265,12 +1264,6 @@ const registerPurchaseOrders = () => {
             notes: '',
             items: [],
             total: 0
-        },
-
-        receivingData: {
-            date: '',
-            items: [],
-            notes: ''
         },
 
         async init() {
@@ -1556,71 +1549,6 @@ const registerPurchaseOrders = () => {
             }
         },
 
-        openReceivingModal(po) {
-            this.selectedPO = po;
-
-            // Parse PO items
-            let poItems = [];
-            try {
-                poItems = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
-            } catch (e) {
-                poItems = [];
-            }
-
-            // Prepare receiving data
-            this.receivingData = {
-                date: new Date().toISOString().split('T')[0],
-                items: poItems.map(item => ({
-                    ...item,
-                    orderedqty: item.quantity,
-                    receivedqty: item.receivedqty || 0,
-                    receivingnow: 0
-                })),
-                notes: ''
-            };
-
-            this.showReceivingModal = true;
-        },
-
-        closeReceivingModal() {
-            this.showReceivingModal = false;
-            this.selectedPO = null;
-            this.receivingData = {
-                date: '',
-                items: [],
-                notes: ''
-            };
-        },
-
-        async processReceiving() {
-            try {
-                const receivingData = {
-                    dbId: this.dbId,
-                    poid: this.selectedPO.id,
-                    ponumber: this.selectedPO.ponumber,
-                    supplier: this.selectedPO.supplier,
-                    date: this.receivingData.date,
-                    items: this.receivingData.items.filter(item => item.receivingnow > 0),
-                    notes: this.receivingData.notes
-                };
-
-                const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('processReceiving', receivingData, (res) => {
-                        if (res.status === 'success') resolve(res);
-                        else reject(res.message);
-                    }, (err) => reject(err));
-                });
-
-                window.showToast?.(response.message, 'success');
-                this.closeReceivingModal();
-                await this.loadPurchaseOrders();
-
-            } catch (err) {
-                console.error('Failed to process receiving:', err);
-                window.showToast?.('Failed to process receiving: ' + err, 'error');
-            }
-        },
-
         viewPODetails(po) {
             this.selectedPO = po;
             try {
@@ -1643,16 +1571,6 @@ const registerPurchaseOrders = () => {
             // Use setTimeout to ensure modal is closed before opening editor
             setTimeout(() => {
                 this.editPOInTab(poData);
-            }, 100);
-        },
-
-        receiveFromModal(po) {
-            // Deep copy PO data before closing modal to prevent null reference
-            const poData = JSON.parse(JSON.stringify(po));
-            this.closeDetailsModal();
-            // Use setTimeout to ensure modal is closed before opening receiving modal
-            setTimeout(() => {
-                this.openReceivingModal(poData);
             }, 100);
         },
 
@@ -1773,10 +1691,22 @@ const registerPurchaseOrders = () => {
 const registerReceivingHistory = () => {
     window.Alpine.data('receivingHistory', () => ({
         dbId: null,
+        activeTab: 'history',
         // Data Management
         receivings: [],
         filteredReceivings: [],
+        pendingPOs: [],
         isLoading: false,
+        searchPO: '',
+
+        // Processing Form
+        processingPO: null,
+        receivingForm: {
+            date: new Date().toISOString().split('T')[0],
+            discount: 0,
+            items: [],
+            notes: ''
+        },
 
         // Filters
         filters: {
@@ -1803,6 +1733,7 @@ const registerReceivingHistory = () => {
                 console.error('Failed to parse EzypartsConfig', e);
             }
             await this.loadReceivingHistory();
+            await this.loadPendingPOs();
         },
 
         async loadReceivingHistory() {
@@ -1826,8 +1757,27 @@ const registerReceivingHistory = () => {
             }
         },
 
+        async loadPendingPOs() {
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getPurchaseOrders', { dbId: this.dbId }, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                // Filter POs that are ready to be received
+                this.pendingPOs = (response || []).filter(po =>
+                    po.status === 'sent' || po.status === 'confirmed' || po.status === 'partial'
+                );
+            } catch (err) {
+                console.error('Failed to load pending POs:', err);
+            }
+        },
+
         async refreshReceivingHistory() {
             await this.loadReceivingHistory();
+            await this.loadPendingPOs();
             window.showToast?.('Receiving history refreshed');
         },
 
@@ -1894,6 +1844,78 @@ const registerReceivingHistory = () => {
         formatDate(date) {
             if (!date) return '';
             return new Date(date).toLocaleDateString('id-ID');
+        },
+
+        // New Methods for Processing Tab
+        get filteredPendingPOs() {
+            if (!this.searchPO) return this.pendingPOs;
+            const q = this.searchPO.toLowerCase();
+            return this.pendingPOs.filter(po =>
+                (po.ponumber || '').toLowerCase().includes(q) ||
+                (po.supplier || '').toLowerCase().includes(q)
+            );
+        },
+
+        selectPOForProcessing(po) {
+            this.processingPO = po;
+            let poItems = [];
+            try {
+                poItems = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
+            } catch (e) { poItems = []; }
+
+            this.receivingForm = {
+                date: new Date().toISOString().split('T')[0],
+                discount: 0,
+                items: poItems.map(item => ({
+                    ...item,
+                    orderedqty: item.quantity,
+                    receivedqty: item.receivedqty || 0,
+                    receivingnow: 0
+                })),
+                notes: ''
+            };
+        },
+
+        calculateProcessingTotal() {
+            const subtotal = this.receivingForm.items.reduce((sum, item) => sum + (item.quantity * item.unitprice), 0);
+            return subtotal - (Number(this.receivingForm.discount) || 0);
+        },
+
+        async submitProcessing() {
+            if (!this.processingPO) return;
+
+            try {
+                const receivingData = {
+                    dbId: this.dbId,
+                    poid: this.processingPO.id,
+                    ponumber: this.processingPO.ponumber,
+                    supplier: this.processingPO.supplier,
+                    date: this.receivingForm.date,
+                    items: this.receivingForm.items.filter(item => item.receivingnow > 0),
+                    notes: this.receivingForm.notes
+                };
+
+                if (receivingData.items.length === 0) {
+                    window.showToast?.('Please enter received quantity for at least one item', 'error');
+                    return;
+                }
+
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('processReceiving', receivingData, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                window.showToast?.(response.message, 'success');
+                this.processingPO = null;
+                await this.refreshReceivingHistory();
+                this.activeTab = 'history';
+
+            } catch (err) {
+                console.error('Failed to process receiving:', err);
+                window.showToast?.('Failed to process receiving: ' + err, 'error');
+            }
         }
     }));
 };
