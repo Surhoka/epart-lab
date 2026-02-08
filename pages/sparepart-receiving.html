@@ -241,7 +241,7 @@
                                             class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
                                             <div class="flex-1">
                                                 <div class="font-medium text-gray-900 dark:text-white text-sm"
-                                                    x-text="item.name"></div>
+                                                    x-text="toTitleCase(item.name)"></div>
                                                 <div class="text-xs text-gray-500 font-mono" x-text="item.partnumber">
                                                 </div>
                                             </div>
@@ -280,7 +280,7 @@
                                     <span class="text-lg font-bold text-brand-600 ml-2"
                                         x-text="formatPrice(calculateProcessingTotal())"></span>
                                 </div>
-                                <button type="submit"
+                                <button type="submit" id="confirm-receiving-btn"
                                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-brand-600 transition-all active:scale-95">
                                     Confirm Receiving
                                 </button>
@@ -371,7 +371,7 @@
                                             <td class="px-4 py-3 text-sm font-mono text-gray-900 dark:text-white"
                                                 x-text="item.partnumber"></td>
                                             <td class="px-4 py-3 text-sm text-gray-900 dark:text-white"
-                                                x-text="item.name"></td>
+                                                x-text="toTitleCase(item.name)"></td>
                                             <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white"
                                                 x-text="item.orderedqty"></td>
                                             <td class="px-4 py-3 text-sm text-center font-semibold text-green-600"
