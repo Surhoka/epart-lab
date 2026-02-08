@@ -1847,6 +1847,23 @@ const registerReceivingHistory = () => {
             return new Date(date).toLocaleDateString('id-ID');
         },
 
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(price || 0);
+        },
+
+        getCurrentUser() {
+            try {
+                const user = JSON.parse(localStorage.getItem('signedInUser') || '{}');
+                return user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'System';
+            } catch (e) {
+                return 'System';
+            }
+        },
+
         // New Methods for Processing Tab
         get filteredPendingPOs() {
             if (!this.searchPO) return this.pendingPOs;
@@ -1900,7 +1917,8 @@ const registerReceivingHistory = () => {
                     supplier: this.processingPO.supplier,
                     date: this.receivingForm.date,
                     items: this.receivingForm.items.filter(item => item.receivingnow > 0),
-                    notes: this.receivingForm.notes
+                    notes: this.receivingForm.notes,
+                    receivedby: this.getCurrentUser()
                 };
 
                 if (receivingData.items.length === 0) {
