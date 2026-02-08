@@ -134,13 +134,8 @@
                                             title="View Details">
                                             <span class="w-4 h-4" x-icon="'eye'"></span>
                                         </button>
-                                        <template x-if="po.status === 'confirmed' || po.status === 'partial'">
+                                        <template x-if="po.status === 'confirmed'">
                                             <div class="flex items-center gap-2">
-                                                <button @click="openReceivingModal(po)"
-                                                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                                                    title="Receive Items">
-                                                    <span class="w-4 h-4" x-icon="'package'"></span>
-                                                </button>
                                                 <template x-if="po.status === 'confirmed'">
                                                     <button @click="sendPOToSupplier(po)"
                                                         class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
@@ -460,89 +455,6 @@
         </div>
     </div>
 
-    <!-- Receiving Modal -->
-    <div x-show="showReceivingModal" :class="{ 'show': showReceivingModal }" x-transition
-        class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
-        <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
-            @click="closeReceivingModal()"></div>
-        <div
-            class="modal-dialog relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
-            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Receive Items - PO: <span
-                            x-text="selectedPO?.ponumber"></span></h3>
-                    <button @click="closeReceivingModal()" class="text-gray-400 hover:text-gray-600">
-                        <span class="w-6 h-6" x-icon="'close'"></span>
-                    </button>
-                </div>
-
-                <form @submit.prevent="processReceiving()">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving
-                            Date</label>
-                        <input type="date" x-model="receivingData.date" required
-                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
-                    </div>
-
-                    <!-- Items to Receive -->
-                    <div class="mb-6">
-                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Items to Receive</h4>
-                        <div class="space-y-3">
-                            <template x-for="(item, index) in receivingData.items" :key="index">
-                                <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                    <div class="flex-1">
-                                        <div class="font-medium text-gray-900 dark:text-white capitalize"
-                                            x-text="item.name"></div>
-                                        <div class="text-sm text-gray-500 font-mono" x-text="item.partnumber"></div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-sm text-gray-500">Ordered</div>
-                                        <div class="font-semibold" x-text="item.orderedqty"></div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-sm text-gray-500">Previously Received</div>
-                                        <div class="font-semibold" x-text="item.receivedqty || 0"></div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-sm text-gray-500">Remaining</div>
-                                        <div class="font-semibold text-orange-600"
-                                            x-text="item.orderedqty - (item.receivedqty || 0)"></div>
-                                    </div>
-                                    <div class="w-24">
-                                        <label class="block text-sm text-gray-500 mb-1">Receive Now</label>
-                                        <input type="number" x-model="item.receivingnow"
-                                            :max="item.orderedqty - (item.receivedqty || 0)" min="0"
-                                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving
-                            Notes</label>
-                        <textarea x-model="receivingData.notes" rows="3"
-                            placeholder="Any notes about the received items..."
-                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex justify-end gap-3">
-                        <button type="button" @click="closeReceivingModal()"
-                            class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                            class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
-                            Process Receiving
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- PO Details Modal -->
     <div x-show="showDetailsModal" :class="{ 'show': showDetailsModal }" x-transition
         class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
@@ -736,15 +648,6 @@
                                         <span class="inline-flex items-center gap-2">
                                             <span class="w-4 h-4" x-icon="'pencil'"></span>
                                             Edit PO
-                                        </span>
-                                    </button>
-                                </template>
-                                <template x-if="selectedPO.status === 'confirmed' || selectedPO.status === 'partial'">
-                                    <button type="button" @click="receiveFromModal(selectedPO)"
-                                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
-                                        <span class="inline-flex items-center gap-2">
-                                            <span class="w-4 h-4" x-icon="'package'"></span>
-                                            Receive Items
                                         </span>
                                     </button>
                                 </template>
