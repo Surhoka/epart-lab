@@ -1896,7 +1896,7 @@ const registerReceivingHistory = () => {
         },
 
         calculateProcessingTotal() {
-            const subtotal = this.receivingForm.items.reduce((sum, item) => sum + (item.quantity * item.unitprice), 0);
+            const subtotal = this.receivingForm.items.reduce((sum, item) => sum + (Number(item.receivingnow || 0) * Number(item.unitprice || 0)), 0);
             let discount = Number(this.receivingForm.discount) || 0;
 
             if (this.receivingForm.discountType === 'percent') {
@@ -1920,6 +1920,10 @@ const registerReceivingHistory = () => {
                     supplier: this.processingPO.supplier,
                     date: this.receivingForm.date,
                     items: this.receivingForm.items.filter(item => item.receivingnow > 0),
+                    subtotal: this.receivingForm.items.reduce((sum, item) => sum + (item.receivingnow * item.unitprice), 0),
+                    discount: Number(this.receivingForm.discount) || 0,
+                    discountType: this.receivingForm.discountType,
+                    total: this.calculateProcessingTotal(),
                     notes: this.receivingForm.notes,
                     receivedby: this.getCurrentUser()
                 };
@@ -1957,6 +1961,31 @@ const registerReceivingHistory = () => {
                 if (!w) return '';
                 return w.charAt(0).toUpperCase() + w.slice(1);
             }).join(' ');
+        },
+
+        calculateLineUnitPriceAfterDiscount(item, receiving) {
+            const unitPrice = Number(item.unitprice || 0);
+            const subtotal = receiving.subtotal || 0;
+            const discount = receiving.discount || 0;
+            const discountType = receiving.discountType || 'fixed';
+
+            if (subtotal === 0) return unitPrice;
+
+            let totalEffectiveDiscount = discount;
+            if (discountType === 'percent') {
+                totalEffectiveDiscount = (subtotal * discount) / 100;
+            }
+
+            // Proportional discount allocation
+            const portion = unitPrice / subtotal;
+            const lineDiscountPerUnit = totalEffectiveDiscount * portion;
+            return Math.max(0, unitPrice - lineDiscountPerUnit);
+        },
+
+        calculateLineTotal(item, receiving) {
+            const qty = Number(item.receivingnow || 0);
+            const priceAfter = this.calculateLineUnitPriceAfterDiscount(item, receiving);
+            return qty * priceAfter;
         }
     }));
 };
