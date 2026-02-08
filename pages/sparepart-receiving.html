@@ -375,11 +375,11 @@
                                             <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white"
                                                 x-text="item.orderedqty"></td>
                                             <td class="px-4 py-3 text-sm text-center font-semibold text-green-600"
-                                                x-text="item.receivedqty"></td>
+                                                x-text="item.receivingnow"></td>
                                             <td class="px-4 py-3 text-center">
                                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                                    :class="item.receivedqty >= item.orderedqty ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
-                                                    x-text="item.receivedqty >= item.orderedqty ? 'Complete' : 'Partial'"></span>
+                                                    :class="((item.receivedqty || 0) + (item.receivingnow || 0)) >= item.orderedqty ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                                                    x-text="((item.receivedqty || 0) + (item.receivingnow || 0)) >= item.orderedqty ? 'Complete' : 'Partial'"></span>
                                             </td>
                                         </tr>
                                     </template>
