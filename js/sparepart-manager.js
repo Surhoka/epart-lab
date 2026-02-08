@@ -1909,6 +1909,9 @@ const registerReceivingHistory = () => {
         async submitProcessing() {
             if (!this.processingPO) return;
 
+            const btn = document.getElementById('confirm-receiving-btn');
+            window.setButtonLoading?.(btn, true);
+
             try {
                 const receivingData = {
                     dbId: this.dbId,
@@ -1923,6 +1926,7 @@ const registerReceivingHistory = () => {
 
                 if (receivingData.items.length === 0) {
                     window.showToast?.('Please enter received quantity for at least one item', 'error');
+                    window.setButtonLoading?.(btn, false);
                     return;
                 }
 
@@ -1941,7 +1945,18 @@ const registerReceivingHistory = () => {
             } catch (err) {
                 console.error('Failed to process receiving:', err);
                 window.showToast?.('Failed to process receiving: ' + err, 'error');
+            } finally {
+                window.setButtonLoading?.(btn, false);
             }
+        },
+
+        toTitleCase(str) {
+            if (!str) return '';
+            return str.toLowerCase().split(' ').map(word => {
+                const w = word.trim();
+                if (!w) return '';
+                return w.charAt(0).toUpperCase() + w.slice(1);
+            }).join(' ');
         }
     }));
 };
