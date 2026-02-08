@@ -466,77 +466,80 @@
         <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
             @click="closeReceivingModal()"></div>
         <div
-            class="modal-dialog relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Receive Items - PO: <span
-                        x-text="selectedPO?.ponumber"></span></h3>
-                <button @click="closeReceivingModal()" class="text-gray-400 hover:text-gray-600">
-                    <span class="w-6 h-6" x-icon="'close'"></span>
-                </button>
-            </div>
-
-            <form @submit.prevent="processReceiving()">
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving
-                        Date</label>
-                    <input type="date" x-model="receivingData.date" required
-                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+            class="modal-dialog relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Receive Items - PO: <span
+                            x-text="selectedPO?.ponumber"></span></h3>
+                    <button @click="closeReceivingModal()" class="text-gray-400 hover:text-gray-600">
+                        <span class="w-6 h-6" x-icon="'close'"></span>
+                    </button>
                 </div>
 
-                <!-- Items to Receive -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Items to Receive</h4>
-                    <div class="space-y-3">
-                        <template x-for="(item, index) in receivingData.items" :key="index">
-                            <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <div class="flex-1">
-                                    <div class="font-medium text-gray-900 dark:text-white capitalize"
-                                        x-text="item.name"></div>
-                                    <div class="text-sm text-gray-500 font-mono" x-text="item.partnumber"></div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-sm text-gray-500">Ordered</div>
-                                    <div class="font-semibold" x-text="item.orderedqty"></div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-sm text-gray-500">Previously Received</div>
-                                    <div class="font-semibold" x-text="item.receivedqty || 0"></div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-sm text-gray-500">Remaining</div>
-                                    <div class="font-semibold text-orange-600"
-                                        x-text="item.orderedqty - (item.receivedqty || 0)"></div>
-                                </div>
-                                <div class="w-24">
-                                    <label class="block text-sm text-gray-500 mb-1">Receive Now</label>
-                                    <input type="number" x-model="item.receivingnow"
-                                        :max="item.orderedqty - (item.receivedqty || 0)" min="0"
-                                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
-                                </div>
-                            </div>
-                        </template>
+                <form @submit.prevent="processReceiving()">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving
+                            Date</label>
+                        <input type="date" x-model="receivingData.date" required
+                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
                     </div>
-                </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving
-                        Notes</label>
-                    <textarea x-model="receivingData.notes" rows="3" placeholder="Any notes about the received items..."
-                        class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
-                </div>
+                    <!-- Items to Receive -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Items to Receive</h4>
+                        <div class="space-y-3">
+                            <template x-for="(item, index) in receivingData.items" :key="index">
+                                <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900 dark:text-white capitalize"
+                                            x-text="item.name"></div>
+                                        <div class="text-sm text-gray-500 font-mono" x-text="item.partnumber"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm text-gray-500">Ordered</div>
+                                        <div class="font-semibold" x-text="item.orderedqty"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm text-gray-500">Previously Received</div>
+                                        <div class="font-semibold" x-text="item.receivedqty || 0"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm text-gray-500">Remaining</div>
+                                        <div class="font-semibold text-orange-600"
+                                            x-text="item.orderedqty - (item.receivedqty || 0)"></div>
+                                    </div>
+                                    <div class="w-24">
+                                        <label class="block text-sm text-gray-500 mb-1">Receive Now</label>
+                                        <input type="number" x-model="item.receivingnow"
+                                            :max="item.orderedqty - (item.receivedqty || 0)" min="0"
+                                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
 
-                <!-- Actions -->
-                <div class="flex justify-end gap-3">
-                    <button type="button" @click="closeReceivingModal()"
-                        class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
-                        Process Receiving
-                    </button>
-                </div>
-            </form>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Receiving
+                            Notes</label>
+                        <textarea x-model="receivingData.notes" rows="3"
+                            placeholder="Any notes about the received items..."
+                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-end gap-3">
+                        <button type="button" @click="closeReceivingModal()"
+                            class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
+                            Process Receiving
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -546,204 +549,210 @@
         <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
             @click="closeDetailsModal()"></div>
         <div
-            class="modal-dialog relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Purchase Order Details</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
-                            class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button @click="sendPOToSupplier(selectedPO)"
-                        class="text-gray-400 hover:text-purple-600 transition-colors" title="Send Email to Supplier">
-                        <span class="w-6 h-6" x-icon="'paper-airplane'"></span>
-                    </button>
-                    <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
-                        <span class="w-6 h-6" x-icon="'close'"></span>
-                    </button>
-                </div>
-            </div>
-
-            <template x-if="selectedPO">
-                <div class="space-y-6">
-                    <!-- PO Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Order Information
-                            </h4>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Supplier:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white"
-                                        x-text="selectedPO.supplier"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Order Date:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white"
-                                        x-text="formatDate(selectedPO.date)"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Expected Date:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white"
-                                        x-text="selectedPO.expecteddate ? formatDate(selectedPO.expecteddate) : '-'"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Status:</span>
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                        :class="getStatusColor(selectedPO.status)"
-                                        x-text="getStatusLabel(selectedPO.status)"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Order Summary</h4>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Total Items:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white"
-                                        x-text="getItemCount(selectedPO.items)"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Total Amount:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white"
-                                        x-text="formatPrice(selectedPO.total)"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-500">Created By:</span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white"
-                                        x-text="selectedPO.createdby || 'System'"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Items List -->
+            class="modal-dialog relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+                <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Order Items</h4>
-                        <div
-                            class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-                            <table class="w-full">
-                                <thead class="bg-gray-50 dark:bg-gray-800">
-                                    <tr>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                                            Part Number</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                                            Item Name</th>
-                                        <th
-                                            class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                                            Ordered</th>
-                                        <th
-                                            class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                                            Received</th>
-                                        <th
-                                            class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                                            Unit Price</th>
-                                        <th
-                                            class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                                            Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    <template x-for="(item, index) in selectedPO.items" :key="index">
-                                        <tr>
-                                            <td class="px-4 py-3 text-sm font-mono text-gray-900 dark:text-white"
-                                                x-text="item.partnumber"></td>
-                                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-white capitalize"
-                                                x-text="item.name">
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white"
-                                                x-text="item.quantity"></td>
-                                            <td class="px-4 py-3 text-sm text-center">
-                                                <span
-                                                    :class="(item.receivedqty || 0) >= item.quantity ? 'text-green-600' : 'text-orange-600'"
-                                                    class="font-semibold" x-text="item.receivedqty || 0"></span>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white"
-                                                x-text="formatPrice(item.unitprice)"></td>
-                                            <td class="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white"
-                                                x-text="formatPrice(item.quantity * item.unitprice)"></td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                                <tfoot class="bg-gray-50 dark:bg-gray-800">
-                                    <tr>
-                                        <td colspan="5"
-                                            class="px-4 py-3 text-sm font-semibold text-right text-gray-900 dark:text-white">
-                                            Total:</td>
-                                        <td class="px-4 py-3 text-sm font-bold text-right text-brand-600"
-                                            x-text="formatPrice(selectedPO.total)"></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Purchase Order Details</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
+                                class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
                     </div>
-
-                    <!-- Notes -->
-                    <template x-if="selectedPO.notes">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Notes</h4>
-                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                                <p class="text-sm text-gray-700 dark:text-gray-300" x-text="selectedPO.notes"></p>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- Actions -->
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <!-- Left Actions (Delete) -->
-                        <div>
-                            <template
-                                x-if="selectedPO.status === 'draft' || selectedPO.status === 'cancelled' || selectedPO.status === 'confirmed'">
-                                <button type="button" @click="deletePO(selectedPO); closeDetailsModal()"
-                                    class="text-red-600 hover:text-red-900 text-sm font-medium flex items-center gap-2">
-                                    <span class="w-4 h-4" x-icon="'trash'"></span>
-                                    Delete PO
-                                </button>
-                            </template>
-                        </div>
-
-                        <!-- Right Actions -->
-                        <div class="flex gap-3">
-                            <button type="button" @click="closeDetailsModal()"
-                                class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                                Close
-                            </button>
-
-                            <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
-                                <button type="button" @click="sendPOToSupplier(selectedPO)"
-                                    class="rounded-lg bg-purple-500 px-4 py-2 text-sm font-medium text-white hover:bg-purple-600">
-                                    <span class="inline-flex items-center gap-2">
-                                        <span class="w-4 h-4" x-icon="'paper-airplane'"></span>
-                                        Send to Supplier
-                                    </span>
-                                </button>
-                            </template>
-
-                            <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
-                                <button type="button" @click="editPOFromModal(selectedPO)"
-                                    class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
-                                    <span class="inline-flex items-center gap-2">
-                                        <span class="w-4 h-4" x-icon="'pencil'"></span>
-                                        Edit PO
-                                    </span>
-                                </button>
-                            </template>
-                            <template x-if="selectedPO.status === 'confirmed' || selectedPO.status === 'partial'">
-                                <button type="button" @click="receiveFromModal(selectedPO)"
-                                    class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
-                                    <span class="inline-flex items-center gap-2">
-                                        <span class="w-4 h-4" x-icon="'package'"></span>
-                                        Receive Items
-                                    </span>
-                                </button>
-                            </template>
-                        </div>
+                    <div class="flex items-center gap-3">
+                        <button @click="sendPOToSupplier(selectedPO)"
+                            class="text-gray-400 hover:text-purple-600 transition-colors"
+                            title="Send Email to Supplier">
+                            <span class="w-6 h-6" x-icon="'paper-airplane'"></span>
+                        </button>
+                        <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                            <span class="w-6 h-6" x-icon="'close'"></span>
+                        </button>
                     </div>
                 </div>
-            </template>
+
+                <template x-if="selectedPO">
+                    <div class="space-y-6">
+                        <!-- PO Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Order
+                                    Information
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Supplier:</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="selectedPO.supplier"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Order Date:</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="formatDate(selectedPO.date)"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Expected Date:</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="selectedPO.expecteddate ? formatDate(selectedPO.expecteddate) : '-'"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Status:</span>
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                            :class="getStatusColor(selectedPO.status)"
+                                            x-text="getStatusLabel(selectedPO.status)"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Order Summary
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Total Items:</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="getItemCount(selectedPO.items)"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Total Amount:</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="formatPrice(selectedPO.total)"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Created By:</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white"
+                                            x-text="selectedPO.createdby || 'System'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items List -->
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Order Items</h4>
+                            <div
+                                class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                        <tr>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                                Part Number</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                                Item Name</th>
+                                            <th
+                                                class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                                Ordered</th>
+                                            <th
+                                                class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                                Received</th>
+                                            <th
+                                                class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                                Unit Price</th>
+                                            <th
+                                                class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                                Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                        <template x-for="(item, index) in selectedPO.items" :key="index">
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm font-mono text-gray-900 dark:text-white"
+                                                    x-text="item.partnumber"></td>
+                                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white capitalize"
+                                                    x-text="item.name">
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white"
+                                                    x-text="item.quantity"></td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <span
+                                                        :class="(item.receivedqty || 0) >= item.quantity ? 'text-green-600' : 'text-orange-600'"
+                                                        class="font-semibold" x-text="item.receivedqty || 0"></span>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white"
+                                                    x-text="formatPrice(item.unitprice)"></td>
+                                                <td class="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white"
+                                                    x-text="formatPrice(item.quantity * item.unitprice)"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                    <tfoot class="bg-gray-50 dark:bg-gray-800">
+                                        <tr>
+                                            <td colspan="5"
+                                                class="px-4 py-3 text-sm font-semibold text-right text-gray-900 dark:text-white">
+                                                Total:</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-right text-brand-600"
+                                                x-text="formatPrice(selectedPO.total)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <template x-if="selectedPO.notes">
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Notes</h4>
+                                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                    <p class="text-sm text-gray-700 dark:text-gray-300" x-text="selectedPO.notes"></p>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Actions -->
+                        <div
+                            class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <!-- Left Actions (Delete) -->
+                            <div>
+                                <template
+                                    x-if="selectedPO.status === 'draft' || selectedPO.status === 'cancelled' || selectedPO.status === 'confirmed'">
+                                    <button type="button" @click="deletePO(selectedPO); closeDetailsModal()"
+                                        class="text-red-600 hover:text-red-900 text-sm font-medium flex items-center gap-2">
+                                        <span class="w-4 h-4" x-icon="'trash'"></span>
+                                        Delete PO
+                                    </button>
+                                </template>
+                            </div>
+
+                            <!-- Right Actions -->
+                            <div class="flex gap-3">
+                                <button type="button" @click="closeDetailsModal()"
+                                    class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                                    Close
+                                </button>
+
+                                <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
+                                    <button type="button" @click="sendPOToSupplier(selectedPO)"
+                                        class="rounded-lg bg-purple-500 px-4 py-2 text-sm font-medium text-white hover:bg-purple-600">
+                                        <span class="inline-flex items-center gap-2">
+                                            <span class="w-4 h-4" x-icon="'paper-airplane'"></span>
+                                            Send to Supplier
+                                        </span>
+                                    </button>
+                                </template>
+
+                                <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
+                                    <button type="button" @click="editPOFromModal(selectedPO)"
+                                        class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
+                                        <span class="inline-flex items-center gap-2">
+                                            <span class="w-4 h-4" x-icon="'pencil'"></span>
+                                            Edit PO
+                                        </span>
+                                    </button>
+                                </template>
+                                <template x-if="selectedPO.status === 'confirmed' || selectedPO.status === 'partial'">
+                                    <button type="button" @click="receiveFromModal(selectedPO)"
+                                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
+                                        <span class="inline-flex items-center gap-2">
+                                            <span class="w-4 h-4" x-icon="'package'"></span>
+                                            Receive Items
+                                        </span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 </div>
