@@ -98,7 +98,7 @@
                                 Status</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Action</th>
+                                Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -264,37 +264,45 @@
         <!-- Main Workspace -->
         <div class="flex flex-col gap-6">
             <!-- Order Details Form -->
-            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Order Details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- PO Number -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PO Number</label>
-                        <input type="text" x-model="editingPO.ponumber" readonly placeholder="Auto-generated"
-                            class="w-full rounded-lg border-gray-200 bg-gray-50 text-gray-500 py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" />
-                    </div>
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+                x-data="{ expanded: true }">
+                <div class="flex items-center justify-between cursor-pointer" @click="expanded = !expanded">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Order Details</h3>
+                    <span class="w-5 h-5 text-gray-500 transition-transform duration-200"
+                        :class="expanded ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                </div>
+                <div x-show="expanded" x-collapse>
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- PO Number -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PO
+                                Number</label>
+                            <input type="text" x-model="editingPO.ponumber" readonly placeholder="Auto-generated"
+                                class="w-full rounded-lg border-gray-200 bg-gray-50 text-gray-500 py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" />
+                        </div>
 
-                    <!-- Supplier -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier
-                            Name</label>
-                        <input type="text" x-model="editingPO.supplier" placeholder="Enter supplier name..."
-                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
-                    </div>
+                        <!-- Supplier -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier
+                                Name</label>
+                            <input type="text" x-model="editingPO.supplier" placeholder="Enter supplier name..."
+                                class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                        </div>
 
-                    <!-- Supplier Email -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier
-                            Email</label>
-                        <input type="email" x-model="editingPO.supplieremail" placeholder="email@example.com"
-                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
-                    </div>
+                        <!-- Supplier Email -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier
+                                Email</label>
+                            <input type="email" x-model="editingPO.supplieremail" placeholder="email@example.com"
+                                class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                        </div>
 
-                    <!-- PO Date (Calendar) -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PO Date</label>
-                        <div class="relative">
-                            <input x-model="editingPO.date" x-init="
+                        <!-- PO Date (Calendar) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">PO
+                                Date</label>
+                            <div class="relative">
+                                <input x-model="editingPO.date" x-init="
                             const fp = flatpickr($el, {
                                 dateFormat: 'Y-m-d',
                                 defaultDate: editingPO.date,
@@ -315,20 +323,20 @@
                             });
                             $watch('editingPO.date', (val) => val ? fp.setDate(val) : fp.clear());
                             " class="w-full rounded-lg border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                                placeholder="Select Date" />
-                            <div
-                                class="absolute inset-0 right-auto flex items-center pointer-events-none left-3 text-gray-500 dark:text-gray-400">
-                                <span class="w-5 h-5" x-icon="'calendar'"></span>
+                                    placeholder="Select Date" />
+                                <div
+                                    class="absolute inset-0 right-auto flex items-center pointer-events-none left-3 text-gray-500 dark:text-gray-400">
+                                    <span class="w-5 h-5" x-icon="'calendar'"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Expected Date -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expected
-                            Date</label>
-                        <div class="relative">
-                            <input x-model="editingPO.expecteddate" x-init="
+                        <!-- Expected Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expected
+                                Date</label>
+                            <div class="relative">
+                                <input x-model="editingPO.expecteddate" x-init="
                             const fp = flatpickr($el, {
                                 dateFormat: 'Y-m-d',
                                 defaultDate: editingPO.expecteddate,
@@ -336,19 +344,20 @@
                             });
                             $watch('editingPO.expecteddate', (val) => val ? fp.setDate(val) : fp.clear());
                             " class="w-full rounded-lg border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                                placeholder="Select Date" />
-                            <div
-                                class="absolute inset-0 right-auto flex items-center pointer-events-none left-3 text-gray-500 dark:text-gray-400">
-                                <span class="w-5 h-5" x-icon="'calendar'"></span>
+                                    placeholder="Select Date" />
+                                <div
+                                    class="absolute inset-0 right-auto flex items-center pointer-events-none left-3 text-gray-500 dark:text-gray-400">
+                                    <span class="w-5 h-5" x-icon="'calendar'"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Notes -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
-                        <textarea x-model="editingPO.notes" rows="2" placeholder="Additional notes..."
-                            class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
+                        <!-- Notes -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
+                            <textarea x-model="editingPO.notes" rows="2" placeholder="Additional notes..."
+                                class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
