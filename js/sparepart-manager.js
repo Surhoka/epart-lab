@@ -1986,6 +1986,20 @@ const registerReceivingHistory = () => {
             const qty = Number(item.receivingnow || 0);
             const priceAfter = this.calculateLineUnitPriceAfterDiscount(item, receiving);
             return qty * priceAfter;
+        },
+
+        calculateLineDiscountPercent(item, receiving) {
+            const unitPrice = Number(item.unitprice || 0);
+            const priceAfter = this.calculateLineUnitPriceAfterDiscount(item, receiving);
+
+            if (unitPrice === 0) return '0%';
+
+            const discountAmount = unitPrice - priceAfter;
+            const percent = (discountAmount / unitPrice) * 100;
+
+            // Return '-' if no discount, otherwise format to 1 decimal place if needed
+            if (discountAmount <= 0) return '-';
+            return percent < 0.01 ? '0%' : (Number.isInteger(percent) ? percent : percent.toFixed(1)) + '%';
         }
     }));
 };
