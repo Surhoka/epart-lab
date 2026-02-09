@@ -1788,7 +1788,7 @@ const registerReceivingHistory = () => {
             if (this.filters.ponumber.trim()) {
                 const search = this.filters.ponumber.toLowerCase();
                 filtered = filtered.filter(r =>
-                    (r.ponumber || '').toLowerCase().includes(search)
+                    (r.poNumber || '').toLowerCase().includes(search)
                 );
             }
 
