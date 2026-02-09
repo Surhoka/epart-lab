@@ -277,11 +277,43 @@
                         </div>
 
                         <!-- Supplier -->
-                        <div>
+                        <div class="relative" x-data="{ open: false }">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier
                                 Name</label>
-                            <input type="text" x-model="editingPO.supplier" placeholder="Enter supplier name..."
-                                class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                            <div class="relative">
+                                <input type="text" x-model="editingPO.supplier" @focus="open = true"
+                                    @input="open = true" placeholder="Select or enter supplier..."
+                                    class="w-full rounded-lg border-gray-200 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+                                <button type="button" @click="open = !open"
+                                    class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400">
+                                    <span class="w-4 h-4" x-icon="'chevron-down'"></span>
+                                </button>
+                            </div>
+
+                            <!-- Dropdown -->
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                class="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-xl dark:border-gray-800 dark:bg-gray-900">
+                                <template
+                                    x-for="s in suppliers.filter(s => (s.company || s.name || '').toLowerCase().includes((editingPO.supplier || '').toLowerCase()))"
+                                    :key="s.id">
+                                    <button type="button" @click="selectSupplier(s); open = false"
+                                        class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 border-b border-gray-50 dark:border-gray-800 last:border-0">
+                                        <div class="flex flex-col items-start">
+                                            <span class="font-bold text-gray-900 dark:text-white"
+                                                x-text="s.company"></span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400"
+                                                x-text="s.name"></span>
+                                        </div>
+                                    </button>
+                                </template>
+                                <div x-show="suppliers.length > 0 && suppliers.filter(s => (s.company || s.name || '').toLowerCase().includes((editingPO.supplier || '').toLowerCase())).length === 0"
+                                    class="px-4 py-3 text-xs text-gray-500 italic">
+                                    No matching suppliers found. Press enter to use custom name.
+                                </div>
+                                <div x-show="suppliers.length === 0" class="px-4 py-3 text-xs text-gray-500 italic">
+                                    No registered suppliers found. Go to 'Suppliers' to add some.
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Supplier Email -->
