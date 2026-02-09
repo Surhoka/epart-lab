@@ -31,9 +31,9 @@
         </div>
     </div>
 
-    <!-- Supplier List Table -->
+    <!-- Desktop View (Table) -->
     <div
-        class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+        class="hidden md:block bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm transition-all duration-300">
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -60,9 +60,9 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-900 dark:text-white"
+                                    <span class="text-sm font-bold text-gray-900 dark:text-white line-clamp-1"
                                         x-text="supplier.company"></span>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400"
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1"
                                         x-text="supplier.name"></span>
                                 </div>
                             </td>
@@ -70,7 +70,7 @@
                                 <div class="flex flex-col gap-1">
                                     <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                         <span class="w-3.5 h-3.5" x-icon="'mail'"></span>
-                                        <span x-text="supplier.email || '-'"></span>
+                                        <span class="truncate max-w-[150px]" x-text="supplier.email || '-'"></span>
                                     </div>
                                     <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                         <span class="w-3.5 h-3.5" x-icon="'phone'"></span>
@@ -79,7 +79,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 max-w-xs"
+                                <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 max-w-[200px]"
                                     x-text="supplier.address || '-'"></p>
                             </td>
                             <td class="px-6 py-4">
@@ -105,26 +105,95 @@
                 </tbody>
             </table>
         </div>
+    </div>
 
-        <!-- Empty State -->
-        <template x-if="!isLoading && filteredSuppliers.length === 0">
-            <div class="flex flex-col items-center justify-center py-12">
-                <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                    <span class="w-8 h-8 text-gray-300" x-icon="'users'"></span>
+    <!-- Mobile View (Cards) -->
+    <div class="block md:hidden space-y-4">
+        <template x-for="supplier in filteredSuppliers" :key="supplier.id">
+            <div
+                class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm active:scale-[0.98] transition-transform">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex flex-col">
+                        <span class="text-base font-bold text-gray-900 dark:text-white"
+                            x-text="supplier.company"></span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400" x-text="supplier.name"></span>
+                    </div>
+                    <span
+                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                        :class="supplier.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'"
+                        x-text="supplier.status">
+                    </span>
                 </div>
-                <h3 class="text-sm font-medium text-gray-900 dark:text-white">No Suppliers Found</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Try changing your search or add a new supplier.
-                </p>
-            </div>
-        </template>
 
-        <!-- Loading Overlay -->
-        <template x-if="isLoading && suppliers.length === 0">
-            <div class="flex items-center justify-center py-20">
-                <span class="w-8 h-8 text-brand-500 animate-spin" x-icon="'refresh'"></span>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                        <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                            <span class="w-4 h-4" x-icon="'mail'"></span>
+                        </div>
+                        <span class="truncate" x-text="supplier.email || 'No email'"></span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                        <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                            <span class="w-4 h-4" x-icon="'phone'"></span>
+                        </div>
+                        <span x-text="supplier.phone || 'No phone'"></span>
+                    </div>
+                    <div class="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                            <span class="w-4 h-4" x-icon="'map-pin'"></span>
+                        </div>
+                        <span class="line-clamp-2" x-text="supplier.address || 'No address'"></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <button @click="editSupplier(supplier)"
+                        class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                        <span class="w-4 h-4" x-icon="'pencil'"></span>
+                        Edit
+                    </button>
+                    <button @click="deleteSupplier(supplier)"
+                        class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-red-50 dark:bg-red-900/10 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors">
+                        <span class="w-4 h-4" x-icon="'trash'"></span>
+                        Delete
+                    </button>
+                </div>
             </div>
         </template>
     </div>
+
+    <!-- Empty State -->
+    <template x-if="!isLoading && filteredSuppliers.length === 0">
+        <div class="flex flex-col items-center justify-center py-20 px-4 text-center">
+            <div class="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-3xl flex items-center justify-center mb-6">
+                <span class="w-10 h-10 text-gray-300" x-icon="'users'"></span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">No Suppliers Found</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs">
+                We couldn't find any suppliers matching your search. Try adjusting your filters or add a new one.
+            </p>
+            <button @click="openAddModal()"
+                class="mt-6 flex items-center gap-2 bg-brand-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/25">
+                <span class="w-4 h-4" x-icon="'plus'"></span>
+                Add Your First Supplier
+            </button>
+        </div>
+    </template>
+
+    <!-- Loading Overlay -->
+    <template x-if="isLoading && suppliers.length === 0">
+        <div
+            class="flex flex-col items-center justify-center py-32 px-4 shadow-sm border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900">
+            <div class="relative flex items-center justify-center mb-4">
+                <div class="absolute w-12 h-12 rounded-full border-4 border-brand-500/20"></div>
+                <div
+                    class="absolute w-12 h-12 rounded-full border-4 border-brand-500 border-t-transparent animate-spin">
+                </div>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Loading suppliers...</p>
+        </div>
+    </template>
 
     <!-- Add/Edit Modal -->
     <template x-teleport="body">
