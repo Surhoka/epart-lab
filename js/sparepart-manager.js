@@ -1390,18 +1390,24 @@ const registerPurchaseOrders = () => {
                 );
             }
 
-            if (this.filters.dateFrom) {
-                const fromDate = new Date(this.filters.dateFrom);
-                filtered = filtered.filter(po => new Date(po.date) >= fromDate);
+            if (this.filters.dateFrom || this.filters.dateTo) {
+                const fromTime = this.filters.dateFrom ? new Date(this.filters.dateFrom).getTime() : null;
+                const toTime = this.filters.dateTo ? new Date(this.filters.dateTo + 'T23:59:59').getTime() : null;
+
+                filtered = filtered.filter(po => {
+                    const poTime = new Date(po.date).getTime();
+                    if (fromTime && poTime < fromTime) return false;
+                    if (toTime && poTime > toTime) return false;
+                    return true;
+                });
             }
 
-            if (this.filters.dateTo) {
-                const toDate = new Date(this.filters.dateTo + 'T23:59:59');
-                filtered = filtered.filter(po => new Date(po.date) <= toDate);
-            }
-
-            // Sort by date descending
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Sort by date descending - Use cached timestamps for efficiency if many items
+            filtered.sort((a, b) => {
+                const timeA = new Date(a.date).getTime();
+                const timeB = new Date(b.date).getTime();
+                return timeB - timeA;
+            });
 
             this.filteredPurchaseOrders = filtered;
         },
@@ -1886,18 +1892,24 @@ const registerReceivingHistory = () => {
                 );
             }
 
-            if (this.filters.dateFrom) {
-                const fromDate = new Date(this.filters.dateFrom);
-                filtered = filtered.filter(r => new Date(r.date) >= fromDate);
-            }
+            if (this.filters.dateFrom || this.filters.dateTo) {
+                const fromTime = this.filters.dateFrom ? new Date(this.filters.dateFrom).getTime() : null;
+                const toTime = this.filters.dateTo ? new Date(this.filters.dateTo + 'T23:59:59').getTime() : null;
 
-            if (this.filters.dateTo) {
-                const toDate = new Date(this.filters.dateTo + 'T23:59:59');
-                filtered = filtered.filter(r => new Date(r.date) <= toDate);
+                filtered = filtered.filter(r => {
+                    const rTime = new Date(r.date).getTime();
+                    if (fromTime && rTime < fromTime) return false;
+                    if (toTime && rTime > toTime) return false;
+                    return true;
+                });
             }
 
             // Sort by date descending
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            filtered.sort((a, b) => {
+                const timeA = new Date(a.date).getTime();
+                const timeB = new Date(b.date).getTime();
+                return timeB - timeA;
+            });
 
             this.filteredReceivings = filtered;
         },
