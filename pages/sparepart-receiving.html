@@ -304,7 +304,14 @@
             <!-- Modal Content (Scrollable Area) -->
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-0">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Receiving Details</h3>
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Receiving Details</h3>
+                        <button @click="printReceivingReceipt(selectedReceiving)"
+                            class="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-brand-50 hover:text-brand-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 transition-all active:scale-95"
+                            title="Print / Export PDF">
+                            <span class="w-5 h-5" x-icon="'file-text'"></span>
+                        </button>
+                    </div>
                     <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
                         <span class="w-6 h-6" x-icon="'close'"></span>
                     </button>
