@@ -1282,6 +1282,39 @@ const registerPurchaseOrders = () => {
             await this.loadPurchaseOrders();
             this.loadMasterParts();
             this.loadSuppliers();
+
+            this.$nextTick(() => {
+                this.initDatePicker();
+            });
+        },
+
+        initDatePicker() {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr(".po-datepicker", {
+                    mode: "range",
+                    static: true,
+                    monthSelectorType: "static",
+                    dateFormat: "M j, Y",
+                    prevArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8L1.4 6.8 5.4 2.8 6.8 4.2 4.2 6.8 6.8 9.4z" /></svg>',
+                    nextArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L5.4 6.8 1.4 2.8 0 4.2 2.6 6.8 0 9.4z" /></svg>',
+                    onChange: (selectedDates, dateStr, instance) => {
+                        if (selectedDates.length === 2) {
+                            const format = (d) => {
+                                const offset = d.getTimezoneOffset();
+                                const local = new Date(d.getTime() - (offset * 60 * 1000));
+                                return local.toISOString().split('T')[0];
+                            };
+                            this.filters.dateFrom = format(selectedDates[0]);
+                            this.filters.dateTo = format(selectedDates[1]);
+                            this.applyFilters();
+                        } else if (selectedDates.length === 0) {
+                            this.filters.dateFrom = '';
+                            this.filters.dateTo = '';
+                            this.applyFilters();
+                        }
+                    }
+                });
+            }
         },
 
         async loadSuppliers() {
@@ -1756,6 +1789,39 @@ const registerReceivingHistory = () => {
             }
             await this.loadReceivingHistory();
             await this.loadPendingPOs();
+
+            this.$nextTick(() => {
+                this.initDatePicker();
+            });
+        },
+
+        initDatePicker() {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr(".receiving-datepicker", {
+                    mode: "range",
+                    static: true,
+                    monthSelectorType: "static",
+                    dateFormat: "M j, Y",
+                    prevArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8L1.4 6.8 5.4 2.8 6.8 4.2 4.2 6.8 6.8 9.4z" /></svg>',
+                    nextArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L5.4 6.8 1.4 2.8 0 4.2 2.6 6.8 0 9.4z" /></svg>',
+                    onChange: (selectedDates, dateStr, instance) => {
+                        if (selectedDates.length === 2) {
+                            const format = (d) => {
+                                const offset = d.getTimezoneOffset();
+                                const local = new Date(d.getTime() - (offset * 60 * 1000));
+                                return local.toISOString().split('T')[0];
+                            };
+                            this.filters.dateFrom = format(selectedDates[0]);
+                            this.filters.dateTo = format(selectedDates[1]);
+                            this.applyFilters();
+                        } else if (selectedDates.length === 0) {
+                            this.filters.dateFrom = '';
+                            this.filters.dateTo = '';
+                            this.applyFilters();
+                        }
+                    }
+                });
+            }
         },
 
         async loadReceivingHistory() {
