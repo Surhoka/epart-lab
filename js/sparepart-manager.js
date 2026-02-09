@@ -1965,9 +1965,9 @@ const registerReceivingHistory = () => {
 
         calculateLineUnitPriceAfterDiscount(item, receiving) {
             const unitPrice = Number(item.unitprice || 0);
-            const subtotal = receiving.subtotal || 0;
-            const discount = receiving.discount || 0;
-            const discountType = receiving.discountType || 'fixed';
+            const subtotal = Number(receiving.subtotal || 0);
+            const discount = Number(receiving.discount || 0);
+            const discountType = (receiving.discountType || receiving.discounttype || 'fixed').toLowerCase();
 
             if (subtotal === 0) return unitPrice;
 
