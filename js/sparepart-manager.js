@@ -1989,17 +1989,18 @@ const registerReceivingHistory = () => {
         },
 
         calculateLineDiscountPercent(item, receiving) {
+            if (!item || !receiving) return '-';
             const unitPrice = Number(item.unitprice || 0);
             const priceAfter = this.calculateLineUnitPriceAfterDiscount(item, receiving);
 
-            if (unitPrice === 0) return '0%';
+            if (unitPrice === 0 || priceAfter >= unitPrice) return '0%';
 
             const discountAmount = unitPrice - priceAfter;
             const percent = (discountAmount / unitPrice) * 100;
 
-            // Return '-' if no discount, otherwise format to 1 decimal place if needed
-            if (discountAmount <= 0) return '-';
-            return percent < 0.01 ? '0%' : (Number.isInteger(percent) ? percent : percent.toFixed(1)) + '%';
+            if (percent < 0.01) return percent.toFixed(4) + '%';
+            if (percent < 0.1) return percent.toFixed(3) + '%';
+            return (Number.isInteger(percent) ? percent : percent.toFixed(1)) + '%';
         }
     }));
 };
