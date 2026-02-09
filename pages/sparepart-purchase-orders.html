@@ -1,6 +1,6 @@
 <div class="w-full animate-fade-in" x-data="purchaseOrders">
     <!-- Tab Navigation -->
-    <div class="mb-8 flex border-b border-gray-100 dark:border-gray-800">
+    <nav class="mb-8 flex border-b border-gray-100 dark:border-gray-800" aria-label="Tab Navigation">
         <button type="button" @click="activeTab = 'list'"
             :class="activeTab === 'list' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
             class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
@@ -13,12 +13,12 @@
             <span class="w-4 h-4" x-icon="editingPO.id ? 'pencil' : 'plus'"></span>
             <span x-text="editingPO.id ? 'Edit PO' : 'Create PO'"></span>
         </button>
-    </div>
+    </nav>
 
     <!-- Tab 1: Purchase Orders List -->
     <div x-show="activeTab === 'list'" class="space-y-6" x-transition>
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <header class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Purchase Orders</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Manage orders to suppliers</p>
@@ -35,10 +35,11 @@
                     New Purchase Order
                 </button>
             </div>
-        </div>
+        </header>
 
         <!-- Filters -->
-        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+        <section class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+            aria-label="Filters">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
@@ -71,10 +72,12 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Purchase Orders List -->
-        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <section
+            class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden"
+            aria-label="Purchase Orders List">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-50 dark:bg-gray-800">
@@ -190,13 +193,13 @@
                     <p class="text-gray-500 dark:text-gray-400">No purchase orders found</p>
                 </div>
             </template>
-        </div>
+        </section>
     </div>
 
     <!-- Tab 2: PO Editor -->
     <div x-show="activeTab === 'editor'" x-transition x-cloak>
         <!-- Editor Header -->
-        <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <header class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex-1">
                 <div class="mb-2">
                     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
@@ -255,7 +258,7 @@
                     <span x-text="editingPO.id ? 'Update PO' : 'Create PO'"></span>
                 </button>
             </div>
-        </div>
+        </header>
 
         <!-- Main Workspace -->
         <div class="flex flex-col gap-6">
@@ -496,7 +499,7 @@
         <div
             class="modal-dialog relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
             <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-                <div class="flex items-center justify-between mb-6">
+                <header class="flex items-center justify-between mb-6">
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white">Purchase Order Details</h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
@@ -512,10 +515,10 @@
                             <span class="w-6 h-6" x-icon="'close'"></span>
                         </button>
                     </div>
-                </div>
+                </header>
 
                 <template x-if="selectedPO">
-                    <div class="space-y-6">
+                    <main class="space-y-6">
                         <!-- PO Information -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
@@ -641,54 +644,54 @@
                                     <p class="text-sm text-gray-700 dark:text-gray-300" x-text="selectedPO.notes"></p>
                                 </div>
                             </div>
+                    </main>
+                </template>
+
+                <!-- Actions -->
+                <footer class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <!-- Left Actions (Delete) -->
+                    <div>
+                        <template
+                            x-if="selectedPO.status === 'draft' || selectedPO.status === 'cancelled' || selectedPO.status === 'confirmed'">
+                            <button type="button" @click="deletePO(selectedPO); closeDetailsModal()"
+                                class="text-red-600 hover:text-red-900 text-sm font-medium flex items-center gap-2">
+                                <span class="w-4 h-4" x-icon="'trash'"></span>
+                                Delete PO
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Right Actions -->
+                    <div class="flex gap-3">
+                        <button type="button" @click="closeDetailsModal()"
+                            class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                            Close
+                        </button>
+
+                        <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
+                            <button type="button" @click="sendPOToSupplier(selectedPO)"
+                                class="rounded-lg bg-purple-500 px-4 py-2 text-sm font-medium text-white hover:bg-purple-600">
+                                <span class="inline-flex items-center gap-2">
+                                    <span class="w-4 h-4" x-icon="'paper-airplane'"></span>
+                                    Send to Supplier
+                                </span>
+                            </button>
                         </template>
 
-                        <!-- Actions -->
-                        <div
-                            class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-800">
-                            <!-- Left Actions (Delete) -->
-                            <div>
-                                <template
-                                    x-if="selectedPO.status === 'draft' || selectedPO.status === 'cancelled' || selectedPO.status === 'confirmed'">
-                                    <button type="button" @click="deletePO(selectedPO); closeDetailsModal()"
-                                        class="text-red-600 hover:text-red-900 text-sm font-medium flex items-center gap-2">
-                                        <span class="w-4 h-4" x-icon="'trash'"></span>
-                                        Delete PO
-                                    </button>
-                                </template>
-                            </div>
-
-                            <!-- Right Actions -->
-                            <div class="flex gap-3">
-                                <button type="button" @click="closeDetailsModal()"
-                                    class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                                    Close
-                                </button>
-
-                                <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
-                                    <button type="button" @click="sendPOToSupplier(selectedPO)"
-                                        class="rounded-lg bg-purple-500 px-4 py-2 text-sm font-medium text-white hover:bg-purple-600">
-                                        <span class="inline-flex items-center gap-2">
-                                            <span class="w-4 h-4" x-icon="'paper-airplane'"></span>
-                                            Send to Supplier
-                                        </span>
-                                    </button>
-                                </template>
-
-                                <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
-                                    <button type="button" @click="editPOFromModal(selectedPO)"
-                                        class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
-                                        <span class="inline-flex items-center gap-2">
-                                            <span class="w-4 h-4" x-icon="'pencil'"></span>
-                                            Edit PO
-                                        </span>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
+                        <template x-if="selectedPO.status === 'draft' || selectedPO.status === 'confirmed'">
+                            <button type="button" @click="editPOFromModal(selectedPO)"
+                                class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
+                                <span class="inline-flex items-center gap-2">
+                                    <span class="w-4 h-4" x-icon="'pencil'"></span>
+                                    Edit PO
+                                </span>
+                            </button>
+                        </template>
                     </div>
-                </template>
+                </footer>
             </div>
+            </template>
         </div>
     </div>
+</div>
 </div>
