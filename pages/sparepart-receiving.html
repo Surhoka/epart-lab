@@ -422,7 +422,7 @@
                                 </div>
                                 <div class="flex justify-between items-center text-xs text-red-500">
                                     <span class="truncate"
-                                        x-text="'Discount (' + (selectedReceiving.discountType === 'percent' ? selectedReceiving.discount + '%' : 'Fixed') + ')'"></span>
+                                        x-text="'Discount (' + ((selectedReceiving.discountType || selectedReceiving.discounttype) === 'percent' ? (selectedReceiving.discount || 0) + '%' : 'Fixed') + ')'"></span>
                                     <span
                                         x-text="'-' + formatPrice((selectedReceiving.subtotal || 0) - (selectedReceiving.total || 0))"></span>
                                 </div>
