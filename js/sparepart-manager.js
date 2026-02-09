@@ -1242,6 +1242,7 @@ const registerPurchaseOrders = () => {
         purchaseOrders: [],
         filteredPurchaseOrders: [],
         masterParts: [],
+        suppliers: [], // New
         isLoading: false,
 
         // Filters
@@ -1280,6 +1281,26 @@ const registerPurchaseOrders = () => {
             }
             await this.loadPurchaseOrders();
             this.loadMasterParts();
+            this.loadSuppliers();
+        },
+
+        async loadSuppliers() {
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getSuppliers', { dbId: this.dbId }, (res) => {
+                        if (res.status === 'success') resolve(res.data);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+                this.suppliers = (response || []).filter(s => s.status === 'Active');
+            } catch (err) {
+                console.error('Failed to load suppliers for PO:', err);
+            }
+        },
+
+        selectSupplier(supplier) {
+            this.editingPO.supplier = supplier.company || supplier.name;
+            this.editingPO.supplieremail = supplier.email || '';
         },
 
         async loadPurchaseOrders() {
@@ -2005,9 +2026,140 @@ const registerReceivingHistory = () => {
     }));
 };
 
+/**
+ * Supplier Manager Component
+ */
+const registerSupplierManager = () => {
+    Alpine.data('supplierManager', () => ({
+        suppliers: [],
+        filteredSuppliers: [],
+        isLoading: false,
+        search: '',
+
+        // Modal & Form
+        showModal: false,
+        isEditing: false,
+        editingSupplier: {
+            id: '',
+            name: '',
+            company: '',
+            phone: '',
+            email: '',
+            address: '',
+            status: 'Active'
+        },
+
+        async init() {
+            await this.fetchSuppliers();
+        },
+
+        async fetchSuppliers() {
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getSuppliers', {}, resolve, reject);
+                });
+
+                if (response.status === 'success') {
+                    this.suppliers = response.data;
+                    this.applyFilters();
+                } else {
+                    window.showToast?.(response.message || 'Gagal memuat supplier', 'error');
+                }
+            } catch (error) {
+                console.error('Fetch suppliers error:', error);
+                window.showToast?.('Terjadi kesalahan koneksi', 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        applyFilters() {
+            const search = this.search.toLowerCase();
+            this.filteredSuppliers = this.suppliers.filter(s =>
+                (s.name || '').toLowerCase().includes(search) ||
+                (s.company || '').toLowerCase().includes(search) ||
+                (s.email || '').toLowerCase().includes(search) ||
+                (s.phone || '').toLowerCase().includes(search)
+            );
+        },
+
+        openAddModal() {
+            this.isEditing = false;
+            this.editingSupplier = {
+                id: '',
+                name: '',
+                company: '',
+                phone: '',
+                email: '',
+                address: '',
+                status: 'Active'
+            };
+            this.showModal = true;
+        },
+
+        editSupplier(supplier) {
+            this.isEditing = true;
+            this.editingSupplier = { ...supplier };
+            this.showModal = true;
+        },
+
+        async saveSupplier() {
+            if (!this.editingSupplier.name || !this.editingSupplier.company) {
+                window.showToast?.('Nama dan Perusahaan wajib diisi', 'warning');
+                return;
+            }
+
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('saveSupplier', this.editingSupplier, resolve, reject);
+                });
+
+                if (response.status === 'success') {
+                    window.showToast?.(response.message, 'success');
+                    this.showModal = false;
+                    await this.fetchSuppliers();
+                } else {
+                    window.showToast?.(response.message, 'error');
+                }
+            } catch (error) {
+                console.error('Save supplier error:', error);
+                window.showToast?.('Terjadi kesalahan sistem', 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async deleteSupplier(supplier) {
+            if (!confirm(`Hapus supplier ${supplier.name}?`)) return;
+
+            this.isLoading = true;
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('deleteSupplier', { id: supplier.id }, resolve, reject);
+                });
+
+                if (response.status === 'success') {
+                    window.showToast?.(response.message, 'success');
+                    await this.fetchSuppliers();
+                } else {
+                    window.showToast?.(response.message, 'error');
+                }
+            } catch (error) {
+                console.error('Delete supplier error:', error);
+                window.showToast?.('Gagal menghapus supplier', 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        }
+    }));
+};
+
 // Register all components
 if (window.Alpine) {
     registerSparepartManager();
+    registerSupplierManager();
     registerPosManager();
     registerPosTransactions();
     registerPosReports();
@@ -2016,6 +2168,7 @@ if (window.Alpine) {
 } else {
     document.addEventListener('alpine:init', () => {
         registerSparepartManager();
+        registerSupplierManager();
         registerPosManager();
         registerPosTransactions();
         registerPosReports();
