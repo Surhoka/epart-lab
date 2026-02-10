@@ -2132,7 +2132,7 @@ const registerReceivingHistory = () => {
                             ${items.map((item, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td style="font-family: monospace;">${item.partnumber}</td>
+                                    <td style="font-family: outfit;">${item.partnumber}</td>
                                     <td>${this.toTitleCase(item.name)}</td>
                                     <td class="text-center">${item.receivingnow}</td>
                                     <td class="text-right">${this.formatPrice(item.unitprice)}</td>
@@ -2397,3 +2397,4 @@ if (window.Alpine) {
         registerReceivingHistory();
     });
 }
+
