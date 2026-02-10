@@ -8,7 +8,7 @@ const registerAiAssistantPage = () => {
 
             // Chat State
             chatQuery: '',
-            chatResponse: '',
+            messages: [], // Array of { role: 'user'|'assistant', text: '', isTyping: false }
             isChatLoading: false,
 
             // Config State
@@ -31,33 +31,63 @@ const registerAiAssistantPage = () => {
                 console.log("AI Assistant Page Initialized with Alpine Component.");
                 await this.loadAiConfig();
                 await this.fetchRules();
+
+                // Add welcome message if empty
+                if (this.messages.length === 0) {
+                    this.messages.push({
+                        role: 'assistant',
+                        text: 'Halo! Saya asisten pakar Ezyparts. Ada yang bisa saya bantu hari ini?',
+                        isTyping: false
+                    });
+                }
             },
 
             // --- CHAT LOGIC ---
             async askAi() {
-                if (!this.chatQuery.trim()) return;
-                this.isChatLoading = true;
-                this.chatResponse = '';
+                const query = this.chatQuery.trim();
+                if (!query || this.isChatLoading) return;
 
-                window.sendDataToGoogle('askAi', { question: this.chatQuery.trim() }, (res) => {
+                // 1. Add User Message
+                this.messages.push({
+                    role: 'user',
+                    text: query,
+                    isTyping: false
+                });
+
+                this.chatQuery = '';
+                this.isChatLoading = true;
+                this.scrollToBottom();
+
+                // 2. Add AI Placeholder
+                const aiMsgIndex = this.messages.length;
+                this.messages.push({
+                    role: 'assistant',
+                    text: '',
+                    isTyping: true
+                });
+
+                window.sendDataToGoogle('askAi', { question: query }, (res) => {
                     if (res.status === 'success') {
-                        this.typeEffect(res.answer);
+                        this.typeEffect(res.answer, aiMsgIndex);
                     } else {
-                        this.chatResponse = `<div class="text-red-500 p-2 text-sm">Error: ${res.message || 'Gagal mendapatkan respon.'}</div>`;
+                        this.messages[aiMsgIndex].text = `<span class="text-red-500 font-medium">Error: ${res.message || 'Gagal mendapatkan respon.'}</span>`;
+                        this.messages[aiMsgIndex].isTyping = false;
                         this.isChatLoading = false;
                     }
                 }, (err) => {
-                    this.chatResponse = `<div class="text-red-500 p-2 text-sm">Koneksi gagal. Silakan coba lagi.</div>`;
+                    this.messages[aiMsgIndex].text = '<span class="text-red-500 font-medium">Koneksi gagal. Silakan coba lagi.</span>';
+                    this.messages[aiMsgIndex].isTyping = false;
                     this.isChatLoading = false;
                 });
             },
 
-            typeEffect(text, speed = 10) {
+            typeEffect(text, index, speed = 10) {
                 if (!text) {
+                    this.messages[index].isTyping = false;
                     this.isChatLoading = false;
                     return;
                 }
-                this.chatResponse = "";
+
                 const formattedText = text
                     .replace(/\n/g, '<br>')
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -71,14 +101,17 @@ const registerAiAssistantPage = () => {
 
                 const type = () => {
                     if (nodeIndex >= nodes.length) {
+                        this.messages[index].isTyping = false;
                         this.isChatLoading = false;
+                        this.scrollToBottom();
                         return;
                     }
+
                     const node = nodes[nodeIndex];
                     if (node.nodeType === Node.TEXT_NODE) {
                         const chars = node.textContent;
                         if (charIndex < chars.length) {
-                            this.chatResponse += chars.charAt(charIndex);
+                            this.messages[index].text += chars.charAt(charIndex);
                             charIndex++;
                             setTimeout(type, speed);
                         } else {
@@ -87,16 +120,29 @@ const registerAiAssistantPage = () => {
                             setTimeout(type, speed);
                         }
                     } else {
-                        this.chatResponse += node.outerHTML;
+                        this.messages[index].text += node.outerHTML;
                         nodeIndex++;
                         setTimeout(type, speed);
                     }
+                    this.scrollToBottom();
                 };
                 type();
             },
 
+            scrollToBottom() {
+                this.$nextTick(() => {
+                    const container = document.getElementById('chat-messages-container');
+                    if (container) {
+                        container.scrollTo({
+                            top: container.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            },
+
             closeAiResult() {
-                this.chatResponse = '';
+                this.messages = this.messages.slice(0, 1); // Reset to welcome message
                 this.isChatLoading = false;
             },
 
