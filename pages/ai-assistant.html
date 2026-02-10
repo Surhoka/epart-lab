@@ -24,65 +24,95 @@
         </button>
     </div>
 
-    <!-- Primary Card Wrapper -->
+    <!-- Primary Card Wrapper (Chat Interface) -->
     <div x-show="activeTab === 'chat'" x-transition
-        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+        class="flex flex-col h-[650px] rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
 
-        <!-- Search Section -->
-        <div class="p-1">
-            <div class="relative group flex gap-3">
-                <div class="relative flex-1">
-                    <span
-                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-brand-500">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </span>
-                    <input type="text" x-model="chatQuery" @keydown.enter="askAi()"
-                        placeholder="Apa yang bisa saya bantu..."
-                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-300 focus:ring-4 focus:ring-brand-500/5 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-800">
-                </div>
-                <button @click="askAi()"
-                    class="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-105 active:scale-95">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                        <path d="M13 8l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
+        <!-- Chat Header -->
+        <div
+            class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-white/5">
+            <div class="flex items-center gap-3">
+                <div
+                    class="h-10 w-10 rounded-2xl bg-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M13 10l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round"></path>
                     </svg>
-                    Tanya AI
-                </button>
-            </div>
-
-            <!-- AI Search Result Container (Hidden by default) -->
-            <div x-show="chatResponse || isChatLoading" x-cloak
-                class="mt-6 animate-fadeIn overflow-hidden rounded-2xl border border-brand-100 bg-brand-50/30 p-6 dark:border-brand-500/20 dark:bg-brand-500/5">
-                <div class="mb-3 flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-brand-600 dark:text-brand-400">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z"></path>
-                        </svg>
-                        <span class="text-xs font-bold uppercase tracking-wider">AI Insight</span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">Ezyparts Assistant</h3>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                        <span
+                            class="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase tracking-widest">AI
+                            Online</span>
                     </div>
-                    <button @click="closeAiResult()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l18 18"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div x-show="isChatLoading" class="flex items-center gap-2 py-2">
-                    <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500"></span>
-                    <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:0.2s]"></span>
-                    <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:0.4s]"></span>
-                    <span class="text-xs text-gray-500 ml-2">AI sedang berpikir...</span>
-                </div>
-                <div x-show="!isChatLoading" x-html="chatResponse"
-                    class="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 dark:prose-invert">
                 </div>
             </div>
+            <button @click="closeAiResult()"
+                class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                title="Reset Chat">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                </svg>
+            </button>
         </div>
 
+        <!-- Chat History Area -->
+        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar scroll-smooth">
+            <template x-for="(msg, index) in messages" :key="index">
+                <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'" class="animate-fadeIn">
+                    <div :class="msg.role === 'user' 
+                        ? 'bg-brand-600 text-white rounded-2xl rounded-tr-none' 
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-none'"
+                        class="max-w-[85%] px-4 py-3 shadow-sm relative group">
+
+                        <!-- Role Icon for Assistant -->
+                        <div x-show="msg.role === 'assistant'"
+                            class="absolute -left-10 top-0 h-8 w-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800">
+                            <span class="text-[10px] font-bold">AI</span>
+                        </div>
+
+                        <!-- Message Content -->
+                        <div class="text-sm leading-relaxed whitespace-pre-wrap break-words" x-html="msg.text"></div>
+
+                        <!-- Typing Indicator -->
+                        <div x-show="msg.isTyping && msg.text === ''" class="flex items-center gap-1 py-1">
+                            <span class="h-1 w-1 animate-bounce rounded-full bg-gray-400"></span>
+                            <span class="h-1 w-1 animate-bounce rounded-full bg-gray-400 [animation-delay:0.2s]"></span>
+                            <span class="h-1 w-1 animate-bounce rounded-full bg-gray-400 [animation-delay:0.4s]"></span>
+                        </div>
+
+                        <!-- Timestamp / Meta (Optional) -->
+                        <div class="mt-2 text-[9px] opacity-40 text-right font-medium">
+                            <span x-text="msg.role === 'user' ? 'Me' : 'Asisten'"></span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Input Section -->
+        <div class="p-6 bg-gray-50/30 dark:bg-white/5 border-t border-gray-100 dark:border-gray-800">
+            <div class="relative flex items-center gap-3">
+                <input type="text" x-model="chatQuery" @keydown.enter="askAi()"
+                    placeholder="Tanyakan sesuatu tentang inventory..." :disabled="isChatLoading"
+                    class="w-full rounded-2xl border border-gray-200 bg-white py-4 pl-6 pr-14 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
+
+                <button @click="askAi()" :disabled="!chatQuery.trim() || isChatLoading"
+                    class="absolute right-2.5 h-11 w-11 flex items-center justify-center rounded-xl bg-brand-500 text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-600 hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50 disabled:scale-100 disabled:shadow-none">
+                    <svg class="h-5 w-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="mt-3 text-center text-[10px] text-gray-400 font-medium">
+                AI can make mistakes. Check important info.
+            </p>
+        </div>
     </div>
 
     <!-- AI Rules Tab -->
