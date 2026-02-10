@@ -413,15 +413,15 @@
                                 <div class="flex-1 md:w-16">
                                     <label
                                         class="md:hidden text-[10px] font-semibold text-gray-400 uppercase mb-1 block">Qty</label>
-                                    <input type="number" x-model="item.quantity" placeholder="Qty" min="1" required
-                                        @input="calculatePOTotals()"
+                                    <input type="number" x-model.number="item.quantity" placeholder="Qty" min="1"
+                                        required @input="calculatePOTotals()"
                                         class="w-full rounded border-gray-200 bg-white py-2 md:py-1 px-3 md:px-2 text-sm md:text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white text-center md:text-left" />
                                 </div>
                                 <div class="flex-1 md:w-24">
                                     <label
                                         class="md:hidden text-[10px] font-semibold text-gray-400 uppercase mb-1 block">Unit
                                         Price</label>
-                                    <input type="number" x-model="item.unitprice" placeholder="Price" min="0"
+                                    <input type="number" x-model.number="item.unitprice" placeholder="Price" min="0"
                                         step="0.01" @input="calculatePOTotals()" readonly
                                         class="w-full rounded border-gray-200 bg-gray-100 py-2 md:py-1 px-3 md:px-2 text-sm md:text-xs text-gray-500 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed text-right md:text-left" />
                                 </div>

@@ -263,7 +263,7 @@
                                             <div class="w-24">
                                                 <label class="block text-[10px] text-gray-500 uppercase mb-1">Receive
                                                     Now</label>
-                                                <input type="number" x-model="item.receivingnow"
+                                                <input type="number" x-model.number="item.receivingnow"
                                                     :max="item.orderedqty - item.receivedqty" min="0"
                                                     class="w-full rounded border-gray-200 py-1 px-2 text-sm text-center focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
                                             </div>
