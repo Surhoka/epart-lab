@@ -1680,6 +1680,15 @@ const registerPurchaseOrders = () => {
             return new Date(date).toLocaleDateString('id-ID');
         },
 
+        toTitleCase(str) {
+            if (!str) return '';
+            return str.toLowerCase().split(' ').map(word => {
+                const w = word.trim();
+                if (!w) return '';
+                return w.charAt(0).toUpperCase() + w.slice(1);
+            }).join(' ');
+        },
+
         async deletePO(po) {
             if (!confirm(`Are you sure you want to delete PO ${po.ponumber}?`)) return;
 
