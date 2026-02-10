@@ -2072,7 +2072,7 @@ const registerReceivingHistory = () => {
                 <head>
                     <title>Receiving - ${receiving.receivingNumber || receiving.receivingnumber}</title>
                     <style>
-                        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #111827; padding: 40px; line-height: 1.5; }
+                        body { font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif; color: #111827; padding: 40px; line-height: 1.5; }
                         .header { display: flex; justify-content: space-between; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; }
                         .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; }
                         .document-info { text-align: right; }
@@ -2132,7 +2132,7 @@ const registerReceivingHistory = () => {
                             ${items.map((item, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td style="font-family: outfit;">${item.partnumber}</td>
+                                    <td style="font-weight: 600;">${item.partnumber}</td>
                                     <td>${this.toTitleCase(item.name)}</td>
                                     <td class="text-center">${item.receivingnow}</td>
                                     <td class="text-right">${this.formatPrice(item.unitprice)}</td>
@@ -2397,4 +2397,3 @@ if (window.Alpine) {
         registerReceivingHistory();
     });
 }
-
