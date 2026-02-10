@@ -1346,7 +1346,11 @@ const registerPurchaseOrders = () => {
                     }, (err) => reject(err));
                 });
 
-                this.purchaseOrders = response || [];
+                this.purchaseOrders = (response || []).map(po => {
+                    // Pre-calculate timestamp for faster filtering and sorting
+                    po._timestamp = po.date ? new Date(po.date).getTime() : 0;
+                    return po;
+                });
                 this.applyFilters();
 
             } catch (err) {
@@ -1395,19 +1399,15 @@ const registerPurchaseOrders = () => {
                 const toTime = this.filters.dateTo ? new Date(this.filters.dateTo + 'T23:59:59').getTime() : null;
 
                 filtered = filtered.filter(po => {
-                    const poTime = new Date(po.date).getTime();
+                    const poTime = po._timestamp;
                     if (fromTime && poTime < fromTime) return false;
                     if (toTime && poTime > toTime) return false;
                     return true;
                 });
             }
 
-            // Sort by date descending - Use cached timestamps for efficiency if many items
-            filtered.sort((a, b) => {
-                const timeA = new Date(a.date).getTime();
-                const timeB = new Date(b.date).getTime();
-                return timeB - timeA;
-            });
+            // Sort by pre-calculated timestamp for efficiency
+            filtered.sort((a, b) => b._timestamp - a._timestamp);
 
             this.filteredPurchaseOrders = filtered;
         },
@@ -1840,7 +1840,10 @@ const registerReceivingHistory = () => {
                     }, (err) => reject(err));
                 });
 
-                this.receivings = response || [];
+                this.receivings = (response || []).map(r => {
+                    r._timestamp = r.date ? new Date(r.date).getTime() : 0;
+                    return r;
+                });
                 this.applyFilters();
 
             } catch (err) {
@@ -1897,19 +1900,15 @@ const registerReceivingHistory = () => {
                 const toTime = this.filters.dateTo ? new Date(this.filters.dateTo + 'T23:59:59').getTime() : null;
 
                 filtered = filtered.filter(r => {
-                    const rTime = new Date(r.date).getTime();
+                    const rTime = r._timestamp;
                     if (fromTime && rTime < fromTime) return false;
                     if (toTime && rTime > toTime) return false;
                     return true;
                 });
             }
 
-            // Sort by date descending
-            filtered.sort((a, b) => {
-                const timeA = new Date(a.date).getTime();
-                const timeB = new Date(b.date).getTime();
-                return timeB - timeA;
-            });
+            // Sort by pre-calculated timestamp
+            filtered.sort((a, b) => b._timestamp - a._timestamp);
 
             this.filteredReceivings = filtered;
         },
