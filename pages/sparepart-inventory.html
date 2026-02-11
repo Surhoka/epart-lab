@@ -2,6 +2,12 @@
     <input type="file" x-ref="sparepartImageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
     <!-- Header Controls -->
     <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Inventory Sparepart</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola daftar Sparepart, stok, dan harga secara
+                detail.</p>
+        </div>
+
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <!-- Search & Filter -->
             <div class="relative grow lg:w-80">
@@ -18,7 +24,7 @@
             </select>
 
             <button @click="openAddModal()"
-                class="flex items-center justify-right gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 active:scale-95 transition-all">
+                class="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 active:scale-95 transition-all">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Tambah Item
             </button>
@@ -32,7 +38,7 @@
             <table class="w-full text-left">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-black/20 dark:text-gray-400">
                     <tr>
-                        <th class="px-6 py-4 font-semibold">Suku Cadang</th>
+                        <th class="px-6 py-4 font-semibold">Sparepart</th>
                         <th class="px-6 py-4 font-semibold">Kategori & Lokasi</th>
                         <th class="px-6 py-4 font-semibold">Stok Saat Ini</th>
                         <th class="px-6 py-4 font-semibold text-right">Harga</th>
@@ -222,8 +228,8 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Nama Suku
-                                Cadang</label>
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Part
+                                Name</label>
                             <input type="text" x-model="editingItem.name"
                                 class="w-full rounded-lg border-gray-200 bg-gray-50 px-4 py-2 text-sm font-bold focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white transition-all"
                                 placeholder="e.g. Filter Oli Avanza" />
@@ -276,6 +282,4 @@
             </div>
         </div>
     </div>
-
 </div>
-
