@@ -63,9 +63,10 @@
                                         </template>
                                     </div>
                                     <div>
-                                        <div class="font-bold text-gray-900 dark:text-white" x-text="item.name"></div>
-                                        <div class="text-xs font-medium text-gray-500 font-mono tracking-wider uppercase"
+                                        <div class="text-sm font-semibold text-gray-900 dark:text-white"
                                             x-text="item.partnumber"></div>
+                                        <div class="text-xs text-gray-500" x-text="toTitleCase(item.name)">
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -282,4 +283,5 @@
             </div>
         </div>
     </div>
+
 </div>
