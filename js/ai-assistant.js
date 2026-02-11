@@ -32,13 +32,20 @@ const registerAiAssistantPage = () => {
                 await this.loadAiConfig();
                 await this.fetchRules();
 
-                // Add welcome message if empty
+                // Add welcome message with typing effect
                 if (this.messages.length === 0) {
+                    // First show typing indicator
                     this.messages.push({
                         role: 'assistant',
-                        text: 'Halo! Saya asisten pakar Ezyparts. Ada yang bisa saya bantu hari ini?',
-                        isTyping: false
+                        text: '',
+                        isTyping: true
                     });
+
+                    // After 1 second, start typing the welcome message
+                    setTimeout(() => {
+                        const welcomeText = 'Halo! Saya asisten pakar Ezyparts. Ada yang bisa saya bantu hari ini?';
+                        this.typeEffect(welcomeText, 0, 15);
+                    }, 1000);
                 }
             },
 
