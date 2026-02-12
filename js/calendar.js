@@ -1,7 +1,8 @@
-const registerCalendarPage = () => {
-  if (window.Alpine && !window.Alpine.data('calendarPage')) {
-    window.Alpine.data('calendarPage', () => ({
+const registerCalendar = () => {
+  if (window.Alpine && !window.Alpine.data('calendar')) {
+    window.Alpine.data('calendar', () => ({
       calendar: null,
+      isLoading: false,
       isModalOpen: false,
       modalMode: 'add', // 'add' or 'edit'
       editingEvent: {
@@ -14,11 +15,18 @@ const registerCalendarPage = () => {
         className: 'Primary' // Default color
       },
 
-      init() {
-        console.log("Calendar Page Initialized with Alpine Component.");
+      async init() {
+        console.log("Calendar Initialized");
+
+        // Dynamic loading of FullCalendar if missing (Plugin Self-Sufficiency)
+        if (typeof FullCalendar === 'undefined') {
+          this.isLoading = true;
+          await this.loadScript('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js');
+          this.isLoading = false;
+        }
+
         const calendarEl = this.$refs.calendar;
         if (!calendarEl) {
-          console.error("Calendar element not found!");
           return;
         }
 
@@ -61,8 +69,21 @@ const registerCalendarPage = () => {
         this.calendar.render();
       },
 
+      loadScript(url) {
+        return new Promise((resolve, reject) => {
+          if (document.querySelector(`script[src="${url}"]`)) return resolve();
+          const script = document.createElement('script');
+          script.src = url;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      },
+
       fetchEvents(fetchInfo, successCallback, failureCallback) {
+        this.isLoading = true;
         window.sendDataToGoogle('getEvents', {}, (response) => {
+          this.isLoading = false;
           if (response.status === 'success') {
             successCallback(response.data);
           } else {
@@ -76,6 +97,7 @@ const registerCalendarPage = () => {
             window.showToast('Failed to load events', 'error');
           }
         }, (error) => {
+          this.isLoading = false;
           failureCallback(error);
           window.showToast('API error loading events', 'error');
         });
@@ -211,7 +233,7 @@ const registerCalendarPage = () => {
 
 // Immediate registration or wait for Alpine
 if (window.Alpine) {
-  registerCalendarPage();
+  registerCalendar();
 } else {
-  document.addEventListener('alpine:init', registerCalendarPage);
+  document.addEventListener('alpine:init', registerCalendar);
 }
