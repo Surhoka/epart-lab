@@ -96,11 +96,18 @@ const registerCalendar = () => {
       handleEventClick(info) {
         this.modalMode = 'edit';
         const event = info.event;
+
+        // Helper: Konversi Date object ke string ISO lokal (agar jam tidak bergeser ke UTC)
+        const toLocalISO = (date) => {
+          const offset = date.getTimezoneOffset() * 60000;
+          return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+        };
+
         this.editingEvent = {
           id: event.id,
           title: event.title,
-          start: event.allDay ? event.startStr : (event.start ? event.start.toISOString().slice(0, 16) : ''),
-          end: event.allDay ? (event.end ? new Date(event.end.valueOf() - 86400000).toISOString().slice(0, 10) : event.startStr) : (event.end ? event.end.toISOString().slice(0, 16) : ''),
+          start: event.allDay ? event.startStr : (event.start ? toLocalISO(event.start) : ''),
+          end: event.allDay ? (event.end ? new Date(event.end.valueOf() - 86400000).toISOString().slice(0, 10) : event.startStr) : (event.end ? toLocalISO(event.end) : ''),
           allDay: event.allDay,
           description: event.extendedProps.description || '',
           className: event.extendedProps.calendar || 'Primary'
@@ -183,8 +190,15 @@ const registerCalendar = () => {
           // If switching to all-day, keep only the date part
           if (this.editingEvent.start) this.editingEvent.start = this.editingEvent.start.slice(0, 10);
           if (this.editingEvent.end) this.editingEvent.end = this.editingEvent.end.slice(0, 10);
+        } else {
+          // Jika beralih ke mode Waktu (Timed), tambahkan jam default jika belum ada
+          if (this.editingEvent.start && this.editingEvent.start.length === 10) {
+            this.editingEvent.start += 'T09:00';
+          }
+          if (this.editingEvent.end && this.editingEvent.end.length === 10) {
+            this.editingEvent.end += 'T10:00';
+          }
         }
-        // If switching to timed, the input type change will handle it.
       }
     }));
   }
