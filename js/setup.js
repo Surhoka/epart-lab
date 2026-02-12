@@ -196,6 +196,7 @@ window.setupData = function () {
                             action: 'setup',
                             role: 'Admin',
                             url: this.webappUrl,
+                            userWebAppUrl: this.webappUrl,
                             email: this.email,
                             dbSetup: this.setupMode === 'new' ? 'force_new' : this.dbSetup,
                             dbName: this.dbName,
