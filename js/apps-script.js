@@ -166,7 +166,11 @@ function handleDiscoveryFailure() {
 function applyRoleUrl(config) {
     config = config || {};
     const role = window.EzyApi.role;
-    const DISCOVERY_URL = getGatewayUrl();
+    let DISCOVERY_URL = getGatewayUrl();
+
+    if (!DISCOVERY_URL && typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV) {
+        DISCOVERY_URL = CONFIG.WEBAPP_URL_DEV.trim();
+    }
 
     // CRITICAL FIX: Always use adminUrl if available, even if isSetup is false
     // This ensures POST requests (SignIn, etc.) go to the correct Apps Script URL
@@ -181,6 +185,7 @@ function applyRoleUrl(config) {
     const finalUrl = (targetUrl && targetUrl.startsWith('http')) ? targetUrl.trim() : DISCOVERY_URL;
 
     window.EzyApi.url = finalUrl;
+    console.log('EzyApi URL set to:', finalUrl);
     window.EzyApi.gatewayUrl = DISCOVERY_URL; // NEW: Explicitly expose Gateway
     window.appsScriptUrl = finalUrl;
 
@@ -229,7 +234,13 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
             gatewayUrl: window.EzyApi.gatewayUrl
         };
 
-        fetch(customUrl || window.EzyApi.url, {
+        let targetUrl = customUrl || window.EzyApi.url;
+        if (!targetUrl && typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV) {
+            console.warn('EzyApi.url is empty, using CONFIG fallback for POST');
+            targetUrl = CONFIG.WEBAPP_URL_DEV;
+        }
+
+        fetch(targetUrl, {
             method: 'POST',
             body: JSON.stringify(payload)
         })
