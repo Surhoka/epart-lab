@@ -66,12 +66,35 @@ const registerCalendarPage = () => {
           if (response.status === 'success') {
             successCallback(response.data);
           } else {
+            // Auto-fix: Create table if missing
+            if (response.message && response.message.includes('Sheet Events tidak ditemukan')) {
+              console.warn('Events table missing. Auto-creating...');
+              this.createEventsTable(successCallback, failureCallback);
+              return;
+            }
             failureCallback(new Error(response.message));
             window.showToast('Failed to load events', 'error');
           }
         }, (error) => {
           failureCallback(error);
           window.showToast('API error loading events', 'error');
+        });
+      },
+
+      createEventsTable(successCallback, failureCallback) {
+        window.sendDataToGoogle('createTable', {
+          tableName: 'Events',
+          columns: ['id', 'title', 'start', 'end', 'allDay', 'description', 'calendar']
+        }, (res) => {
+          if (res.status === 'success') {
+            window.showToast('Events table initialized.', 'success');
+            successCallback([]);
+          } else {
+            window.showToast('Failed to init Events table: ' + res.message, 'error');
+            failureCallback(new Error(res.message));
+          }
+        }, (err) => {
+          failureCallback(err);
         });
       },
 
