@@ -1,5 +1,11 @@
-<div x-data="calendarPage" class="w-full animate-fade-in">
-  <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+<div x-data="calendar" class="w-full animate-fade-in relative">
+  <div
+    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] relative min-h-[600px]">
+    <div x-show="isLoading"
+      class="absolute inset-0 z-10 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl">
+      <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent">
+      </div>
+    </div>
     <div x-ref="calendar" class="min-h-screen"></div>
   </div>
 
