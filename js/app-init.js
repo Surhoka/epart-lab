@@ -46,6 +46,12 @@ window.appInitMixin = function () {
                         webappUrl = discovery.adminUrl;
                         localStorage.setItem('EzypartsConfig', JSON.stringify({ webappUrl }));
                         if (window.EzypartsConfig) window.EzypartsConfig.webappUrl = webappUrl;
+
+                        // HOTFIX: Update runtime API URL immediately
+                        if (window.EzyApi) {
+                            window.EzyApi.url = webappUrl;
+                            window.appsScriptUrl = webappUrl;
+                        }
                         console.log('Auto-discovered Admin URL:', webappUrl);
                     }
                 } catch (e) {

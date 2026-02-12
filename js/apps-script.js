@@ -66,11 +66,11 @@ async function discoverEzyApi() {
     }
 
     // Fungsi Internal untuk melakukan Fetching via JSONP
-    const fetchConfig = async (targetUrl) => {
+    const fetchConfig = async (targetUrl, action = 'get_config') => {
         const cbName = 'ezy_discovery_' + Date.now() + Math.floor(Math.random() * 100);
         const script = document.createElement('script');
         const separator = targetUrl.includes('?') ? '&' : '?';
-        const finalUrl = `${targetUrl}${separator}action=get_config&callback=${cbName}`;
+        const finalUrl = `${targetUrl}${separator}action=${action}&callback=${cbName}`;
         console.log(`Discovery: Pinging ${finalUrl}`);
         script.src = finalUrl;
 
@@ -116,6 +116,20 @@ async function discoverEzyApi() {
             } else if (config.statusNote === 'setup_in_progress') {
                 // Keep UI state if setup is in progress
                 applyRoleUrl(config);
+            } else if (config.isGateway && config.statusNote === 'no_config') {
+                // SELF-HEALING: Gateway doesn't know us yet (New Browser). Ask for Admin URL explicitly.
+                console.log('Gateway generic response. Asking for Admin URL...');
+                try {
+                    const adminDiscovery = await fetchConfig(CURRENT_URL, 'get_admin_url');
+                    if (adminDiscovery && adminDiscovery.status === 'success' && adminDiscovery.adminUrl) {
+                        config.adminUrl = adminDiscovery.adminUrl;
+                        config.isSetup = true;
+                        localStorage.setItem(cacheKey, JSON.stringify(config));
+                        applyRoleUrl(config);
+                    }
+                } catch (err) {
+                    console.warn('Secondary discovery failed:', err);
+                }
             }
         } else {
             console.warn('Discovery: Invalid or incomplete response received:', config);
