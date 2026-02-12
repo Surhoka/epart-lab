@@ -184,15 +184,17 @@ window.setupData = function () {
                 if (this.role === 'Admin') {
                     // ADMIN: Create new database via user's WebApp
                     this.statusMessage = 'Sending initialization request to your WebApp...';
-                    const baseUrl = this.webappUrl.split('?')[0];
 
                     // Determine Gateway URL to pass to Admin Backend (Automatic Registration)
                     const gatewayUrl = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV)
                         ? CONFIG.WEBAPP_URL_DEV
                         : (window.EzyApi && window.EzyApi.gatewayUrl ? window.EzyApi.gatewayUrl : '');
 
+                    // TARGET: Use Gateway if available to ensure registration, otherwise direct to User App
+                    const targetUrl = gatewayUrl || this.webappUrl.split('?')[0];
+
                     if (window.app && window.app.fetchJsonp) {
-                        window.app.fetchJsonp(baseUrl, {
+                        window.app.fetchJsonp(targetUrl, {
                             action: 'setup',
                             role: 'Admin',
                             url: this.webappUrl,
