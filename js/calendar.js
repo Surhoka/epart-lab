@@ -18,13 +18,6 @@ const registerCalendar = () => {
       async init() {
         console.log("Calendar Initialized");
 
-        // Dynamic loading of FullCalendar if missing (Plugin Self-Sufficiency)
-        if (typeof FullCalendar === 'undefined') {
-          this.isLoading = true;
-          await this.loadScript('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js');
-          this.isLoading = false;
-        }
-
         const calendarEl = this.$refs.calendar;
         if (!calendarEl) {
           return;
@@ -67,17 +60,6 @@ const registerCalendar = () => {
         });
 
         this.calendar.render();
-      },
-
-      loadScript(url) {
-        return new Promise((resolve, reject) => {
-          if (document.querySelector(`script[src="${url}"]`)) return resolve();
-          const script = document.createElement('script');
-          script.src = url;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
       },
 
       fetchEvents(fetchInfo, successCallback, failureCallback) {
