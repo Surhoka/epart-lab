@@ -1592,6 +1592,57 @@ const registerPurchaseOrders = () => {
             this.selectedPO = null;
         },
 
+        printPurchaseOrder(po) {
+            if (!po) return;
+
+            const data = {
+                storeName: 'SPAREPART STORE',
+                headerInfo: {
+                    'PO Number': po.ponumber,
+                    'Date': this.formatDate(po.date),
+                    'Supplier': po.supplier,
+                    'Status': po.status.toUpperCase()
+                },
+                items: (typeof po.items === 'string' ? JSON.parse(po.items) : po.items || []).map(item => ({
+                    partnumber: item.partnumber,
+                    name: this.toTitleCase(item.name || ''),
+                    qty: item.quantity,
+                    price: this.formatPrice(item.unitprice),
+                    total: this.formatPrice((item.quantity || 0) * (item.unitprice || 0))
+                })),
+                totals: {
+                    'Total Amount': this.formatPrice(po.total)
+                },
+                footer: [
+                    'Authorized Signature',
+                    '',
+                    '',
+                    '__________________________'
+                ]
+            };
+
+            if (po.expecteddate) {
+                data.headerInfo['Expected Date'] = this.formatDate(po.expecteddate);
+            }
+
+            if (window.PrintService) {
+                window.PrintService.print(data, {
+                    title: `Purchase Order - ${po.ponumber}`,
+                    paperSize: 'A4',
+                    columns: [
+                        { header: 'Part Number', field: 'partnumber', align: 'text-left' },
+                        { header: 'Part Name', field: 'name', align: 'text-left' },
+                        { header: 'Qty', field: 'qty', align: 'text-center' },
+                        { header: 'Unit Price', field: 'price', align: 'text-right' },
+                        { header: 'Total', field: 'total', align: 'text-right' }
+                    ]
+                });
+            } else {
+                console.error('PrintService not found');
+                window.showToast?.('Print Service not available', 'error');
+            }
+        },
+
         editPOFromModal(po) {
             // Deep copy PO data before closing modal to prevent null reference
             const poData = JSON.parse(JSON.stringify(po));
