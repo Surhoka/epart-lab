@@ -290,12 +290,43 @@ window.PrintService = {
                 .toolbar { display: none !important; }
             }
             
+                .no-print { display: none !important; } 
+                .toolbar { display: none !important; }
+            }
+            
             /* Screen Preview Enhancements */
             @media screen {
                 body { background: #525659; }
                 .page-container {
                     margin: 40px auto;
                     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                }
+            }
+
+            /* Mobile Responsiveness */
+            @media screen and (max-width: 768px) {
+                body { padding: 0; }
+                .page-container {
+                    padding: 20px;
+                    margin: 0;
+                    width: 100%;
+                    max-width: 100%;
+                    min-height: auto;
+                    border-radius: 0;
+                }
+                .header { flex-direction: column; gap: 15px; align-items: flex-start; }
+                .document-info { text-align: left; align-items: flex-start; width: 100%; margin-top: 10px; }
+                .info-grid { flex-direction: column; gap: 20px; }
+                .section.right { text-align: left; }
+                .totals { justify-content: flex-start; }
+                .footer { margin-top: 30px; }
+                
+                /* Toolbar adjustment */
+                .toolbar {
+                    position: sticky;
+                    padding: 10px;
+                    margin: 0 0 20px 0;
+                    width: 100%;
                 }
             }
         `;
