@@ -212,16 +212,16 @@ window.PrintService = {
             }
             
             /* Header */
-            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; }
-            .company-info { flex: 1; }
-            .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; font-weight: 700; }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; gap: 20px; }
+            .company-info { min-width: 0; } /* Allow shrinking if needed */
+            .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; font-weight: 700; line-height: 1.2; }
             .company-info p { margin: 4px 0 0 0; color: #4B5563; font-size: 14px; }
-            .document-info { text-align: right; flex: 1; display: flex; flex-direction: column; align-items: flex-end; }
+            .document-info { text-align: right; min-width: 0; flex-shrink: 0; } /* Keep document info from shrinking too much */
             .document-info h2 { margin: 0; font-size: 24px; font-weight: 800; color: #6B7280; white-space: nowrap; }
             
             /* Info Grid */
             .info-grid { display: flex; justify-content: space-between; margin-bottom: 40px; gap: 40px; }
-            .section { flex: 1; }
+            .section { min-width: 150px; } /* Ensure sections have min width */
             .section.right { text-align: right; }
             .section h3 { font-size: 11px; font-weight: bold; color: #6B7280; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
             .section p { margin: 0; font-weight: 500; font-size: 14px; color: #111827; }
@@ -236,15 +236,15 @@ window.PrintService = {
             .text-center { text-align: center; }
             
             /* Totals */
-            .totals { display: flex; justify-content: flex-end; margin-top: 20px; }
-            .totals-table { width: 300px; border-collapse: collapse; }
-            .totals-table tr td { padding: 8px 0; font-size: 14px; }
-            .totals-table tr td:first-child { color: #6B7280; font-weight: 500; }
-            .totals-table tr td:last-child { font-weight: 600; color: #111827; text-align: right; }
+            .totals { display: flex; justify-content: flex-end; margin-top: 20px; page-break-inside: avoid; }
+            .totals-table { width: auto; min-width: 250px; border-collapse: collapse; }
+            .totals-table tr td { padding: 6px 0 6px 20px; font-size: 14px; }
+            .totals-table tr td:first-child { color: #6B7280; font-weight: 500; text-align: right; padding-right: 15px; }
+            .totals-table tr td:last-child { font-weight: 600; color: #111827; text-align: right; min-width: 100px; }
             .totals-table tr.grand-total td { font-weight: 800; color: #3B82F6; font-size: 16px; border-top: 2px solid #E5E7EB; padding-top: 15px; margin-top: 5px; }
             
             /* Footer */
-            .footer { margin-top: 60px; font-size: 11px; color: #9CA3AF; text-align: center; border-top: 1px dashed #E5E7EB; padding-top: 20px; }
+            .footer { margin-top: 60px; font-size: 11px; color: #9CA3AF; text-align: center; border-top: 1px dashed #E5E7EB; padding-top: 20px; page-break-inside: avoid; }
             
             /* Toolbar Styles */
             .toolbar {
