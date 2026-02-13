@@ -252,14 +252,14 @@
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-12 2xl:gap-x-24">
               <!-- Company Name -->
-              <div class="lg:col-span-2">
+              <div>
                 <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Company Name</p>
                 <p x-text="profile.publicDisplay.companyName || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
               </div>
 
               <!-- Store Address -->
-              <div class="lg:col-span-2">
+              <div>
                 <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Physical Store Address</p>
                 <p x-text="profile.publicDisplay.storeAddress || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
@@ -621,8 +621,8 @@
                   Address (Full)</label>
                 <input x-model="editableProfile.publicDisplay.storeAddress" type="text"
                   placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />              </div>
-              <div>
+                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+              </div>
               <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
                   Email</label>
@@ -634,8 +634,8 @@
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
                   Phone</label>
                 <input x-model="editableProfile.publicDisplay.supportPhone" type="text" placeholder="+62 21 1234 5678"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />              </div>
-              </div> 
+                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+              </div>
             </div>
           </div>
 
