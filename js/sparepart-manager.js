@@ -486,89 +486,47 @@ const registerPosManager = () => {
         },
 
         printReceipt() {
-            // Generate receipt content
-            const receiptContent = this.generateReceiptHTML();
-
-            // Open print window
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(receiptContent);
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.close();
-        },
-
-        generateReceiptHTML() {
             const now = new Date();
             const transaction = this.lastTransaction;
 
-            return `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Receipt - ${transaction.transactionNumber}</title>
-                    <style>
-                        body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 20px; }
-                        .receipt { max-width: 300px; margin: 0 auto; }
-                        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-                        .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-                        .total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
-                        .footer { text-align: center; margin-top: 20px; font-size: 10px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="receipt">
-                        <div class="header">
-                            <h2>SPAREPART STORE</h2>
-                            <p>Transaction: ${transaction.transactionNumber}</p>
-                            <p>Date: ${now.toLocaleString()}</p>
-                            <p>Cashier: ${this.getCurrentUser()}</p>
-                        </div>
-                        
-                        <div class="items">
-                            ${this.cart.items.map(item => `
-                                <div class="item">
-                                    <span>${item.name}</span>
-                                </div>
-                                <div class="item">
-                                    <span>${item.quantity} x ${this.formatPrice(item.price)}</span>
-                                    <span>${this.formatPrice(item.quantity * item.price)}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        <div class="total">
-                            <div class="item">
-                                <span>Subtotal:</span>
-                                <span>${this.formatPrice(this.cart.subtotal)}</span>
-                            </div>
-                            <div class="item">
-                                <span>Tax:</span>
-                                <span>${this.formatPrice(this.cart.tax)}</span>
-                            </div>
-                            <div class="item">
-                                <span>Total:</span>
-                                <span>${this.formatPrice(transaction.total)}</span>
-                            </div>
-                            <div class="item">
-                                <span>Payment (${this.paymentMethod}):</span>
-                                <span>${this.formatPrice(this.paymentAmount)}</span>
-                            </div>
-                            ${transaction.change > 0 ? `
-                                <div class="item">
-                                    <span>Change:</span>
-                                    <span>${this.formatPrice(transaction.change)}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="footer">
-                            <p>Thank you for your purchase!</p>
-                            <p>Please keep this receipt for your records</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `;
+            const data = {
+                storeName: 'SPAREPART STORE',
+                headerInfo: {
+                    'Transaction': transaction.transactionNumber,
+                    'Date': now.toLocaleString(),
+                    'Cashier': this.getCurrentUser()
+                },
+                items: this.cart.items.map(item => ({
+                    name: item.name,
+                    qty: item.quantity,
+                    price: this.formatPrice(item.price),
+                    total: this.formatPrice(item.quantity * item.price)
+                })),
+                totals: {
+                    'Subtotal': this.formatPrice(this.cart.subtotal),
+                    'Tax': this.formatPrice(this.cart.tax),
+                    'Total': this.formatPrice(transaction.total),
+                    [`Payment (${this.paymentMethod})`]: this.formatPrice(this.paymentAmount)
+                },
+                footer: [
+                    'Thank you for your purchase!',
+                    'Please keep this receipt for your records'
+                ]
+            };
+
+            if (transaction.change > 0) {
+                data.totals['Change'] = this.formatPrice(transaction.change);
+            }
+
+            if (window.PrintService) {
+                window.PrintService.print(data, {
+                    title: `Receipt - ${transaction.transactionNumber}`,
+                    paperSize: '58mm'
+                });
+            } else {
+                console.error('PrintService not found');
+                window.showToast?.('Print Service not available', 'error');
+            }
         },
 
         resetCustomerInfo() {
@@ -767,94 +725,59 @@ const registerPosTransactions = () => {
         },
 
         printTransactionReceipt(transaction) {
-            const receiptContent = this.generateTransactionReceiptHTML(transaction);
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(receiptContent);
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.close();
-        },
-
-        generateTransactionReceiptHTML(transaction) {
             const items = this.getTransactionItems(transaction);
 
-            return `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Receipt - ${transaction.transactionnumber}</title>
-                    <style>
-                        body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 20px; }
-                        .receipt { max-width: 300px; margin: 0 auto; }
-                        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-                        .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-                        .total { border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-weight: bold; }
-                        .footer { text-align: center; margin-top: 20px; font-size: 10px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="receipt">
-                        <div class="header">
-                            <h2>SPAREPART STORE</h2>
-                            <p>Transaction: ${transaction.transactionnumber}</p>
-                            <p>Date: ${this.formatDateTime(transaction.date)}</p>
-                            <p>Cashier: ${transaction.cashier || 'System'}</p>
-                            ${transaction.customername ? `<p>Customer: ${transaction.customername}</p>` : ''}
-                        </div>
-                        
-                        <div class="items">
-                            ${items.map(item => `
-                                <div class="item">
-                                    <span>${item.name}</span>
-                                </div>
-                                <div class="item">
-                                    <span>${item.quantity} x ${this.formatPrice(item.price)}</span>
-                                    <span>${this.formatPrice(item.quantity * item.price)}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        <div class="total">
-                            <div class="item">
-                                <span>Subtotal:</span>
-                                <span>${this.formatPrice(transaction.subtotal)}</span>
-                            </div>
-                            <div class="item">
-                                <span>Tax:</span>
-                                <span>${this.formatPrice(transaction.tax)}</span>
-                            </div>
-                            ${transaction.discount > 0 ? `
-                                <div class="item">
-                                    <span>Discount:</span>
-                                    <span>-${this.formatPrice(transaction.discount)}</span>
-                                </div>
-                            ` : ''}
-                            <div class="item">
-                                <span>Total:</span>
-                                <span>${this.formatPrice(transaction.total)}</span>
-                            </div>
-                            <div class="item">
-                                <span>Payment (${transaction.paymentmethod}):</span>
-                                <span>${this.formatPrice(transaction.paymentamount)}</span>
-                            </div>
-                            ${transaction.change > 0 ? `
-                                <div class="item">
-                                    <span>Change:</span>
-                                    <span>${this.formatPrice(transaction.change)}</span>
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="footer">
-                            <p>Thank you for your purchase!</p>
-                            <p>Please keep this receipt for your records</p>
-                            ${transaction.status === 'voided' ? '<p><strong>*** VOIDED TRANSACTION ***</strong></p>' : ''}
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `;
+            const data = {
+                storeName: 'SPAREPART STORE',
+                headerInfo: {
+                    'Transaction': transaction.transactionnumber,
+                    'Date': this.formatDateTime(transaction.date),
+                    'Cashier': transaction.cashier || 'System'
+                },
+                items: items.map(item => ({
+                    name: item.name,
+                    qty: item.quantity,
+                    price: this.formatPrice(item.price),
+                    total: this.formatPrice(item.quantity * item.price)
+                })),
+                totals: {
+                    'Subtotal': this.formatPrice(transaction.subtotal),
+                    'Tax': this.formatPrice(transaction.tax),
+                },
+                footer: [
+                    'Thank you for your purchase!',
+                    'Please keep this receipt for your records'
+                ]
+            };
+
+            if (transaction.customername) {
+                data.headerInfo['Customer'] = transaction.customername;
+            }
+
+            if (transaction.discount > 0) {
+                data.totals['Discount'] = '-' + this.formatPrice(transaction.discount);
+            }
+
+            data.totals['Total'] = this.formatPrice(transaction.total);
+            data.totals[`Payment (${transaction.paymentmethod})`] = this.formatPrice(transaction.paymentamount);
+
+            if (transaction.change > 0) {
+                data.totals['Change'] = this.formatPrice(transaction.change);
+            }
+
+            if (transaction.status === 'voided') {
+                data.footer.push('*** VOIDED TRANSACTION ***');
+            }
+
+            if (window.PrintService) {
+                window.PrintService.print(data, {
+                    title: `Receipt - ${transaction.transactionnumber}`,
+                    paperSize: '58mm'
+                });
+            } else {
+                console.error('PrintService not found');
+                window.showToast?.('Print Service not available', 'error');
+            }
         },
 
         getTransactionItems(transaction) {
