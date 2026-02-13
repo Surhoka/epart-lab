@@ -529,6 +529,11 @@
                                 class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
                     </div>
                     <div class="flex items-center gap-3">
+                        <button @click="printPurchaseOrder(selectedPO)"
+                            class="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-brand-50 hover:text-brand-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 transition-all active:scale-95"
+                            title="Print / Export PDF">
+                            <span class="w-5 h-5" x-icon="'file-text'"></span>
+                        </button>
                         <button @click="sendPOToSupplier(selectedPO)"
                             class="text-gray-400 hover:text-purple-600 transition-colors"
                             title="Send Email to Supplier">
