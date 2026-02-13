@@ -133,29 +133,54 @@ const registerProfilePage = () => {
                 const payload = {
                     publicDisplay: this.editableProfile.publicDisplay
                 };
-                await this.updateProfile(payload, button, () => {
-                    this.isPublicInfoModal = false;
 
-                    // Update local storage for immediate use in Public template/Preview
-                    const pd = this.editableProfile.publicDisplay;
-                    const brandingData = {
-                        companyName: pd.companyName,
-                        phone: pd.supportPhone,
-                        email: pd.supportEmail,
-                        address: pd.storeAddress,
-                        operatingHours: {
-                            weekdays: pd.operatingHours,
-                            days: pd.operatingDays
-                        },
-                        socials: {
-                            facebook: pd.facebook,
-                            twitter: pd.twitter,
-                            instagram: pd.instagram,
-                            linkedin: pd.linkedin
-                        },
-                        timestamp: Date.now()
-                    };
-                    localStorage.setItem('publicBrandingData', JSON.stringify(brandingData));
+                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                if (!userId) {
+                    window.showToast('User ID not found. Cannot save.', 'error');
+                    window.setButtonLoading(button, false);
+                    return;
+                }
+
+                // Use specific action 'updatePublicProfile' instead of generic updateProfile
+                window.sendDataToGoogle('updatePublicProfile', {
+                    userId: userId,
+                    profileData: JSON.stringify(payload)
+                }, (res) => {
+                    if (res.status === 'success') {
+                        window.showToast('Contact info and operating hours updated successfully', 'success');
+                        this.isPublicInfoModal = false;
+
+                        // Update local storage for immediate use in Public template/Preview
+                        const pd = this.editableProfile.publicDisplay;
+                        const brandingData = {
+                            companyName: pd.companyName,
+                            phone: pd.supportPhone,
+                            email: pd.supportEmail,
+                            address: pd.storeAddress,
+                            operatingHours: {
+                                weekdays: pd.operatingHours,
+                                days: pd.operatingDays
+                            },
+                            socials: {
+                                facebook: pd.facebook,
+                                twitter: pd.twitter,
+                                instagram: pd.instagram,
+                                linkedin: pd.linkedin
+                            },
+                            timestamp: Date.now()
+                        };
+                        localStorage.setItem('publicBrandingData', JSON.stringify(brandingData));
+
+                        // Refetch to update UI
+                        this.fetchProfileData(userId);
+                    } else {
+                        window.showToast(`Error: ${res.message}`, 'error');
+                    }
+                    window.setButtonLoading(button, false);
+                }, (err) => {
+                    console.error('Update public profile error:', err);
+                    window.showToast('API error while saving.', 'error');
+                    window.setButtonLoading(button, false);
                 });
             },
 
