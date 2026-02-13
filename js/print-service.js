@@ -66,8 +66,8 @@ window.PrintService = {
                     template: 'formal',
                     title: `Purchase Order - ${data.ponumber}`,
                     columns: [
-                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
-                        { header: 'Part Name', field: 'name', width: '35%' },
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '25%' },
+                        { header: 'Part Name', field: 'name', width: '30%' },
                         { header: 'Qty', field: 'quantity', align: 'text-center', width: '10%' },
                         { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
                         { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
@@ -108,8 +108,8 @@ window.PrintService = {
                     template: 'formal',
                     title: `Receiving - ${data.receivingNumber || data.receivingnumber}`,
                     columns: [
-                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
-                        { header: 'Item Name', field: 'name', width: '35%' },
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '25%' },
+                        { header: 'Item Name', field: 'name', width: '30%' },
                         { header: 'Qty', field: 'receivingnow', align: 'text-center', width: '10%' },
                         { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
                         { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
@@ -158,6 +158,15 @@ window.PrintService = {
                     .receipt { 
                         max-width: ${config.paperSize === '58mm' ? '280px' : '100%'}; 
                         margin: 0 auto; 
+                        background: white;
+                    }
+                    
+                    @media screen {
+                        body { background: #525659; }
+                        .receipt { 
+                            padding: 10px; 
+                            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+                        }
                     }
                     .header { 
                         text-align: center; 
@@ -218,7 +227,8 @@ window.PrintService = {
                     
                     @media print {
                         @page { margin: 0; }
-                        body { padding: 5px; }
+                        body { padding: 5px; background: white; }
+                        .receipt { box-shadow: none; }
                     }
                 </style>
             </head>
