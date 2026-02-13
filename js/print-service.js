@@ -270,14 +270,21 @@ window.PrintService = {
             /* Print Specifics */
             @page { size: A4; margin: 0; }
             @media print { 
-                html, body { width: 100%; margin: 0; padding: 0; }
+                html, body { 
+                    width: 210mm; 
+                    height: 297mm; 
+                    margin: 0 !important; 
+                    padding: 0 !important; 
+                    background: white;
+                }
                 .page-container { 
-                    width: 100%;
-                    max-width: 100%;
-                    margin: 0; 
-                    padding: 20mm; /* Keep standard padding for print margins */
+                    width: 210mm; 
+                    min-height: 297mm; 
+                    margin: 0 !important; 
+                    padding: 20mm !important; 
+                    border: none;
                     box-shadow: none;
-                    min-height: auto;
+                    position: relative;
                 }
                 .no-print { display: none !important; } 
                 .toolbar { display: none !important; }
@@ -298,6 +305,8 @@ window.PrintService = {
             <!DOCTYPE html>
             <html>
             <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${config.title}</title>
                 <!-- Preconnect & Fonts -->
                 <link rel="preconnect" href="https://fonts.googleapis.com">
