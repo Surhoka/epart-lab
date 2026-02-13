@@ -1637,11 +1637,11 @@ const registerPurchaseOrders = () => {
                     template: 'formal',
                     title: `Purchase Order - ${po.ponumber}`,
                     columns: [
-                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;' },
-                        { header: 'Part Name', field: 'name' },
-                        { header: 'Qty', field: 'quantity', align: 'text-center' },
-                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right' },
-                        { header: 'Total', field: 'total', align: 'text-right' }
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
+                        { header: 'Part Name', field: 'name', width: '35%' },
+                        { header: 'Qty', field: 'quantity', align: 'text-center', width: '10%' },
+                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
+                        { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
                     ]
                 });
             } else {
@@ -2124,11 +2124,11 @@ const registerReceivingHistory = () => {
                     template: 'formal',
                     title: `Receiving - ${receiving.receivingNumber || receiving.receivingnumber}`,
                     columns: [
-                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;' },
-                        { header: 'Item Name', field: 'name' },
-                        { header: 'Qty', field: 'receivingnow', align: 'text-center' },
-                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right' },
-                        { header: 'Total', field: 'total', align: 'text-right' }
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
+                        { header: 'Item Name', field: 'name', width: '35%' },
+                        { header: 'Qty', field: 'receivingnow', align: 'text-center', width: '10%' },
+                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
+                        { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
                     ]
                 });
             } else {
