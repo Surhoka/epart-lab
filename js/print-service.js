@@ -193,46 +193,103 @@ window.PrintService = {
     renderFormalTemplate(data, config) {
         const now = new Date();
         const styles = `
-            body { font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif; color: #111827; padding: 40px; line-height: 1.5; }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; }
-            .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; }
-            .document-info { text-align: right; }
-            .document-info h2 { margin: 0; font-size: 18px; color: #6B7280; }
-            .section h3 { font-size: 12px; font-weight: bold; color: #6B7280; text-transform: uppercase; margin-bottom: 8px; }
-            .section p { margin: 0; font-weight: 500; }
+            /* Base Layout */
+            body { 
+                font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif; 
+                color: #111827; 
+                line-height: 1.5; 
+                margin: 0;
+                padding: 0;
+                background: #fff;
+            }
+            .page-container {
+                max-width: 210mm;
+                margin: 0 auto;
+                padding: 20mm;
+                min-height: 297mm;
+                background: white;
+                box-sizing: border-box;
+            }
+            
+            /* Header */
+            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; }
+            .company-info { flex: 1; }
+            .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; font-weight: 700; }
+            .company-info p { margin: 4px 0 0 0; color: #4B5563; font-size: 14px; }
+            .document-info { text-align: right; flex: 1; display: flex; flex-direction: column; align-items: flex-end; }
+            .document-info h2 { margin: 0; font-size: 24px; font-weight: 800; color: #6B7280; white-space: nowrap; }
+            
+            /* Info Grid */
+            .info-grid { display: flex; justify-content: space-between; margin-bottom: 40px; gap: 40px; }
+            .section { flex: 1; }
+            .section.right { text-align: right; }
+            .section h3 { font-size: 11px; font-weight: bold; color: #6B7280; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
+            .section p { margin: 0; font-weight: 500; font-size: 14px; color: #111827; }
+            
+            /* Table */
             table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            th { background: #F9FAFB; text-align: left; padding: 12px; font-size: 12px; font-weight: bold; color: #4B5563; border-bottom: 1px solid #E5E7EB; }
-            td { padding: 12px; font-size: 13px; border-bottom: 1px solid #F3F4F6; }
+            th { background: #F9FAFB; text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; color: #4B5563; border-bottom: 1px solid #E5E7EB; text-transform: uppercase; letter-spacing: 0.05em; }
+            td { padding: 12px; font-size: 13px; border-bottom: 1px solid #F3F4F6; color: #1F2937; vertical-align: top; }
+            
+            /* Helpers */
             .text-right { text-align: right; }
             .text-center { text-align: center; }
-            .totals { display: flex; justify-content: flex-end; }
-            .totals-table { width: 250px; }
-            .totals-table tr td:first-child { color: #6B7280; }
-            .totals-table tr.grand-total td { font-weight: bold; color: #3B82F6; font-size: 16px; border-top: 1px solid #E5E7EB; padding-top: 15px; }
-            .footer { margin-top: 50px; font-size: 11px; color: #9CA3AF; text-align: center; }
+            
+            /* Totals */
+            .totals { display: flex; justify-content: flex-end; margin-top: 20px; }
+            .totals-table { width: 300px; border-collapse: collapse; }
+            .totals-table tr td { padding: 8px 0; font-size: 14px; }
+            .totals-table tr td:first-child { color: #6B7280; font-weight: 500; }
+            .totals-table tr td:last-child { font-weight: 600; color: #111827; text-align: right; }
+            .totals-table tr.grand-total td { font-weight: 800; color: #3B82F6; font-size: 16px; border-top: 2px solid #E5E7EB; padding-top: 15px; margin-top: 5px; }
+            
+            /* Footer */
+            .footer { margin-top: 60px; font-size: 11px; color: #9CA3AF; text-align: center; border-top: 1px dashed #E5E7EB; padding-top: 20px; }
             
             /* Toolbar Styles */
             .toolbar {
                 position: sticky; top: 0; left: 0; right: 0;
-                background: #f3f4f6; padding: 10px 20px;
+                background: #f3f4f6; padding: 12px 20px;
                 display: flex; justify-content: flex-end; gap: 10px;
                 border-bottom: 1px solid #e5e7eb;
-                margin: -40px -40px 30px -40px; /* Counteract body padding */
+                margin-bottom: 20px;
+                z-index: 50;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
             .btn {
                 padding: 8px 16px; border-radius: 6px; border: 1px solid #d1d5db;
                 cursor: pointer; font-size: 14px; font-weight: 500;
-                display: flex; align-items: center; gap: 5px;
+                display: flex; align-items: center; gap: 6px;
+                transition: all 0.2s;
             }
             .btn-print { background: #3b82f6; color: white; border-color: #2563eb; }
             .btn-print:hover { background: #2563eb; }
             .btn-close { background: white; color: #374151; }
-            .btn-close:hover { background: #f9fafb; }
+            .btn-close:hover { background: #f9fafb; border-color: #9ca3af; }
             
+            /* Print Specifics */
+            @page { size: A4; margin: 0; }
             @media print { 
-                body { padding: 0; } 
+                body { background: white; }
+                .page-container { 
+                    width: 210mm; 
+                    height: 297mm; 
+                    max-width: none; 
+                    margin: 0; 
+                    padding: 20mm; 
+                    box-shadow: none;
+                }
                 .no-print { display: none !important; } 
                 .toolbar { display: none !important; }
+            }
+            
+            /* Screen Preview Enhancements */
+            @media screen {
+                body { background: #525659; }
+                .page-container {
+                    margin: 40px auto;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                }
             }
         `;
 
@@ -260,89 +317,95 @@ window.PrintService = {
                     </button>
                 </div>
 
-                <div class="header">
-                    <div class="company-info">
-                        <h1>${data.companyName || 'Ezyparts Inventory'}</h1>
-                        <p>${data.companySubtitle || 'Sparepart Management System'}</p>
+                <div class="page-container">
+                    <div class="header">
+                        <div class="company-info">
+                            <h1>${data.companyName || 'Ezyparts Inventory'}</h1>
+                            <p>${data.companySubtitle || 'Sparepart Management System'}</p>
+                        </div>
+                        <div class="document-info">
+                            <h2>${data.documentTitle || 'DOCUMENT'}</h2>
+                            <p style="font-size: 14px; font-weight: 500; color: #374151;">#${data.documentId || ''}</p>
+                        </div>
                     </div>
-                    <div class="document-info">
-                        <h2>${data.documentTitle || 'DOCUMENT'}</h2>
-                        <p style="font-size: 14px; font-weight: 500; color: #374151;">#${data.documentId || ''}</p>
-                    </div>
-                </div>
 
-                <div class="info-grid">
-                    <div class="section">
-                        ${(data.leftSection || []).map(item => `
-                            <div style="margin-bottom: 15px;">
-                                <h3>${item.label}</h3>
-                                <p style="font-size: 16px; ${item.style || ''}">${item.value}</p>
-                                ${item.subValue ? `<p style="color: #6B7280; font-size: 14px; margin-top: 2px;">${item.subValue}</p>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="section right">
-                        ${(data.rightSection || []).map(item => `
-                            <div style="margin-bottom: 15px;">
-                                <h3>${item.label}</h3>
-                                <p style="font-size: 16px; ${item.style || ''}">${item.value}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="40">No</th>
-                            ${(config.columns || []).map(col => `
-                                <th class="${col.align || 'text-left'}">${col.header}</th>
+                    <div class="info-grid">
+                        <div class="section">
+                            ${(data.leftSection || []).map(item => `
+                                <div style="margin-bottom: 15px;">
+                                    <h3>${item.label}</h3>
+                                    <p style="font-size: 15px; ${item.style || ''}">${item.value}</p>
+                                    ${item.subValue ? `<p style="color: #6B7280; font-size: 13px; margin-top: 2px;">${item.subValue}</p>` : ''}
+                                </div>
                             `).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${(data.items || []).map((item, index) => `
+                        </div>
+                        <div class="section right">
+                            ${(data.rightSection || []).map(item => `
+                                <div style="margin-bottom: 15px;">
+                                    <h3>${item.label}</h3>
+                                    <p style="font-size: 15px; ${item.style || ''}">${item.value}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
                             <tr>
-                                <td>${index + 1}</td>
+                                <th width="40">No</th>
                                 ${(config.columns || []).map(col => `
-                                    <td class="${col.align || 'text-left'}" style="${col.style || ''}">
-                                        ${col.render ? col.render(item[col.field], item) : item[col.field]}
-                                    </td>
+                                    <th class="${col.align || 'text-left'}">${col.header}</th>
                                 `).join('')}
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${(data.items || []).map((item, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    ${(config.columns || []).map(col => `
+                                        <td class="${col.align || 'text-left'}" style="${col.style || ''}">
+                                            ${col.render ? col.render(item[col.field], item) : item[col.field]}
+                                        </td>
+                                    `).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
 
-                <div class="totals">
-                    <table class="totals-table">
-                        ${Object.entries(data.totals || {}).map(([label, val], idx, arr) => {
+                    <div class="totals">
+                        <table class="totals-table">
+                            ${Object.entries(data.totals || {}).map(([label, val], idx, arr) => {
             const isLast = idx === arr.length - 1;
             return `
-                                <tr class="${isLast ? 'grand-total' : ''}">
-                                    <td>${label}</td>
-                                    <td class="text-right">${val}</td>
-                                </tr>
-                            `;
+                                    <tr class="${isLast ? 'grand-total' : ''}">
+                                        <td>${label}</td>
+                                        <td>${val}</td>
+                                    </tr>
+                                `;
         }).join('')}
-                    </table>
-                </div>
-
-                ${data.notes ? `
-                    <div class="section" style="margin-top: 30px; background: #F9FAFB; padding: 15px; border-radius: 8px;">
-                        <h3>Notes / Instructions</h3>
-                        <p style="font-style: italic; font-size: 13px;">${data.notes}</p>
+                        </table>
                     </div>
-                ` : ''}
 
-                <div style="margin-top: 60px; display: flex; justify-content: space-between;">
-                    ${(data.signatures || []).map(sig => `
-                        <div class="section" style="border-top: 1px solid #E5E7EB; width: 200px; padding-top: 10px; text-align: center;">
-                            <h3>${sig.label}</h3>
-                            <p style="margin-top: ${sig.name ? '10px' : '40px'};">${sig.name || '( _________________ )'}</p>
-                            ${sig.name ? `<p style="margin-top: 30px;">( _________________ )</p>` : ''}
+                    ${data.notes ? `
+                        <div class="section" style="margin-top: 30px; background: #F9FAFB; padding: 15px; border-radius: 8px;">
+                            <h3>Notes / Instructions</h3>
+                            <p style="font-style: italic; font-size: 13px;">${data.notes}</p>
                         </div>
-                    `).join('')}
+                    ` : ''}
+
+                    <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+                        ${(data.signatures || []).map(sig => `
+                            <div class="section" style="border-top: 1px solid #E5E7EB; width: 200px; padding-top: 10px; text-align: center;">
+                                <h3>${sig.label}</h3>
+                                <p style="margin-top: ${sig.name ? '10px' : '40px'}; font-weight: 600;">${sig.name || '( _________________ )'}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="footer">
+                        <p>This is a computer-generated document. No signature is required.</p>
+                        ${(data.footer || []).map(line => `<p>${line}</p>`).join('')}
+                    </div>
                 </div>
 
                 <div class="footer">
