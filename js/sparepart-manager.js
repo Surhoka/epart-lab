@@ -1594,56 +1594,8 @@ const registerPurchaseOrders = () => {
 
         printPurchaseOrder(po) {
             if (!po) return;
-
-            const items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
-
             if (window.PrintService) {
-                const rightSection = [
-                    { label: 'Order Date', value: this.formatDate(po.date) }
-                ];
-
-                if (po.expecteddate) {
-                    rightSection.push({ label: 'Expected Date', value: this.formatDate(po.expecteddate), marginTop: true });
-                }
-
-                rightSection.push({ label: 'Status', value: (po.status || '').toUpperCase(), style: 'text-transform: uppercase;', marginTop: true });
-
-                const leftSection = [
-                    { label: 'Supplier', value: po.supplier || '', style: 'font-size: 1.1em; font-weight: bold;', subValue: po.supplieremail || '' }
-                ];
-
-                window.PrintService.print({
-                    companyName: 'Ezyparts Inventory',
-                    companySubtitle: 'Sparepart Management System',
-                    documentTitle: 'PURCHASE ORDER',
-                    documentId: po.ponumber,
-                    leftSection: leftSection,
-                    rightSection: rightSection,
-                    items: items.map(item => ({
-                        ...item,
-                        name: this.toTitleCase(item.name || ''),
-                        total: this.formatPrice((item.quantity || 0) * (item.unitprice || 0)),
-                        formattedPrice: this.formatPrice(item.unitprice)
-                    })),
-                    totals: {
-                        'Grand Total': this.formatPrice(po.total)
-                    },
-                    notes: po.notes,
-                    signatures: [
-                        { label: 'Authorized By' },
-                        { label: 'Accepted By' }
-                    ]
-                }, {
-                    template: 'formal',
-                    title: `Purchase Order - ${po.ponumber}`,
-                    columns: [
-                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
-                        { header: 'Part Name', field: 'name', width: '35%' },
-                        { header: 'Qty', field: 'quantity', align: 'text-center', width: '10%' },
-                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
-                        { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
-                    ]
-                });
+                window.PrintService.printDocument('purchase-order', po);
             } else {
                 console.error('PrintService not found');
                 window.showToast?.('Print Service not available', 'error');
@@ -2089,48 +2041,8 @@ const registerReceivingHistory = () => {
 
         printReceivingReceipt(receiving) {
             if (!receiving) return;
-            const items = this.getReceivingItems(receiving);
-
             if (window.PrintService) {
-                window.PrintService.print({
-                    companyName: 'Ezyparts Inventory',
-                    companySubtitle: 'Sparepart Management System',
-                    documentTitle: 'GOODS RECEIVING NOTE',
-                    documentId: receiving.receivingNumber || receiving.receivingnumber,
-                    leftSection: [
-                        { label: 'Supplier', value: receiving.supplier }
-                    ],
-                    rightSection: [
-                        { label: 'Receiving Date', value: this.formatDate(receiving.date) },
-                        { label: 'PO Number', value: receiving.poNumber || receiving.ponumber, marginTop: true }
-                    ],
-                    items: items.map(item => ({
-                        ...item,
-                        name: this.toTitleCase(item.name || ''),
-                        total: this.formatPrice(this.calculateLineTotal(item, receiving)),
-                        formattedPrice: this.formatPrice(item.unitprice)
-                    })),
-                    totals: {
-                        'Subtotal': this.formatPrice(receiving.subtotal),
-                        'Discount': '-' + this.formatPrice((Number(receiving.subtotal || 0)) - (Number(receiving.total || 0))),
-                        'Grand Total': this.formatPrice(receiving.total)
-                    },
-                    notes: receiving.notes,
-                    signatures: [
-                        { label: 'Authorized By' },
-                        { label: 'Received By', name: receiving.receivedBy || receiving.receivedby }
-                    ]
-                }, {
-                    template: 'formal',
-                    title: `Receiving - ${receiving.receivingNumber || receiving.receivingnumber}`,
-                    columns: [
-                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
-                        { header: 'Item Name', field: 'name', width: '35%' },
-                        { header: 'Qty', field: 'receivingnow', align: 'text-center', width: '10%' },
-                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
-                        { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
-                    ]
-                });
+                window.PrintService.printDocument('receiving', receiving);
             } else {
                 // Fallback or Error
                 console.error("PrintService not found");

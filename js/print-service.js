@@ -10,15 +10,119 @@ window.PrintService = {
      */
     print(data, options = {}) {
         const content = this.generateHTML(data, options);
-        const printWindow = window.open('', '_blank');
+        // Gunakan nama window tetap ('EzyPrintWindow') agar tab direuse dan tidak menumpuk
+        const printWindow = window.open('', 'EzyPrintWindow');
         printWindow.document.write(content);
         printWindow.document.close();
+        if (printWindow) printWindow.focus(); // Pastikan window fokus ke depan
 
         // Wait for resources to load then print
         setTimeout(() => {
             printWindow.print();
             // printWindow.close(); // Keep window open for manual control
         }, 500);
+    },
+
+    /**
+     * Factory method untuk mencetak dokumen standar bisnis
+     * Mengurangi duplikasi kode di halaman-halaman lain
+     */
+    printDocument(type, data) {
+        let config = {};
+        let printData = {};
+
+        // Helper formatters internal
+        const fmtMoney = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
+        const fmtDate = (val) => val ? new Date(val).toLocaleDateString('id-ID') : '';
+        const toTitle = (str) => (str || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+        switch (type) {
+            case 'purchase-order':
+                const poItems = typeof data.items === 'string' ? JSON.parse(data.items) : (data.items || []);
+                printData = {
+                    companyName: 'Ezyparts Inventory',
+                    companySubtitle: 'Sparepart Management System',
+                    documentTitle: 'PURCHASE ORDER',
+                    documentId: data.ponumber,
+                    leftSection: [
+                        { label: 'Supplier', value: data.supplier || '', style: 'font-size: 1.1em; font-weight: bold;', subValue: data.supplieremail || '' }
+                    ],
+                    rightSection: [
+                        { label: 'Order Date', value: fmtDate(data.date) },
+                        { label: 'Expected Date', value: fmtDate(data.expecteddate), marginTop: true },
+                        { label: 'Status', value: (data.status || '').toUpperCase(), style: 'text-transform: uppercase;', marginTop: true }
+                    ],
+                    items: poItems.map(item => ({
+                        ...item,
+                        name: toTitle(item.name),
+                        formattedPrice: fmtMoney(item.unitprice),
+                        total: fmtMoney((item.quantity || 0) * (item.unitprice || 0))
+                    })),
+                    totals: { 'Grand Total': fmtMoney(data.total) },
+                    notes: data.notes,
+                    signatures: [{ label: 'Authorized By' }, { label: 'Accepted By' }]
+                };
+                config = {
+                    template: 'formal',
+                    title: `Purchase Order - ${data.ponumber}`,
+                    columns: [
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
+                        { header: 'Part Name', field: 'name', width: '35%' },
+                        { header: 'Qty', field: 'quantity', align: 'text-center', width: '10%' },
+                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
+                        { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
+                    ]
+                };
+                break;
+
+            case 'receiving':
+                const rcItems = typeof data.items === 'string' ? JSON.parse(data.items) : (data.items || []);
+                printData = {
+                    companyName: 'Ezyparts Inventory',
+                    companySubtitle: 'Sparepart Management System',
+                    documentTitle: 'RECEIVING',
+                    documentId: data.receivingNumber || data.receivingnumber,
+                    leftSection: [{ label: 'Supplier', value: data.supplier }],
+                    rightSection: [
+                        { label: 'Receiving Date', value: fmtDate(data.date) },
+                        { label: 'PO Number', value: data.poNumber || data.ponumber, marginTop: true }
+                    ],
+                    items: rcItems.map(item => ({
+                        ...item,
+                        name: toTitle(item.name),
+                        formattedPrice: fmtMoney(item.unitprice),
+                        total: fmtMoney((Number(item.receivingnow || 0)) * (Number(item.unitprice || 0)))
+                    })),
+                    totals: {
+                        'Subtotal': fmtMoney(data.subtotal),
+                        'Discount': '-' + fmtMoney((Number(data.subtotal || 0)) - (Number(data.total || 0))),
+                        'Grand Total': fmtMoney(data.total)
+                    },
+                    notes: data.notes,
+                    signatures: [
+                        { label: 'Authorized By' },
+                        { label: 'Received By', name: data.receivedBy || data.receivedby }
+                    ]
+                };
+                config = {
+                    template: 'formal',
+                    title: `Receiving - ${data.receivingNumber || data.receivingnumber}`,
+                    columns: [
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;', width: '20%' },
+                        { header: 'Item Name', field: 'name', width: '35%' },
+                        { header: 'Qty', field: 'receivingnow', align: 'text-center', width: '10%' },
+                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right', width: '17.5%' },
+                        { header: 'Total', field: 'total', align: 'text-right', width: '17.5%' }
+                    ]
+                };
+                break;
+
+            default:
+                console.warn('Unknown document type:', type);
+                return;
+        }
+
+        this.print(printData, config);
     },
 
     /**
