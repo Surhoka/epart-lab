@@ -391,13 +391,32 @@
 
                             <!-- Part & Name Row -->
                             <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-2 mt-4 md:mt-0">
-                                <div>
+                                <!-- Part Number (Custom Autocomplete) -->
+                                <div class="relative" x-data="{ suggestions: [], show: false }">
                                     <label
                                         class="md:hidden text-[10px] font-semibold text-gray-400 uppercase mb-1 block">Part
                                         Number</label>
-                                    <input type="text" x-model="item.partnumber" @change="lookupPart(index)"
-                                        list="master-parts-list" placeholder="Part Number *" required
+                                    <input type="text" x-model="item.partnumber"
+                                        @input.debounce.300ms="suggestions = getPartSuggestions($el.value); show = true"
+                                        @focus="suggestions = getPartSuggestions($el.value); show = true"
+                                        @blur="setTimeout(() => show = false, 200); lookupPart(index)"
+                                        @keydown.escape="show = false" placeholder="Part Number *" required
+                                        autocomplete="off"
                                         class="w-full rounded border-gray-200 bg-white py-2 md:py-1 px-3 md:px-2 text-sm md:text-xs focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+
+                                    <!-- Suggestions Dropdown -->
+                                    <div x-show="show && suggestions.length > 0" x-transition.opacity.duration.200ms
+                                        class="absolute z-[60] left-0 mt-1 w-64 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
+                                        <template x-for="part in suggestions" :key="part.id">
+                                            <div @click="item.partnumber = part.partnumber; lookupPart(index); show = false"
+                                                class="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700/50 last:border-0">
+                                                <div class="font-bold text-xs text-gray-900 dark:text-white"
+                                                    x-text="part.partnumber"></div>
+                                                <div class="text-[10px] text-gray-500 dark:text-gray-400 truncate"
+                                                    x-text="part.name"></div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
                                 <div>
                                     <label
@@ -458,11 +477,7 @@
                         </div>
                     </template>
 
-                    <datalist id="master-parts-list">
-                        <template x-for="part in masterParts" :key="part.id">
-                            <option :value="part.partnumber" x-text="part.name"></option>
-                        </template>
-                    </datalist>
+                    <!-- Datalist Removed -->
 
                     <!-- Empty State -->
                     <template x-if="editingPO.items.length === 0">
@@ -605,7 +620,7 @@
                                         <template x-for="(item, index) in selectedPO.items" :key="index">
                                             <tr>
                                                 <td class="px-4 py-3">
-                                                    <div class="text-sm font-bold text-gray-900 dark:text-white"
+                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white"
                                                         x-text="item.partnumber"></div>
                                                     <div class="text-xs text-gray-500" x-text="toTitleCase(item.name)">
                                                     </div>
