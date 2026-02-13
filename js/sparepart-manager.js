@@ -1241,7 +1241,10 @@ const registerPurchaseOrders = () => {
         // Data Management
         purchaseOrders: [],
         filteredPurchaseOrders: [],
+        purchaseOrders: [],
+        filteredPurchaseOrders: [],
         masterParts: [],
+        masterPartsMap: new Map(),
         suppliers: [], // New
         isLoading: false,
 
@@ -1370,6 +1373,14 @@ const registerPurchaseOrders = () => {
                     }, (err) => reject(err));
                 });
                 this.masterParts = response || [];
+
+                // Populate Map for O(1) lookup
+                this.masterPartsMap.clear();
+                this.masterParts.forEach(part => {
+                    if (part.partnumber) {
+                        this.masterPartsMap.set(String(part.partnumber).toLowerCase(), part);
+                    }
+                });
             } catch (err) {
                 console.error('Failed to load master parts:', err);
             }
@@ -1484,13 +1495,32 @@ const registerPurchaseOrders = () => {
             this.calculatePOTotals();
         },
 
+        getPartSuggestions(query) {
+            if (!query || query.length < 1) return [];
+
+            const lowerQuery = query.toLowerCase();
+            const matches = [];
+
+            // Optimize: simple loop with break for performance
+            for (let i = 0; i < this.masterParts.length; i++) {
+                const part = this.masterParts[i];
+                const pNum = String(part.partnumber || '').toLowerCase();
+                const pName = String(part.name || '').toLowerCase();
+
+                if (pNum.includes(lowerQuery) || pName.includes(lowerQuery)) {
+                    matches.push(part);
+                    if (matches.length >= 20) break; // Limit to 20 suggestions
+                }
+            }
+            return matches;
+        },
+
         lookupPart(index) {
             const item = this.editingPO.items[index];
             if (!item.partnumber) return;
 
-            const part = this.masterParts.find(p =>
-                String(p.partnumber).toLowerCase() === String(item.partnumber).toLowerCase()
-            );
+            // Use Map for O(1) lookup instead of find()
+            const part = this.masterPartsMap.get(String(item.partnumber).toLowerCase());
 
             if (part) {
                 item.name = part.name || '';
