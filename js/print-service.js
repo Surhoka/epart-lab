@@ -34,6 +34,10 @@ window.PrintService = {
 
         const config = { ...defaults, ...options };
 
+        if (config.template === 'formal') {
+            return this.renderFormalTemplate(data, config);
+        }
+
         return `
             <!DOCTYPE html>
             <html>
@@ -148,9 +152,7 @@ window.PrintService = {
     },
 
     renderContent(data, config) {
-        if (config.template === 'formal') {
-            return this.renderFormalTemplate(data, config);
-        } else if (config.paperSize === '58mm') {
+        if (config.paperSize === '58mm') {
             // List View for Receipt
             return `
                 <div class="items">
@@ -209,6 +211,8 @@ window.PrintService = {
                 padding: 15mm; /* Reduced padding for more space */
                 min-height: 297mm;
                 background: white;
+                display: flex;
+                flex-direction: column;
             }
             
             /* Header */
@@ -244,7 +248,7 @@ window.PrintService = {
             .totals-table tr.grand-total td { font-weight: 800; color: #3B82F6; font-size: 16px; border-top: 2px solid #E5E7EB; padding-top: 15px; margin-top: 5px; }
             
             /* Footer */
-            .footer { margin-top: 60px; font-size: 11px; color: #9CA3AF; text-align: center; border-top: 1px dashed #E5E7EB; padding-top: 20px; page-break-inside: avoid; }
+            .footer { margin-top: auto; font-size: 11px; color: #9CA3AF; text-align: center; border-top: 1px dashed #E5E7EB; padding-top: 20px; page-break-inside: avoid; }
             
             /* Toolbar Styles */
             .toolbar {
@@ -445,11 +449,8 @@ window.PrintService = {
                     <div class="footer">
                         <p>This is a computer-generated document. No signature is required.</p>
                         ${(data.footer || []).map(line => `<p>${line}</p>`).join('')}
+                        <p style="margin-top: 5px; opacity: 0.8;">Generated on ${now.toLocaleString('id-ID')} • ${data.footerText || 'Ezyparts Inventory System'}</p>
                     </div>
-                </div>
-
-                <div class="footer">
-                    <p>Generated on ${now.toLocaleString('id-ID')} • ${data.footerText || 'Ezyparts Inventory System'}</p>
                 </div>
             </body>
             </html>
