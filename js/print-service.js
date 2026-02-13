@@ -148,7 +148,9 @@ window.PrintService = {
     },
 
     renderContent(data, config) {
-        if (config.paperSize === '58mm') {
+        if (config.template === 'formal') {
+            return this.renderFormalTemplate(data, config);
+        } else if (config.paperSize === '58mm') {
             // List View for Receipt
             return `
                 <div class="items">
@@ -164,7 +166,7 @@ window.PrintService = {
                 </div>
             `;
         } else {
-            // Table View for A4 / Reports
+            // Table View for A4 / Reports (Standard)
             return `
                 <table>
                     <thead>
@@ -186,5 +188,128 @@ window.PrintService = {
                 </table>
             `;
         }
+    },
+
+    renderFormalTemplate(data, config) {
+        const now = new Date();
+        const styles = `
+            body { font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif; color: #111827; padding: 40px; line-height: 1.5; }
+            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; }
+            .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; }
+            .document-info { text-align: right; }
+            .document-info h2 { margin: 0; font-size: 18px; color: #6B7280; }
+            .section h3 { font-size: 12px; font-weight: bold; color: #6B7280; text-transform: uppercase; margin-bottom: 8px; }
+            .section p { margin: 0; font-weight: 500; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            th { background: #F9FAFB; text-align: left; padding: 12px; font-size: 12px; font-weight: bold; color: #4B5563; border-bottom: 1px solid #E5E7EB; }
+            td { padding: 12px; font-size: 13px; border-bottom: 1px solid #F3F4F6; }
+            .text-right { text-align: right; }
+            .text-center { text-align: center; }
+            .totals { display: flex; justify-content: flex-end; }
+            .totals-table { width: 250px; }
+            .totals-table tr td:first-child { color: #6B7280; }
+            .totals-table tr.grand-total td { font-weight: bold; color: #3B82F6; font-size: 16px; border-top: 1px solid #E5E7EB; padding-top: 15px; }
+            .footer { margin-top: 50px; font-size: 11px; color: #9CA3AF; text-align: center; }
+            @media print { body { padding: 0; } .no-print { display: none; } }
+        `;
+
+        // Override default styles if template is formal
+        const fullHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${config.title}</title>
+                <style>${styles}</style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="company-info">
+                        <h1>${data.companyName || 'Ezyparts Inventory'}</h1>
+                        <p>${data.companySubtitle || 'Sparepart Management System'}</p>
+                    </div>
+                    <div class="document-info">
+                        <h2>${data.documentTitle || 'DOCUMENT'}</h2>
+                        <p>#${data.documentId || ''}</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+                    <div class="section">
+                        ${(data.leftSection || []).map(item => `
+                            <h3>${item.label}</h3>
+                            <p style="${item.style || ''}">${item.value}</p>
+                            ${item.subValue ? `<p style="color: #6B7280; font-size: 0.9em;">${item.subValue}</p>` : ''}
+                        `).join('')}
+                    </div>
+                    <div class="section" style="text-align: right;">
+                        ${(data.rightSection || []).map(item => `
+                            <h3 style="${item.marginTop ? 'margin-top: 15px;' : ''}">${item.label}</h3>
+                            <p style="${item.style || ''}">${item.value}</p>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="40">No</th>
+                            ${(config.columns || []).map(col => `
+                                <th class="${col.align || 'text-left'}">${col.header}</th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${(data.items || []).map((item, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                ${(config.columns || []).map(col => `
+                                    <td class="${col.align || 'text-left'}" style="${col.style || ''}">
+                                        ${col.render ? col.render(item[col.field], item) : item[col.field]}
+                                    </td>
+                                `).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="totals">
+                    <table class="totals-table">
+                        ${Object.entries(data.totals || {}).map(([label, val], idx, arr) => {
+            const isLast = idx === arr.length - 1;
+            return `
+                                <tr class="${isLast ? 'grand-total' : ''}">
+                                    <td>${label}</td>
+                                    <td class="text-right">${val}</td>
+                                </tr>
+                            `;
+        }).join('')}
+                    </table>
+                </div>
+
+                ${data.notes ? `
+                    <div class="section" style="margin-top: 30px; background: #F9FAFB; padding: 15px; border-radius: 8px;">
+                        <h3>Notes / Instructions</h3>
+                        <p style="font-style: italic; font-size: 13px;">${data.notes}</p>
+                    </div>
+                ` : ''}
+
+                <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+                    ${(data.signatures || []).map(sig => `
+                        <div class="section" style="border-top: 1px solid #E5E7EB; width: 200px; padding-top: 10px; text-align: center;">
+                            <h3>${sig.label}</h3>
+                            <p style="margin-top: ${sig.name ? '10px' : '40px'};">${sig.name || '( _________________ )'}</p>
+                            ${sig.name ? `<p style="margin-top: 30px;">( _________________ )</p>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="footer">
+                    <p>Generated on ${now.toLocaleString('id-ID')} • ${data.footerText || 'Ezyparts Inventory System'}</p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        return fullHtml;
     }
 };
