@@ -373,7 +373,7 @@
                         <div class="w-8 text-center">No</div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>Part Number</div>
-                            <div>Item Name</div>
+                            <div>Part Name</div>
                         </div>
                         <div class="w-16">Qty</div>
                         <div class="w-24">Unit Price</div>
@@ -413,16 +413,16 @@
                                                 <div class="font-bold text-xs text-gray-900 dark:text-white"
                                                     x-text="part.partnumber"></div>
                                                 <div class="text-[10px] text-gray-500 dark:text-gray-400 truncate"
-                                                    x-text="part.name"></div>
+                                                    x-text="toTitleCase(part.name)"></div>
                                             </div>
                                         </template>
                                     </div>
                                 </div>
                                 <div>
                                     <label
-                                        class="md:hidden text-[10px] font-semibold text-gray-400 uppercase mb-1 block">Item
+                                        class="md:hidden text-[10px] font-semibold text-gray-400 uppercase mb-1 block">Part
                                         Name</label>
-                                    <input type="text" x-model="item.name" placeholder="Item Name *" required readonly
+                                    <input type="text" x-model="item.name" placeholder="Part Name *" required readonly
                                         class="w-full rounded border-gray-200 bg-gray-100 py-2 md:py-1 px-3 md:px-2 text-sm md:text-xs text-gray-500 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed capitalize" />
                                 </div>
                             </div>
