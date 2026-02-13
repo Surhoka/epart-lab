@@ -1523,10 +1523,17 @@ const registerPurchaseOrders = () => {
             const part = this.masterPartsMap.get(String(item.partnumber).toLowerCase());
 
             if (part) {
-                item.name = part.name || '';
+                item.name = this.toTitleCase(part.name || '');
                 item.unitprice = Number(part.purchaseprice) || Number(part.sellingprice) || 0;
                 this.calculatePOTotals();
             }
+        },
+
+        toTitleCase(str) {
+            return str.replace(
+                /\w\S*/g,
+                text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+            );
         },
 
         calculatePOTotals() {
