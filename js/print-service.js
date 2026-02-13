@@ -194,6 +194,7 @@ window.PrintService = {
         const now = new Date();
         const styles = `
             /* Base Layout */
+            * { box-sizing: border-box; }
             body { 
                 font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif; 
                 color: #111827; 
@@ -205,10 +206,9 @@ window.PrintService = {
             .page-container {
                 max-width: 210mm;
                 margin: 0 auto;
-                padding: 20mm;
+                padding: 15mm; /* Reduced padding for more space */
                 min-height: 297mm;
                 background: white;
-                box-sizing: border-box;
             }
             
             /* Header */
@@ -270,14 +270,14 @@ window.PrintService = {
             /* Print Specifics */
             @page { size: A4; margin: 0; }
             @media print { 
-                body { background: white; }
+                html, body { width: 100%; margin: 0; padding: 0; }
                 .page-container { 
-                    width: 210mm; 
-                    height: 297mm; 
-                    max-width: none; 
+                    width: 100%;
+                    max-width: 100%;
                     margin: 0; 
-                    padding: 20mm; 
+                    padding: 20mm; /* Keep standard padding for print margins */
                     box-shadow: none;
+                    min-height: auto;
                 }
                 .no-print { display: none !important; } 
                 .toolbar { display: none !important; }
