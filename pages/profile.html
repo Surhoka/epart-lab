@@ -243,7 +243,7 @@
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-              Website Branding & Footer Info
+              Website Branding
             </h4>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-2xl">
               Informasi ini akan ditampilkan secara publik di footer website dan halaman kontak resmi perusahaan di
@@ -251,37 +251,44 @@
             </p>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-x-12 2xl:gap-x-24">
+              <!-- Company Name -->
+              <div class="lg:col-span-2">
+                <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Company Name</p>
+                <p x-text="profile.publicDisplay.companyName || '-'"
+                  class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
+              </div>
+
               <!-- Support Email -->
               <div>
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Support Email</p>
+                <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Support Email</p>
                 <p x-text="profile.publicDisplay.supportEmail || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
               </div>
 
               <!-- Support Phone -->
               <div>
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Support Phone</p>
+                <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Support Phone</p>
                 <p x-text="profile.publicDisplay.supportPhone || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
               </div>
 
               <!-- Store Address -->
               <div class="lg:col-span-2">
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Physical Store Address</p>
+                <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Physical Store Address</p>
                 <p x-text="profile.publicDisplay.storeAddress || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
               </div>
 
               <!-- Operating Hours -->
               <div>
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Operating Hours</p>
+                <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Operating Hours</p>
                 <p x-text="profile.publicDisplay.operatingHours || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
               </div>
 
               <!-- Operating Days -->
               <div>
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Operating Days</p>
+                <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Operating Days</p>
                 <p x-text="profile.publicDisplay.operatingDays || '-'"
                   class="text-sm font-medium text-gray-800 dark:text-white/90"></p>
               </div>
@@ -604,6 +611,11 @@
           <div>
             <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <div class="lg:col-span-2">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Company Name</label>
+                <input x-model="editableProfile.publicDisplay.companyName" type="text" placeholder="Your Company Name"
+                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 dark:border-gray-700" />
+              </div>
               <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
                   Email</label>
