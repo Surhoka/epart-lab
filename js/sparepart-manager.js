@@ -1250,6 +1250,7 @@ const registerPurchaseOrders = () => {
 
         // Filters
         filters: {
+            ponumber: '',
             status: '',
             supplier: '',
             dateFrom: '',
@@ -1396,6 +1397,13 @@ const registerPurchaseOrders = () => {
 
             if (this.filters.status) {
                 filtered = filtered.filter(po => po.status === this.filters.status);
+            }
+
+            if (this.filters.ponumber.trim()) {
+                const search = this.filters.ponumber.toLowerCase();
+                filtered = filtered.filter(po =>
+                    (po.ponumber || '').toLowerCase().includes(search)
+                );
             }
 
             if (this.filters.supplier.trim()) {
