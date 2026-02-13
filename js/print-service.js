@@ -31,6 +31,12 @@ window.PrintService = {
         let config = {};
         let printData = {};
 
+        // Ambil konfigurasi dinamis dari LocalStorage (Setup/Profile)
+        const appConfig = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+        const brandingConfig = JSON.parse(localStorage.getItem('publicBrandingData') || '{}');
+        const dynamicCompanyName = brandingConfig.companyName || appConfig.dbName || 'Ezyparts Inventory';
+        const dynamicSubtitle = brandingConfig.address || 'Sparepart Management System';
+
         // Helper formatters internal
         const fmtMoney = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
         const fmtDate = (val) => val ? new Date(val).toLocaleDateString('id-ID') : '';
@@ -40,8 +46,8 @@ window.PrintService = {
             case 'purchase-order':
                 const poItems = typeof data.items === 'string' ? JSON.parse(data.items) : (data.items || []);
                 printData = {
-                    companyName: 'Ezyparts Inventory',
-                    companySubtitle: 'Sparepart Management System',
+                    companyName: dynamicCompanyName,
+                    companySubtitle: dynamicSubtitle,
                     documentTitle: 'PURCHASE ORDER',
                     documentId: data.ponumber,
                     leftSection: [
@@ -78,8 +84,8 @@ window.PrintService = {
             case 'receiving':
                 const rcItems = typeof data.items === 'string' ? JSON.parse(data.items) : (data.items || []);
                 printData = {
-                    companyName: 'Ezyparts Inventory',
-                    companySubtitle: 'Sparepart Management System',
+                    companyName: dynamicCompanyName,
+                    companySubtitle: dynamicSubtitle,
                     documentTitle: 'RECEIVING',
                     documentId: data.receivingNumber || data.receivingnumber,
                     leftSection: [{ label: 'Supplier', value: data.supplier }],
