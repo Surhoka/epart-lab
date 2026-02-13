@@ -17,7 +17,7 @@ window.PrintService = {
         // Wait for resources to load then print
         setTimeout(() => {
             printWindow.print();
-            printWindow.close();
+            // printWindow.close(); // Keep window open for manual control
         }, 500);
     },
 
@@ -210,7 +210,30 @@ window.PrintService = {
             .totals-table tr td:first-child { color: #6B7280; }
             .totals-table tr.grand-total td { font-weight: bold; color: #3B82F6; font-size: 16px; border-top: 1px solid #E5E7EB; padding-top: 15px; }
             .footer { margin-top: 50px; font-size: 11px; color: #9CA3AF; text-align: center; }
-            @media print { body { padding: 0; } .no-print { display: none; } }
+            
+            /* Toolbar Styles */
+            .toolbar {
+                position: sticky; top: 0; left: 0; right: 0;
+                background: #f3f4f6; padding: 10px 20px;
+                display: flex; justify-content: flex-end; gap: 10px;
+                border-bottom: 1px solid #e5e7eb;
+                margin: -40px -40px 30px -40px; /* Counteract body padding */
+            }
+            .btn {
+                padding: 8px 16px; border-radius: 6px; border: 1px solid #d1d5db;
+                cursor: pointer; font-size: 14px; font-weight: 500;
+                display: flex; align-items: center; gap: 5px;
+            }
+            .btn-print { background: #3b82f6; color: white; border-color: #2563eb; }
+            .btn-print:hover { background: #2563eb; }
+            .btn-close { background: white; color: #374151; }
+            .btn-close:hover { background: #f9fafb; }
+            
+            @media print { 
+                body { padding: 0; } 
+                .no-print { display: none !important; } 
+                .toolbar { display: none !important; }
+            }
         `;
 
         // Override default styles if template is formal
@@ -222,6 +245,17 @@ window.PrintService = {
                 <style>${styles}</style>
             </head>
             <body>
+                <div class="toolbar no-print">
+                    <button onclick="window.print()" class="btn btn-print">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print
+                    </button>
+                    <button onclick="window.close()" class="btn btn-close">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Close
+                    </button>
+                </div>
+
                 <div class="header">
                     <div class="company-info">
                         <h1>${data.companyName || 'Ezyparts Inventory'}</h1>

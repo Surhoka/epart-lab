@@ -1595,45 +1595,52 @@ const registerPurchaseOrders = () => {
         printPurchaseOrder(po) {
             if (!po) return;
 
-            const data = {
-                storeName: 'SPAREPART STORE',
-                headerInfo: {
-                    'PO Number': po.ponumber,
-                    'Date': this.formatDate(po.date),
-                    'Supplier': po.supplier,
-                    'Status': po.status.toUpperCase()
-                },
-                items: (typeof po.items === 'string' ? JSON.parse(po.items) : po.items || []).map(item => ({
-                    partnumber: item.partnumber,
-                    name: this.toTitleCase(item.name || ''),
-                    qty: item.quantity,
-                    price: this.formatPrice(item.unitprice),
-                    total: this.formatPrice((item.quantity || 0) * (item.unitprice || 0))
-                })),
-                totals: {
-                    'Total Amount': this.formatPrice(po.total)
-                },
-                footer: [
-                    'Authorized Signature',
-                    '',
-                    '',
-                    '__________________________'
-                ]
-            };
-
-            if (po.expecteddate) {
-                data.headerInfo['Expected Date'] = this.formatDate(po.expecteddate);
-            }
+            const items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items || [];
 
             if (window.PrintService) {
-                window.PrintService.print(data, {
+                const rightSection = [
+                    { label: 'Order Date', value: this.formatDate(po.date) }
+                ];
+
+                if (po.expecteddate) {
+                    rightSection.push({ label: 'Expected Date', value: this.formatDate(po.expecteddate), marginTop: true });
+                }
+
+                rightSection.push({ label: 'Status', value: (po.status || '').toUpperCase(), style: 'text-transform: uppercase;', marginTop: true });
+
+                const leftSection = [
+                    { label: 'Supplier', value: po.supplier || '', style: 'font-size: 1.1em; font-weight: bold;', subValue: po.supplieremail || '' }
+                ];
+
+                window.PrintService.print({
+                    companyName: 'Ezyparts Inventory',
+                    companySubtitle: 'Sparepart Management System',
+                    documentTitle: 'PURCHASE ORDER',
+                    documentId: po.ponumber,
+                    leftSection: leftSection,
+                    rightSection: rightSection,
+                    items: items.map(item => ({
+                        ...item,
+                        name: this.toTitleCase(item.name || ''),
+                        total: this.formatPrice((item.quantity || 0) * (item.unitprice || 0)),
+                        formattedPrice: this.formatPrice(item.unitprice)
+                    })),
+                    totals: {
+                        'Grand Total': this.formatPrice(po.total)
+                    },
+                    notes: po.notes,
+                    signatures: [
+                        { label: 'Authorized By' },
+                        { label: 'Accepted By' }
+                    ]
+                }, {
+                    template: 'formal',
                     title: `Purchase Order - ${po.ponumber}`,
-                    paperSize: 'A4',
                     columns: [
-                        { header: 'Part Number', field: 'partnumber', align: 'text-left' },
-                        { header: 'Part Name', field: 'name', align: 'text-left' },
-                        { header: 'Qty', field: 'qty', align: 'text-center' },
-                        { header: 'Unit Price', field: 'price', align: 'text-right' },
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;' },
+                        { header: 'Part Name', field: 'name' },
+                        { header: 'Qty', field: 'quantity', align: 'text-center' },
+                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right' },
                         { header: 'Total', field: 'total', align: 'text-right' }
                     ]
                 });
