@@ -66,7 +66,10 @@ window.PrintService = {
                     })),
                     totals: { 'Grand Total': fmtMoney(data.total) },
                     notes: data.notes,
-                    signatures: [{ label: 'Authorized By' }, { label: 'Accepted By' }]
+                    signatures: [
+                        { label: 'Authorized By' }, 
+                        { label: 'Accepted By', name: data.acceptedBy || data.acceptedby }
+                    ]
                 };
                 config = {
                     template: 'formal',
@@ -579,3 +582,4 @@ window.PrintService = {
         return fullHtml;
     }
 };
+
