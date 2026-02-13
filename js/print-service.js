@@ -267,22 +267,26 @@ window.PrintService = {
                     </div>
                     <div class="document-info">
                         <h2>${data.documentTitle || 'DOCUMENT'}</h2>
-                        <p>#${data.documentId || ''}</p>
+                        <p style="font-size: 14px; font-weight: 500; color: #374151;">#${data.documentId || ''}</p>
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+                <div class="info-grid">
                     <div class="section">
                         ${(data.leftSection || []).map(item => `
-                            <h3>${item.label}</h3>
-                            <p style="${item.style || ''}">${item.value}</p>
-                            ${item.subValue ? `<p style="color: #6B7280; font-size: 0.9em;">${item.subValue}</p>` : ''}
+                            <div style="margin-bottom: 15px;">
+                                <h3>${item.label}</h3>
+                                <p style="font-size: 16px; ${item.style || ''}">${item.value}</p>
+                                ${item.subValue ? `<p style="color: #6B7280; font-size: 14px; margin-top: 2px;">${item.subValue}</p>` : ''}
+                            </div>
                         `).join('')}
                     </div>
-                    <div class="section" style="text-align: right;">
+                    <div class="section right">
                         ${(data.rightSection || []).map(item => `
-                            <h3 style="${item.marginTop ? 'margin-top: 15px;' : ''}">${item.label}</h3>
-                            <p style="${item.style || ''}">${item.value}</p>
+                            <div style="margin-bottom: 15px;">
+                                <h3>${item.label}</h3>
+                                <p style="font-size: 16px; ${item.style || ''}">${item.value}</p>
+                            </div>
                         `).join('')}
                     </div>
                 </div>
