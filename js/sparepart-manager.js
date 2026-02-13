@@ -2083,136 +2083,51 @@ const registerReceivingHistory = () => {
         printReceivingReceipt(receiving) {
             if (!receiving) return;
             const items = this.getReceivingItems(receiving);
-            const now = new Date();
 
-            const html = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Receiving - ${receiving.receivingNumber || receiving.receivingnumber}</title>
-                    <style>
-                        body { font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif; color: #111827; padding: 40px; line-height: 1.5; }
-                        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; }
-                        .company-info h1 { margin: 0; color: #3B82F6; font-size: 24px; }
-                        .document-info { text-align: right; }
-                        .document-info h2 { margin: 0; font-size: 18px; color: #6B7280; }
-                        .section h3 { font-size: 12px; font-weight: bold; color: #6B7280; text-transform: uppercase; margin-bottom: 8px; }
-                        .section p { margin: 0; font-weight: 500; }
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-                        th { background: #F9FAFB; text-align: left; padding: 12px; font-size: 12px; font-weight: bold; color: #4B5563; border-bottom: 1px solid #E5E7EB; }
-                        td { padding: 12px; font-size: 13px; border-bottom: 1px solid #F3F4F6; }
-                        .text-right { text-align: right; }
-                        .text-center { text-align: center; }
-                        .totals { display: flex; justify-content: flex-end; }
-                        .totals-table { width: 250px; }
-                        .totals-table tr td:first-child { color: #6B7280; }
-                        .totals-table tr.grand-total td { font-weight: bold; color: #3B82F6; font-size: 16px; border-top: 1px solid #E5E7EB; padding-top: 15px; }
-                        .footer { margin-top: 50px; font-size: 11px; color: #9CA3AF; text-align: center; }
-                        @media print { body { padding: 0; } .no-print { display: none; } }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div class="company-info">
-                            <h1>Ezyparts Inventory</h1>
-                            <p>Sparepart Management System</p>
-                        </div>
-                        <div class="document-info">
-                            <h2>GOODS RECEIVING NOTE</h2>
-                            <p>#${receiving.receivingNumber || receiving.receivingnumber}</p>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
-                        <div class="section">
-                            <h3>Supplier</h3>
-                            <p>${receiving.supplier}</p>
-                        </div>
-                        <div class="section" style="text-align: right;">
-                            <h3>Receiving Date</h3>
-                            <p>${this.formatDate(receiving.date)}</p>
-                            <h3 style="margin-top: 15px;">PO Number</h3>
-                            <p>${receiving.poNumber || receiving.ponumber}</p>
-                        </div>
-                    </div>
-
-                    <table>
-                        <thead>
-                            <tr>
-                                <th width="40">No</th>
-                                <th>Part Number</th>
-                                <th>Item Name</th>
-                                <th class="text-center">Qty</th>
-                                <th class="text-right">Unit Price</th>
-                                <th class="text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${items.map((item, index) => `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td style="font-weight: 600;">${item.partnumber}</td>
-                                    <td>${this.toTitleCase(item.name)}</td>
-                                    <td class="text-center">${item.receivingnow}</td>
-                                    <td class="text-right">${this.formatPrice(item.unitprice)}</td>
-                                    <td class="text-right">${this.formatPrice(this.calculateLineTotal(item, receiving))}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-
-                    <div class="totals">
-                        <table class="totals-table">
-                            <tr>
-                                <td>Subtotal</td>
-                                <td class="text-right">${this.formatPrice(receiving.subtotal)}</td>
-                            </tr>
-                            <tr>
-                                <td>Discount</td>
-                                <td class="text-right">-${this.formatPrice((Number(receiving.subtotal || 0)) - (Number(receiving.total || 0)))}</td>
-                            </tr>
-                            <tr class="grand-total">
-                                <td>Grand Total</td>
-                                <td class="text-right">${this.formatPrice(receiving.total)}</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    ${receiving.notes ? `
-                        <div class="section" style="margin-top: 30px; background: #F9FAFB; padding: 15px; border-radius: 8px;">
-                            <h3>Notes / Instructions</h3>
-                            <p style="font-style: italic; font-size: 13px;">${receiving.notes}</p>
-                        </div>
-                    ` : ''}
-
-                    <div style="margin-top: 60px; display: flex; justify-content: space-between;">
-                        <div class="section" style="border-top: 1px solid #E5E7EB; width: 200px; padding-top: 10px; text-align: center;">
-                            <h3>Authorized By</h3>
-                            <p style="margin-top: 40px;">( _________________ )</p>
-                        </div>
-                        <div class="section" style="border-top: 1px solid #E5E7EB; width: 200px; padding-top: 10px; text-align: center;">
-                            <h3>Received By</h3>
-                            <p style="margin-top: 10px;">${receiving.receivedBy || receiving.receivedby}</p>
-                            <p style="margin-top: 30px;">( _________________ )</p>
-                        </div>
-                    </div>
-
-                    <div class="footer">
-                        <p>Generated on ${now.toLocaleString('id-ID')} • Ezyparts Inventory System</p>
-                    </div>
-                    
-                    <script>
-                        window.onload = () => {
-                            window.print();
-                        };
-                    </script>
-                </body>
-                </html>
-            `;
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(html);
-            printWindow.document.close();
+            if (window.PrintService) {
+                window.PrintService.print({
+                    companyName: 'Ezyparts Inventory',
+                    companySubtitle: 'Sparepart Management System',
+                    documentTitle: 'GOODS RECEIVING NOTE',
+                    documentId: receiving.receivingNumber || receiving.receivingnumber,
+                    leftSection: [
+                        { label: 'Supplier', value: receiving.supplier }
+                    ],
+                    rightSection: [
+                        { label: 'Receiving Date', value: this.formatDate(receiving.date) },
+                        { label: 'PO Number', value: receiving.poNumber || receiving.ponumber, marginTop: true }
+                    ],
+                    items: items.map(item => ({
+                        ...item,
+                        name: this.toTitleCase(item.name || ''),
+                        total: this.formatPrice(this.calculateLineTotal(item, receiving)),
+                        formattedPrice: this.formatPrice(item.unitprice)
+                    })),
+                    totals: {
+                        'Subtotal': this.formatPrice(receiving.subtotal),
+                        'Discount': '-' + this.formatPrice((Number(receiving.subtotal || 0)) - (Number(receiving.total || 0))),
+                        'Grand Total': this.formatPrice(receiving.total)
+                    },
+                    notes: receiving.notes,
+                    signatures: [
+                        { label: 'Authorized By' },
+                        { label: 'Received By', name: receiving.receivedBy || receiving.receivedby }
+                    ]
+                }, {
+                    template: 'formal',
+                    title: `Receiving - ${receiving.receivingNumber || receiving.receivingnumber}`,
+                    columns: [
+                        { header: 'Part Number', field: 'partnumber', style: 'font-weight: 600;' },
+                        { header: 'Item Name', field: 'name' },
+                        { header: 'Qty', field: 'receivingnow', align: 'text-center' },
+                        { header: 'Unit Price', field: 'formattedPrice', align: 'text-right' },
+                        { header: 'Total', field: 'total', align: 'text-right' }
+                    ]
+                });
+            } else {
+                // Fallback or Error
+                console.error("PrintService not found");
+            }
         },
 
         toTitleCase(str) {
