@@ -45,6 +45,12 @@ window.EzyApi = {
  * Mendapatkan URL API secara Global berdasarkan Role
  */
 async function discoverEzyApi() {
+    // [NEW] Check if SiteKey discovery is running in public.html
+    if (window.EZY_DISCOVERY_PENDING) {
+        console.log('Discovery: Paused (Waiting for SiteKey resolution)...');
+        return;
+    }
+
     const cacheKey = 'Ezyparts_Config_Cache';
     const HARDCODED_URL = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV) ? CONFIG.WEBAPP_URL_DEV.trim() : '';
     let CURRENT_URL = getGatewayUrl();

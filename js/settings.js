@@ -54,7 +54,7 @@
                 }, 600);
             },
 
-            downloadPublicTemplate() {
+            downloadPublicTemplate(raw = false) {
                 try {
                     // Get config from global EzyApi or localStorage
                     const configCache = localStorage.getItem('Ezyparts_Config_Cache');
@@ -80,7 +80,13 @@
                         return;
                     }
 
-                    const params = new URLSearchParams({ action: 'download_public_template', adminUrl: adminUrl, siteKey: siteKey, dbName: config.dbName || 'Database' });
+                    const params = new URLSearchParams({
+                        action: 'download_public_template',
+                        adminUrl: adminUrl,
+                        siteKey: siteKey,
+                        dbName: config.dbName || 'Database',
+                        mode: raw ? 'raw' : 'injected'
+                    });
                     window.open(`${gatewayUrl}${gatewayUrl.includes('?') ? '&' : '?'}${params.toString()}`, '_blank');
                 } catch (e) {
                     console.error('Download error:', e);
