@@ -61,8 +61,10 @@
                     const config = configCache ? JSON.parse(configCache) : (window.EzyApi?.config || {});
 
                     // Determine Gateway URL
-                    let gatewayUrl = window.EzyApi?.gatewayUrl;
-                    if (!gatewayUrl && typeof CONFIG !== 'undefined') gatewayUrl = CONFIG.WEBAPP_URL_DEV;
+                    // Prioritize CONFIG.WEBAPP_URL_DEV (Gateway) over EzyApi.gatewayUrl (which might be Project URL)
+                    let gatewayUrl = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV)
+                        ? CONFIG.WEBAPP_URL_DEV
+                        : window.EzyApi?.gatewayUrl;
 
                     if (!gatewayUrl) {
                         window.showToast('Gateway URL not found.', 'error');
