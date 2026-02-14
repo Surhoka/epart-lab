@@ -1,7 +1,8 @@
 /**
  * Home Page Logic for Public EzyParts
+ * Displays data from Admin database
  */
-window.initHomePage = function() {
+window.initHomePage = function () {
     return {
         // Data
         products: [],
@@ -10,17 +11,25 @@ window.initHomePage = function() {
             connected: false,
             error: null
         },
-        
+
         // Loading states
         isLoadingProducts: false,
         isLoadingPosts: false,
 
+        // Slider State
+        activeSlide: 0,
+        totalSlides: 3,
+        sliderInterval: null,
+
         async init() {
             console.log('Home page initialized');
-            
+
+            // Start Slider
+            this.startSlider();
+
             // Check connection status
             await this.checkConnection();
-            
+
             // Load data if connected
             if (this.connectionStatus.connected) {
                 await Promise.all([
@@ -30,11 +39,38 @@ window.initHomePage = function() {
             }
         },
 
+        startSlider() {
+            this.stopSlider();
+            this.sliderInterval = setInterval(() => {
+                this.nextSlide();
+            }, 5000);
+        },
+
+        stopSlider() {
+            if (this.sliderInterval) {
+                clearInterval(this.sliderInterval);
+                this.sliderInterval = null;
+            }
+        },
+
+        nextSlide() {
+            this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
+        },
+
+        prevSlide() {
+            this.activeSlide = (this.activeSlide - 1 + this.totalSlides) % this.totalSlides;
+        },
+
+        setSlide(index) {
+            this.activeSlide = index;
+            this.startSlider();
+        },
+
         async checkConnection() {
             try {
                 const result = await window.AdminAPI.checkConnection();
                 this.connectionStatus = result;
-                
+
                 if (result.connected) {
                     console.log('✅ Connected to admin database');
                 } else {
@@ -51,13 +87,13 @@ window.initHomePage = function() {
 
         async loadProducts() {
             this.isLoadingProducts = true;
-            
+
             try {
                 const response = await window.AdminAPI.getProducts({
                     limit: 6,
                     featured: true
                 });
-                
+
                 if (response.status === 'success') {
                     this.products = response.data || [];
                     console.log('✅ Loaded products:', this.products.length);
@@ -75,13 +111,13 @@ window.initHomePage = function() {
 
         async loadPosts() {
             this.isLoadingPosts = true;
-            
+
             try {
                 const response = await window.AdminAPI.getPosts({
                     limit: 4,
                     status: 'published'
                 });
-                
+
                 if (response.status === 'success') {
                     this.posts = response.data || [];
                     console.log('✅ Loaded posts:', this.posts.length);
@@ -100,7 +136,7 @@ window.initHomePage = function() {
         // Utility functions
         formatPrice(price) {
             if (!price) return 'Contact for price';
-            
+
             // Format as Indonesian Rupiah
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -111,7 +147,7 @@ window.initHomePage = function() {
 
         formatDate(dateString) {
             if (!dateString) return '';
-            
+
             const date = new Date(dateString);
             return date.toLocaleDateString('id-ID', {
                 year: 'numeric',
@@ -128,7 +164,7 @@ window.initHomePage = function() {
         // Refresh data
         async refresh() {
             await this.checkConnection();
-            
+
             if (this.connectionStatus.connected) {
                 await Promise.all([
                     this.loadProducts(),
