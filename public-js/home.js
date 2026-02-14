@@ -22,7 +22,6 @@ window.initHomePage = function () {
         sliderInterval: null,
 
         async init() {
-            console.log('Home page initialized');
 
             // Start Slider
             this.startSlider();
@@ -72,7 +71,6 @@ window.initHomePage = function () {
                 this.connectionStatus = result;
 
                 if (result.connected) {
-                    console.log('✅ Connected to admin database');
                 } else {
                     console.warn('❌ Failed to connect to admin database:', result.error);
                 }
@@ -96,7 +94,6 @@ window.initHomePage = function () {
 
                 if (response.status === 'success') {
                     this.products = response.data || [];
-                    console.log('✅ Loaded products:', this.products.length);
                 } else {
                     console.warn('Failed to load products:', response.message);
                     this.products = [];
@@ -120,7 +117,6 @@ window.initHomePage = function () {
 
                 if (response.status === 'success') {
                     this.posts = response.data || [];
-                    console.log('✅ Loaded posts:', this.posts.length);
                 } else {
                     console.warn('Failed to load posts:', response.message);
                     this.posts = [];
