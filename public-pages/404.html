@@ -24,79 +24,13 @@
         -webkit-text-fill-color: transparent;
     }
 </style>
-<div class="relative z-1 flex min-h-screen flex-col items-center justify-center overflow-hidden p-6" x-data="{
-    blogTitle: 'EzyParts',
-    blogFavicon: 'https://www.blogger.com/img/blogger_logo_round_35.png',
-    blogDescription: 'Welcome to our blog - Your trusted platform for quality parts and components.',
-    
-    init() {
-        // 1. Try to get data from global window.app (hosting template)
-        if (window.app) {
-            console.log('404 page - fetching data from window.app');
-            this.blogTitle = window.app.blogTitle || this.blogTitle;
-            this.blogFavicon = window.app.blogFavicon || this.blogFavicon;
-            
-            // Handle potentially delayed description
-            if (window.app.blogDescription) {
-                this.blogDescription = window.app.blogDescription;
-            } else {
-                // Poll for description if it's still being loaded by the template
-                const checkDesc = setInterval(() => {
-                    if (window.app.blogDescription) {
-                        this.blogDescription = window.app.blogDescription;
-                        clearInterval(checkDesc);
-                    }
-                }, 200);
-                setTimeout(() => clearInterval(checkDesc), 5000); // Stop polling after 5s
-            }
-            
-            // If we have valid title from window.app, we're good to go
-            if (this.blogTitle && this.blogTitle !== 'Blog Title' && this.blogTitle !== 'EzyParts') {
-                return;
-            }
-        }
 
-        // 2. Try to get data from localStorage (fallback for refresh on 404)
-        try {
-            const storedData = localStorage.getItem('blogData');
-            if (storedData) {
-                const blogData = JSON.parse(storedData);
-                const isDataFresh = (Date.now() - blogData.timestamp) < (24 * 60 * 60 * 1000);
-                
-                if (isDataFresh && blogData.title) {
-                    this.blogTitle = blogData.title;
-                    this.blogFavicon = blogData.favicon || this.blogFavicon;
-                    this.blogDescription = blogData.description || this.blogDescription;
-                    return;
-                }
-            }
-        } catch (e) {
-            console.warn('Could not read blog data from localStorage:', e);
-        }
-        
-        // 3. Last resort fallbacks
-        if (document.title && document.title.length > 0) {
-            this.blogTitle = document.title;
-        }
-        
-        const faviconLink = document.querySelector('link[rel=&quot;icon&quot;], link[rel=&quot;shortcut icon&quot;]');
-        if (faviconLink && faviconLink.href) {
-            this.blogFavicon = faviconLink.href;
-        }
-        
-        const currentMeta = document.querySelector('meta[name=&quot;description&quot;]');
-        if (currentMeta && currentMeta.content) {
-            this.blogDescription = currentMeta.content;
-        } else {
-            this.blogDescription = 'Welcome to ' + this.blogTitle + ' - Your trusted source for quality content.';
-        }
-    }
-}">
+<div class="relative z-1 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center overflow-hidden p-6"
+    x-data="{}">
     <!-- ===== Common Grid Shape Start ===== -->
     <div class="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]" x-icon="'grid-01'">
     </div>
-    <div class="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] xl:max-w-[450px] transform rotate-180">
-        <div class="w-full" x-icon="'grid-01'"></div>
+    <div class="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 xl:max-w-[450px]" x-icon="'grid-01'">
     </div>
     <!-- ===== Common Grid Shape End ===== -->
 
@@ -127,32 +61,17 @@
         </a>
     </div>
 
-    <!-- Blog Title and Favicon Section -->
-    <div class="relative z-10 flex flex-col items-center mt-12">
-        <a href="/" class="flex items-center gap-3 group no-underline">
-            <img :src="blogFavicon" alt="Logo"
-                class="w-10 h-10 rounded-lg shadow-sm transition-transform group-hover:scale-105 flex-shrink-0" />
-            <div class="flex flex-col justify-center text-left gap-0.5">
-                <span
-                    class="text-2xl font-bold text-gray-800 dark:text-white/90 tracking-tight transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-tight"
-                    x-text="blogTitle"></span>
-                <!-- Separator and Description -->
-                <template x-if="blogDescription">
-                    <div class="flex flex-col">
-                        <span class="border-t border-gray-100 dark:border-gray-800 my-0.5 w-full block"></span>
-                        <p class="text-[10px] text-gray-600 dark:text-gray-400 max-w-[250px] truncate leading-none"
-                            x-text="blogDescription"></p>
-                    </div>
-                </template>
+    <!-- Branding Footer -->
+    <div class="mt-16 flex flex-col items-center border-t border-gray-100 pt-8 dark:border-gray-800/50">
+        <a href="#dashboard" class="group flex items-center gap-3 transition-opacity hover:opacity-80">
+            <img :src="blogFavicon" alt="Logo" class="h-8 w-8 rounded-lg shadow-sm" />
+            <div class="flex flex-col">
+                <span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
+                    x-text="blogTitle || 'EzyParts'"></span>
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium"
+                    x-text="blogDescription"></span>
             </div>
         </a>
     </div>
-    <script>
-        // Simple fallback for cases where Alpine.js might not be loaded
-        if (typeof Alpine === 'undefined') {
-            console.warn('Alpine.js not loaded. Blog title and favicon may not display correctly.');
-        }
-    </script>
+
 </div>
-
-
