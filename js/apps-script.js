@@ -77,7 +77,6 @@ async function discoverEzyApi() {
         const script = document.createElement('script');
         const separator = targetUrl.includes('?') ? '&' : '?';
         const finalUrl = `${targetUrl}${separator}action=${action}&callback=${cbName}`;
-        console.log(`Discovery: Pinging ${finalUrl}`);
         script.src = finalUrl;
 
         return new Promise((resolve, reject) => {
@@ -113,7 +112,6 @@ async function discoverEzyApi() {
 
         if (config && (config.status === 'success' || config.isSetup === false || config.statusNote === 'no_config')) {
             window.EzyApi.config = config;
-            console.log('CLIENT RECEIVED CONFIG:', config); // DEBUG LOG
 
             // ONLY sync to LocalStorage if it's a confirmed healthy PROJECT (not a gateway stub)
             if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
@@ -205,7 +203,6 @@ function applyRoleUrl(config) {
     const finalUrl = (targetUrl && targetUrl.startsWith('http')) ? targetUrl.trim() : DISCOVERY_URL;
 
     window.EzyApi.url = finalUrl;
-    console.log('EzyApi URL set to:', finalUrl);
     window.EzyApi.gatewayUrl = DISCOVERY_URL; // NEW: Explicitly expose Gateway
     window.appsScriptUrl = finalUrl;
 
