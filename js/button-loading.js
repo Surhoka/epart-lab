@@ -252,5 +252,3 @@ window.setButtonLoadingBySelector = function (selector, isLoading) {
         console.warn(`setButtonLoadingBySelector: button with selector "${selector}" not found`);
     }
 };
-
-console.log('✅ Global button loading & success utility loaded');
