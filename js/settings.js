@@ -3,6 +3,7 @@
         Alpine.data('settingsPage', () => ({
             isLoading: false,
             activeTab: 'general',
+            showToken: false,
             settings: {
                 theme: 'light',
                 language: 'en',
@@ -11,7 +12,8 @@
                     stock: true,
                     marketing: false
                 },
-                publicTheme: 'blue'
+                publicTheme: 'blue',
+                gatewayToken: ''
             },
 
             init() {
@@ -32,6 +34,15 @@
                 if (!saved) {
                     this.settings.theme = isDark ? 'dark' : 'light';
                 }
+
+                // [NEW] Load live sensitive settings from server cache
+                const configCache = localStorage.getItem('Ezyparts_Config_Cache');
+                if (configCache) {
+                    const config = JSON.parse(configCache);
+                    if (config.gatewayToken) {
+                        this.settings.gatewayToken = config.gatewayToken;
+                    }
+                }
             },
 
             saveSettings() {
@@ -50,8 +61,23 @@
                         document.documentElement.classList.remove('dark');
                     }
 
-                    window.showToast('Settings saved successfully!', 'success');
-                    this.isLoading = false;
+                    // [NEW] Save Sensitive Security Settings to GAS ScriptProperties
+                    if (window.google && window.google.script) {
+                        google.script.run
+                            .withSuccessHandler(() => {
+                                window.showToast('Settings saved successfully!', 'success');
+                                this.isLoading = false;
+                            })
+                            .withFailureHandler((err) => {
+                                console.error('Security save failed', err);
+                                window.showToast('Visual settings saved, but security update failed.', 'warning');
+                                this.isLoading = false;
+                            })
+                            .saveSecuritySettings({ gatewayToken: this.settings.gatewayToken });
+                    } else {
+                        window.showToast('Settings saved to browser!', 'success');
+                        this.isLoading = false;
+                    }
                 }, 600);
             },
 
