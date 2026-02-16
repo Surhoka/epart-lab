@@ -220,7 +220,29 @@
                 </div>
             </div>
 
-            <div class="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
+            <!-- Gateway Security -->
+            <div class="space-y-4">
+                <h5 class="text-base font-bold text-gray-800 dark:text-white">Gateway Security</h5>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Set a security token to protect sensitive Gateway actions (setup, discovery, etc).
+                    This token must match the <code>GATEWAY_SECURITY_TOKEN</code> in your Gateway script.
+                </p>
+                <div class="max-w-md">
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Security
+                        Token</label>
+                    <div class="relative">
+                        <input :type="showToken ? 'text' : 'password'" x-model="settings.gatewayToken"
+                            placeholder="Enter security token..."
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-brand-500 focus:bg-white focus:outline-none dark:border-gray-800 dark:bg-white/[0.03] dark:text-white dark:focus:border-brand-500">
+                        <button @click="showToken = !showToken" type="button"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500">
+                            <span class="w-5 h-5" x-icon="showToken ? 'eye-off' : 'eye'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-gray-800 pt-6 mt-8">
                 <h5 class="text-base font-bold text-red-600 mb-2">Danger Zone</h5>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Once you delete your account configuration,
                     there is no going back. Please be certain.</p>
