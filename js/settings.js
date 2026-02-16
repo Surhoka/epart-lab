@@ -10,7 +10,8 @@
                     orders: true,
                     stock: true,
                     marketing: false
-                }
+                },
+                publicTheme: 'blue'
             },
 
             init() {
@@ -85,6 +86,7 @@
                         adminUrl: adminUrl,
                         siteKey: siteKey,
                         dbName: config.dbName || 'Database',
+                        theme: this.settings.publicTheme || 'blue',
                         mode: raw ? 'raw' : 'injected'
                     });
                     window.open(`${gatewayUrl}${gatewayUrl.includes('?') ? '&' : '?'}${params.toString()}`, '_blank');
