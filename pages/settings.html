@@ -113,6 +113,35 @@
                             <div class="w-full h-12 rounded-lg bg-purple-600 shadow-inner"></div>
                             <span class="text-xs font-semibold">Royal Purple</span>
                         </button>
+
+                        <!-- Custom Color -->
+                        <div class="flex flex-col gap-2">
+                            <button @click="settings.publicTheme = 'custom'"
+                                :class="settings.publicTheme === 'custom' ? 'ring-2 ring-brand-500 border-brand-500' : 'border-gray-200 dark:border-gray-800'"
+                                class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
+                                <div class="w-full h-12 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center dark:border-gray-700"
+                                    :style="settings.publicTheme === 'custom' ? 'background: ' + settings.customColor : ''">
+                                    <span x-show="settings.publicTheme !== 'custom'" class="text-gray-400"
+                                        x-icon="'plus'"></span>
+                                </div>
+                                <span class="text-xs font-semibold">Custom Color</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Color Picker (Shown only if Custom selected) -->
+                <div x-show="settings.publicTheme === 'custom'" x-transition
+                    class="mb-6 p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800">
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pick your brand
+                        color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" x-model="settings.customColor"
+                            class="w-12 h-12 rounded-lg cursor-pointer border-0 p-0 bg-transparent">
+                        <input type="text" x-model="settings.customColor"
+                            class="w-32 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none dark:border-gray-800 dark:bg-gray-800 dark:text-white">
+                        <p class="text-xs text-gray-500">This color will be used to generate your storefront palette.
+                        </p>
                     </div>
                 </div>
 
