@@ -10,6 +10,11 @@
             class="pb-3 text-sm font-semibold border-b-2 transition-all">
             General
         </button>
+        <button @click="activeTab = 'theme'"
+            :class="activeTab === 'theme' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
+            class="pb-3 text-sm font-semibold border-b-2 transition-all">
+            Theme
+        </button>
         <button @click="activeTab = 'notifications'"
             :class="activeTab === 'notifications' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
             class="pb-3 text-sm font-semibold border-b-2 transition-all">
@@ -28,18 +33,6 @@
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Application Preferences</h4>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <!-- Theme Preference -->
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Theme</label>
-                    <select x-model="settings.theme"
-                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
-                        <option value="light">Light Mode</option>
-                        <option value="dark">Dark Mode</option>
-                        <option value="system">System Default</option>
-                    </select>
-                    <p class="mt-1 text-xs text-gray-500">Select your preferred interface appearance.</p>
-                </div>
-
                 <!-- Language -->
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Language</label>
@@ -52,13 +45,42 @@
                 </div>
             </div>
 
+            <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
+                <button @click="saveSettings()"
+                    class="btn flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
+                    Save General Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Theme Settings -->
+    <div x-show="!isLoading && activeTab === 'theme'" x-transition x-cloak>
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Interface & Branding</h4>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
+                <!-- Admin Dashboard Theme -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Admin Dashboard
+                        Theme</label>
+                    <select x-model="settings.theme"
+                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                        <option value="light">Light Mode</option>
+                        <option value="dark">Dark Mode</option>
+                        <option value="system">System Default</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Select how the admin dashboard looks to you.</p>
+                </div>
+            </div>
+
             <!-- Public Storefront Customization -->
             <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <h5 class="text-base font-bold text-gray-800 dark:text-white mb-4">Public Storefront Customization</h5>
 
                 <div class="mb-6">
-                    <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-400">Storefront
-                        Theme</label>
+                    <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-400">Storefront Theme
+                        Color</label>
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                         <!-- Default Blue -->
                         <button @click="settings.publicTheme = 'blue'"
@@ -98,8 +120,7 @@
                     <div>
                         <h6 class="text-sm font-bold text-gray-800 dark:text-white">Download Public Template</h6>
                         <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xl">
-                            Download the pre-configured <code>Public.xml</code> template with your selected theme to
-                            install on Blogger.
+                            Download the pre-configured <code>Public.xml</code> template with your selected theme.
                         </p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
@@ -108,10 +129,6 @@
                             <span class="w-5 h-5 mr-2" x-icon="'download'"></span>
                             Download XML
                         </button>
-                        <button @click="downloadPublicTemplate(true)"
-                            class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 underline">
-                            Download Raw (No Config)
-                        </button>
                     </div>
                 </div>
             </div>
@@ -119,7 +136,7 @@
             <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
                 <button @click="saveSettings()"
                     class="btn flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
-                    Save Changes
+                    Save Theme Settings
                 </button>
             </div>
         </div>
