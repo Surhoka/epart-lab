@@ -52,19 +52,67 @@
                 </div>
             </div>
 
-            <!-- Public Template Download -->
+            <!-- Public Storefront Customization -->
             <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
-                <h5 class="text-base font-bold text-gray-800 dark:text-white mb-2">Public Website Template</h5>
+                <h5 class="text-base font-bold text-gray-800 dark:text-white mb-4">Public Storefront Customization</h5>
+
+                <div class="mb-6">
+                    <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-400">Storefront
+                        Theme</label>
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <!-- Default Blue -->
+                        <button @click="settings.publicTheme = 'blue'"
+                            :class="settings.publicTheme === 'blue' ? 'ring-2 ring-brand-500 border-brand-500' : 'border-gray-200 dark:border-gray-800'"
+                            class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300">
+                            <div class="w-full h-12 rounded-lg bg-blue-600 shadow-inner"></div>
+                            <span class="text-xs font-semibold">Ocean Blue</span>
+                        </button>
+
+                        <!-- Forest Green -->
+                        <button @click="settings.publicTheme = 'green'"
+                            :class="settings.publicTheme === 'green' ? 'ring-2 ring-green-500 border-green-500' : 'border-gray-200 dark:border-gray-800'"
+                            class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-green-300">
+                            <div class="w-full h-12 rounded-lg bg-emerald-600 shadow-inner"></div>
+                            <span class="text-xs font-semibold">Forest Green</span>
+                        </button>
+
+                        <!-- Sunset Orange -->
+                        <button @click="settings.publicTheme = 'orange'"
+                            :class="settings.publicTheme === 'orange' ? 'ring-2 ring-orange-500 border-orange-500' : 'border-gray-200 dark:border-gray-800'"
+                            class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-orange-300">
+                            <div class="w-full h-12 rounded-lg bg-orange-600 shadow-inner"></div>
+                            <span class="text-xs font-semibold">Sunset Orange</span>
+                        </button>
+
+                        <!-- Royal Purple -->
+                        <button @click="settings.publicTheme = 'purple'"
+                            :class="settings.publicTheme === 'purple' ? 'ring-2 ring-purple-500 border-purple-500' : 'border-gray-200 dark:border-gray-800'"
+                            class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-purple-300">
+                            <div class="w-full h-12 rounded-lg bg-purple-600 shadow-inner"></div>
+                            <span class="text-xs font-semibold">Royal Purple</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xl">
-                        Download the pre-configured <code>Public.xml</code> template to install on your public Blogger
-                        site. This template is automatically linked to your database.
-                    </p>
-                    <button @click="downloadPublicTemplate()"
-                        class="btn shrink-0 flex justify-center items-center rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-                        <span class="w-5 h-5 mr-2" x-icon="'download'"></span>
-                        Download XML
-                    </button>
+                    <div>
+                        <h6 class="text-sm font-bold text-gray-800 dark:text-white">Download Public Template</h6>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xl">
+                            Download the pre-configured <code>Public.xml</code> template with your selected theme to
+                            install on Blogger.
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <button @click="downloadPublicTemplate()"
+                            class="btn shrink-0 flex justify-center items-center rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                            <span class="w-5 h-5 mr-2" x-icon="'download'"></span>
+                            Download XML
+                        </button>
+                        <button @click="downloadPublicTemplate(true)"
+                            class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 underline">
+                            Download Raw (No Config)
+                        </button>
+                    </div>
                 </div>
             </div>
 
