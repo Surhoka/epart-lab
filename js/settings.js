@@ -13,6 +13,7 @@
                     marketing: false
                 },
                 publicTheme: 'blue',
+                templateName: 'public-1',
                 customColor: '#3b82f6',
                 gatewayToken: ''
             },
@@ -114,6 +115,7 @@
                         siteKey: siteKey,
                         dbName: config.dbName || 'Database',
                         theme: this.settings.publicTheme === 'custom' ? this.settings.customColor : (this.settings.publicTheme || 'blue'),
+                        templateName: this.settings.templateName || 'public-1',
                         mode: raw ? 'raw' : 'injected'
                     });
                     window.open(`${gatewayUrl}${gatewayUrl.includes('?') ? '&' : '?'}${params.toString()}`, '_blank');
