@@ -50,6 +50,20 @@
                 }
             },
 
+            applyDefaultTheme() {
+                this.settings.publicTheme = 'blue';
+                this.settings.customColor = '#3b82f6';
+                this.settings.headerColor = '#ffffff';
+                this.settings.footerColor = '#1e3a8a';
+
+                // Adjust sidebar color based on layout to ensure text contrast
+                if (this.settings.templateName === 'public-2') {
+                    this.settings.sidebarColor = '#ffffff'; // Modern: White Sidebar
+                } else {
+                    this.settings.sidebarColor = '#1e3a8a'; // Standard: Dark Nav Bar
+                }
+            },
+
             saveSettings(btn) {
                 if (btn && window.setButtonLoading) window.setButtonLoading(btn, true);
 
