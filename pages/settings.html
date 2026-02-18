@@ -82,6 +82,20 @@
                     <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-400">Storefront Theme
                         Color</label>
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <!-- Default Blue -->
+                        <div class="flex flex-col gap-2">
+                            <button @click="applyDefaultTheme()"
+                                :class="settings.publicTheme === 'blue' ? 'ring-2 ring-brand-500 border-brand-500' : 'border-gray-200 dark:border-gray-800'"
+                                class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
+                                <div
+                                    class="w-full h-12 rounded-lg bg-blue-500 shadow-sm flex items-center justify-center">
+                                    <span x-show="settings.publicTheme === 'blue'" class="text-white"
+                                        x-icon="'check'"></span>
+                                </div>
+                                <span class="text-xs font-semibold">Default Blue</span>
+                            </button>
+                        </div>
+
                         <!-- Custom Color -->
                         <div class="flex flex-col gap-2">
                             <button @click="settings.publicTheme = 'custom'"
