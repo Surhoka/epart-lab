@@ -87,7 +87,7 @@
                         google.script.run
                             .withSuccessHandler(() => {
                                 window.showToast('Settings saved successfully!', 'success');
-                                if (btn && window.setButtonSuccess) window.setButtonSuccess(btn);
+                                if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
                             })
                             .withFailureHandler((err) => {
                                 console.error('Security save failed', err);
@@ -97,7 +97,7 @@
                             .saveSecuritySettings({ gatewayToken: this.settings.gatewayToken });
                     } else {
                         window.showToast('Settings saved to browser!', 'success');
-                        if (btn && window.setButtonSuccess) window.setButtonSuccess(btn);
+                        if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
                     }
                 }, 600);
             },
