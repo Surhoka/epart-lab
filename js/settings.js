@@ -50,8 +50,8 @@
                 }
             },
 
-            saveSettings() {
-                this.isLoading = true;
+            saveSettings(btn) {
+                if (btn && window.setButtonLoading) window.setButtonLoading(btn, true);
 
                 // Simulate API delay for better UX
                 setTimeout(() => {
@@ -87,17 +87,17 @@
                         google.script.run
                             .withSuccessHandler(() => {
                                 window.showToast('Settings saved successfully!', 'success');
-                                this.isLoading = false;
+                                if (btn && window.setButtonSuccess) window.setButtonSuccess(btn);
                             })
                             .withFailureHandler((err) => {
                                 console.error('Security save failed', err);
                                 window.showToast('Visual settings saved, but security update failed.', 'warning');
-                                this.isLoading = false;
+                                if (btn && window.setButtonLoading) window.setButtonLoading(btn, false);
                             })
                             .saveSecuritySettings({ gatewayToken: this.settings.gatewayToken });
                     } else {
                         window.showToast('Settings saved to browser!', 'success');
-                        this.isLoading = false;
+                        if (btn && window.setButtonSuccess) window.setButtonSuccess(btn);
                     }
                 }, 600);
             },
