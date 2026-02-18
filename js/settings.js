@@ -15,6 +15,9 @@
                 publicTheme: 'blue',
                 templateName: 'public-1',
                 customColor: '#3b82f6',
+                headerColor: '#ffffff',
+                sidebarColor: '#ffffff',
+                footerColor: '#1e3a8a',
                 gatewayToken: ''
             },
 
@@ -61,6 +64,22 @@
                     } else {
                         if (window.app) window.app.darkMode = false;
                         document.documentElement.classList.remove('dark');
+                    }
+
+                    // [NEW] Save Theme Settings to Cloud (for Public Template Live Update)
+                    if (window.sendDataToGoogle) {
+                        const themePayload = {
+                            publicTheme: this.settings.publicTheme,
+                            customColor: this.settings.customColor,
+                            templateName: this.settings.templateName,
+                            headerColor: this.settings.headerColor,
+                            sidebarColor: this.settings.sidebarColor,
+                            footerColor: this.settings.footerColor
+                        };
+
+                        window.sendDataToGoogle('saveThemeSettings', themePayload, (res) => {
+                            console.log('Theme settings synced to cloud:', res);
+                        });
                     }
 
                     // [NEW] Save Sensitive Security Settings to GAS ScriptProperties
@@ -116,6 +135,9 @@
                         dbName: config.dbName || 'Database',
                         theme: this.settings.publicTheme === 'custom' ? this.settings.customColor : (this.settings.publicTheme || 'blue'),
                         templateName: this.settings.templateName || 'public-1',
+                        headerColor: this.settings.headerColor,
+                        sidebarColor: this.settings.sidebarColor,
+                        footerColor: this.settings.footerColor,
                         mode: raw ? 'raw' : 'injected'
                     });
                     window.open(`${gatewayUrl}${gatewayUrl.includes('?') ? '&' : '?'}${params.toString()}`, '_blank');

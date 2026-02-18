@@ -237,6 +237,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'dbCreate', 'dbUpdate', 'dbDelete', 'createTable', // Add generic DB actions for POST
         'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
         'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule', // AI Assistant Actions
+        'saveThemeSettings', // Theme Settings Action
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
         'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock', // POS and Sparepart Actions
         'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier', 'getMasterParts', 'saveMasterPart' // Purchase Order Actions
