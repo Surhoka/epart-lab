@@ -194,7 +194,8 @@
                                         EzyParts design</span>
                                 </span>
                                 <input type="radio" name="template-choice" value="public-1" class="sr-only"
-                                    x-model="settings.templateName">
+                                    x-model="settings.templateName"
+                                    @change="if(settings.publicTheme === 'blue') settings.sidebarColor = '#1e3a8a'">
                                 <span class="h-5 w-5 text-brand-600" x-show="settings.templateName === 'public-1'"
                                     x-icon="'check-circle'"></span>
                             </div>
@@ -225,7 +226,8 @@
                                         design style</span>
                                 </span>
                                 <input type="radio" name="template-choice" value="public-2" class="sr-only"
-                                    x-model="settings.templateName">
+                                    x-model="settings.templateName"
+                                    @change="if(settings.publicTheme === 'blue') settings.sidebarColor = '#ffffff'">
                                 <span class="h-5 w-5 text-brand-600" x-show="settings.templateName === 'public-2'"
                                     x-icon="'check-circle'"></span>
                             </div>
