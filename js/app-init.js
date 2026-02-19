@@ -69,7 +69,7 @@ window.appInitMixin = function () {
 
             // Step 3: Ping ke Admin WebApp
             try {
-                console.log('Pinging server at:', webappUrl);
+                // console.log('Pinging server at:', webappUrl);
                 const data = await this.fetchJsonp(webappUrl, { action: 'get_config' });
                 // console.log('CLIENT RECEIVED CONFIG:', data);
 
