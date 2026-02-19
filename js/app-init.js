@@ -71,7 +71,7 @@ window.appInitMixin = function () {
             try {
                 console.log('Pinging server at:', webappUrl);
                 const data = await this.fetchJsonp(webappUrl, { action: 'get_config' });
-                console.log('CLIENT RECEIVED CONFIG:', data);
+                // console.log('CLIENT RECEIVED CONFIG:', data);
 
                 // Step 4: Validasi respons
                 if ((data.statusNote === 'new_fallback' && !data.dbId) || data.statusNote === 'setup_in_progress') {
