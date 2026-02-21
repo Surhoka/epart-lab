@@ -65,6 +65,29 @@ const registerProfilePage = () => {
                             localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
                             if (window.app) window.app.currentUser = { ...sessionUser };
                         }
+
+                        // Sync Public Branding Data for Print Service
+                        if (response.data.publicDisplay) {
+                            const pd = response.data.publicDisplay;
+                            const brandingData = {
+                                companyName: pd.companyName,
+                                phone: pd.supportPhone,
+                                email: pd.supportEmail,
+                                address: pd.storeAddress,
+                                operatingHours: {
+                                    weekdays: pd.operatingHours,
+                                    days: pd.operatingDays
+                                },
+                                socials: {
+                                    facebook: pd.facebook,
+                                    twitter: pd.twitter,
+                                    instagram: pd.instagram,
+                                    linkedin: pd.linkedin
+                                },
+                                timestamp: Date.now()
+                            };
+                            localStorage.setItem('publicBrandingData', JSON.stringify(brandingData));
+                        }
                     } else if (!cachedData) {
                         window.showToast('Welcome! Please create your profile.', 'info');
                         this.openInfoModal();
