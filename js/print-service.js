@@ -50,6 +50,7 @@ window.PrintService = {
                     companySubtitle: dynamicSubtitle,
                     documentTitle: 'PURCHASE ORDER',
                     documentId: data.ponumber,
+                    watermark: data.status,
                     leftSection: [
                         { label: 'Supplier', value: data.supplier || '', style: 'font-size: 1.1em; font-weight: bold;', subValue: data.supplieremail || '' }
                     ],
@@ -335,6 +336,30 @@ window.PrintService = {
                 flex-direction: column;
             }
             
+            /* Watermark */
+            .watermark {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-30deg);
+                font-size: 6rem;
+                font-weight: 800;
+                color: rgba(209, 213, 219, 0.25);
+                border: 8px solid rgba(209, 213, 219, 0.25);
+                padding: 10px 50px;
+                border-radius: 16px;
+                z-index: 0;
+                pointer-events: none;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+
+            /* Ensure content is above watermark */
+            .header, .info-grid, table, .totals, .footer, .section {
+                position: relative;
+                z-index: 1;
+            }
+            
             /* Header */
             .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E5E7EB; padding-bottom: 20px; margin-bottom: 30px; gap: 20px; }
             .company-info { min-width: 0; } /* Allow shrinking if needed */
@@ -478,6 +503,7 @@ window.PrintService = {
                 </div>
 
                 <div class="page-container">
+                    ${data.watermark ? `<div class="watermark">${data.watermark}</div>` : ''}
                     <div class="header">
                         <div class="company-info">
                             <h1>${data.companyName || 'Ezyparts Inventory'}</h1>
