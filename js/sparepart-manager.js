@@ -2097,6 +2097,31 @@ const registerReceivingHistory = () => {
             if (percent < 0.1) return percent.toFixed(3) + '%';
             return (Number.isInteger(percent) ? percent : percent.toFixed(1)) + '%';
         }
+        ,
+
+        getStatusColor(status) {
+            const colors = {
+                'draft': 'bg-gray-100 text-gray-800',
+                'sent': 'bg-blue-100 text-blue-800',
+                'confirmed': 'bg-yellow-100 text-yellow-800',
+                'partial': 'bg-orange-100 text-orange-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        },
+
+        getStatusLabel(status) {
+            const labels = {
+                'draft': 'Draft',
+                'sent': 'Sent',
+                'confirmed': 'Confirmed',
+                'partial': 'Partially Received',
+                'completed': 'Completed',
+                'cancelled': 'Cancelled'
+            };
+            return labels[status] || status || 'Unknown';
+        }
     }));
 };
 
