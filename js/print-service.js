@@ -334,6 +334,8 @@ window.PrintService = {
                 background: white;
                 display: flex;
                 flex-direction: column;
+                position: relative; /* Required for watermark absolute positioning */
+                overflow: hidden;   /* Clip watermark to page bounds */
             }
             
             /* Watermark */
