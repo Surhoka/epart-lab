@@ -34,7 +34,7 @@ window.PrintService = {
         // Ambil konfigurasi dinamis dari LocalStorage (Setup/Profile)
         const appConfig = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
         const brandingConfig = JSON.parse(localStorage.getItem('publicBrandingData') || '{}');
-        const dynamicCompanyName = brandingConfig.companyName || appConfig.dbName || 'Ezyparts Inventory';
+        const dynamicCompanyName = brandingConfig.companyName || 'Ezyparts Inventory';
         const dynamicSubtitle = brandingConfig.address || 'Sparepart Management System';
 
         // Helper formatters internal
@@ -579,3 +579,4 @@ window.PrintService = {
         return fullHtml;
     }
 };
+
