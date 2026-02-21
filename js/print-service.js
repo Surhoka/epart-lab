@@ -379,9 +379,36 @@ window.PrintService = {
             .section p { margin: 0; font-weight: 500; font-size: 14px; color: #111827; }
             
             /* Table */
-            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            th { background: #F9FAFB; text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; color: #4B5563; border-bottom: 1px solid #E5E7EB; text-transform: uppercase; letter-spacing: 0.05em; }
-            td { padding: 12px; font-size: 13px; border-bottom: 1px solid #F3F4F6; color: #1F2937; vertical-align: top; }
+            .table-wrapper {
+                border-radius: 1rem; /* 2xl */
+                overflow: hidden;
+                border: 1px solid #E5E7EB;
+                margin-bottom: 30px;
+            }
+            table { width: 100%; border-collapse: separate; border-spacing: 0; }
+            th {
+                background: #F9FAFB;
+                text-align: left;
+                padding: 10px 14px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #6B7280;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                border-bottom: 1px solid #E5E7EB;
+                border-right: 1px solid #E5E7EB;
+            }
+            th:last-child { border-right: none; }
+            td {
+                padding: 11px 14px;
+                font-size: 13px;
+                color: #1F2937;
+                vertical-align: top;
+                border-bottom: 1px solid #F3F4F6;
+                border-right: 1px solid #F3F4F6;
+            }
+            td:last-child { border-right: none; }
+            tbody tr:last-child td { border-bottom: none; }
             
             /* Helpers */
             .text-right { text-align: right; }
@@ -538,6 +565,7 @@ window.PrintService = {
                         </div>
                     </div>
 
+                    <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
@@ -560,6 +588,7 @@ window.PrintService = {
                             `).join('')}
                         </tbody>
                     </table>
+                    </div>
 
                     <div class="totals">
                         <table class="totals-table">
