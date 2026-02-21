@@ -31,10 +31,10 @@ window.PrintService = {
         let config = {};
         let printData = {};
 
-        // Ambil konfigurasi dinamis dari LocalStorage (Setup/Profile)
+        // Ambil konfigurasi dinamis dari LocalStorage (Profile)
         const appConfig = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
         const brandingConfig = JSON.parse(localStorage.getItem('publicBrandingData') || '{}');
-        const dynamicCompanyName = brandingConfig.companyName || 'Ezyparts Inventory';
+        const dynamicCompanyName = brandingConfig.companyName || appConfig.dbName || 'Ezyparts Inventory';
         const dynamicSubtitle = brandingConfig.address || 'Sparepart Management System';
 
         // Helper formatters internal
@@ -414,10 +414,6 @@ window.PrintService = {
                 .toolbar { display: none !important; }
             }
             
-                .no-print { display: none !important; } 
-                .toolbar { display: none !important; }
-            }
-            
             /* Screen Preview Enhancements */
             @media screen {
                 body { background: #525659; }
@@ -579,4 +575,3 @@ window.PrintService = {
         return fullHtml;
     }
 };
-
