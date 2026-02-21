@@ -89,6 +89,7 @@ window.PrintService = {
                     companySubtitle: dynamicSubtitle,
                     documentTitle: 'RECEIVING',
                     documentId: data.receivingNumber || data.receivingnumber,
+                    watermark: data.status,
                     leftSection: [{ label: 'Supplier', value: data.supplier }],
                     rightSection: [
                         { label: 'Receiving Date', value: fmtDate(data.date) },
