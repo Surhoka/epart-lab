@@ -9,6 +9,7 @@ const registerSparepartManager = () => {
         spareparts: [],
         isLoading: false,
         isUploading: false,
+        isGeneratingImage: false,
         filter: {
             search: '',
             category: 'All'
@@ -100,14 +101,15 @@ const registerSparepartManager = () => {
                 price: 0,
                 supplier: '',
                 location: '',
-                imageurl: ''
+                imageurl: '',
+                aiPrompt: ''
             };
             this.showModal = true;
         },
 
         editSparepart(item) {
             this.isEditing = true;
-            this.editingItem = { ...item };
+            this.editingItem = { ...item, aiPrompt: '' };
             this.showModal = true;
         },
 
@@ -164,6 +166,37 @@ const registerSparepartManager = () => {
                 await this.fetchSpareparts();
             } catch (err) {
                 window.showToast?.('Gagal menyesuaikan stok: ' + err, 'error');
+            }
+        },
+
+        async generateImageFromAi() {
+            if (!this.editingItem.name) {
+                window.showToast?.('Mohon isi nama barang terlebih dahulu sebagai referensi AI.', 'warning');
+                return;
+            }
+
+            this.isGeneratingImage = true;
+            const prompt = this.editingItem.aiPrompt || `Sparepart: ${this.editingItem.name}${this.editingItem.category ? ', Category: ' + this.editingItem.category : ''}`;
+
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('generateAiImage', {
+                        prompt: prompt,
+                        fileName: `sparepart_${this.editingItem.name.replace(/\s+/g, '_').toLowerCase()}`,
+                        dbId: this.dbId
+                    }, (res) => {
+                        if (res.status === 'success') resolve(res);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                this.editingItem.imageurl = response.url;
+                window.showToast?.('Gambar berhasil digenerate oleh AI!');
+            } catch (err) {
+                console.error('AI Generation failed:', err);
+                window.showToast?.('Gagal generate gambar: ' + err, 'error');
+            } finally {
+                this.isGeneratingImage = false;
             }
         },
 
