@@ -169,7 +169,7 @@ const registerAiAssistantPage = () => {
                     model: this.aiConfig.model,
                     apiKey: this.aiConfig.apiKey // Send only the new key
                 };
-                window.sendDataToGoogle('saveAiConfig', payload, (res) => {
+                window.sendDataToGoogle('saveAiConfigToSpreadsheet', payload, (res) => {
                     window.setButtonLoading(button, false);
                     if (res.status === 'success') {
                         window.showToast('Konfigurasi AI berhasil disimpan', 'success');
