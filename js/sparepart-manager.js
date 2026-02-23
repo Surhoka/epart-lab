@@ -176,13 +176,53 @@ const registerSparepartManager = () => {
             }
 
             this.isGeneratingImage = true;
-            const prompt = this.editingItem.aiPrompt || `Sparepart: ${this.editingItem.name}${this.editingItem.category ? ', Category: ' + this.editingItem.category : ''}`;
+            const userPrompt = this.editingItem.aiPrompt || `Sparepart: ${this.editingItem.name}${this.editingItem.category ? ', Category: ' + this.editingItem.category : ''}`;
 
             try {
-                const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('generateAiImage', {
-                        prompt: prompt,
-                        fileName: `sparepart_${this.editingItem.name.replace(/\s+/g, '_').toLowerCase()}`,
+                // 1. Optimize Prompt via Gemini (Backend)
+                window.showToast?.('Sedang mengoptimasi prompt dengan Gemini...', 'info');
+                const optRes = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('optimizeAiPrompt', {
+                        prompt: userPrompt,
+                        dbId: this.dbId
+                    }, (res) => {
+                        if (res.status === 'success') resolve(res.optimizedPrompt);
+                        else reject(res.message);
+                    }, (err) => reject(err));
+                });
+
+                const optimizedPrompt = optRes;
+                console.log('[AI] Optimized Prompt:', optimizedPrompt);
+
+                // 2. Fetch Image directly from Browser (Frontend)
+                window.showToast?.('Sedang men-generate gambar dari server AI...', 'info');
+                const encodedPrompt = encodeURIComponent(optimizedPrompt);
+                const seed = Math.floor(Math.random() * 1000000);
+                const aiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}&nofeed=true`;
+
+                const response = await fetch(aiUrl);
+                if (!response.ok) throw new Error(`AI Service returned ${response.status}`);
+
+                const blob = await response.blob();
+                if (!blob.type.startsWith('image/')) throw new Error('AI Service did not return a valid image.');
+
+                // 3. Convert Blob to Base64
+                const base64Data = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+
+                // 4. Save to Drive (Backend)
+                window.showToast?.('Sedang menyimpan gambar ke Google Drive...', 'info');
+                const fileName = `ai_sparepart_${this.editingItem.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+
+                const uploadRes = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('uploadImageAndGetUrl', {
+                        fileName: fileName,
+                        fileData: base64Data, // Data URL is fine, Admin-Code.gs strips prefix
+                        fileType: blob.type,
+                        folderName: 'Spareparts',
                         dbId: this.dbId
                     }, (res) => {
                         if (res.status === 'success') resolve(res);
@@ -190,10 +230,10 @@ const registerSparepartManager = () => {
                     }, (err) => reject(err));
                 });
 
-                this.editingItem.imageurl = response.url;
-                window.showToast?.('Gambar berhasil digenerate oleh AI!');
+                this.editingItem.imageurl = uploadRes.url;
+                window.showToast?.('Gambar AI berhasil dibuat dan disimpan!', 'success');
             } catch (err) {
-                console.error('AI Generation failed:', err);
+                console.error('Frontend AI Generation failed:', err);
                 window.showToast?.('Gagal generate gambar: ' + err, 'error');
             } finally {
                 this.isGeneratingImage = false;
