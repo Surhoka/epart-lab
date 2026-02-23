@@ -181,18 +181,25 @@ const registerSparepartManager = () => {
             try {
                 // 1. Optimize Prompt via Gemini (Backend)
                 window.showToast?.('Sedang mengoptimasi prompt dengan Gemini...', 'info');
-                const optRes = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('optimizeAiPrompt', {
-                        prompt: userPrompt,
-                        dbId: this.dbId
-                    }, (res) => {
-                        if (res.status === 'success') resolve(res.optimizedPrompt);
-                        else reject(res.message);
-                    }, (err) => reject(err));
-                });
+                let optimizedPrompt = userPrompt;
 
-                const optimizedPrompt = optRes;
-                console.log('[AI] Optimized Prompt:', optimizedPrompt);
+                try {
+                    const optRes = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('optimizeAiPrompt', {
+                            prompt: userPrompt,
+                            dbId: this.dbId
+                        }, (res) => {
+                            if (res.status === 'success') resolve(res.optimizedPrompt);
+                            else reject(res.message);
+                        }, (err) => reject(err));
+                    });
+                    optimizedPrompt = optRes;
+                    console.log('[AI] Optimized Prompt:', optimizedPrompt);
+                } catch (optErr) {
+                    console.warn('[AI] Optimization failed, using raw prompt:', optErr);
+                    // Fallback to raw prompt if Gemini fails (e.g. Quota 429)
+                    window.showToast?.('AI sedang sibuk, menggunakan deskripsi asli...', 'warning');
+                }
 
                 // 2. Fetch Image directly from Browser (Frontend)
                 window.showToast?.('Sedang men-generate gambar dari server AI...', 'info');
