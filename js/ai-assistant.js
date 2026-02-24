@@ -12,6 +12,7 @@ const registerAiAssistantPage = () => {
             chatQuery: '',
             messages: [], // Array of { role: 'user'|'assistant', text: '', isTyping: false }
             isChatLoading: false,
+            userPhoto: 'https://dummyimage.com/100', // Default fallback
 
             // Config State
             aiConfig: {
@@ -33,6 +34,12 @@ const registerAiAssistantPage = () => {
             async init() {
                 console.log("AI Assistant: init() starting...");
                 try {
+                    // Load user photo from session
+                    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                    if (sessionUser && sessionUser.pictureUrl) {
+                        this.userPhoto = sessionUser.pictureUrl;
+                    }
+
                     await this.loadAiConfig();
                     await this.fetchRules();
                     console.log("AI Assistant: init() completed (Config & Rules fetched).");
