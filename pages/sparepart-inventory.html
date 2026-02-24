@@ -198,27 +198,29 @@
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="flex gap-2 mb-2">
-                                        <input type="text" x-model="editingItem.aiPrompt"
-                                            placeholder="Deskripsi gambar (AI Prompt)..."
-                                            class="flex-1 rounded-lg border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-white transition-all" />
-                                        <button @click="generateImageFromAi()"
-                                            :disabled="isGeneratingImage || !editingItem.name"
-                                            class="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 active:scale-95 transition-all disabled:opacity-50 min-w-[100px]">
-                                            <template x-if="!isGeneratingImage">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="w-4 h-4" x-icon="'sparkles'"></span>
-                                                    <span>AI</span>
-                                                </div>
-                                            </template>
-                                            <template x-if="isGeneratingImage">
+                                    <div
+                                        class="flex flex-col gap-2 p-3 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
+                                        <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                                            <span class="w-4 h-4" x-icon="'sparkles'"></span>
+                                            <span class="text-xs font-bold uppercase tracking-wider">AI Automation
+                                                Active</span>
+                                        </div>
+                                        <div
+                                            class="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                                            <template
+                                                x-if="aiRules.find(r => r.active && r.category === 'Image Template')">
                                                 <span
-                                                    class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+                                                    x-text="'Prompt: ' + aiRules.find(r => r.active && r.category === 'Image Template').prompt"></span>
                                             </template>
-                                        </button>
+                                            <template
+                                                x-if="!aiRules.find(r => r.active && r.category === 'Image Template')">
+                                                <span>No active image rules. Photo will be generated from product
+                                                    name.</span>
+                                            </template>
+                                        </div>
                                     </div>
-                                    <p class="text-[10px] text-gray-400 tracking-tight">Ketik deskripsi produk untuk AI,
-                                        atau biarkan kosong untuk generate berdasarkan nama barang.</p>
+                                    <p class="mt-2 text-[10px] text-gray-400 tracking-tight">Foto produk akan digenerate
+                                        secara otomatis saat Anda menyimpan data jika kolom gambar kosong.</p>
                                 </div>
                             </div>
                         </div>
