@@ -70,7 +70,7 @@
                     <template x-if="msg.role === 'assistant'">
                         <div
                             class="flex-shrink-0 h-8 w-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 shadow-sm mt-1">
-                            <span class="h-4 w-4" x-html="EzyIcons['bot']"></span>
+                            <span class="h-4 w-4" x-html="window.EzyIcons ? window.EzyIcons['bot'] : ''"></span>
                         </div>
                     </template>
 
