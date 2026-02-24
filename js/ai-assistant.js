@@ -1,5 +1,7 @@
 const registerAiAssistantPage = () => {
+    console.log("AI Assistant: Checking registration...");
     if (window.Alpine && !window.Alpine.data('aiAssistantPage')) {
+        console.log("AI Assistant: Registering alpine component...");
         window.Alpine.data('aiAssistantPage', () => ({
             // --- STATE ---
             activeTab: 'chat',
@@ -29,9 +31,14 @@ const registerAiAssistantPage = () => {
 
             // --- LIFECYCLE & ACTIONS ---
             async init() {
-                console.log("AI Assistant Page Initialized with Alpine Component.");
-                await this.loadAiConfig();
-                await this.fetchRules();
+                console.log("AI Assistant: init() starting...");
+                try {
+                    await this.loadAiConfig();
+                    await this.fetchRules();
+                    console.log("AI Assistant: init() completed (Config & Rules fetched).");
+                } catch (e) {
+                    console.error("AI Assistant: init() failed", e);
+                }
 
                 // Add welcome message with typing effect
                 if (this.messages.length === 0) {
@@ -195,6 +202,7 @@ const registerAiAssistantPage = () => {
             },
 
             openAddRuleModal() {
+                console.log("Opening Add Rule Modal...");
                 this.modalMode = 'add';
                 this.editingRule = { id: null, prompt: '', active: true, category: 'Trigger' };
                 this.isRuleModalOpen = true;
