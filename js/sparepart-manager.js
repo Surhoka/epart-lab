@@ -26,6 +26,7 @@ const registerSparepartManager = () => {
         showModal: false,
         isEditing: false,
         editingItem: {},
+        aiRules: [],
 
         async init() {
             console.log('Sparepart Manager Initialized');
@@ -40,6 +41,15 @@ const registerSparepartManager = () => {
                 console.error('Failed to parse EzypartsConfig', e);
             }
             await this.fetchSpareparts();
+            await this.fetchAiRules();
+        },
+
+        async fetchAiRules() {
+            window.sendDataToGoogle('getAiRules', {}, (res) => {
+                if (res.status === 'success') {
+                    this.aiRules = res.data;
+                }
+            });
         },
 
         async fetchSpareparts() {
@@ -118,6 +128,23 @@ const registerSparepartManager = () => {
             window.setButtonLoading?.(btn, true);
 
             try {
+                // --- AUTO GENERATE IMAGE LOGIC ---
+                if (!this.editingItem.imageurl) {
+                    const imgTemplate = this.aiRules.find(r => r.active && r.category === 'Image Template');
+                    if (imgTemplate) {
+                        try {
+                            window.showToast?.('Deteksi template otomatis, men-generate gambar...', 'info');
+                            // Temporarily set a specific prompt if template exists
+                            const originalAiPrompt = this.editingItem.aiPrompt;
+                            this.editingItem.aiPrompt = `${imgTemplate.prompt} for ${this.editingItem.name}`;
+                            await this.generateImageFromAi();
+                            this.editingItem.aiPrompt = originalAiPrompt; // Restore
+                        } catch (e) {
+                            console.warn("Auto-image generation failed:", e);
+                        }
+                    }
+                }
+
                 const response = await new Promise((resolve, reject) => {
                     window.sendDataToGoogle('saveSparepart', { ...this.editingItem, dbId: this.dbId }, (res) => {
                         if (res.status === 'success') resolve(res);
@@ -202,16 +229,50 @@ const registerSparepartManager = () => {
                 }
 
                 // 2. Fetch Image directly from Browser (Frontend)
-                window.showToast?.('Sedang men-generate gambar dari server AI...', 'info');
                 const encodedPrompt = encodeURIComponent(optimizedPrompt);
                 const seed = Math.floor(Math.random() * 1000000);
-                const aiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}&nofeed=true`;
 
-                const response = await fetch(aiUrl);
-                if (!response.ok) throw new Error(`AI Service returned ${response.status}`);
+                // Providers List
+                const providers = [
+                    { name: 'Pollinations', url: `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}&nofeed=true` },
+                    { name: 'Hercai', url: `https://hercai.onrender.com/v3/text2image?prompt=${encodedPrompt}` }
+                ];
 
-                const blob = await response.blob();
-                if (!blob.type.startsWith('image/')) throw new Error('AI Service did not return a valid image.');
+                let blob = null;
+                let successProvider = '';
+
+                for (const provider of providers) {
+                    try {
+                        window.showToast?.(`Mencoba AI ${provider.name}...`, 'info');
+                        const response = await fetch(provider.url);
+                        if (!response.ok) throw new Error(`Provider ${provider.name} error: ${response.status}`);
+
+                        const tempBlob = await response.blob();
+                        // Hercai returns JSON usually, Pollinations returns Image. 
+                        // Logic for Hercai might need adjustment if it returns URL.
+                        if (provider.name === 'Hercai') {
+                            const text = await tempBlob.text();
+                            const json = JSON.parse(text);
+                            if (json.url) {
+                                const imgRes = await fetch(json.url);
+                                blob = await imgRes.blob();
+                            }
+                        } else {
+                            if (!tempBlob.type.startsWith('image/')) continue;
+                            blob = tempBlob;
+                        }
+
+                        if (blob) {
+                            successProvider = provider.name;
+                            break;
+                        }
+                    } catch (err) {
+                        console.warn(`[AI] Provider ${provider.name} failed:`, err);
+                    }
+                }
+
+                if (!blob) throw new Error('Semua layanan AI sedang sibuk. Silakan coba lagi nanti.');
+                window.showToast?.(`Gambar berhasil di-generate menggunakan ${successProvider}`, 'success');
 
                 // 3. Convert Blob to Base64
                 const base64Data = await new Promise((resolve) => {

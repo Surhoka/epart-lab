@@ -23,7 +23,8 @@ const registerAiAssistantPage = () => {
             editingRule: {
                 id: null,
                 prompt: '',
-                active: true
+                active: true,
+                category: 'Trigger'
             },
 
             // --- LIFECYCLE & ACTIONS ---
@@ -195,7 +196,7 @@ const registerAiAssistantPage = () => {
 
             openAddRuleModal() {
                 this.modalMode = 'add';
-                this.editingRule = { id: null, prompt: '', active: true };
+                this.editingRule = { id: null, prompt: '', active: true, category: 'Trigger' };
                 this.isRuleModalOpen = true;
             },
 
