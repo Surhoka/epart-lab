@@ -5,7 +5,7 @@ const registerAiAssistantPage = () => {
         window.Alpine.data('aiAssistantPage', () => ({
             // --- STATE ---
             activeTab: 'chat',
-            isRuleModalOpen: false,
+            showModal: false,
             modalMode: 'add',
 
             // Chat State
@@ -39,6 +39,11 @@ const registerAiAssistantPage = () => {
                 } catch (e) {
                     console.error("AI Assistant: init() failed", e);
                 }
+
+                // Watch for modal state changes
+                this.$watch('showModal', value => {
+                    console.log(`AI Assistant: showModal changed to: ${value}`);
+                });
 
                 // Add welcome message with typing effect
                 if (this.messages.length === 0) {
@@ -205,17 +210,17 @@ const registerAiAssistantPage = () => {
                 console.log("Opening Add Rule Modal...");
                 this.modalMode = 'add';
                 this.editingRule = { id: null, prompt: '', active: true, category: 'Trigger' };
-                this.isRuleModalOpen = true;
+                this.showModal = true;
             },
 
             openEditRuleModal(rule) {
                 this.modalMode = 'edit';
                 this.editingRule = JSON.parse(JSON.stringify(rule)); // Deep copy
-                this.isRuleModalOpen = true;
+                this.showModal = true;
             },
 
             closeRuleModal() {
-                this.isRuleModalOpen = false;
+                this.showModal = false;
             },
 
             async saveRule(button) {
