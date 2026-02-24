@@ -196,6 +196,14 @@
                                         <span
                                             class="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full"></span>
                                     </div>
+                                    <!-- FIX: Tombol Manual Generate AI -->
+                                    <button type="button"
+                                        @click.stop="isUploading = true; window.sendDataToGoogle('generateAiImage', { prompt: editingItem.name + ' ' + (editingItem.category || ''), fileName: editingItem.partnumber || 'product' }, (res) => { isUploading = false; if(res.status === 'success') { editingItem.imageurl = res.url; } else { alert('Gagal generate: ' + res.message); } })"
+                                        :disabled="isUploading || !editingItem.name"
+                                        class="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-tl-xl rounded-br-xl bg-blue-600 text-white shadow-md transition-all hover:bg-blue-700 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                                        title="Generate Foto via AI Sekarang">
+                                        <span class="w-3.5 h-3.5" x-icon="'sparkles'"></span>
+                                    </button>
                                 </div>
                                 <div class="flex-1">
                                     <div
@@ -208,12 +216,12 @@
                                         <div
                                             class="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed italic">
                                             <template
-                                                x-if="aiRules.find(r => r.active && r.category === 'Image Template')">
+                                                x-if="typeof aiRules !== 'undefined' && aiRules.find(r => r.active && r.category === 'Image Template')">
                                                 <span
                                                     x-text="'Prompt: ' + aiRules.find(r => r.active && r.category === 'Image Template').prompt"></span>
                                             </template>
                                             <template
-                                                x-if="!aiRules.find(r => r.active && r.category === 'Image Template')">
+                                                x-if="typeof aiRules === 'undefined' || !aiRules.find(r => r.active && r.category === 'Image Template')">
                                                 <span>No active image rules. Photo will be generated from product
                                                     name.</span>
                                             </template>

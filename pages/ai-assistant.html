@@ -63,10 +63,10 @@
         <!-- Chat History Area -->
         <div id="chat-messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar scroll-smooth">
             <template x-for="(msg, index) in messages" :key="index">
-                <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start gap-3 items-start'"
+                <div :class="msg.role === 'user' ? 'flex justify-end gap-3 items-start' : 'flex justify-start gap-3 items-start'"
                     class="animate-fadeIn">
 
-                    <!-- Role Icon for Assistant (now as flex child) -->
+                    <!-- Role Icon for Assistant -->
                     <template x-if="msg.role === 'assistant'">
                         <div
                             class="flex-shrink-0 h-8 w-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 shadow-sm mt-1">
@@ -75,8 +75,8 @@
                     </template>
 
                     <div :class="msg.role === 'user' 
-                        ? 'bg-brand-600 text-white rounded-2xl rounded-tr-none' 
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-none'"
+                        ? 'bg-brand-600 text-white rounded-2xl rounded-tr-none order-1' 
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-none order-2'"
                         class="max-w-[85%] px-4 py-3 shadow-sm">
 
                         <!-- Message Content -->
@@ -94,6 +94,14 @@
                             <span x-text="msg.role === 'user' ? 'Me' : 'Asisten'"></span>
                         </div>
                     </div>
+
+                    <!-- User Photo for User -->
+                    <template x-if="msg.role === 'user'">
+                        <div
+                            class="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden border border-brand-200 dark:border-brand-800 shadow-sm mt-1 order-2">
+                            <img :src="userPhoto" alt="user" class="w-full h-full object-cover" />
+                        </div>
+                    </template>
                 </div>
             </template>
         </div>
