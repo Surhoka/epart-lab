@@ -143,12 +143,17 @@ const registerPluginManager = () => {
 
                 // Persist order
                 this.savePluginOrder();
+                window.dispatchEvent(new CustomEvent('ezy:menu-update'));
                 window.showToast && window.showToast('Plugin order updated', 'success');
             },
 
             savePluginOrder() {
                 const order = this.plugins.map(p => p.id);
                 localStorage.setItem('plugin_manager_order', JSON.stringify(order));
+
+                // Save Menu Label Order for Sidebar Sorting
+                const menuOrder = this.plugins.map(p => p.menuLabel || p.name);
+                localStorage.setItem('plugin_menu_order', JSON.stringify(menuOrder));
             },
 
             restorePluginOrder() {
