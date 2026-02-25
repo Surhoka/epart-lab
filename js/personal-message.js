@@ -53,8 +53,7 @@ const registerPersonalMessage = () => {
                 if (!this.apiUrl) return;
                 try {
                     const res = await window.app.fetchJsonp(this.apiUrl, {
-                        action: 'dbRead',
-                        tableName: 'ChatContacts'
+                        action: 'get_chat_contacts'
                     });
                     if (res && res.status === 'success') {
                         // Sort by last interaction
@@ -71,15 +70,11 @@ const registerPersonalMessage = () => {
                 if (!this.apiUrl || !this.activeContact) return;
                 try {
                     const res = await window.app.fetchJsonp(this.apiUrl, {
-                        action: 'dbRead',
-                        tableName: 'ChatMessages'
+                        action: 'get_chat_history',
+                        targetEmail: this.activeContact.Email
                     });
                     if (res && res.status === 'success') {
-                        // Filter messages for current conversation
-                        const email = this.activeContact.Email;
-                        this.messages = (res.data || []).filter(m =>
-                            (m.SenderEmail === email) || (m.RecipientEmail === email)
-                        ).sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+                        this.messages = (res.data || []).sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
 
                         // Auto scroll to bottom
                         setTimeout(() => {
@@ -99,8 +94,9 @@ const registerPersonalMessage = () => {
                 }
                 this.isSearching = true;
                 try {
-                    const res = await window.app.fetchJsonp(this.gatewayUrl, {
+                    const res = await window.app.fetchJsonp(this.apiUrl, {
                         action: 'search_tenants',
+                        gatewayUrl: this.gatewayUrl, // Pass gatewayUrl to plugin
                         query: this.searchQuery
                     });
                     if (res && res.status === 'success') {
@@ -117,7 +113,8 @@ const registerPersonalMessage = () => {
                 // Check if contact already exists in list
                 let contact = this.contacts.find(c => c.Email === result.email);
                 if (!contact) {
-                    // Create temporary contact object
+                    // Plugin's receive_personal_message or internal updateContact_ can handle this, 
+                    // but for starting a NEW chat from search, we use current active mechanism or just start chat.
                     contact = {
                         Email: result.email,
                         Name: result.name,
@@ -126,14 +123,8 @@ const registerPersonalMessage = () => {
                         LastMessage: '',
                         LastInteraction: new Date().toISOString()
                     };
-                    // Save to local DB via API
-                    await window.app.fetchJsonp(this.apiUrl, {
-                        action: 'dbCreate',
-                        tableName: 'ChatContacts',
-                        data: JSON.stringify(contact)
-                    });
-                    await this.fetchContacts();
-                    contact = this.contacts.find(c => c.Email === result.email) || contact;
+                    // Selecting a contact from search doesn't necessarily need a DB write yet until first message,
+                    // but we'll let the send mechanism handle it or create placeholder.
                 }
                 this.activeContact = contact;
                 this.isSearchOpen = false;
@@ -150,50 +141,24 @@ const registerPersonalMessage = () => {
                 this.isSending = true;
 
                 try {
-                    // 1. Send via Gateway Relay
                     const sender = {
                         email: window.app.user?.email || 'unknown',
                         name: (window.app.user?.firstName || 'User') + ' ' + (window.app.user?.lastName || '')
                     };
 
-                    const relayRes = await window.app.fetchJsonp(this.gatewayUrl, {
+                    const res = await window.app.fetchJsonp(this.apiUrl, {
                         action: 'send_personal_message',
+                        gatewayUrl: this.gatewayUrl,
                         targetEmail: this.activeContact.Email,
                         message: message,
                         senderInfo: JSON.stringify(sender)
                     });
 
-                    if (relayRes.status === 'success') {
-                        // 2. Save to local ChatMessages
-                        const msgData = {
-                            SenderEmail: sender.email,
-                            RecipientEmail: this.activeContact.Email,
-                            Message: message,
-                            Status: 'Sent',
-                            Timestamp: new Date().toISOString()
-                        };
-                        await window.app.fetchJsonp(this.apiUrl, {
-                            action: 'dbCreate',
-                            tableName: 'ChatMessages',
-                            data: JSON.stringify(msgData)
-                        });
-
-                        // 3. Update local Contact's last message
-                        const contactUpdate = {
-                            LastMessage: message,
-                            LastInteraction: msgData.Timestamp
-                        };
-                        await window.app.fetchJsonp(this.apiUrl, {
-                            action: 'dbUpdate',
-                            tableName: 'ChatContacts',
-                            id: this.activeContact.ID,
-                            data: JSON.stringify(contactUpdate)
-                        });
-
+                    if (res.status === 'success') {
                         await this.fetchCurrentMessages();
                         await this.fetchContacts();
                     } else {
-                        window.showToast(relayRes.message, "error");
+                        window.showToast(res.message, "error");
                     }
                 } catch (e) {
                     console.error("Send error:", e);
@@ -207,10 +172,8 @@ const registerPersonalMessage = () => {
                 if (contact.UnreadCount > 0) {
                     try {
                         await window.app.fetchJsonp(this.apiUrl, {
-                            action: 'dbUpdate',
-                            tableName: 'ChatContacts',
-                            id: contact.ID,
-                            data: JSON.stringify({ UnreadCount: 0 })
+                            action: 'mark_as_read',
+                            targetEmail: contact.Email
                         });
                         contact.UnreadCount = 0;
                     } catch (e) {
