@@ -1,0 +1,161 @@
+<div id="personal-message-container"
+    class="flex h-[750px] w-full overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900"
+    x-data="personalMessagePage">
+    <!-- Left Sidebar: Contact List -->
+    <div class="flex w-[350px] flex-col border-r border-gray-100 bg-gray-50/30 dark:border-gray-800 dark:bg-white/5">
+        <!-- Sidebar Header: My Profile & Search -->
+        <div class="p-4 border-b border-gray-100 dark:border-gray-800">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Messaging</h3>
+                <div class="flex gap-2">
+                    <button @click="isSearchOpen = !isSearchOpen"
+                        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Global Tenant Search -->
+            <div x-show="isSearchOpen" x-transition class="relative">
+                <input type="text" x-model="searchQuery" @input.debounce.500ms="searchTenants()"
+                    placeholder="Search tenants by email..."
+                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                <div x-show="isSearching" class="absolute right-3 top-2.5">
+                    <svg class="animate-spin h-4 w-4 text-brand-500" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                </div>
+
+                <!-- Search Results Dropdown -->
+                <div x-show="searchResults.length > 0"
+                    class="absolute z-10 mt-2 w-full rounded-xl border border-gray-100 bg-white py-2 shadow-xl dark:border-gray-800 dark:bg-gray-900">
+                    <template x-for="result in searchResults" :key="result.email">
+                        <button @click="selectContact(result)"
+                            class="flex w-full items-center gap-3 px-4 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-white/5">
+                            <div class="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs"
+                                x-text="result.name[0].toUpperCase()"></div>
+                            <div class="text-left">
+                                <p class="text-xs font-bold text-gray-900 dark:text-white" x-text="result.name"></p>
+                                <p class="text-[10px] text-gray-500" x-text="result.email"></p>
+                            </div>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact List -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <template x-if="contacts.length === 0">
+                <div class="flex flex-col items-center justify-center p-8 text-center text-gray-400">
+                    <svg class="w-12 h-12 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.855-1.246L3 20l1.226-5.805A9.823 9.823 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <p class="text-sm">No conversations yet.<br>Search to start chatting!</p>
+                </div>
+            </template>
+            <template x-for="contact in contacts" :key="contact.Email">
+                <button @click="activeContact = contact; markAsRead(contact)"
+                    :class="activeContact?.Email === contact.Email ? 'bg-white shadow-sm dark:bg-white/10' : 'hover:bg-gray-100/50 dark:hover:bg-white/5'"
+                    class="flex w-full items-center gap-4 px-4 py-4 transition-all border-b border-gray-100/50 dark:border-gray-800/50">
+                    <div class="relative">
+                        <img :src="contact.Avatar || 'https://ui-avatars.com/api/?name='+contact.Name"
+                            class="h-12 w-12 rounded-full border border-gray-200 dark:border-gray-700">
+                        <div x-show="contact.UnreadCount > 0"
+                            class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-900"
+                            x-text="contact.UnreadCount"></div>
+                    </div>
+                    <div class="flex-1 overflow-hidden text-left">
+                        <div class="flex items-center justify-between">
+                            <h4 class="truncate text-sm font-bold text-gray-900 dark:text-white" x-text="contact.Name">
+                            </h4>
+                            <span class="text-[10px] text-gray-400" x-text="formatTime(contact.LastInteraction)"></span>
+                        </div>
+                        <p class="mt-0.5 truncate text-xs text-gray-500" x-text="contact.LastMessage || 'No messages'">
+                        </p>
+                    </div>
+                </button>
+            </template>
+        </div>
+    </div>
+
+    <!-- Right Area: Chat Window -->
+    <div class="flex flex-1 flex-col bg-white dark:bg-gray-900">
+        <template x-if="!activeContact">
+            <div class="flex flex-1 flex-col items-center justify-center bg-gray-50/30 dark:bg-white/5">
+                <div class="w-64 text-center">
+                    <div
+                        class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 dark:bg-white/10">
+                        <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Ezyparts Messenger</h3>
+                    <p class="mt-2 text-sm text-gray-500">Send and receive messages with other tenants across the
+                        platform securely.</p>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="activeContact">
+            <div class="flex flex-1 flex-col h-full">
+                <!-- Chat Header -->
+                <div
+                    class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
+                    <div class="flex items-center gap-4">
+                        <img :src="activeContact.Avatar" class="h-10 w-10 rounded-full">
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white" x-text="activeContact.Name">
+                            </h3>
+                            <p class="text-[10px] text-green-500 font-medium">Online (via Gateway)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div id="chat-scroller"
+                    class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[url('https://i.pinimg.com/originals/85/3a/4a/853a4ab298e72750e3346d8c07f4a21e.jpg')] bg-repeat bg-center bg-opacity-5 dark:bg-none">
+                    <template x-for="msg in currentMessages" :key="msg.ID">
+                        <div :class="msg.Status === 'Sent' ? 'justify-end' : 'justify-start'" class="flex">
+                            <div :class="msg.Status === 'Sent' ? 'bg-brand-600 text-white rounded-br-none' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm'"
+                                class="max-w-[70%] rounded-2xl px-4 py-2.5 shadow-md">
+                                <p class="text-sm leading-relaxed" x-text="msg.Message"></p>
+                                <div class="mt-1 flex items-center justify-end gap-1.5 opacity-60">
+                                    <span class="text-[9px]" x-text="formatTime(msg.Timestamp)"></span>
+                                    <template x-if="msg.Status === 'Sent'">
+                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Input Section -->
+                <div class="border-t border-gray-100 p-6 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
+                    <div class="flex items-center gap-4">
+                        <input type="text" x-model="newMessage" @keydown.enter="send()" placeholder="Type a message..."
+                            class="flex-1 rounded-2xl border border-gray-200 bg-white px-6 py-4 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <button @click="send()" :disabled="!newMessage.trim() || isSending"
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-600 hover:scale-105 active:scale-95 disabled:opacity-50">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
