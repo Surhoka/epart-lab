@@ -1,26 +1,26 @@
 /**
- * Library Manager Page Logic
+ * Plugin Manager Page Logic
  * Manages external plugins via the Gateway Registry.
  */
 
-window.initLibraryManagerPage = function () {
-    console.log("Library Manager Page Initialized");
+window.initPluginManagerPage = function () {
+    console.log("Plugin Manager Page Initialized");
 
     // Initialize Alpine component if not already done by fetchPage
     // (In our SPA, fetchPage usually calls this after setting pageContent)
-    setupLibraryManagerComponent();
+    setupPluginManagerComponent();
 };
 
-function setupLibraryManagerComponent() {
+function setupPluginManagerComponent() {
     // We add the component data to the specific element if needed, 
     // but usually in this SPA, it's already bound via x-data in the HTML
     // and we just need to provide the global function.
 }
 
 // Define the registration function
-const registerLibraryManager = () => {
+const registerPluginManager = () => {
     if (window.Alpine) {
-        window.Alpine.data('libraryManager', () => ({
+        window.Alpine.data('pluginManager', () => ({
             plugins: [],
             modalOpen: false,
             editMode: false,
@@ -32,7 +32,7 @@ const registerLibraryManager = () => {
             },
 
             async init() {
-                console.log("Library Manager Component Init");
+                console.log("Plugin Manager Component Init");
                 await this.fetchAvailablePlugins();
                 await this.fetchPlugins();
             },
@@ -246,7 +246,8 @@ const registerLibraryManager = () => {
 
 // Immediate registration or wait for Alpine
 if (window.Alpine) {
-    registerLibraryManager();
+    registerPluginManager();
 } else {
-    document.addEventListener('alpine:init', registerLibraryManager);
+    document.addEventListener('alpine:init', registerPluginManager);
 }
+
