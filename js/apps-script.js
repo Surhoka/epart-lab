@@ -240,7 +240,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'saveThemeSettings', // Theme Settings Action
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
         'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock', // POS and Sparepart Actions
-        'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier', 'getMasterParts', 'saveMasterPart' // Purchase Order Actions
+        'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier', 'getMasterParts', 'saveMasterPart', // Purchase Order Actions
+        'send_personal_message', 'receive_personal_message', 'mark_as_read' // Personal Messaging Actions
     ];
 
     if (postActions.includes(action)) {
