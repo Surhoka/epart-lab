@@ -90,10 +90,10 @@ const registerPluginManager = () => {
                 try {
                     const res = await window.app.fetchJsonp(this.apiUrl, { action: 'get_all_plugins' });
                     if (res && res.status === 'success') {
-                        this.plugins = (res.plugins || []).map(p => ({ 
-                            ...p, 
-                            pinging: false, 
-                            pingResult: null 
+                        this.plugins = (res.plugins || []).map(p => ({
+                            ...p,
+                            pinging: false,
+                            pingResult: null
                         }));
                         console.log(`Loaded ${this.plugins.length} plugins`);
                     } else {
@@ -250,4 +250,3 @@ if (window.Alpine) {
 } else {
     document.addEventListener('alpine:init', registerPluginManager);
 }
-
