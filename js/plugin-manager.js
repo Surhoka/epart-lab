@@ -26,6 +26,8 @@ const registerPluginManager = () => {
             editMode: false,
             submitting: false,
             availablePlugins: [],
+            draggingId: null,
+            dragOverId: null,
             formData: {
                 showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '', scripts: '',
                 children: null
@@ -109,6 +111,64 @@ const registerPluginManager = () => {
                     if (window.showToast) {
                         window.showToast("Connection error to Gateway", "error");
                     }
+                }
+                // Restore saved order from localStorage
+                this.restorePluginOrder();
+            },
+
+            // --- DRAG & DROP ---
+
+            startDrag(event, pluginId) {
+                this.draggingId = pluginId;
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', pluginId);
+            },
+
+            dropPlugin(event, targetId) {
+                event.preventDefault();
+                const fromId = this.draggingId || event.dataTransfer.getData('text/plain');
+                this.draggingId = null;
+                this.dragOverId = null;
+
+                if (!fromId || fromId === targetId) return;
+
+                const fromIndex = this.plugins.findIndex(p => p.id === fromId);
+                const toIndex = this.plugins.findIndex(p => p.id === targetId);
+
+                if (fromIndex === -1 || toIndex === -1) return;
+
+                // Reorder array
+                const moved = this.plugins.splice(fromIndex, 1)[0];
+                this.plugins.splice(toIndex, 0, moved);
+
+                // Persist order
+                this.savePluginOrder();
+                window.showToast && window.showToast('Plugin order updated', 'success');
+            },
+
+            savePluginOrder() {
+                const order = this.plugins.map(p => p.id);
+                localStorage.setItem('plugin_manager_order', JSON.stringify(order));
+            },
+
+            restorePluginOrder() {
+                try {
+                    const saved = localStorage.getItem('plugin_manager_order');
+                    if (!saved) return;
+                    const order = JSON.parse(saved);
+
+                    const sorted = [];
+                    order.forEach(id => {
+                        const p = this.plugins.find(x => x.id === id);
+                        if (p) sorted.push(p);
+                    });
+                    // Append any new plugins not in saved order
+                    this.plugins.forEach(p => {
+                        if (!sorted.find(s => s.id === p.id)) sorted.push(p);
+                    });
+                    this.plugins = sorted;
+                } catch (e) {
+                    console.warn('Failed to restore plugin order:', e);
                 }
             },
 
