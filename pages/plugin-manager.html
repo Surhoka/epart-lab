@@ -109,7 +109,7 @@
                     <!-- Main Plugin Row -->
                     <div class="flex items-center gap-4 p-4">
                         <!-- Drag Handle -->
-                        <div class="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors pr-1"
+                        <div class="flex-shrink-0 cursor-move text-gray-300 hover:text-gray-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors pr-1"
                             title="Drag to reorder">
                             <span class="w-5 h-5 block" x-icon="'dots-vertical'"></span>
                         </div>
@@ -170,7 +170,7 @@
                             <!-- Expand/Collapse Button -->
                             <button @click="expandedPlugin = expandedPlugin === plugin.id ? null : plugin.id"
                                 class="p-2 text-gray-400 hover:text-gray-600 transition-colors" title="Show Details">
-                                <span class="w-4 h-4 transition-transform duration-200"
+                                <span class="w-4 h-4 block transition-transform duration-200"
                                     :class="expandedPlugin === plugin.id ? 'rotate-180' : ''"
                                     x-icon="'chevron-down'"></span>
                             </button>
