@@ -31,9 +31,9 @@
         </div>
     </div>
 
-    <!-- Inventory Table -->
+    <!-- Inventory Table (Desktop) -->
     <div
-        class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+        class="hidden md:block rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-black/20 dark:text-gray-400">
@@ -138,6 +138,96 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Inventory Cards (Mobile) -->
+    <div class="block md:hidden space-y-4">
+        <template x-for="item in filteredSpareparts" :key="item.id">
+            <div
+                class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+                <!-- Header: Image + Name + PartNumber -->
+                <div class="flex items-start gap-3 mb-3">
+                    <div
+                        class="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                        <template x-if="item.imageurl">
+                            <img :src="item.imageurl" class="h-full w-full object-cover" />
+                        </template>
+                        <template x-if="!item.imageurl">
+                            <div class="flex h-full w-full items-center justify-center text-gray-400">
+                                <span class="w-6 h-6" x-icon="'image'"></span>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-gray-900 dark:text-white text-sm line-clamp-2" x-text="item.name">
+                        </h3>
+                        <p class="text-xs font-mono text-gray-500 mt-0.5" x-text="item.partnumber"></p>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <span
+                                class="text-xs px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                                x-text="item.category"></span>
+                            <span
+                                class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter flex items-center gap-1">
+                                <span class="w-3 h-3" x-icon="'map-pin'"></span>
+                                <span x-text="item.location || '-'"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Stock</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="font-bold text-sm" :class="{
+                                    'text-red-600': Number(item.stock) <= 5,
+                                    'text-yellow-600': Number(item.stock) > 5 && Number(item.stock) <= 10,
+                                    'text-green-600': Number(item.stock) > 10
+                                }" x-text="item.stock + ' Pcs'"></span>
+
+                            <!-- Mini Controls -->
+                            <div class="flex items-center gap-1">
+                                <button @click="adjustStock(item.id, -1)"
+                                    class="w-6 h-6 flex items-center justify-center rounded bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-500 hover:text-gray-700">-</button>
+                                <button @click="adjustStock(item.id, 1)"
+                                    class="w-6 h-6 flex items-center justify-center rounded bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-500 hover:text-gray-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Price</p>
+                        <p class="font-bold text-sm text-gray-900 dark:text-white mt-1"
+                            x-text="formatPrice(item.price)"></p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <button @click="editSparepart(item)"
+                        class="flex-1 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        Edit
+                    </button>
+                    <button @click="deleteItem(item.id)"
+                        class="flex-1 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Empty State Mobile -->
+        <template x-if="filteredSpareparts.length === 0">
+            <div class="text-center py-12">
+                <div
+                    class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="w-6 h-6 text-gray-400" x-icon="'search'"></span>
+                </div>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Tidak ada item yang ditemukan.</p>
+                <button @click="openAddModal()" class="mt-4 text-sm font-bold text-brand-500 hover:underline">Tambah
+                    Item Pertama Anda</button>
+            </div>
+        </template>
     </div>
 
     <!-- Modal Form (Tambah/Edit) -->
