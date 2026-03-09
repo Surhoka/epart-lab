@@ -540,8 +540,9 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
                             class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
                 </div>
-                <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600 mt-1">
-                    <span class="w-5 h-5 block" x-icon="'close'"></span>
+                <button @click="closeDetailsModal()"
+                    class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
+                    <span class="w-6 h-6 block" x-icon="'close'"></span>
                 </button>
             </header>
 
