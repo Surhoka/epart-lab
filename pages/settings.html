@@ -89,7 +89,7 @@
                                 class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
                                 <div
                                     class="w-full h-12 rounded-lg bg-blue-500 shadow-sm flex items-center justify-center">
-                                    <span x-show="settings.publicTheme === 'blue'" class="block text-white"
+                                    <span x-show="settings.publicTheme === 'blue'" class="block w-6 h-6 text-white"
                                         x-icon="'check'"></span>
                                 </div>
                                 <span class="text-xs font-semibold">Default Blue</span>
@@ -103,7 +103,7 @@
                                 class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
                                 <div class="w-full h-12 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center dark:border-gray-700"
                                     :style="settings.publicTheme === 'custom' ? 'background: ' + settings.customColor : ''">
-                                    <span x-show="settings.publicTheme !== 'custom'" class="block text-gray-400"
+                                    <span x-show="settings.publicTheme !== 'custom'" class="block w-6 h-6 text-gray-400"
                                         x-icon="'plus'"></span>
                                 </div>
                                 <span class="text-xs font-semibold">Custom Color</span>
