@@ -89,7 +89,7 @@
                                 class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
                                 <div
                                     class="w-full h-12 rounded-lg bg-blue-500 shadow-sm flex items-center justify-center">
-                                    <span x-show="settings.publicTheme === 'blue'" class="text-white"
+                                    <span x-show="settings.publicTheme === 'blue'" class="block text-white"
                                         x-icon="'check'"></span>
                                 </div>
                                 <span class="text-xs font-semibold">Default Blue</span>
@@ -103,7 +103,7 @@
                                 class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
                                 <div class="w-full h-12 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center dark:border-gray-700"
                                     :style="settings.publicTheme === 'custom' ? 'background: ' + settings.customColor : ''">
-                                    <span x-show="settings.publicTheme !== 'custom'" class="text-gray-400"
+                                    <span x-show="settings.publicTheme !== 'custom'" class="block text-gray-400"
                                         x-icon="'plus'"></span>
                                 </div>
                                 <span class="text-xs font-semibold">Custom Color</span>
@@ -196,7 +196,7 @@
                                 <input type="radio" name="template-choice" value="public-1" class="sr-only"
                                     x-model="settings.templateName"
                                     @change="if(settings.publicTheme === 'blue') settings.sidebarColor = '#1e3a8a'">
-                                <span class="h-5 w-5 text-brand-600" x-show="settings.templateName === 'public-1'"
+                                <span class="block h-5 w-5 text-brand-600" x-show="settings.templateName === 'public-1'"
                                     x-icon="'check-circle'"></span>
                             </div>
                         </label>
@@ -228,7 +228,7 @@
                                 <input type="radio" name="template-choice" value="public-2" class="sr-only"
                                     x-model="settings.templateName"
                                     @change="if(settings.publicTheme === 'blue') settings.sidebarColor = '#ffffff'">
-                                <span class="h-5 w-5 text-brand-600" x-show="settings.templateName === 'public-2'"
+                                <span class="block h-5 w-5 text-brand-600" x-show="settings.templateName === 'public-2'"
                                     x-icon="'check-circle'"></span>
                             </div>
                         </label>
@@ -245,7 +245,7 @@
                     <div class="flex flex-col items-end gap-2">
                         <button @click="downloadPublicTemplate()"
                             class="btn shrink-0 flex justify-center items-center rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-                            <span class="w-5 h-5 mr-2" x-icon="'download'"></span>
+                            <span class="block w-5 h-5 mr-2" x-icon="'download'"></span>
                             Download XML
                         </button>
                     </div>
@@ -329,7 +329,7 @@
             <div class="p-4 mb-6 text-sm text-blue-800 rounded-xl bg-blue-50 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800"
                 role="alert">
                 <div class="flex items-center gap-2">
-                    <span class="w-5 h-5" x-icon="'info'"></span>
+                    <span class="block w-5 h-5" x-icon="'info'"></span>
                     <span class="font-bold">Authentication Info</span>
                 </div>
                 <div class="mt-2 pl-7">
@@ -355,7 +355,7 @@
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-brand-500 focus:bg-white focus:outline-none dark:border-gray-800 dark:bg-white/[0.03] dark:text-white dark:focus:border-brand-500">
                         <button @click="showToken = !showToken" type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500">
-                            <span class="w-5 h-5" x-icon="showToken ? 'eye-off' : 'eye'"></span>
+                            <span class="block w-5 h-5" x-icon="showToken ? 'eye-off' : 'eye'"></span>
                         </button>
                     </div>
                 </div>
