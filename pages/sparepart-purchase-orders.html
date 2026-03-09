@@ -521,30 +521,31 @@
             @click="closeDetailsModal()"></div>
         <div
             class="modal-dialog relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
-            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-                <header class="flex items-center justify-between mb-6">
-                    <div>
+            <!-- Modal Header (Sticky) -->
+            <header class="flex items-start justify-between mb-6 shrink-0">
+                <div>
+                    <div class="flex items-center gap-3">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white">Purchase Order Details</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
-                                class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
                         <button @click="printPurchaseOrder(selectedPO)"
                             class="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-brand-50 hover:text-brand-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 transition-all active:scale-95"
                             title="Print / Export PDF">
                             <span class="w-5 h-5 block" x-icon="'file-text'"></span>
                         </button>
                         <button @click="sendPOToSupplier(selectedPO)"
-                            class="text-gray-400 hover:text-purple-600 transition-colors"
+                            class="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-purple-50 hover:text-purple-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-purple-900/20 dark:hover:text-purple-400 transition-all active:scale-95"
                             title="Send Email to Supplier">
                             <span class="w-5 h-5 block" x-icon="'paper-airplane'"></span>
                         </button>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
-                            <span class="w-5 h-5 block" x-icon="'close'"></span>
-                        </button>
-                    </div>
-                </header>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PO Number: <span
+                            class="font-mono font-semibold" x-text="selectedPO?.ponumber"></span></p>
+                </div>
+                <button @click="closeDetailsModal()" class="text-gray-400 hover:text-gray-600 mt-1">
+                    <span class="w-5 h-5 block" x-icon="'close'"></span>
+                </button>
+            </header>
 
+            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
                 <template x-if="selectedPO">
                     <main class="space-y-6">
                         <!-- PO Information -->
