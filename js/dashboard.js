@@ -83,8 +83,15 @@ const registerDashboardPage = () => {
                 }
             },
 
-            initCharts() {
-                if (typeof Chart === 'undefined') return;
+            async initCharts() {
+                if (typeof Chart === 'undefined') {
+                    try {
+                        await window.app.loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js');
+                    } catch (e) {
+                        console.error("Gagal memuat Chart.js", e);
+                        return;
+                    }
+                }
 
                 // Chart One: Monthly Sales
                 const ctx1 = document.getElementById("chartOne");
