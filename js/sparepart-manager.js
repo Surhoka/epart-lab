@@ -1054,7 +1054,7 @@ const registerPosReports = () => {
                     static: true,
                     monthSelectorType: "static",
                     dateFormat: "M j, Y",
-                    defaultDate: [this.dateRange.from, this.dateRange.to],
+                    defaultDate: [new Date(this.dateRange.from), new Date(this.dateRange.to)],
                     prevArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8L1.4 6.8 5.4 2.8 6.8 4.2 4.2 6.8 6.8 9.4z" /></svg>',
                     nextArrow: '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L5.4 6.8 1.4 2.8 0 4.2 2.6 6.8 0 9.4z" /></svg>',
                     onChange: (selectedDates, dateStr, instance) => {
