@@ -23,6 +23,17 @@ const registerCalendar = () => {
           return;
         }
 
+        if (typeof FullCalendar === 'undefined') {
+            try {
+                // Perlu load script utama dari FullCalendar
+                await window.app.loadScript('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js');
+            } catch (e) {
+                console.error("Gagal memuat FullCalendar", e);
+                window.showToast?.("Gagal memuat Kalender", "error");
+                return;
+            }
+        }
+
         this.calendar = new FullCalendar.Calendar(calendarEl, {
           selectable: true,
           initialView: 'dayGridMonth',
