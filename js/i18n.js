@@ -1,6 +1,8 @@
 document.addEventListener('alpine:init', () => {
     Alpine.store('i18n', {
-        locale: Alpine.$persist('id').as('app_locale'),
+        locale: (typeof Alpine.$persist === 'function') 
+            ? Alpine.$persist('id').as('app_locale') 
+            : 'id',
         
         translations: {
             id: {
