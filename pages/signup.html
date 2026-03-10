@@ -63,15 +63,15 @@
       <a href="/"
         class="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
         <span class="w-5 h-5 mr-2" x-icon='"arrow-left"'></span>
-        Back to dashboard
+        <span x-text="$store.i18n.t('back_to_dashboard')">Back to dashboard</span>
       </a>
     </div>
 
     <div class="mb-4 2xl:mb-6">
-      <h1 class="mb-2 text-2xl font-bold text-gray-800 dark:text-white">
+      <h1 class="mb-2 text-2xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('signup_title')">
         Sign Up
       </h1>
-      <p class="text-gray-500 dark:text-gray-400">
+      <p class="text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('signup_subtitle')">
         Enter your email and password to sign up!
       </p>
     </div>
@@ -84,7 +84,7 @@
           <!-- First Name -->
           <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              First Name<span class="text-error-500">*</span>
+              <span x-text="$store.i18n.t('first_name')">First Name</span><span class="text-error-500">*</span>
             </label>
             <input type="text" x-model="fname" placeholder="Enter your first name" required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
@@ -92,7 +92,7 @@
           <!-- Last Name -->
           <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Last Name<span class="text-error-500">*</span>
+              <span x-text="$store.i18n.t('last_name')">Last Name</span><span class="text-error-500">*</span>
             </label>
             <input type="text" x-model="lname" placeholder="Enter your last name" required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
@@ -101,7 +101,7 @@
         <!-- Email -->
         <div>
           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email<span class="text-error-500">*</span>
+            <span x-text="$store.i18n.t('email_label')">Email</span><span class="text-error-500">*</span>
           </label>
           <input type="email" x-model="email" placeholder="info@gmail.com" required
             class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
@@ -109,10 +109,11 @@
         <!-- Password -->
         <div>
           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Password<span class="text-error-500">*</span>
+            <span x-text="$store.i18n.t('password_label')">Password</span><span class="text-error-500">*</span>
           </label>
           <div x-data="{ showPassword: false }" class="relative">
-            <input x-model="password" :type="showPassword ? 'text' : 'password'" placeholder="Enter your password"
+            <input x-model="password" :type="showPassword ? 'text' : 'password'" :placeholder="$store.i18n.t('password_placeholder')"
+              placeholder="Enter your password"
               required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
             <span @click="showPassword = !showPassword"
@@ -143,14 +144,15 @@
                   </span>
                 </div>
               </div>
-              Agree to the Terms and Conditions and our Privacy Policy
+              <span x-text="$store.i18n.t('agree_terms')">Agree to the Terms and Conditions and our Privacy Policy</span>
             </label>
           </div>
         </div>
         <!-- Button -->
         <div>
           <button type="submit"
-            class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+            class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            x-text="$store.i18n.t('sign_up')">
             Sign Up
           </button>
         </div>
@@ -158,8 +160,8 @@
     </form>
     <div class="mt-4 2xl:mt-5">
       <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-        Already have an account?
-        <a href="#signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 font-medium">Sign In</a>
+        <span x-text="$store.i18n.t('already_have_account')">Already have an account?</span>
+        <a href="#signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 font-medium" x-text="$store.i18n.t('sign_in')">Sign In</a>
       </p>
     </div>
   </div>
@@ -209,7 +211,7 @@
         <span class="text-2xl font-bold text-white tracking-tight" x-text="blogTitle"></span>
       </a>
       <p class="text-blue-100/80 text-center max-w-sm text-sm font-light leading-relaxed animate-fade-in-up"
-        style="animation-delay: 0.2s; animation-fill-mode: both;">
+        style="animation-delay: 0.2s; animation-fill-mode: both;" x-text="$store.i18n.t('join_desc')">
         Join our Admin Dashboard to manage your content and analytics with ease.
       </p>
     </div>
@@ -218,7 +220,15 @@
 
 
 <!-- Toggler -->
-<div class="fixed z-50 hidden top-6 right-6 sm:block">
+<div class="fixed z-50 flex items-center gap-3 hidden top-6 right-6 sm:flex">
+  <!-- Language Toggle -->
+  <button
+    class="inline-flex items-center justify-center px-3 h-10 text-xs font-bold text-white transition-colors rounded-full bg-brand-500 hover:bg-brand-600"
+    @click.prevent="$store.i18n.toggle()">
+    <span x-text="$store.i18n.locale.toUpperCase()"></span>
+  </button>
+
+  <!-- Dark Mode Toggle -->
   <button
     class="inline-flex items-center justify-center text-white transition-colors rounded-full size-10 bg-brand-500 hover:bg-brand-600"
     @click.prevent="darkMode = !darkMode">
