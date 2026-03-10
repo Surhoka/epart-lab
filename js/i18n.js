@@ -1,7 +1,9 @@
-document.addEventListener('alpine:init', async () => {
-    // 1. Inisialisasi i18next
-    await i18next.init({
-        lng: localStorage.getItem('app_locale') || 'id',
+document.addEventListener('alpine:init', () => {
+    const savedLocale = localStorage.getItem('app_locale') || 'id';
+
+    // 1. Inisialisasi i18next (tanpa await agar store segera terdaftar)
+    i18next.init({
+        lng: savedLocale,
         fallbackLng: 'en',
         resources: {
             id: {
@@ -65,11 +67,14 @@ document.addEventListener('alpine:init', async () => {
         }
     });
 
-    // 2. Daftarkan Alpine Store sebagai wrapper i18next
+    // 2. Daftarkan Alpine Store secara sinkron
     Alpine.store('i18n', {
-        locale: i18next.language,
+        locale: savedLocale,
 
         t(key, options = {}) {
+            // PENTING: Akses this.locale agar Alpine mencatat dependensi ini.
+            // Tanpa ini, Alpine tidak tahu bahwa t() harus dijalankan ulang saat locale berubah.
+            this.locale; 
             return i18next.t(key, options);
         },
 
