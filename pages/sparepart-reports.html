@@ -330,7 +330,16 @@ const registerPosReports = () => {
             this.loadReports();
         },
 
-        updateCharts() {
+        async updateCharts() {
+            if (typeof Chart === 'undefined') {
+                try {
+                    await window.app.loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js');
+                } catch (e) {
+                    console.error("Gagal memuat Chart.js", e);
+                    window.showToast?.("Gagal memuat grafik", "error");
+                    return;
+                }
+            }
             this.updateDailySalesChart();
             this.updatePaymentMethodsChart();
         },
