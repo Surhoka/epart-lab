@@ -103,7 +103,7 @@
           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
             <span x-text="$store.i18n.t('email_label')">Email</span><span class="text-error-500">*</span>
           </label>
-          <input type="email" x-model="email" placeholder="info@gmail.com" required
+          <input type="email" x-model="email" placeholder="Enter your email" required
             class="w-full h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
         </div>
         <!-- Password -->
@@ -112,9 +112,8 @@
             <span x-text="$store.i18n.t('password_label')">Password</span><span class="text-error-500">*</span>
           </label>
           <div x-data="{ showPassword: false }" class="relative">
-            <input x-model="password" :type="showPassword ? 'text' : 'password'" :placeholder="$store.i18n.t('password_placeholder')"
-              placeholder="Enter your password"
-              required
+            <input x-model="password" :type="showPassword ? 'text' : 'password'"
+              :placeholder="$store.i18n.t('password_placeholder')" placeholder="Enter your password" required
               class="w-full h-11 rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white dark:placeholder:text-white/30 dark:focus:border-brand-500" />
             <span @click="showPassword = !showPassword"
               class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
@@ -144,7 +143,8 @@
                   </span>
                 </div>
               </div>
-              <span x-text="$store.i18n.t('agree_terms')">Agree to the Terms and Conditions and our Privacy Policy</span>
+              <span x-text="$store.i18n.t('agree_terms')">Agree to the Terms and Conditions and our Privacy
+                Policy</span>
             </label>
           </div>
         </div>
@@ -161,7 +161,8 @@
     <div class="mt-4 2xl:mt-5">
       <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
         <span x-text="$store.i18n.t('already_have_account')">Already have an account?</span>
-        <a href="#signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 font-medium" x-text="$store.i18n.t('sign_in')">Sign In</a>
+        <a href="#signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 font-medium"
+          x-text="$store.i18n.t('sign_in')">Sign In</a>
       </p>
     </div>
   </div>
