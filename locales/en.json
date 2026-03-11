@@ -1,0 +1,22 @@
+{
+    "back_to_dashboard": "Back to dashboard",
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "login_title": "Sign In",
+    "login_subtitle": "Enter your email and password to sign in!",
+    "email_label": "Email",
+    "password_label": "Password",
+    "password_placeholder": "Enter your password",
+    "keep_logged_in": "Keep me logged in",
+    "forgot_password": "Forgot password?",
+    "dont_have_account": "Don't have an account?",
+    "welcome_title": "Welcome Back",
+    "welcome_desc": "Welcome back to your Admin Dashboard. Manage your content and analytics with ease.",
+    "signup_title": "Sign Up",
+    "signup_subtitle": "Enter your details to sign up!",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "agree_terms": "Agree to the Terms and Conditions and our Privacy Policy",
+    "already_have_account": "Already have an account?",
+    "join_desc": "Join our Admin Dashboard to manage your content and analytics with ease."
+}
