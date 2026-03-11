@@ -1,4 +1,5 @@
 {
+    "dashboard": "Dashboard",
     "back_to_dashboard": "Kembali ke dashboard",
     "sign_in": "Masuk",
     "sign_up": "Daftar",
@@ -19,5 +20,12 @@
     "last_name": "Nama Belakang",
     "agree_terms": "Setujui Syarat dan Ketentuan serta Kebijakan Privasi kami",
     "already_have_account": "Sudah punya akun?",
-    "join_desc": "Bergabunglah dengan Dashboard Admin kami untuk mengelola konten dan analitik Anda dengan mudah."
+    "join_desc": "Bergabunglah dengan Dashboard Admin kami untuk mengelola konten dan analitik Anda dengan mudah.",
+    "license_title": "Informasi Hukum & Lisensi",
+    "license_subtitle": "Transparansi, keamanan, dan kepatuhan sumber terbuka.",
+    "mit_license": "Lisensi MIT",
+    "legal_safe_libraries": "Perpustakaan Hukum & Aman",
+    "libraries_desc": "Aplikasi ini menggunakan perpustakaan sumber terbuka standar industri, terpelihara dengan baik, dan berlisensi hukum untuk memastikan stabilitas dan keamanan maksimum.",
+    "security_commitment": "Komitmen Keamanan",
+    "security_desc": "Kami memprioritaskan privasi data Anda. Arsitektur EzyStore dirancang untuk menangani informasi sensitif menggunakan jembatan API yang aman dan manajemen status terenkripsi. Tidak ada pelacakan tidak sah atau pengambilan data yang dilakukan."
 }

@@ -19,5 +19,12 @@
     "last_name": "Last Name",
     "agree_terms": "Agree to the Terms and Conditions and our Privacy Policy",
     "already_have_account": "Already have an account?",
-    "join_desc": "Join our Admin Dashboard to manage your content and analytics with ease."
+    "join_desc": "Join our Admin Dashboard to manage your content and analytics with ease.",
+    "license_title": "Legal & License Information",
+    "license_subtitle": "Transparency, security, and open-source compliance.",
+    "mit_license": "MIT License",
+    "legal_safe_libraries": "Legal & Safe Libraries",
+    "libraries_desc": "This application utilizes industry-standard, well-maintained, and legally licensed open-source libraries to ensure maximum stability and security.",
+    "security_commitment": "Security Commitment",
+    "security_desc": "We prioritize your data privacy. EzyStore architecture is designed to handle sensitive information using secure API bridges and encrypted state management. No unauthorized tracking or data harvesting is performed."
 }
