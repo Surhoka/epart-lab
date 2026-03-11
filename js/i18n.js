@@ -8,7 +8,7 @@ document.addEventListener('alpine:init', () => {
             lng: savedLocale,
             fallbackLng: 'en',
             backend: {
-                loadPath: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/${lngs[0]}.json?v=${Date.now()}`;
+                loadPath: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/{{lng}}.json?v={{date}}'
             }
         }, (err, t) => {
             // Trigger refresh Alpine jika loading selesai
