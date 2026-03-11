@@ -1,0 +1,22 @@
+{
+    "back_to_dashboard": "Kembali ke dashboard",
+    "sign_in": "Masuk",
+    "sign_up": "Daftar",
+    "login_title": "Masuk ke Akun",
+    "login_subtitle": "Masukkan email dan kata sandi Anda untuk masuk!",
+    "email_label": "Email",
+    "password_label": "Kata Sandi",
+    "password_placeholder": "Masukkan kata sandi Anda",
+    "keep_logged_in": "Tetap masuk",
+    "forgot_password": "Lupa kata sandi?",
+    "dont_have_account": "Belum punya akun?",
+    "welcome_title": "Selamat Datang Kembali",
+    "welcome_desc": "Masuk ke Dashboard Admin Anda. Kelola konten dan analitik Anda dengan mudah.",
+    "signup_title": "Buat Akun",
+    "signup_subtitle": "Masukkan detail Anda untuk mendaftar!",
+    "first_name": "Nama Depan",
+    "last_name": "Nama Belakang",
+    "agree_terms": "Setujui Syarat dan Ketentuan serta Kebijakan Privasi kami",
+    "already_have_account": "Sudah punya akun?",
+    "join_desc": "Bergabunglah dengan Dashboard Admin kami untuk mengelola konten dan analitik Anda dengan mudah."
+}
