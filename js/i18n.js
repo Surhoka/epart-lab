@@ -8,11 +8,9 @@ document.addEventListener('alpine:init', () => {
             lng: savedLocale,
             fallbackLng: 'en',
             backend: {
-                // Gunakan timestamp dinamis untuk cache busting
+                // Gunakan base GitHub CDN untuk produksi di Blogger
                 loadPath: (url, lngs) => {
-                    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-                    const base = isLocal ? 'locales/' : 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/';
-                    return `${base}${lngs[0]}.json?v=${Date.now()}`;
+                    return `https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/${lngs[0]}.json?v=${Date.now()}`;
                 }
             }
         }, (err, t) => {
