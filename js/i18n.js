@@ -10,16 +10,22 @@ document.addEventListener('alpine:init', () => {
             backend: {
                 loadPath: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/{{lng}}.json',
             }
+        }, (err, t) => {
+            // Trigger refresh Alpine jika loading selesai
+            if (Alpine.store('i18n')) {
+                Alpine.store('i18n')._refresh = Date.now();
+            }
         });
 
     // 2. Daftarkan Alpine Store secara sinkron
     Alpine.store('i18n', {
         locale: savedLocale,
+        _refresh: Date.now(),
 
         t(key, options = {}) {
-            // PENTING: Akses this.locale agar Alpine mencatat dependensi ini.
-            // Tanpa ini, Alpine tidak tahu bahwa t() harus dijalankan ulang saat locale berubah.
+            // PENTING: Akses this.locale dan this._refresh agar Alpine mencatat dependensi ini.
             this.locale;
+            this._refresh;
             return i18next.t(key, options);
         },
 
