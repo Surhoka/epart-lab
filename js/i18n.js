@@ -7,20 +7,41 @@ document.addEventListener('alpine:init', () => {
         .init({
             lng: savedLocale,
             fallbackLng: 'en',
+            // Tambahkan translasi dasar sebagai fallback agar tidak muncul nama key saat loading
+            resources: {
+                id: {
+                    translation: {
+                        "email_placeholder": "Masukkan alamat email Anda",
+                        "password_placeholder": "Masukkan kata sandi Anda"
+                    }
+                },
+                en: {
+                    translation: {
+                        "email_placeholder": "Enter your email",
+                        "password_placeholder": "Enter your password"
+                    }
+                }
+            },
             backend: {
-                // Memuat file dari folder json/ relatif ke root
+                // Menggunakan URL absolut sesuai permintaan user
                 loadPath: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/{{lng}}.json',
+            }
+        }, (err, t) => {
+            // Trigger refresh Alpine jika loading selesai
+            if (Alpine.store('i18n')) {
+                Alpine.store('i18n')._refresh = Date.now();
             }
         });
 
     // 2. Daftarkan Alpine Store secara sinkron
     Alpine.store('i18n', {
         locale: savedLocale,
+        _refresh: Date.now(),
 
         t(key, options = {}) {
-            // PENTING: Akses this.locale agar Alpine mencatat dependensi ini.
-            // Tanpa ini, Alpine tidak tahu bahwa t() harus dijalankan ulang saat locale berubah.
+            // PENTING: Akses this.locale dan this._refresh agar Alpine mencatat dependensi ini.
             this.locale;
+            this._refresh;
             return i18next.t(key, options);
         },
 
