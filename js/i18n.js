@@ -8,10 +8,7 @@ document.addEventListener('alpine:init', () => {
             lng: savedLocale,
             fallbackLng: 'en',
             backend: {
-                // Gunakan base GitHub CDN untuk produksi di Blogger
-                loadPath: (url, lngs) => {
-                    return `https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/${lngs[0]}.json?v=${Date.now()}`;
-                }
+                loadPath: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/{{lng}}.json?v=${Date.now()}`
             }
         }, (err, t) => {
             // Trigger refresh Alpine jika loading selesai
@@ -33,16 +30,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         async toggle() {
-            console.log('Toggling language from:', this.locale);
             this.locale = this.locale === 'id' ? 'en' : 'id';
-            try {
-                await i18next.changeLanguage(this.locale);
-                this._refresh = Date.now(); // Trigger refresh agar x-text terpanggil ulang
-                localStorage.setItem('app_locale', this.locale);
-                console.log('Language changed successfully to:', this.locale);
-            } catch (err) {
-                console.error('Failed to change language:', err);
-            }
+            await i18next.changeLanguage(this.locale);
+            localStorage.setItem('app_locale', this.locale);
         }
     });
 });
