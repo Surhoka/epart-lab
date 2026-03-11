@@ -5,6 +5,7 @@
     "login_title": "Sign In",
     "login_subtitle": "Enter your email and password to sign in!",
     "email_label": "Email",
+    "email_placeholder": "Enter your email",
     "password_label": "Password",
     "password_placeholder": "Enter your password",
     "keep_logged_in": "Keep me logged in",
