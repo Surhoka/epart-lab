@@ -7,23 +7,7 @@ document.addEventListener('alpine:init', () => {
         .init({
             lng: savedLocale,
             fallbackLng: 'en',
-            // Tambahkan translasi dasar sebagai fallback agar tidak muncul nama key saat loading
-            resources: {
-                id: {
-                    translation: {
-                        "email_placeholder": "Masukkan alamat email Anda",
-                        "password_placeholder": "Masukkan kata sandi Anda"
-                    }
-                },
-                en: {
-                    translation: {
-                        "email_placeholder": "Enter your email",
-                        "password_placeholder": "Enter your password"
-                    }
-                }
-            },
             backend: {
-                // Memuat file dari folder json/ relatif ke root
                 loadPath: 'https://cdn.jsdelivr.net/gh/Surhoka/epart-lab@main/locales/{{lng}}.json',
             }
         });
