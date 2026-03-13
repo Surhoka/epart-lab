@@ -129,92 +129,101 @@
     </div>
 
     <!-- Modal Add/Edit -->
-    <div :class="{ 'show': modalOpen }" x-trap="modalOpen" class="modal fixed inset-0 z-[999] flex items-center justify-center p-4" x-cloak>
-        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" @click="modalOpen = false"></div>
-        <div class="modal-dialog relative w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white p-8 shadow-2xl transition-all dark:bg-gray-900">
-            <header class="mb-6 flex items-center justify-between">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white" x-text="editMode ? 'Edit Produk' : 'Tambah Produk Baru'"></h3>
-                <button @click="modalOpen = false" class="rounded-full p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <span class="w-6 h-6" x-icon="'close'"></span>
+    <div x-show="modalOpen" :class="{ 'show': modalOpen }" x-trap="modalOpen" x-transition
+        class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
+        <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+            @click="modalOpen = false"></div>
+        <div class="modal-dialog relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+            <!-- Modal Header (Sticky) -->
+            <header class="flex items-start justify-between mb-6 shrink-0">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white" x-text="editMode ? 'Edit Produk' : 'Tambah Produk Baru'"></h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Lengkapi informasi produk di bawah ini.</p>
+                </div>
+                <button @click="modalOpen = false"
+                    class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all hover:scale-110 dark:bg-gray-800 dark:hover:bg-gray-700">
+                    <span class="w-6 h-6 block" x-icon="'close'"></span>
                 </button>
             </header>
 
-            <form @submit.prevent="saveProduct()" class="space-y-6">
-                <!-- Grid Layout for form -->
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Nama Produk</label>
-                        <input type="text" x-model="formData.title" required
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            placeholder="Contoh: Brake Pad Set Front">
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Subtitle</label>
-                        <input type="text" x-model="formData.subtitle"
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            placeholder="Contoh: Premium Quality OEM">
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Kategori</label>
-                        <input type="text" x-model="formData.category"
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            placeholder="Contoh: Brakes, Engine, Suspension">
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Harga Jual</label>
-                        <input type="number" x-model.number="formData.price" required
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Harga Coret (Optional)</label>
-                        <input type="number" x-model.number="formData.originalPrice"
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Image URL</label>
-                        <input type="text" x-model="formData.imageUrl"
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            placeholder="https://example.com/image.jpg">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Deskripsi</label>
-                        <textarea x-model="formData.description" rows="3"
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            placeholder="Detail produk..."></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 md:col-span-2">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" x-model="formData.featured" id="chk-featured" class="h-4 w-4 rounded text-brand-500 focus:ring-brand-500">
-                            <label for="chk-featured" class="text-sm font-bold text-gray-700 dark:text-gray-300">Featured (Unggulan)</label>
+            <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+                <form @submit.prevent="saveProduct()" id="productForm" class="space-y-6">
+                    <!-- Grid Layout for form -->
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Nama Produk</label>
+                            <input type="text" x-model="formData.title" required
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="Contoh: Brake Pad Set Front">
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" x-model="formData.active" id="chk-active" class="h-4 w-4 rounded text-brand-500 focus:ring-brand-500">
-                            <label for="chk-active" class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktif</label>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Subtitle</label>
+                            <input type="text" x-model="formData.subtitle"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="Contoh: Premium Quality OEM">
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Kategori</label>
+                            <input type="text" x-model="formData.category"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="Contoh: Brakes, Engine, Suspension">
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Harga Jual</label>
+                            <input type="number" x-model.number="formData.price" required
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Harga Coret (Optional)</label>
+                            <input type="number" x-model.number="formData.originalPrice"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Image URL</label>
+                            <input type="text" x-model="formData.imageUrl"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="https://example.com/image.jpg">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">Deskripsi</label>
+                            <textarea x-model="formData.description" rows="3"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="Detail produk..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 md:col-span-2">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" x-model="formData.featured" id="chk-featured" class="h-4 w-4 rounded text-brand-500 focus:ring-brand-500">
+                                <label for="chk-featured" class="text-sm font-bold text-gray-700 dark:text-gray-300">Featured (Unggulan)</label>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" x-model="formData.active" id="chk-active" class="h-4 w-4 rounded text-brand-500 focus:ring-brand-500">
+                                <label for="chk-active" class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktif</label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
+            </div>
 
-                <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-6 dark:border-gray-800">
-                    <button type="button" @click="modalOpen = false"
-                        class="rounded-xl border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-500 transition-all hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800">
-                        Batal
-                    </button>
-                    <button type="submit" :disabled="submitting"
-                        class="flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-2.5 text-sm font-bold text-white transition-all hover:bg-brand-600 disabled:opacity-50">
-                        <template x-if="submitting">
-                            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                        </template>
-                        <span x-text="editMode ? 'Simpan Perubahan' : 'Tambah Produk'"></span>
-                    </button>
-                </div>
-            </form>
+            <footer class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 shrink-0">
+                <button type="button" @click="modalOpen = false"
+                    class="rounded-xl border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                    Batal
+                </button>
+                <button type="submit" form="productForm" :disabled="submitting"
+                    class="flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-2.5 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95 disabled:opacity-50">
+                    <template x-if="submitting">
+                        <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                    </template>
+                    <span x-text="editMode ? 'Simpan Perubahan' : 'Tambah Produk'"></span>
+                </button>
+            </footer>
         </div>
     </div>
 </div>
