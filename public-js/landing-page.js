@@ -12,6 +12,7 @@
                 loading: true,
                 selectedCategory: 'All',
                 searchQuery: '',
+                selectedProduct: null,
 
                 async init() {
                     console.log("Public Landing Page Component Init");
@@ -21,14 +22,16 @@
                 async fetchLandingData() {
                     this.loading = true;
                     try {
-                        // AdminAPI is defined in public-1.html
-                        // dataSource: 'getPublicLandingData' is from plugin config
                         const res = await window.AdminAPI.get('getPublicLandingData');
                         
                         if (res && res.status === 'success') {
                             this.products = res.data || [];
                             this.categories = ['All', ...(res.categories || [])];
-                            console.log(`Loaded ${this.products.length} products for public display`);
+                            
+                            // Set initial focal product (first featured or first in list)
+                            if (this.products.length > 0) {
+                                this.selectedProduct = this.products.find(p => p.featured) || this.products[0];
+                            }
                         } else {
                             console.error('Failed to fetch landing data:', res?.message);
                         }
@@ -39,11 +42,16 @@
                     }
                 },
 
+                setFocusProduct(product) {
+                    this.selectedProduct = product;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
                 get filteredProducts() {
                     return this.products.filter(p => {
                         const matchesCategory = this.selectedCategory === 'All' || p.category === this.selectedCategory;
                         const matchesSearch = p.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                                            p.description.toLowerCase().includes(this.searchQuery.toLowerCase());
+                                             p.description.toLowerCase().includes(this.searchQuery.toLowerCase());
                         return matchesCategory && matchesSearch;
                     });
                 },
