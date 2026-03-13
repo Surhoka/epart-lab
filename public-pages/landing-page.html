@@ -1,261 +1,176 @@
 <div class="w-full bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-x-hidden" x-data="initLandingPage()">
     
-    <!-- Hero Section: Immersive Product Focus -->
-    <template x-if="selectedProduct">
-        <section class="relative min-h-[85vh] flex items-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 overflow-hidden">
-            <!-- Background Decorative Elements -->
-            <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-brand-500/5 blur-[120px] rounded-full pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"></div>
-
-            <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
-                <!-- Text Content -->
-                <div class="animate-slide-up" style="animation-duration: 0.8s">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-widest mb-6">
-                        <span class="w-4 h-4" x-icon="'star'"></span>
-                        Featured Product
-                    </div>
-                    <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white leading-[1.1] mb-6" x-text="selectedProduct.title"></h1>
-                    <p class="text-xl md:text-2xl text-gray-500 dark:text-gray-400 font-medium mb-8 leading-relaxed max-w-xl" x-text="selectedProduct.subtitle || 'Kualitas premium untuk performa mesin maksimal.'"></p>
-                    
-                    <div class="flex items-center gap-6 mb-10">
-                        <div>
-                            <span class="block text-sm text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">Modern Price</span>
-                            <div class="flex items-baseline gap-3">
-                                <span class="text-4xl font-black text-brand-600" x-text="formatPrice(selectedProduct.price)"></span>
-                                <template x-if="selectedProduct.originalPrice > selectedProduct.price">
-                                    <span class="text-xl text-gray-400 line-through font-medium" x-text="formatPrice(selectedProduct.originalPrice)"></span>
-                                </template>
-                            </div>
-                        </div>
-                        <template x-if="selectedProduct.originalPrice > selectedProduct.price">
-                            <div class="bg-red-500 text-white px-4 py-2 rounded-2xl font-black shadow-lg shadow-red-500/20" 
-                                x-text="'-' + getDiscountPercentage(selectedProduct.price, selectedProduct.originalPrice) + '% OFF'">
-                            </div>
-                        </template>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button class="flex-1 sm:flex-none px-10 py-5 bg-brand-600 hover:bg-brand-700 text-white text-lg font-black rounded-2xl shadow-2xl shadow-brand-500/40 transition-all hover:scale-[1.05] active:scale-95 flex items-center justify-center gap-3">
-                            <span class="w-6 h-6" x-icon="'shopping-cart'"></span>
-                            Pesan Sekarang
-                        </button>
-                        <button @click="document.getElementById('details').scrollIntoView({behavior:'smooth'})" 
-                            class="flex-1 sm:flex-none px-10 py-5 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white text-lg font-bold rounded-2xl transition-all hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-3">
-                            Detail Produk
-                            <span class="w-6 h-6" x-icon="'chevron-down'"></span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product Visual -->
-                <div class="relative group perspective-1000 hidden lg:block">
-                    <div class="relative z-20 animate-float">
-                        <template x-if="selectedProduct.imageUrl">
-                            <img :src="selectedProduct.imageUrl" :alt="selectedProduct.title" 
-                                class="w-full h-auto max-h-[600px] object-contain drop-shadow-[0_40px_60px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_40px_60px_rgba(255,255,255,0.05)] rounded-3xl transition-transform duration-700 group-hover:rotate-y-6">
-                        </template>
-                        <template x-if="!selectedProduct.imageUrl">
-                            <div class="aspect-square bg-gray-100 dark:bg-gray-800 rounded-3xl flex items-center justify-center text-gray-300 dark:text-gray-700 shadow-2xl">
-                                <span class="w-40 h-40" x-icon="'image'"></span>
-                            </div>
-                        </template>
-                    </div>
-                    <!-- Decorative Ring -->
-                    <div class="absolute inset-0 border-4 border-dashed border-gray-100 dark:border-gray-800 rounded-full w-[120%] h-[120%] -top-[10%] -left-[10%] animate-spin-slow opacity-50"></div>
-                </div>
-                
-                <!-- Mobile Visual -->
-                <div class="lg:hidden mt-8">
-                    <template x-if="selectedProduct.imageUrl">
-                        <img :src="selectedProduct.imageUrl" class="w-full h-auto rounded-3xl shadow-xl">
-                    </template>
-                </div>
-            </div>
-        </section>
-    </template>
-
-    <!-- Trust Indicators -->
-    <section class="py-12 border-y border-gray-100 dark:border-gray-900 bg-white dark:bg-gray-950">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="flex items-center gap-4 group">
-                    <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
-                        <span class="w-6 h-6" x-icon="'shield-check'"></span>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Garansi Resmi</h4>
-                        <p class="text-xs text-gray-500">100% Produk Original</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4 group">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                        <span class="w-6 h-6" x-icon="'truck'"></span>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Pengiriman Cepat</h4>
-                        <p class="text-xs text-gray-500">Kirim ke Seluruh Indonesia</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4 group">
-                    <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 transition-colors group-hover:bg-orange-600 group-hover:text-white">
-                        <span class="w-6 h-6" x-icon="'refresh'"></span>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Mudah Retur</h4>
-                        <p class="text-xs text-gray-500">Kebijakan 7 Hari Kembali</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4 group">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 transition-colors group-hover:bg-purple-600 group-hover:text-white">
-                        <span class="w-6 h-6" x-icon="'credit-card'"></span>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Bayar Aman</h4>
-                        <p class="text-xs text-gray-500">Berbagai Metode Pembayaran</p>
-                    </div>
-                </div>
-            </div>
+    <!-- Empty State / Loading State (Cover entire page) -->
+    <template x-if="loading">
+        <div class="min-h-screen flex flex-col items-center justify-center p-8">
+            <div class="h-16 w-16 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>
+            <p class="mt-6 text-lg font-black text-gray-400 uppercase tracking-widest animate-pulse">Menyiapkan Sales Page...</p>
         </div>
-    </section>
-
-    <!-- Product Details Content -->
-    <template x-if="selectedProduct">
-        <section id="details" class="py-24 bg-gray-50 dark:bg-gray-900/50">
-            <div class="max-w-4xl mx-auto px-4">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4">Mengenal Lebih Dekat</h2>
-                    <div class="w-20 h-1.5 bg-brand-600 mx-auto rounded-full"></div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-900 rounded-[40px] p-8 md:p-12 shadow-xl border border-gray-100 dark:border-gray-800">
-                    <div class="prose prose-lg dark:prose-invert max-w-none">
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed text-lg" x-text="selectedProduct.description || 'Produk ini dirancang khusus untuk memberikan performa maksimal dan durabilitas jangka panjang bagi kendaraan Anda.'"></p>
-                    </div>
-                    
-                    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800">
-                            <span class="w-8 h-8 text-brand-600" x-icon="'check-circle'"></span>
-                            <div>
-                                <span class="font-bold block text-gray-900 dark:text-white">Kategori</span>
-                                <span class="text-gray-500" x-text="selectedProduct.category"></span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800">
-                            <span class="w-8 h-8 text-brand-600" x-icon="'check-circle'"></span>
-                            <div>
-                                <span class="font-bold block text-gray-900 dark:text-white">Status Produk</span>
-                                <span class="text-gray-500" x-text="selectedProduct.featured ? 'Edisi Unggulan' : 'Produk Ready'"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-12 p-8 bg-brand-600 rounded-3xl text-white text-center shadow-2xl shadow-brand-600/30">
-                        <h3 class="text-2xl font-black mb-2">Penawaran Terbatas!</h3>
-                        <p class="mb-6 opacity-90">Amankan stok Anda sekarang sebelum kehabisan. Harga dapat berubah sewaktu-waktu.</p>
-                        <div class="flex items-center justify-center gap-4">
-                            <span class="text-3xl font-black" x-text="formatPrice(selectedProduct.price)"></span>
-                            <button class="bg-white text-brand-600 px-8 py-3 rounded-xl font-black hover:bg-gray-100 transition-colors uppercase tracking-widest text-sm shadow-xl">
-                                Beli Sekarang
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </template>
 
-    <!-- "Discovery" Gallery: Other Products -->
-    <section class="py-24 bg-white dark:bg-gray-950">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
-                <div>
-                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white">Eksplorasi Lainnya</h2>
-                    <p class="mt-4 text-gray-500 dark:text-gray-400 text-lg">Temukan suku cadang berkualitas lainnya dari koleksi kami.</p>
-                </div>
-                
-                <div class="flex flex-wrap items-center gap-2">
-                    <template x-for="cat in categories" :key="cat">
-                        <button @click="selectedCategory = cat"
-                            :class="selectedCategory === cat ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/20' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
-                            class="px-5 py-2.5 rounded-2xl text-sm font-black transition-all whitespace-nowrap"
-                            x-text="cat">
-                        </button>
-                    </template>
-                </div>
+    <template x-if="!loading && !selectedProduct">
+        <div class="min-h-screen flex flex-col items-center justify-center p-8 text-center">
+            <div class="w-24 h-24 bg-gray-50 dark:bg-gray-900 rounded-[40px] flex items-center justify-center mb-8">
+                <span class="w-12 h-12 text-gray-300" x-icon="'package'"></span>
             </div>
+            <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-4">Halaman Belum Siap</h2>
+            <p class="text-gray-500 max-w-sm font-medium">Pemilik toko belum mengonfigurasi produk untuk halaman penjualan ini.</p>
+        </div>
+    </template>
 
-            <!-- Loading State -->
-            <template x-if="loading">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <template x-for="i in 4" :key="i">
-                        <div class="animate-pulse">
-                            <div class="bg-gray-100 dark:bg-gray-800 aspect-[4/5] rounded-[40px] mb-4"></div>
-                            <div class="h-6 bg-gray-100 dark:bg-gray-800 rounded-full w-3/4 mb-3"></div>
-                            <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded-full w-1/2"></div>
+    <!-- Hero Section: Immersive Product Focus -->
+    <template x-if="!loading && selectedProduct">
+        <div>
+            <section class="relative min-h-[90vh] flex items-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 overflow-hidden">
+                <!-- Background Decorative Elements -->
+                <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-brand-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+                <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
+                    <!-- Text Content -->
+                    <div class="animate-slide-up" style="animation-duration: 0.8s">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-black uppercase tracking-widest mb-8 border border-brand-500/20">
+                            <span class="w-4 h-4" x-icon="'tag'"></span>
+                            <span x-text="selectedProduct.category || 'Special Offer'"></span>
                         </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Product Grid -->
-            <template x-if="!loading && filteredProducts.length > 0">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-                    <template x-for="product in filteredProducts" :key="product.id">
-                        <div @click="setFocusProduct(product)" class="group cursor-pointer">
-                            <div class="relative aspect-[4/5] rounded-[40px] overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 transition-all duration-500 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.12)] group-hover:-translate-y-2">
-                                <template x-if="product.imageUrl">
-                                    <img :src="product.imageUrl" :alt="product.title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                                </template>
-                                <template x-if="!product.imageUrl">
-                                    <div class="flex items-center justify-center h-full text-gray-300 dark:text-gray-700">
-                                        <span class="w-16 h-16" x-icon="'image'"></span>
-                                    </div>
-                                </template>
-                                
-                                <!-- Floating Overlay Info -->
-                                <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                                    <p class="text-white text-sm font-black mb-1" x-text="formatPrice(product.price)"></p>
-                                    <button class="w-full py-2.5 bg-white text-brand-600 rounded-xl font-bold text-xs uppercase tracking-widest shadow-xl">
-                                        Detail Produk
-                                    </button>
-                                </div>
-
-                                <!-- Tiny Badges -->
-                                <div class="absolute top-5 left-5 flex flex-col gap-2">
-                                    <template x-if="product.featured">
-                                        <span class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg">
-                                            <span class="w-4 h-4" x-icon="'star'"></span>
-                                        </span>
+                        <h1 class="text-6xl md:text-8xl font-black text-gray-900 dark:text-white leading-[1] mb-8 tracking-tighter" x-text="selectedProduct.title"></h1>
+                        <p class="text-2xl md:text-3xl text-gray-500 dark:text-gray-400 font-bold mb-10 leading-snug max-w-xl" x-text="selectedProduct.subtitle"></p>
+                        
+                        <div class="flex items-center gap-8 mb-12">
+                            <div>
+                                <span class="block text-xs text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Penawaran Hari Ini</span>
+                                <div class="flex items-baseline gap-4">
+                                    <span class="text-5xl font-black text-brand-600" x-text="formatPrice(selectedProduct.price)"></span>
+                                    <template x-if="selectedProduct.originalPrice > selectedProduct.price">
+                                        <span class="text-2xl text-gray-400 line-through font-bold" x-text="formatPrice(selectedProduct.originalPrice)"></span>
                                     </template>
                                 </div>
                             </div>
-                            
-                            <div class="mt-6 px-2">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-brand-600 mb-2 block" x-text="product.category || 'General'"></span>
-                                <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-brand-600 transition-colors" x-text="product.title"></h3>
-                                <div class="text-lg font-bold text-gray-500 dark:text-gray-400" x-text="formatPrice(product.price)"></div>
+                            <template x-if="selectedProduct.originalPrice > selectedProduct.price">
+                                <div class="bg-red-600 text-white px-5 py-2.5 rounded-2xl font-black text-lg shadow-2xl shadow-red-500/30" 
+                                    x-text="'-' + getDiscountPercentage(selectedProduct.price, selectedProduct.originalPrice) + '%'">
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-5">
+                            <button class="flex-1 sm:flex-none px-12 py-6 bg-brand-600 hover:bg-brand-700 text-white text-xl font-black rounded-[24px] shadow-2xl shadow-brand-500/40 transition-all hover:scale-[1.05] active:scale-95 flex items-center justify-center gap-4">
+                                <span class="w-7 h-7" x-icon="'shopping-cart'"></span>
+                                PESAN SEKARANG
+                            </button>
+                            <button @click="document.getElementById('details').scrollIntoView({behavior:'smooth'})" 
+                                class="flex-1 sm:flex-none px-12 py-6 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white text-xl font-black rounded-[24px] transition-all hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-4">
+                                LIHAT DETAIL
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product Visual -->
+                    <div class="relative group perspective-1000 hidden lg:block">
+                        <div class="relative z-20 animate-float">
+                            <template x-if="selectedProduct.imageUrl">
+                                <img :src="selectedProduct.imageUrl" :alt="selectedProduct.title" 
+                                    class="w-full h-auto max-h-[650px] object-contain drop-shadow-[0_50px_70px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_40px_60px_rgba(255,255,255,0.05)] rounded-3xl transition-transform duration-700 group-hover:rotate-y-12">
+                            </template>
+                            <template x-if="!selectedProduct.imageUrl">
+                                <div class="aspect-square bg-gray-50 dark:bg-gray-800 rounded-[60px] flex items-center justify-center text-gray-200 dark:text-gray-700 shadow-2xl border border-gray-100 dark:border-gray-800">
+                                    <span class="w-48 h-48" x-icon="'image'"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trust Indicators -->
+            <section class="py-16 border-y border-gray-100 dark:border-gray-900 bg-white dark:bg-gray-950">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-12">
+                        <div class="flex items-center gap-5 group">
+                            <div class="w-16 h-16 rounded-[24px] bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center text-brand-600 transition-all group-hover:bg-brand-600 group-hover:text-white group-hover:-rotate-6">
+                                <span class="w-8 h-8" x-icon="'shield-check'"></span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter text-lg">Garansi Resmi</h4>
+                                <p class="text-sm text-gray-500 font-medium">100% Produk Original</p>
                             </div>
                         </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Empty Discovery State -->
-            <template x-if="!loading && filteredProducts.length === 0">
-                <div class="text-center py-20 bg-gray-50 dark:bg-gray-900 rounded-[40px] border-2 border-dashed border-gray-200 dark:border-gray-800">
-                    <div class="w-24 h-24 bg-white dark:bg-gray-800 rounded-full shadow-2xl flex items-center justify-center mx-auto mb-6">
-                        <span class="w-12 h-12 text-gray-300" x-icon="'search'"></span>
+                        <div class="flex items-center gap-5 group">
+                            <div class="w-16 h-16 rounded-[24px] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 transition-all group-hover:bg-blue-600 group-hover:text-white group-hover:rotate-6">
+                                <span class="w-8 h-8" x-icon="'truck'"></span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter text-lg">Kirim Cepat</h4>
+                                <p class="text-sm text-gray-500 font-medium">Seluruh Indonesia</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-5 group">
+                            <div class="w-16 h-16 rounded-[24px] bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 transition-all group-hover:bg-orange-600 group-hover:text-white group-hover:-rotate-6">
+                                <span class="w-8 h-8" x-icon="'refresh-cw'"></span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter text-lg">Mudah Retur</h4>
+                                <p class="text-sm text-gray-500 font-medium">Garansi Ganti Baru</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-5 group">
+                            <div class="w-16 h-16 rounded-[24px] bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 transition-all group-hover:bg-purple-600 group-hover:text-white group-hover:rotate-6">
+                                <span class="w-8 h-8" x-icon="'credit-card'"></span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tighter text-lg">Transaksi Aman</h4>
+                                <p class="text-sm text-gray-500 font-medium">Enkripsi Berlapis</p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-2xl font-black text-gray-900 dark:text-white">Pencarian Nihil</h3>
-                    <p class="mt-3 text-gray-500 dark:text-gray-400 max-w-sm mx-auto font-medium">Coba gunakan kata kunci atau kategori yang berbeda.</p>
-                    <button @click="searchQuery = ''; selectedCategory = 'All'" 
-                        class="mt-8 px-8 py-3 bg-brand-600 text-white rounded-xl font-black shadow-xl shadow-brand-500/20 hover:scale-105 active:scale-95 transition-all">
-                        Reset Filter
-                    </button>
                 </div>
-            </template>
+            </section>
+
+            <!-- Product Details Content -->
+            <section id="details" class="py-32 bg-gray-50 dark:bg-gray-900/50">
+                <div class="max-w-5xl mx-auto px-4">
+                    <div class="text-center mb-20">
+                        <span class="text-brand-600 font-black uppercase tracking-[0.3em] text-xs block mb-4">The Deep Dive</span>
+                        <h2 class="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tighter">Kenapa Memilih Produk Ini?</h2>
+                        <div class="w-24 h-2 bg-brand-600 mx-auto rounded-full"></div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-900 rounded-[60px] p-10 md:p-20 shadow-2xl border border-gray-100 dark:border-gray-800 relative overflow-hidden">
+                        <div class="prose prose-2xl dark:prose-invert max-w-none relative z-10">
+                            <p class="text-gray-600 dark:text-gray-400 leading-relaxed font-medium whitespace-pre-line" x-text="selectedProduct.description"></p>
+                        </div>
+                        
+                        <!-- CTA Banner in Details -->
+                        <div class="mt-20 p-12 bg-gradient-to-br from-brand-600 to-brand-800 rounded-[40px] text-white text-center shadow-2xl shadow-brand-600/30 relative z-10">
+                            <h3 class="text-4xl font-black mb-4 tracking-tighter">Siap Untuk Performa Maksimal?</h3>
+                            <p class="text-xl mb-10 opacity-90 font-medium">Bergabunglah dengan ribuan pelanggan puas lainnya sekarang juga.</p>
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                                <div class="text-5xl font-black" x-text="formatPrice(selectedProduct.price)"></div>
+                                <button class="w-full md:w-auto bg-white text-brand-600 px-12 py-5 rounded-2xl font-black hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-lg shadow-2xl">
+                                    BELI SEKARANG
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Pattern BG -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dynamic Footer CTA -->
+            <section class="py-24 bg-white dark:bg-gray-950 text-center">
+                <div class="max-w-3xl mx-auto px-4">
+                    <h2 class="text-3xl font-black text-gray-900 dark:text-white mb-8">Masih Ada Pertanyaan?</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-lg mb-10 font-medium">Tim ahli kami siap membantu Anda memilih produk yang tepat untuk kendaraan Anda.</p>
+                    <a href="#" class="inline-flex items-center gap-4 text-brand-600 font-black text-2xl hover:gap-6 transition-all uppercase tracking-tighter">
+                        Hubungi via WhatsApp
+                        <span class="w-8 h-8" x-icon="'arrow-right'"></span>
+                    </a>
+                </div>
+            </section>
         </div>
-    </section>
+    </template>
 
     <!-- CSS Animations -->
     <style>
