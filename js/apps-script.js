@@ -232,7 +232,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'SignInUser', 'registerUser', 'SignOut',
         'saveEvent', 'updateProfile', 'createProfile',
         'save_post', 'updateCoreProfile', 'updatePublicProfile', 'updateProfilePhoto',
-        'uploadImageAndGetUrl', 'setupUserDatabase',
+        'uploadImageAndGetUrl', 'generateAiImage', 'setupUserDatabase',
         'save_plugin', 'remove_plugin', 'ping_plugin',
         'dbCreate', 'dbUpdate', 'dbDelete', 'createTable', // Add generic DB actions for POST
         'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
@@ -241,7 +241,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
         'createTransaction', 'voidTransaction', 'saveSparepart', 'deleteSparepart', 'adjustStock', // POS and Sparepart Actions
         'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier', 'getMasterParts', 'saveMasterPart', // Purchase Order Actions
-        'send_personal_message', 'receive_personal_message', 'mark_as_read' // Personal Messaging Actions
+        'send_personal_message', 'receive_personal_message', 'mark_as_read', // Personal Messaging Actions
+        'saveLandingProduct', 'deleteLandingProduct' // Landing Page Actions
     ];
 
     if (postActions.includes(action)) {
