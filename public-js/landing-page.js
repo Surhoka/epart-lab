@@ -4,6 +4,8 @@
  * Uses AdminAPI to fetch data from the landing-page plugin.
  */
 (function() {
+    console.log('🚀 Landing Page Script Loading...');
+    
     const getLandingData = () => ({
         selectedProduct: null,
         loading: true,
@@ -46,16 +48,23 @@
 
     // Handle global call x-data="initLandingPage()"
     window.initLandingPage = getLandingData;
+    console.log('✅ window.initLandingPage registered');
 
     const register = () => {
         if (window.Alpine && !window.Alpine.data('initLandingPage')) {
             window.Alpine.data('initLandingPage', getLandingData);
+            console.log('✅ Alpine.data("initLandingPage") registered');
         }
     };
 
     if (window.Alpine) {
+        console.log('Alpine already loaded, registering immediately');
         register();
     } else {
-        document.addEventListener('alpine:init', register);
+        console.log('Waiting for Alpine to load...');
+        document.addEventListener('alpine:init', () => {
+            console.log('Alpine init event fired, registering now');
+            register();
+        });
     }
 })();
