@@ -141,6 +141,31 @@
                             placeholder="Contoh: Spareparts">
                     </div>
 
+                    <!-- Marquee Ticker -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Text Berjalan</label>
+                            <label class="relative flex cursor-pointer items-center gap-2">
+                                <input type="checkbox" x-model="formData.marqueeActive" class="peer sr-only">
+                                <div class="h-5 w-9 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
+                                <span class="text-xs font-bold text-gray-500 dark:text-gray-400" x-text="formData.marqueeActive ? 'Aktif' : 'Nonaktif'"></span>
+                            </label>
+                        </div>
+                        <textarea x-model="formData.marqueeText" rows="2"
+                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white resize-none"
+                            placeholder="Contoh: 🔥 PROMO HARI INI • GRATIS ONGKIR • STOK TERBATAS • PESAN SEKARANG"></textarea>
+                        <!-- Live Preview -->
+                        <template x-if="formData.marqueeText && formData.marqueeActive">
+                            <div class="mt-2 rounded-xl bg-brand-600 overflow-hidden py-1.5">
+                                <div class="marquee-preview-track flex whitespace-nowrap">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white px-6" x-text="formData.marqueeText"></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white px-6" x-text="formData.marqueeText"></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white px-6" x-text="formData.marqueeText"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
                     <div class="space-y-4">
                         <label class="relative flex cursor-pointer items-center gap-3 group">
                             <input type="checkbox" x-model="formData.active" class="peer sr-only">
@@ -159,3 +184,13 @@
         </div>
     </div>
 </div>
+
+<style>
+    .marquee-preview-track {
+        animation: marquee-preview 8s linear infinite;
+    }
+    @keyframes marquee-preview {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-33.33%); }
+    }
+</style>
