@@ -84,69 +84,42 @@
                     Media Utama
                 </h2>
                 
-                <div class="space-y-6">
-                    <div>
-                        <label class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Foto Produk</label>
-                        <div class="flex items-center gap-4">
-                            <div class="relative group h-32 w-32 shrink-0 cursor-pointer overflow-hidden rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
-                                @click="$refs.landingPageImageInput.click()">
-                                <template x-if="formData.imageUrl">
-                                    <img :src="formData.imageUrl" class="h-full w-full object-cover" />
-                                </template>
-                                <template x-if="!formData.imageUrl">
-                                    <div class="flex h-full w-full flex-col items-center justify-center text-gray-300">
-                                        <span class="w-10 h-10 mb-1" x-icon="'image'"></span>
-                                        <span class="text-[9px] font-bold uppercase tracking-widest">Click to Upload</span>
-                                    </div>
-                                </template>
-                                <!-- Hover Overlay -->
-                                <div
-                                    class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <span class="text-white w-6 h-6" x-icon="'pencil'"></span>
-                                </div>
-                                <!-- Loading Overlay -->
-                                <div x-show="isUploading"
-                                    class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80">
-                                    <span
-                                        class="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full"></span>
-                                </div>
-                                <!-- AI Generate Button -->
-                                <button type="button"
-                                    @click.stop="isUploading = true; window.sendDataToGoogle('generateAiImage', { prompt: formData.title + ' ' + (formData.category || 'product'), fileName: 'landing-' + Date.now() }, (res) => { isUploading = false; if(res.status === 'success') { formData.imageUrl = res.url; } else { alert('Gagal generate: ' + res.message); } })"
-                                    :disabled="isUploading || !formData.title"
-                                    class="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-tl-xl rounded-br-xl bg-blue-600 text-white shadow-md transition-all hover:bg-blue-700 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                                    title="Generate Foto via AI Sekarang">
-                                    <span class="w-4 h-4" x-icon="'sparkles'"></span>
-                                </button>
+                <div class="space-y-4">
+                    <!-- Preview -->
+                    <div class="relative group w-full aspect-video overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                        @click="$refs.landingPageImageInput.click()">
+                        <template x-if="formData.imageUrl">
+                            <img :src="formData.imageUrl" class="h-full w-full object-contain p-3">
+                        </template>
+                        <template x-if="!formData.imageUrl">
+                            <div class="flex h-full w-full flex-col items-center justify-center text-gray-300 gap-2">
+                                <span class="w-10 h-10" x-icon="'image'"></span>
+                                <span class="text-[10px] font-bold uppercase tracking-widest">Klik untuk Upload</span>
                             </div>
-                            <div class="flex-1">
-                                <div
-                                    class="flex flex-col gap-2 p-3 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
-                                    <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                                        <span class="w-4 h-4" x-icon="'sparkles'"></span>
-                                        <span class="text-xs font-bold uppercase tracking-wider">AI Automation Active</span>
-                                    </div>
-                                    <div class="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed italic">
-                                        Klik gambar untuk upload manual, atau klik tombol AI untuk generate otomatis dari nama produk.
-                                    </div>
-                                </div>
-                                <p class="mt-2 text-[10px] text-gray-400 tracking-tight">
-                                    <strong>Tips:</strong> Gunakan gambar transparan (PNG) untuk tampilan hero yang lebih premium dan imersif.
-                                </p>
-                            </div>
+                        </template>
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 rounded-2xl">
+                            <span class="text-white w-6 h-6" x-icon="'upload'"></span>
+                        </div>
+                        <!-- Loading Overlay -->
+                        <div x-show="isUploading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80 rounded-2xl">
+                            <span class="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full"></span>
                         </div>
                     </div>
 
-                    <div class="aspect-square w-full overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800 group relative">
-                        <template x-if="formData.imageUrl">
-                            <img :src="formData.imageUrl" class="h-full w-full object-contain p-4 transition-transform group-hover:scale-110">
-                        </template>
-                        <template x-if="!formData.imageUrl">
-                            <div class="flex h-full w-full flex-col items-center justify-center text-gray-400">
-                                <span class="w-12 h-12 mb-2" x-icon="'image'"></span>
-                                <span class="text-[10px] font-bold uppercase tracking-widest">No Image Preview</span>
-                            </div>
-                        </template>
+                    <!-- Upload from local -->
+                    <button type="button" @click="$refs.landingPageImageInput.click()" :disabled="isUploading"
+                        class="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-3 text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-brand-400 hover:text-brand-600 transition-all disabled:opacity-50">
+                        <span class="w-4 h-4" x-icon="'upload'"></span>
+                        Upload dari Lokal
+                    </button>
+
+                    <!-- URL Input -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Atau Masukkan URL Gambar</label>
+                        <input type="text" x-model="formData.imageUrl"
+                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="https://example.com/product.jpg">
                     </div>
                 </div>
             </div>
