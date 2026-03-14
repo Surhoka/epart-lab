@@ -7,6 +7,7 @@ window.initHomePage = function () {
         // Data
         products: [],
         posts: [],
+        slides: [],
         connectionStatus: {
             connected: false,
             error: null
@@ -15,16 +16,14 @@ window.initHomePage = function () {
         // Loading states
         isLoadingProducts: false,
         isLoadingPosts: false,
+        isLoadingSlides: false,
 
         // Slider State
         activeSlide: 0,
-        totalSlides: 3,
+        totalSlides: 0,
         sliderInterval: null,
 
         async init() {
-
-            // Start Slider
-            this.startSlider();
 
             // Check connection status
             await this.checkConnection();
@@ -32,14 +31,37 @@ window.initHomePage = function () {
             // Load data if connected
             if (this.connectionStatus.connected) {
                 await Promise.all([
+                    this.loadSlides(),
                     this.loadProducts(),
                     this.loadPosts()
                 ]);
+            }
+
+            // Start Slider
+            this.startSlider();
+        },
+
+        async loadSlides() {
+            this.isLoadingSlides = true;
+            try {
+                const response = await window.AdminAPI.get('getHeroSlides');
+                if (response.status === 'success') {
+                    this.slides = response.data || [];
+                    this.totalSlides = this.slides.length;
+                    this.activeSlide = 0;
+                } else {
+                    console.warn('Failed to load slides:', response.message);
+                }
+            } catch (error) {
+                console.error('Error loading slides:', error);
+            } finally {
+                this.isLoadingSlides = false;
             }
         },
 
         startSlider() {
             this.stopSlider();
+            if (this.totalSlides <= 1) return;
             this.sliderInterval = setInterval(() => {
                 this.nextSlide();
             }, 5000);
@@ -53,10 +75,12 @@ window.initHomePage = function () {
         },
 
         nextSlide() {
+            if (this.totalSlides === 0) return;
             this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
         },
 
         prevSlide() {
+            if (this.totalSlides === 0) return;
             this.activeSlide = (this.activeSlide - 1 + this.totalSlides) % this.totalSlides;
         },
 
