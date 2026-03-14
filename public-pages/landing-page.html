@@ -24,6 +24,22 @@
     <!-- Hero Section: Immersive Product Focus -->
     <template x-if="!loading && selectedProduct">
         <div>
+            <!-- Marquee Ticker Bar -->
+            <template x-if="selectedProduct.marqueeActive && selectedProduct.marqueeText">
+                <div class="w-full bg-brand-600 text-white overflow-hidden py-2.5 relative">
+                    <div class="marquee-track flex whitespace-nowrap">
+                        <span class="marquee-content text-sm font-black uppercase tracking-widest px-8"
+                            x-text="selectedProduct.marqueeText"></span>
+                        <span class="marquee-content text-sm font-black uppercase tracking-widest px-8"
+                            x-text="selectedProduct.marqueeText"></span>
+                        <span class="marquee-content text-sm font-black uppercase tracking-widest px-8"
+                            x-text="selectedProduct.marqueeText"></span>
+                        <span class="marquee-content text-sm font-black uppercase tracking-widest px-8"
+                            x-text="selectedProduct.marqueeText"></span>
+                    </div>
+                </div>
+            </template>
+
             <section
                 class="relative min-h-[90vh] flex items-center py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 overflow-hidden">
                 <!-- Background Decorative Elements -->
@@ -280,6 +296,19 @@
 
         [x-cloak] {
             display: none !important;
+        }
+
+        .marquee-track {
+            animation: marquee 20s linear infinite;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
     </style>
 </div>
