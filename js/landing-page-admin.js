@@ -3,6 +3,20 @@
  * Frontend logic for managing Landing Page products in the Admin panel.
  */
 (function() {
+    // Use global showToast from appData() if available, fallback to console
+    function showToast(message, type = 'success') {
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type);
+        } else {
+            // Retry once appData is ready
+            setTimeout(() => {
+                if (typeof window.showToast === 'function') {
+                    window.showToast(message, type);
+                }
+            }, 500);
+        }
+    }
+
     const register = () => {
         if (window.Alpine && !window.Alpine.data('landingPageAdmin')) {
             window.Alpine.data('landingPageAdmin', () => ({
@@ -27,8 +41,6 @@
                 dbId: null,
 
                 async init() {
-                    console.log("Sales Page Admin Component Init");
-                    
                     // Get dbId from localStorage
                     try {
                         const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
@@ -55,7 +67,7 @@
                             }
                             this.loading = false;
                             resolve();
-                        }, (err) => {
+                        }, () => {
                             this.loading = false;
                             resolve();
                         });
@@ -64,7 +76,7 @@
 
                 async saveProduct() {
                     if (!this.formData.title) {
-                        alert('Judul produk harus diisi');
+                        showToast('Judul produk harus diisi', 'warning');
                         return;
                     }
 
@@ -73,18 +85,16 @@
                         const payload = { ...this.formData, dbId: this.dbId };
                         window.sendDataToGoogle('saveLandingProduct', payload, (res) => {
                             if (res && res.status === 'success') {
-                                if (window.app && window.app.showNotification) {
-                                    window.app.showNotification('Konfigurasi Sales Page berhasil disimpan', 'success');
-                                }
+                                showToast('Konfigurasi Sales Page berhasil disimpan', 'success');
                             } else {
                                 const msg = res ? res.message : 'Unknown error';
-                                alert('Gagal menyimpan: ' + msg);
+                                showToast('Gagal menyimpan: ' + msg, 'error');
                             }
                             this.submitting = false;
                             resolve();
                         }, (err) => {
                             console.error('Save product error:', err);
-                            alert('Terjadi kesalahan saat menyimpan.');
+                            showToast('Terjadi kesalahan saat menyimpan.', 'error');
                             this.submitting = false;
                             resolve();
                         });
@@ -96,13 +106,13 @@
                     if (!file) return;
 
                     if (!file.type.startsWith('image/')) {
-                        alert('File harus berupa gambar');
+                        showToast('File harus berupa gambar', 'warning');
                         return;
                     }
 
-                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const maxSize = 5 * 1024 * 1024;
                     if (file.size > maxSize) {
-                        alert('Ukuran file maksimal 5MB');
+                        showToast('Ukuran file maksimal 5MB', 'warning');
                         return;
                     }
 
@@ -122,22 +132,20 @@
                             this.isUploading = false;
                             if (res && res.status === 'success') {
                                 this.formData.imageUrl = res.url;
-                                if (window.app && window.app.showNotification) {
-                                    window.app.showNotification('Gambar berhasil diupload', 'success');
-                                }
+                                showToast('Gambar berhasil diupload', 'success');
                             } else {
-                                alert('Gagal upload gambar: ' + (res ? res.message : 'Unknown error'));
+                                showToast('Gagal upload gambar: ' + (res ? res.message : 'Unknown error'), 'error');
                             }
                         }, (err) => {
                             this.isUploading = false;
                             console.error('Upload error:', err);
-                            alert('Terjadi kesalahan saat upload gambar');
+                            showToast('Terjadi kesalahan saat upload gambar', 'error');
                         });
                     };
 
                     reader.onerror = () => {
                         this.isUploading = false;
-                        alert('Gagal membaca file');
+                        showToast('Gagal membaca file', 'error');
                     };
 
                     reader.readAsDataURL(file);
