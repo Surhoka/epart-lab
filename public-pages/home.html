@@ -840,124 +840,71 @@
             <!-- Hero Slider -->
             <div class="flex-1 relative overflow-hidden h-96 lg:h-[500px]" id="hero-slider" @mouseenter="stopSlider()"
                 @mouseleave="startSlider()">
-                <!-- Slide 1 - Active -->
-                <div class="hero-slide absolute inset-0 w-full h-full bg-gray-900 text-white overflow-hidden"
-                    x-show="activeSlide === 0" x-transition:enter="transition ease-in-out duration-1000"
-                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition ease-in-out duration-1000" x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0">
-                    <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1920&h=800&fit=crop"
-                            alt="Mercedes Car" class="hero-image w-full h-full object-cover opacity-60" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-gray-900/40"></div>
+                
+                <!-- Loading State -->
+                <div x-show="isLoadingSlides" class="absolute inset-0 flex items-center justify-center bg-gray-900 z-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+                </div>
+
+                <!-- Empty State -->
+                <div x-show="!isLoadingSlides && slides.length === 0" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white z-10">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold mb-2">Welcome to EzyParts</h2>
+                        <p class="text-gray-400">Please configure your hero slides in the admin panel.</p>
                     </div>
+                </div>
 
-                    <div class="relative h-full flex items-center">
-                        <div class="container mx-auto px-6 lg:px-12">
-                            <div class="max-w-xl">
-                                <h1 class="hero-title text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-                                    Find a Suitable<br>
-                                    <span class="text-yellow-400">Spare Part for your Car</span>
-                                </h1>
-                                <p class="hero-description text-lg text-gray-200 mb-6">
-                                    We are restoring a vehicle to it's original form after it's been involved in an
-                                    accident.
-                                </p>
+                <!-- Dynamic Slides -->
+                <template x-for="(slide, index) in slides" :key="index">
+                    <div class="hero-slide absolute inset-0 w-full h-full bg-gray-900 text-white overflow-hidden"
+                        x-show="activeSlide === index" 
+                        x-transition:enter="transition ease-in-out duration-1000"
+                        x-transition:enter-start="opacity-0" 
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in-out duration-1000" 
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        x-cloak>
+                        <div class="absolute inset-0">
+                            <img :src="slide.imageurl || 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1920&h=800&fit=crop'"
+                                :alt="slide.title" class="hero-image w-full h-full object-cover opacity-60" />
+                            <div class="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-gray-900/40"></div>
+                        </div>
 
-                                <div class="flex items-center gap-4 mb-8">
-                                    <div>
-                                        <div class="text-sm text-gray-400 mb-1">STARTING AT</div>
-                                        <div class="hero-price text-4xl font-bold text-white">$89.99</div>
+                        <div class="relative h-full flex items-center">
+                            <div class="container mx-auto px-6 lg:px-12">
+                                <div class="max-w-xl">
+                                    <h1 class="hero-title text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                                        <template x-if="slide.title.includes('|')">
+                                            <span>
+                                                <span x-text="slide.title.split('|')[0]"></span><br>
+                                                <span class="text-yellow-400" x-text="slide.title.split('|')[1]"></span>
+                                            </span>
+                                        </template>
+                                        <template x-if="!slide.title.includes('|')">
+                                            <span x-text="slide.title"></span>
+                                        </template>
+                                    </h1>
+                                    <p class="hero-description text-lg text-gray-200 mb-6" x-text="slide.subtitle || slide.description"></p>
+
+                                    <div class="flex items-center gap-4 mb-8">
+                                        <div x-show="slide.price">
+                                            <div class="text-sm text-gray-400 mb-1">STARTING AT</div>
+                                            <div class="hero-price text-4xl font-bold text-white" x-text="formatPrice(slide.price)"></div>
+                                        </div>
+                                        <a :href="slide.buttonlink || '#'"
+                                            class="bg-yellow-400 hover:bg-yellow-500 text-black px-8 py-3 rounded font-semibold text-lg transition-colors"
+                                            x-text="slide.buttontext || 'SHOP NOW'">
+                                        </a>
                                     </div>
-                                    <button
-                                        class="bg-yellow-400 hover:bg-yellow-500 text-black px-8 py-3 rounded font-semibold text-lg transition-colors">
-                                        BUY NOW
-                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Slide 2 -->
-                <div class="hero-slide absolute inset-0 w-full h-full bg-blue-900 text-white overflow-hidden"
-                    x-show="activeSlide === 1" x-transition:enter="transition ease-in-out duration-1000"
-                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition ease-in-out duration-1000" x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0">
-                    <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1920&h=800&fit=crop"
-                            alt="Sports Car" class="hero-image w-full h-full object-cover opacity-60" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-900/40"></div>
-                    </div>
-
-                    <div class="relative h-full flex items-center">
-                        <div class="container mx-auto px-6 lg:px-12">
-                            <div class="max-w-xl">
-                                <h1 class="hero-title text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-                                    Premium<br>
-                                    <span class="text-blue-400">Performance Parts</span>
-                                </h1>
-                                <p class="hero-description text-lg text-gray-200 mb-6">
-                                    Upgrade your vehicle with high-performance parts from trusted manufacturers
-                                    worldwide.
-                                </p>
-
-                                <div class="flex items-center gap-4 mb-8">
-                                    <div>
-                                        <div class="text-sm text-gray-400 mb-1">STARTING AT</div>
-                                        <div class="hero-price text-4xl font-bold text-white">$199.99</div>
-                                    </div>
-                                    <button
-                                        class="bg-blue-400 hover:bg-blue-500 text-white px-8 py-3 rounded font-semibold text-lg transition-colors">
-                                        SHOP NOW
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slide 3 -->
-                <div class="hero-slide absolute inset-0 w-full h-full bg-green-900 text-white overflow-hidden"
-                    x-show="activeSlide === 2" x-transition:enter="transition ease-in-out duration-1000"
-                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition ease-in-out duration-1000" x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0">
-                    <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1920&h=800&fit=crop"
-                            alt="Car Interior" class="hero-image w-full h-full object-cover opacity-60" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-green-900/80 to-green-900/40"></div>
-                    </div>
-
-                    <div class="relative h-full flex items-center">
-                        <div class="container mx-auto px-6 lg:px-12">
-                            <div class="max-w-xl">
-                                <h1 class="hero-title text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-                                    Quality<br>
-                                    <span class="text-green-400">Guaranteed Parts</span>
-                                </h1>
-                                <p class="hero-description text-lg text-gray-200 mb-6">
-                                    All our parts come with warranty and quality assurance from certified suppliers.
-                                </p>
-
-                                <div class="flex items-center gap-4 mb-8">
-                                    <div>
-                                        <div class="text-sm text-gray-400 mb-1">STARTING AT</div>
-                                        <div class="hero-price text-4xl font-bold text-white">$49.99</div>
-                                    </div>
-                                    <button
-                                        class="bg-green-400 hover:bg-green-500 text-black px-8 py-3 rounded font-semibold text-lg transition-colors">
-                                        EXPLORE
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </template>
 
                 <!-- Navigation Arrows -->
-                <button
+                <button x-show="slides.length > 1"
                     class="slider-prev absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors z-10"
                     @click="prevSlide()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -965,7 +912,7 @@
                     </svg>
                 </button>
 
-                <button
+                <button x-show="slides.length > 1"
                     class="slider-next absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors z-10"
                     @click="nextSlide()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -975,15 +922,11 @@
 
                 <!-- Dots Indicator -->
                 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                    <button class="slider-dot w-3 h-3 rounded-full transition-colors"
-                        :class="activeSlide === 0 ? 'bg-white' : 'bg-white/50 hover:bg-white/75'"
-                        @click="setSlide(0)"></button>
-                    <button class="slider-dot w-3 h-3 rounded-full transition-colors"
-                        :class="activeSlide === 1 ? 'bg-white' : 'bg-white/50 hover:bg-white/75'"
-                        @click="setSlide(1)"></button>
-                    <button class="slider-dot w-3 h-3 rounded-full transition-colors"
-                        :class="activeSlide === 2 ? 'bg-white' : 'bg-white/50 hover:bg-white/75'"
-                        @click="setSlide(2)"></button>
+                    <template x-for="(slide, index) in slides" :key="index">
+                        <button class="slider-dot w-3 h-3 rounded-full transition-colors"
+                            :class="activeSlide === index ? 'bg-white' : 'bg-white/50 hover:bg-white/75'"
+                            @click="setSlide(index)"></button>
+                    </template>
                 </div>
             </div>
         </div>
