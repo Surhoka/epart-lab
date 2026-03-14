@@ -17,7 +17,9 @@
                     category: '',
                     featured: true,
                     active: true,
-                    sortOrder: 0
+                    sortOrder: 0,
+                    marqueeText: '',
+                    marqueeActive: true
                 },
                 loading: false,
                 submitting: false,
