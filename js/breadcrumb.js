@@ -41,7 +41,7 @@ window.renderBreadcrumb = function (pageNameOrItems, containerId = 'breadcrumb-c
   }).join('');
 
   container.innerHTML = `
-      <div class="mb-4 flex items-center">
+      <div class="mb-2 flex items-center">
         <nav aria-label="Breadcrumb">
           <ol class="flex items-center gap-1.5">
             ${breadcrumbItemsHtml}
