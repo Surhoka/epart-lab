@@ -3,7 +3,7 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Public Content Manager</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola konten halaman publik: Hero Slider, Kategori, Produk Unggulan, dan Konfigurasi.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage public page content: Hero Slider, Categories, and Featured Products.</p>
         </div>
     </div>
 
@@ -17,17 +17,12 @@
         <button @click="activeTab = 'categories'"
             :class="activeTab === 'categories' ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-sm font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'"
             class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm transition-all">
-            <span class="w-4 h-4" x-icon="'layers'"></span> Kategori
+            <span class="w-4 h-4" x-icon="'layers'"></span> Categories
         </button>
         <button @click="activeTab = 'products'"
             :class="activeTab === 'products' ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-sm font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'"
             class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm transition-all">
-            <span class="w-4 h-4" x-icon="'shopping-bag'"></span> Produk Unggulan
-        </button>
-        <button @click="activeTab = 'config'"
-            :class="activeTab === 'config' ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-sm font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'"
-            class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm transition-all">
-            <span class="w-4 h-4" x-icon="'settings'"></span> Konfigurasi
+            <span class="w-4 h-4" x-icon="'shopping-bag'"></span> Featured Products
         </button>
     </div>
 
@@ -40,14 +35,14 @@
         <!-- Toolbar -->
         <div class="mb-4 flex items-center justify-between">
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                <span x-text="slides.length"></span> slide terdaftar
+                <span x-text="slides.length"></span> slides registered
             </p>
             <div class="flex gap-2">
                 <button @click="fetchSlides()" class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
                 <button @click="openAddModal()" class="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
-                    <span class="w-4 h-4" x-icon="'plus'"></span> Tambah Slide
+                    <span class="w-4 h-4" x-icon="'plus'"></span> Add Slide
                 </button>
             </div>
         </div>
@@ -77,7 +72,7 @@
                             <!-- Status badge -->
                             <span class="absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-bold"
                                 :class="(slide.active === true || slide.active === 'TRUE') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
-                                x-text="(slide.active === true || slide.active === 'TRUE') ? 'Aktif' : 'Nonaktif'"></span>
+                                x-text="(slide.active === true || slide.active === 'TRUE') ? 'Active' : 'Inactive'"></span>
                         </div>
                         <!-- Info -->
                         <div class="p-4">
@@ -99,8 +94,8 @@
                 <template x-if="slides.length === 0">
                     <div class="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-16 dark:border-gray-800">
                         <span class="w-12 h-12 text-gray-300" x-icon="'image'"></span>
-                        <p class="mt-4 font-bold text-gray-500">Belum ada slide</p>
-                        <button @click="openAddModal()" class="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Tambah Slide Pertama</button>
+                        <p class="mt-4 font-bold text-gray-500">No slides yet</p>
+                        <button @click="openAddModal()" class="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Add First Slide</button>
                     </div>
                 </template>
             </div>
@@ -117,8 +112,8 @@
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Slide' : 'Tambah Slide'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Konfigurasi visual untuk hero banner beranda.</p>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Visual configuration for the home hero banner.</p>
                         </div>
                         <button @click="showModal = false"
                             class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
@@ -131,7 +126,7 @@
                         <div class="space-y-4">
                             <!-- Image Upload -->
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Gambar Slide</label>
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slide Image</label>
                                 <div class="relative group aspect-video w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer" @click="$refs.heroImageInput.click()">
                                     <template x-if="editingItem.imageurl">
                                         <img :src="editingItem.imageurl" class="h-full w-full object-cover">
@@ -139,30 +134,30 @@
                                     <template x-if="!editingItem.imageurl">
                                         <div class="flex h-full flex-col items-center justify-center text-gray-300 gap-2">
                                             <span class="w-8 h-8" x-icon="'upload'"></span>
-                                            <span class="text-xs font-bold">Klik untuk upload</span>
+                                            <span class="text-xs font-bold">Click to upload</span>
                                         </div>
                                     </template>
                                     <div x-show="isUploading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80">
                                         <span class="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                     </div>
                                 </div>
-                                <input type="text" x-model="editingItem.imageurl" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Atau masukkan URL gambar">
+                                <input type="text" x-model="editingItem.imageurl" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Or enter image URL">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Judul *</label>
-                                <input type="text" x-model="editingItem.title" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Judul slide">
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Title *</label>
+                                <input type="text" x-model="editingItem.title" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Slide title">
                             </div>
                             <div>
                                 <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Subtitle</label>
-                                <input type="text" x-model="editingItem.subtitle" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Teks pendukung">
+                                <input type="text" x-model="editingItem.subtitle" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Support text">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Teks Tombol</label>
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button Text</label>
                                     <input type="text" x-model="editingItem.buttontext" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Shop Now">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Link Tombol</label>
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button Link</label>
                                     <input type="text" x-model="editingItem.buttonlink" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="#shop">
                                 </div>
                             </div>
@@ -175,7 +170,7 @@
                                     <label class="flex cursor-pointer items-center gap-2">
                                         <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
                                         <div class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 relative"></div>
-                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktif</span>
+                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
                                     </label>
                                 </div>
                             </div>
@@ -183,8 +178,8 @@
 
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                            <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Batal</button>
-                            <button id="save-hero-btn" @click="saveSlide()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Simpan Slide</button>
+                            <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                            <button id="save-hero-btn" @click="saveSlide()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save Slide</button>
                         </footer>
                     </div>
                 </div>
@@ -200,13 +195,13 @@
 
         <!-- Toolbar -->
         <div class="mb-4 flex items-center justify-between">
-            <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> kategori terdaftar</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> categories registered</p>
             <div class="flex gap-2">
                 <button @click="fetchCategories()" class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
                 <button @click="openAddModal()" class="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
-                    <span class="w-4 h-4" x-icon="'plus'"></span> Tambah Kategori
+                    <span class="w-4 h-4" x-icon="'plus'"></span> Add Category
                 </button>
             </div>
         </div>
@@ -224,11 +219,11 @@
                 <table class="w-full text-sm">
                     <thead class="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">Kategori</th>
+                            <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">Category</th>
                             <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500 hidden sm:table-cell">Slug</th>
-                            <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">Urutan</th>
+                            <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">Sort Order</th>
                             <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">Status</th>
-                            <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-widest text-gray-500">Aksi</th>
+                            <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-widest text-gray-500">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
@@ -257,7 +252,7 @@
                                 <td class="px-4 py-3 text-center">
                                     <span class="rounded-full px-2.5 py-1 text-[10px] font-bold"
                                         :class="(cat.active === true || cat.active === 'TRUE') ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800'"
-                                        x-text="(cat.active === true || cat.active === 'TRUE') ? 'Aktif' : 'Nonaktif'"></span>
+                                        x-text="(cat.active === true || cat.active === 'TRUE') ? 'Active' : 'Inactive'"></span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-2">
@@ -275,7 +270,7 @@
                             <tr>
                                 <td colspan="5" class="py-16 text-center text-gray-400">
                                     <span class="w-10 h-10 mx-auto block mb-3" x-icon="'layers'"></span>
-                                    <p class="font-bold">Belum ada kategori</p>
+                                    <p class="font-bold">No categories yet</p>
                                 </td>
                             </tr>
                         </template>
@@ -295,8 +290,8 @@
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Kategori' : 'Tambah Kategori'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Organisir produk dengan kategori yang relevan.</p>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Organize products with relevant categories.</p>
                         </div>
                         <button @click="showModal = false"
                             class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
@@ -309,7 +304,7 @@
                         <div class="space-y-4">
                             <!-- Image -->
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Gambar</label>
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Image</label>
                                 <div class="flex items-center gap-3">
                                     <div class="relative h-16 w-16 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 cursor-pointer flex-shrink-0" @click="$refs.categoryImageInput.click()">
                                         <template x-if="editingItem.imageurl">
@@ -324,31 +319,31 @@
                                             <span class="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                         </div>
                                     </div>
-                                    <input type="text" x-model="editingItem.imageurl" class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="URL gambar">
+                                    <input type="text" x-model="editingItem.imageurl" class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Image URL">
                                 </div>
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Nama *</label>
-                                <input type="text" x-model="editingItem.name" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Nama kategori">
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Name *</label>
+                                <input type="text" x-model="editingItem.name" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Category name">
                             </div>
                             <div>
                                 <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slug</label>
-                                <input type="text" x-model="editingItem.slug" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="nama-kategori">
+                                <input type="text" x-model="editingItem.slug" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="category-slug">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Deskripsi</label>
-                                <textarea x-model="editingItem.description" rows="2" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none" placeholder="Deskripsi singkat"></textarea>
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
+                                <textarea x-model="editingItem.description" rows="2" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none" placeholder="Short description"></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Urutan</label>
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort Order</label>
                                     <input type="number" x-model.number="editingItem.sortorder" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
                                         <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
                                         <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
-                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktif</span>
+                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
                                     </label>
                                 </div>
                             </div>
@@ -356,8 +351,8 @@
 
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                            <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Batal</button>
-                            <button id="save-category-btn" @click="saveCategory()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Simpan Kategori</button>
+                            <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                            <button id="save-category-btn" @click="saveCategory()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save Category</button>
                         </footer>
                     </div>
                 </div>
@@ -373,13 +368,13 @@
 
         <!-- Toolbar -->
         <div class="mb-4 flex items-center justify-between">
-            <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="products.length"></span> produk terdaftar</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="products.length"></span> products registered</p>
             <div class="flex gap-2">
                 <button @click="fetchProducts()" class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
                 <button @click="openAddModal()" class="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
-                    <span class="w-4 h-4" x-icon="'plus'"></span> Tambah Produk
+                    <span class="w-4 h-4" x-icon="'plus'"></span> Add Product
                 </button>
             </div>
         </div>
@@ -413,7 +408,7 @@
                             <!-- Status -->
                             <span class="absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-bold"
                                 :class="(product.active === true || product.active === 'TRUE') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
-                                x-text="(product.active === true || product.active === 'TRUE') ? 'Aktif' : 'Nonaktif'"></span>
+                                x-text="(product.active === true || product.active === 'TRUE') ? 'Active' : 'Inactive'"></span>
                         </div>
                         <!-- Info -->
                         <div class="p-4">
@@ -439,8 +434,8 @@
                 <template x-if="products.length === 0">
                     <div class="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-16 dark:border-gray-800">
                         <span class="w-12 h-12 text-gray-300" x-icon="'shopping-bag'"></span>
-                        <p class="mt-4 font-bold text-gray-500">Belum ada produk unggulan</p>
-                        <button @click="openAddModal()" class="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Tambah Produk Pertama</button>
+                        <p class="mt-4 font-bold text-gray-500">No featured products yet</p>
+                        <button @click="openAddModal()" class="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Add First Product</button>
                     </div>
                 </template>
             </div>
@@ -457,8 +452,8 @@
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Produk' : 'Tambah Produk'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Konfigurasi produk yang akan tampil di bagian unggulan.</p>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Product' : 'Add Product'"></h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure products to be displayed in the featured section.</p>
                         </div>
                         <button @click="showModal = false"
                             class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
@@ -471,7 +466,7 @@
                         <div class="space-y-4">
                             <!-- Image -->
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Gambar Produk</label>
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product Image</label>
                                 <div class="relative group aspect-square w-32 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer" @click="$refs.productImageInput.click()">
                                     <template x-if="editingItem.imageurl">
                                         <img :src="editingItem.imageurl" class="h-full w-full object-cover">
@@ -486,30 +481,30 @@
                                         <span class="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                     </div>
                                 </div>
-                                <input type="text" x-model="editingItem.imageurl" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Atau masukkan URL gambar">
+                                <input type="text" x-model="editingItem.imageurl" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Or enter image URL">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Nama Produk *</label>
-                                <input type="text" x-model="editingItem.name" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Nama produk">
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product Name *</label>
+                                <input type="text" x-model="editingItem.name" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Product name">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Deskripsi</label>
-                                <textarea x-model="editingItem.description" rows="2" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none" placeholder="Deskripsi singkat produk"></textarea>
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
+                                <textarea x-model="editingItem.description" rows="2" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none" placeholder="Short product description"></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Harga Jual (IDR)</label>
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sale Price (IDR)</label>
                                     <input type="number" x-model.number="editingItem.price" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Harga Coret (IDR)</label>
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Strike Price (IDR)</label>
                                     <input type="number" x-model.number="editingItem.originalprice" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Kategori</label>
-                                    <input type="text" x-model="editingItem.category" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Kategori">
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Category</label>
+                                    <input type="text" x-model="editingItem.category" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Category">
                                 </div>
                                 <div>
                                     <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Badge</label>
@@ -517,19 +512,19 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Link Produk</label>
-                                <input type="text" x-model="editingItem.link" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="#shop atau URL">
+                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product Link</label>
+                                <input type="text" x-model="editingItem.link" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="#shop or URL">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Urutan</label>
+                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort Order</label>
                                     <input type="number" x-model.number="editingItem.sortorder" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
                                         <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
                                         <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
-                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktif</span>
+                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
                                     </label>
                                 </div>
                             </div>
@@ -537,8 +532,8 @@
 
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                            <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Batal</button>
-                            <button id="save-product-btn" @click="saveProduct()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Simpan Produk</button>
+                            <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                            <button id="save-product-btn" @click="saveProduct()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save Product</button>
                         </footer>
                     </div>
                 </div>
@@ -549,158 +544,6 @@
     <!-- ============================================================ -->
     <!-- TAB: LANDING PAGE CONFIG -->
     <!-- ============================================================ -->
-    <div x-show="activeTab === 'config'" x-data="landingConfigManager" x-init="init()">
-        <input type="file" x-ref="logoInput" class="hidden" accept="image/*" @change="handleLogoUpload($event)">
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Main Config -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Site Identity -->
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <h2 class="mb-5 flex items-center gap-3 text-base font-black text-gray-900 dark:text-white">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/20 text-brand-600">
-                            <span class="w-4 h-4" x-icon="'edit-3'"></span>
-                        </span>
-                        Identitas Situs
-                    </h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Nama Situs</label>
-                            <input type="text" x-model="formData.sitename" class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-3.5 text-sm font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white" placeholder="EzyParts Store">
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Tagline</label>
-                            <input type="text" x-model="formData.tagline" class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-3.5 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white" placeholder="Sparepart Terpercaya, Harga Terbaik">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section Visibility -->
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <h2 class="mb-5 flex items-center gap-3 text-base font-black text-gray-900 dark:text-white">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600">
-                            <span class="w-4 h-4" x-icon="'layout'"></span>
-                        </span>
-                        Visibilitas Seksi
-                    </h2>
-                    <div class="space-y-4">
-                        <label class="flex cursor-pointer items-center justify-between rounded-xl border border-gray-100 p-4 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50 transition-colors">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600">
-                                    <span class="w-4 h-4" x-icon="'image'"></span>
-                                </span>
-                                <div>
-                                    <p class="font-bold text-gray-900 dark:text-white text-sm">Hero Slider</p>
-                                    <p class="text-xs text-gray-500">Banner utama halaman beranda</p>
-                                </div>
-                            </div>
-                            <input type="checkbox" x-model="formData.heroenabled" class="peer sr-only">
-                            <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 flex-shrink-0"></div>
-                        </label>
-                        <label class="flex cursor-pointer items-center justify-between rounded-xl border border-gray-100 p-4 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50 transition-colors">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600">
-                                    <span class="w-4 h-4" x-icon="'layers'"></span>
-                                </span>
-                                <div>
-                                    <p class="font-bold text-gray-900 dark:text-white text-sm">Sidebar Kategori</p>
-                                    <p class="text-xs text-gray-500">Navigasi kategori di sisi kiri</p>
-                                </div>
-                            </div>
-                            <input type="checkbox" x-model="formData.categoriesenabled" class="peer sr-only">
-                            <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 flex-shrink-0"></div>
-                        </label>
-                        <label class="flex cursor-pointer items-center justify-between rounded-xl border border-gray-100 p-4 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50 transition-colors">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600">
-                                    <span class="w-4 h-4" x-icon="'shopping-bag'"></span>
-                                </span>
-                                <div>
-                                    <p class="font-bold text-gray-900 dark:text-white text-sm">Produk Unggulan</p>
-                                    <p class="text-xs text-gray-500">Grid produk pilihan di beranda</p>
-                                </div>
-                            </div>
-                            <input type="checkbox" x-model="formData.featuredenabled" class="peer sr-only">
-                            <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 flex-shrink-0"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Marquee -->
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <div class="mb-5 flex items-center justify-between">
-                        <h2 class="flex items-center gap-3 text-base font-black text-gray-900 dark:text-white">
-                            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600">
-                                <span class="w-4 h-4" x-icon="'tag'"></span>
-                            </span>
-                            Text Berjalan (Marquee)
-                        </h2>
-                        <label class="flex cursor-pointer items-center gap-2">
-                            <input type="checkbox" x-model="formData.marqueeactive" class="peer sr-only">
-                            <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
-                            <span class="text-xs font-bold text-gray-500" x-text="formData.marqueeactive ? 'Aktif' : 'Nonaktif'"></span>
-                        </label>
-                    </div>
-                    <textarea x-model="formData.marqueetext" rows="2" class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-3.5 text-sm transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white resize-none" placeholder="🔥 PROMO HARI INI • GRATIS ONGKIR • STOK TERBATAS"></textarea>
-                    <template x-if="formData.marqueetext && formData.marqueeactive">
-                        <div class="mt-3 rounded-xl bg-brand-600 overflow-hidden py-1.5">
-                            <div class="flex whitespace-nowrap" style="animation: marquee-scroll 10s linear infinite;">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-white px-6" x-text="formData.marqueetext"></span>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-white px-6" x-text="formData.marqueetext"></span>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-white px-6" x-text="formData.marqueetext"></span>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Sidebar: Logo + Save -->
-            <div class="space-y-6">
-                <!-- Logo -->
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <h2 class="mb-5 flex items-center gap-3 text-base font-black text-gray-900 dark:text-white">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600">
-                            <span class="w-4 h-4" x-icon="'image'"></span>
-                        </span>
-                        Logo Situs
-                    </h2>
-                    <div class="relative group aspect-square w-full max-w-[160px] mx-auto overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer" @click="$refs.logoInput.click()">
-                        <template x-if="formData.logourl">
-                            <img :src="formData.logourl" class="h-full w-full object-contain p-4">
-                        </template>
-                        <template x-if="!formData.logourl">
-                            <div class="flex h-full flex-col items-center justify-center text-gray-300 gap-2">
-                                <span class="w-8 h-8" x-icon="'upload'"></span>
-                                <span class="text-xs font-bold">Upload Logo</span>
-                            </div>
-                        </template>
-                        <div x-show="isUploading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80">
-                            <span class="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
-                        </div>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
-                            <span class="w-5 h-5 text-white" x-icon="'pencil'"></span>
-                        </div>
-                    </div>
-                    <input type="text" x-model="formData.logourl" class="mt-3 w-full rounded-xl border border-gray-100 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-800 dark:bg-gray-800 dark:text-white" placeholder="Atau masukkan URL logo">
-                </div>
-
-                <!-- Save Button -->
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <button @click="saveConfig()" :disabled="submitting || isLoading"
-                        class="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-sm font-black text-white shadow-xl shadow-brand-500/20 hover:bg-brand-600 transition-all active:scale-95 disabled:opacity-50">
-                        <template x-if="submitting">
-                            <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                        </template>
-                        <span class="w-4 h-4" x-icon="'save'"></span>
-                        Simpan Konfigurasi
-                    </button>
-                    <template x-if="isLoading">
-                        <p class="mt-3 text-center text-xs text-gray-400">Memuat data...</p>
-                    </template>
-                </div>
-            </div>
-        </div>
-    </div>
 
 </div>
 
