@@ -383,35 +383,13 @@
                 },
 
                 async fetchConfig() {
-                    this.isLoading = true;
-                    try {
-                        const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('getLandingConfig', { dbId: this.dbId }, resolve, reject);
-                        });
-                        if (res.status === 'success' && res.data) {
-                            this.formData = { ...this.formData, ...res.data };
-                        }
-                    } catch (e) {
-                        console.error('fetchConfig:', e);
-                        showToast('Gagal memuat konfigurasi', 'error');
-                    } finally {
-                        this.isLoading = false;
-                    }
+                    // Config ‘LandingPage’ has been removed from backend.
+                    // Now managed via template or Branding features.
+                    this.isLoading = false;
                 },
 
                 async saveConfig() {
-                    this.submitting = true;
-                    try {
-                        const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('saveLandingConfig', { ...this.formData, dbId: this.dbId }, resolve, reject);
-                        });
-                        if (res.status === 'success') showToast('Konfigurasi berhasil disimpan');
-                        else showToast(res.message || 'Gagal menyimpan', 'error');
-                    } catch (e) {
-                        showToast('Terjadi kesalahan: ' + e, 'error');
-                    } finally {
-                        this.submitting = false;
-                    }
+                    showToast('Konfigurasi ini sudah tidak digunakan. Gunakan menu Branding.', 'warning');
                 },
 
                 handleLogoUpload(event) {
