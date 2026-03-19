@@ -30,33 +30,42 @@ window.initHomePage = function () {
 
             // Load data if connected
             if (this.connectionStatus.connected) {
-                await Promise.all([
-                    this.loadSlides(),
-                    this.loadProducts(),
-                    this.loadPosts()
-                ]);
+                await this.loadAllHomeData();
+                await this.loadPosts();
             }
 
             // Start Slider
             this.startSlider();
         },
 
-        async loadSlides() {
+        async loadAllHomeData() {
             this.isLoadingSlides = true;
+            this.isLoadingProducts = true;
             try {
-                const response = await window.AdminAPI.get('getHeroSlides');
+                const response = await window.AdminAPI.get('getPublicHomeData');
                 if (response.status === 'success') {
-                    this.slides = response.data || [];
+                    const d = response.data;
+                    this.slides = d.heroes || [];
                     this.totalSlides = this.slides.length;
                     this.activeSlide = 0;
-                } else {
-                    console.warn('Failed to load slides:', response.message);
+                    this.products = d.products || [];
+                    
+                    // Trigger categories update if needed
+                    if (window.app && d.categories) {
+                        window.app.categories = d.categories;
+                    }
                 }
             } catch (error) {
-                console.error('Error loading slides:', error);
+                console.error('Error loading home data:', error);
             } finally {
                 this.isLoadingSlides = false;
+                this.isLoadingProducts = false;
             }
+        },
+
+        // Legacy individual loaders kept for fallback/specific needs
+        async loadSlides() {
+            // ... already covered by loadAllHomeData
         },
 
         startSlider() {
@@ -108,26 +117,7 @@ window.initHomePage = function () {
         },
 
         async loadProducts() {
-            this.isLoadingProducts = true;
-
-            try {
-                const response = await window.AdminAPI.getProducts({
-                    limit: 6,
-                    featured: true
-                });
-
-                if (response.status === 'success') {
-                    this.products = response.data || [];
-                } else {
-                    console.warn('Failed to load products:', response.message);
-                    this.products = [];
-                }
-            } catch (error) {
-                console.error('Error loading products:', error);
-                this.products = [];
-            } finally {
-                this.isLoadingProducts = false;
-            }
+            // Already handled by loadAllHomeData for efficiency
         },
 
         async loadPosts() {
@@ -178,7 +168,12 @@ window.initHomePage = function () {
 
         viewPost(post) {
             // Navigate to post detail page
-            window.navigate('post', { id: post.id });
+            window.navigate('post', { slug: post.slug || post.id });
+        },
+
+        viewProduct(product) {
+            // Navigate to product detail page
+            window.navigate('product', { slug: product.slug || product.id });
         },
 
         // Refresh data
