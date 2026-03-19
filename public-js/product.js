@@ -31,7 +31,12 @@ window.initProductPage = function () {
             
             try {
                 // Call the specialized getProductDetail endpoint
-                const response = await window.AdminAPI.get('getProductDetail', { slug: slug });
+                console.log('[ProductDebug] Fetching product with slug:', slug);
+                const params = { slug: slug };
+                console.log('[ProductDebug] Request Params:', params);
+                
+                const response = await window.AdminAPI.get('getProductDetail', params);
+                console.log('[ProductDebug] API Response:', response);
                 
                 if (response.status === 'success' && response.data) {
                     this.product = response.data;
