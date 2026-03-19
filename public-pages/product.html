@@ -1,0 +1,169 @@
+<div x-data="initProductPage()" x-init="init()" class="fade-in">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Breadcrumb Container (Global wrapper uses this) -->
+        <div id="breadcrumb-container" class="mb-8"></div>
+
+        <!-- Loading State -->
+        <div x-show="loading" class="flex flex-col items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mb-4"></div>
+            <p class="text-gray-500 dark:text-gray-400">Memuat detail produk...</p>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-3xl p-12 text-center" x-cloak>
+            <div class="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600">
+                <span class="w-10 h-10" x-icon="'alert-octagon'"></span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" x-text="errorTitle">Produk Tidak Ditemukan</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8" x-text="errorMessage">Mohon maaf, data produk yang Anda cari tidak tersedia atau telah dihapus.</p>
+            <button @click="window.navigate('home')" class="bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-700 transition-all flex items-center gap-2 mx-auto">
+                <span class="w-5 h-5" x-icon="'home'"></span>
+                Kembali ke Beranda
+            </button>
+        </div>
+
+        <!-- Product Detail Content -->
+        <div x-show="!loading && !error" class="grid lg:grid-cols-2 gap-12 items-start" x-cloak>
+            
+            <!-- Left: Product Image -->
+            <div class="space-y-4">
+                <div class="relative aspect-square bg-white dark:bg-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-700 group">
+                    <img :src="product.imageurl" :alt="product.name" class="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute top-6 left-6" x-show="product.badge">
+                        <span class="bg-brand-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg" x-text="product.badge"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Product Info -->
+            <div class="space-y-8">
+                <div>
+                    <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight" x-text="product.name"></h1>
+                    <div class="flex items-center gap-4">
+                        <span class="text-3xl font-black text-brand-600" x-text="formatCurrency(product.price)"></span>
+                        <span class="text-xl text-gray-400 line-through" x-show="product.originalprice > 0" x-text="formatCurrency(product.originalprice)"></span>
+                    </div>
+                </div>
+
+                <div class="prose prose-brand dark:prose-invert max-w-none">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Deskripsi Produk</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap" x-text="product.description"></p>
+                </div>
+
+                <!-- Buy Action Box -->
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-xl space-y-6">
+                    <div class="flex items-center gap-4 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-2xl">
+                        <div class="w-10 h-10 bg-brand-100 dark:bg-brand-900/40 rounded-xl flex items-center justify-center text-brand-600">
+                            <span class="w-5 h-5" x-icon="'truck'"></span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">Pengiriman Cepat</p>
+                            <p class="text-xs text-gray-500">Tersedia untuk pengiriman seluruh Indonesia</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click="contactWhatsApp()" class="col-span-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl font-bold shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-3 active:scale-95">
+                            <span class="w-6 h-6" x-icon="'message-circle'"></span>
+                            Tanya Langsung (WA)
+                        </button>
+                        <button @click="addToCart()" class="hidden bg-gray-900 dark:bg-white dark:text-gray-900 text-white py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                            <span class="w-5 h-5" x-icon="'shopping-cart'"></span>
+                            Tambah Keranjang
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product Meta -->
+                <div class="flex flex-wrap gap-4 text-sm">
+                    <div class="flex items-center gap-2 text-gray-500">
+                        <span class="w-4 h-4" x-icon="'tag'"></span>
+                        Kategori: <span class="font-bold text-gray-900 dark:text-white" x-text="product.category || 'Sparepart'"></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-gray-500">
+                        <span class="w-4 h-4" x-icon="'shield-check'"></span>
+                        Garansi: <span class="font-bold text-gray-900 dark:text-white">Asli / Certified</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function initProductPage() {
+        return {
+            loading: true,
+            error: false,
+            errorTitle: '',
+            errorMessage: '',
+            product: {},
+            
+            init() {
+                // Get slug from global router params
+                const params = window.currentParams || {};
+                const slug = params.slug || params.id;
+                
+                if (!slug) {
+                    this.showError('Oops!', 'ID produk tidak valid.');
+                    return;
+                }
+                
+                this.fetchProduct(slug);
+            },
+            
+            async fetchProduct(slug) {
+                this.loading = true;
+                try {
+                    // Call the new getProductDetail endpoint in public-content plugin
+                    const response = await window.AdminAPI.get('getProductDetail', { slug: slug });
+                    
+                    if (response.status === 'success') {
+                        this.product = response.data;
+                        this.loading = false;
+                        
+                        // Update breadcrumb
+                        if (window.renderBreadcrumb) {
+                            window.renderBreadcrumb([
+                                { label: 'Beranda', action: "window.navigate('home')" },
+                                { label: 'Produk', action: "window.navigate('shop')" },
+                                { label: this.product.name }
+                            ]);
+                        }
+                    } else {
+                        this.showError('Produk Tidak Ada', response.message);
+                    }
+                } catch (e) {
+                    this.showError('Kesalahan Sistem', 'Gagal memuat data produk. Periksa koneksi Anda.');
+                }
+            },
+            
+            showError(title, msg) {
+                this.error = true;
+                this.loading = false;
+                this.errorTitle = title;
+                this.errorMessage = msg;
+            },
+            
+            formatCurrency(val) {
+                if (!val) return 'Rp 0';
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    maximumFractionDigits: 0
+                }).format(val);
+            },
+            
+            contactWhatsApp() {
+                const phone = '628123456789'; // Sesuaikan atau ambil dari config
+                const message = `Halo EzyStore, saya tertarik dengan produk: ${this.product.name} (${window.location.href})`;
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+            },
+            
+            addToCart() {
+                // Future integration
+                alert('Fitur keranjang segera hadir!');
+            }
+        };
+    }
+</script>
