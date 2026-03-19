@@ -14,7 +14,7 @@ window.initHomePage = function () {
         },
 
         // Loading states
-        isLoadingProducts: false,
+        isLoadingProducts: true,
         isLoadingPosts: false,
         isLoadingSlides: false,
 
