@@ -250,6 +250,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         // INJECT gatewayUrl to POSTs automatically to help Admin project self-correct its proxy
         const payload = {
             action,
+            dbId: data.dbId || (window.EzyApi.config ? window.EzyApi.config.dbId : ''),
+            siteKey: data.siteKey || (window.EzyApi.config ? window.EzyApi.config.siteKey : ''),
             ...data,
             gatewayUrl: window.EzyApi.gatewayUrl
         };
@@ -284,6 +286,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
 
         const query = new URLSearchParams({
             action,
+            dbId: data.dbId || (window.EzyApi.config ? window.EzyApi.config.dbId : ''),
+            siteKey: data.siteKey || (window.EzyApi.config ? window.EzyApi.config.siteKey : ''),
             callback: cbName,
             gatewayUrl: window.EzyApi.gatewayUrl || '',
             ...data
