@@ -1,4 +1,4 @@
-<div x-data="initProductPage()" x-init="init()" class="fade-in">
+<div x-data="typeof initProductPage === 'function' ? initProductPage() : { loading: true, error: false, product: {}, init(){} }" x-init="init()" class="fade-in">
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb Container (Global wrapper uses this) -->
         <div id="breadcrumb-container" class="mb-8"></div>

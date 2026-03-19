@@ -1,4 +1,4 @@
-<div x-data="initHomePage()" x-init="init()">
+<div x-data="typeof initHomePage === 'function' ? initHomePage() : { isLoadingProducts: true, products: [], slides: [], activeSlide: 0, totalSlides: 0, init(){} }" x-init="init()">
     <!-- Hero Slider Section -->
     <section class="relative bg-white dark:bg-gray-900 z-10">
         <div class="flex">
