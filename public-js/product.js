@@ -31,12 +31,8 @@ window.initProductPage = function () {
             
             try {
                 // Call the specialized getProductDetail endpoint
-                console.log('[ProductDebug] Fetching product with slug:', slug);
                 const params = { slug: slug };
-                console.log('[ProductDebug] Request Params:', params);
-                
                 const response = await window.AdminAPI.get('getProductDetail', params);
-                console.log('[ProductDebug] API Response:', response);
                 
                 if (response.status === 'success' && response.data) {
                     this.product = response.data;
@@ -91,11 +87,12 @@ window.initProductPage = function () {
         },
         
         addToCart() {
-            // Logic for future expansion
-            if (window.app && typeof window.app.showNotification === 'function') {
-                window.app.showNotification('Fitur keranjang segera hadir!', 'info');
-            } else {
-                alert('Fitur keranjang segera hadir!');
+            if (this.product && this.product.id) {
+                if (window.Alpine && Alpine.store('cart')) {
+                    Alpine.store('cart').add(this.product);
+                } else {
+                    console.error('Cart store not found');
+                }
             }
         }
     };
