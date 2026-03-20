@@ -1234,7 +1234,7 @@
 
                 <!-- Empty State -->
                 <div x-show="!isLoadingProducts && products.length === 0"
-                    class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-3xl" x-cloak>
+                    class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl" x-cloak>
                     <p class="text-gray-500">Belum ada produk yang tersedia.</p>
                 </div>
 
@@ -1248,7 +1248,7 @@
                             <div class="relative aspect-square mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden cursor-pointer"
                                 @click="viewProduct(product)">
                                 <img :src="product.imageurl" :alt="product.name"
-                                    class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
+                                    class="w-full h-full object-contain">
 
                                 <!-- Badges -->
                                 <div class="absolute top-3 left-3 flex flex-col gap-1">
