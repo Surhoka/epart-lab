@@ -86,10 +86,15 @@ window.initProductPage = function () {
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
         },
         
-        addToCart() {
+        addToCart(sourceEl) {
             if (this.product && this.product.id) {
                 if (window.Alpine && Alpine.store('cart')) {
                     Alpine.store('cart').add(this.product);
+                    
+                    // Trigger Fly Animation if source element is provided
+                    if (sourceEl && window.flyToCart) {
+                        window.flyToCart(sourceEl, this.product.imageurl);
+                    }
                 } else {
                     console.error('Cart store not found');
                 }
