@@ -3,13 +3,16 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Product Manager</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage featured products displayed on the storefront.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage featured products displayed on the
+                storefront.</p>
         </div>
         <div class="flex gap-2">
-            <button @click="fetchProducts()" class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+            <button @click="fetchProducts()"
+                class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                 <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
             </button>
-            <button @click="openAddModal()" class="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
+            <button @click="openAddModal()"
+                class="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span> Add Product
             </button>
         </div>
@@ -18,7 +21,8 @@
     <!-- Stats/Info Row -->
     <div class="mb-6 flex items-center justify-between">
         <p class="text-sm text-gray-500 dark:text-gray-400">
-            <span class="font-bold text-brand-600 dark:text-brand-400" x-text="products.length"></span> products registered
+            <span class="font-bold text-brand-600 dark:text-brand-400" x-text="products.length"></span> products
+            registered
         </p>
     </div>
 
@@ -33,9 +37,11 @@
 
     <!-- Products Grid -->
     <template x-if="!isLoading">
-        <div class="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div
+            class="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <table class="w-full text-left text-sm">
-                <thead class="bg-gray-50/50 dark:bg-gray-800/50 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <thead
+                    class="bg-gray-50/50 dark:bg-gray-800/50 text-[10px] font-black uppercase tracking-widest text-gray-500">
                     <tr>
                         <th class="px-6 py-4">Product</th>
                         <th class="px-6 py-4">Category</th>
@@ -49,7 +55,8 @@
                         <tr class="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                                    <div
+                                        class="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                         <template x-if="product.imageurl">
                                             <img :src="product.imageurl" class="h-full w-full object-cover">
                                         </template>
@@ -60,19 +67,25 @@
                                         </template>
                                     </div>
                                     <div class="flex flex-col min-w-0">
-                                        <div class="font-bold text-gray-900 dark:text-white truncate max-w-[200px]" x-text="product.name"></div>
+                                        <div class="font-bold text-gray-900 dark:text-white truncate max-w-[200px]"
+                                            x-text="product.name"></div>
                                         <div x-show="product.badge" class="mt-1">
-                                            <span class="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-black text-brand-600" x-text="product.badge"></span>
+                                            <span
+                                                class="rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-black text-brand-600"
+                                                x-text="product.badge"></span>
                                         </div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400" x-text="product.category || '—'"></td>
+                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400" x-text="product.category || '—'">
+                            </td>
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
                                     <span class="font-black text-brand-600" x-text="formatPrice(product.price)"></span>
-                                    <template x-if="product.originalprice && Number(product.originalprice) > Number(product.price)">
-                                        <span class="text-[10px] text-gray-400 line-through" x-text="formatPrice(product.originalprice)"></span>
+                                    <template
+                                        x-if="product.originalprice && Number(product.originalprice) > Number(product.price)">
+                                        <span class="text-[10px] text-gray-400 line-through"
+                                            x-text="formatPrice(product.originalprice)"></span>
                                     </template>
                                 </div>
                             </td>
@@ -83,10 +96,12 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button @click="editProduct(product)" class="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 hover:text-brand-600 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
-                                        <span class="w-4 h-4 block" x-icon="'edit'"></span>
+                                    <button @click="editProduct(product)"
+                                        class="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 hover:text-brand-600 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
+                                        <span class="w-4 h-4 block" x-icon="'pencil'"></span>
                                     </button>
-                                    <button @click="deleteProduct(product.id)" class="rounded-lg border border-red-500/10 p-2 text-red-500/60 hover:bg-red-500 hover:text-white dark:border-red-500/20 dark:hover:bg-red-500 transition-all">
+                                    <button @click="deleteProduct(product.id)"
+                                        class="rounded-lg border border-red-500/10 p-2 text-red-500/60 hover:bg-red-500 hover:text-white dark:border-red-500/20 dark:hover:bg-red-500 transition-all">
                                         <span class="w-4 h-4 block" x-icon="'trash'"></span>
                                     </button>
                                 </div>
@@ -101,7 +116,9 @@
                 <div class="flex flex-col items-center justify-center py-16">
                     <span class="w-12 h-12 text-gray-300" x-icon="'shopping-bag'"></span>
                     <p class="mt-4 font-bold text-gray-500">No featured products yet</p>
-                    <button @click="openAddModal()" class="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all active:scale-95">Add First Product</button>
+                    <button @click="openAddModal()"
+                        class="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all active:scale-95">Add
+                        First Product</button>
                 </div>
             </template>
         </div>
@@ -114,12 +131,15 @@
             <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
                 @click="showModal = false"></div>
 
-            <div class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-[32px] bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+            <div
+                class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-[32px] bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
                 <!-- Modal Header -->
                 <header class="flex items-start justify-between mb-6 shrink-0">
                     <div>
-                        <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Product' : 'Add Product'"></h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure products to be displayed in the featured section.</p>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white"
+                            x-text="isEditing ? 'Edit Product' : 'Add Product'"></h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure products to be displayed in
+                            the featured section.</p>
                     </div>
                     <button @click="showModal = false"
                         class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
@@ -132,8 +152,11 @@
                     <div class="space-y-4">
                         <!-- Image -->
                         <div>
-                            <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product Image</label>
-                            <div class="relative group aspect-square w-32 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer" @click="$refs.productImageInput.click()">
+                            <label
+                                class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product
+                                Image</label>
+                            <div class="relative group aspect-square w-32 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                                @click="$refs.productImageInput.click()">
                                 <template x-if="editingItem.imageurl">
                                     <img :src="editingItem.imageurl" class="h-full w-full object-cover">
                                 </template>
@@ -143,53 +166,85 @@
                                         <span class="text-[10px] font-bold">Upload</span>
                                     </div>
                                 </template>
-                                <div x-show="isUploading" class="absolute inset-0 flex items-center justify-center bg-white/80">
-                                    <span class="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
+                                <div x-show="isUploading"
+                                    class="absolute inset-0 flex items-center justify-center bg-white/80">
+                                    <span
+                                        class="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                 </div>
                             </div>
-                            <input type="text" x-model="editingItem.imageurl" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Or enter image URL">
+                            <input type="text" x-model="editingItem.imageurl"
+                                class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="Or enter image URL">
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product Name *</label>
-                            <input type="text" x-model="editingItem.name" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Product name">
+                            <label
+                                class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product
+                                Name *</label>
+                            <input type="text" x-model="editingItem.name"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="Product name">
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
-                            <textarea x-model="editingItem.description" rows="2" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none" placeholder="Short product description"></textarea>
+                            <label
+                                class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
+                            <textarea x-model="editingItem.description" rows="2"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none"
+                                placeholder="Short product description"></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sale Price (IDR)</label>
-                                <input type="number" x-model.number="editingItem.price" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sale
+                                    Price (IDR)</label>
+                                <input type="number" x-model.number="editingItem.price"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Strike Price (IDR)</label>
-                                <input type="number" x-model.number="editingItem.originalprice" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Strike
+                                    Price (IDR)</label>
+                                <input type="number" x-model.number="editingItem.originalprice"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Category</label>
-                                <input type="text" x-model="editingItem.category" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Category">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Category</label>
+                                <input type="text" x-model="editingItem.category"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="Category">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Badge</label>
-                                <input type="text" x-model="editingItem.badge" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="HOT, NEW, SALE">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Badge</label>
+                                <input type="text" x-model="editingItem.badge"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="HOT, NEW, SALE">
                             </div>
                         </div>
                         <div>
-                            <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product Link</label>
-                            <input type="text" x-model="editingItem.link" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="#shop or URL">
+                            <label
+                                class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product
+                                Link</label>
+                            <input type="text" x-model="editingItem.link"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                placeholder="#shop or URL">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort Order</label>
-                                <input type="number" x-model.number="editingItem.sortorder" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort
+                                    Order</label>
+                                <input type="number" x-model.number="editingItem.sortorder"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                             </div>
                             <div class="flex items-end pb-1">
                                 <label class="flex cursor-pointer items-center gap-2">
                                     <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
-                                    <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
+                                    <div
+                                        class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700">
+                                    </div>
                                     <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
                                 </label>
                             </div>
@@ -198,8 +253,11 @@
 
                     <!-- Modal Footer -->
                     <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                        <button @click="showModal = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
-                        <button id="save-product-btn" @click="saveProduct()" class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save Product</button>
+                        <button @click="showModal = false"
+                            class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                        <button id="save-product-btn" @click="saveProduct()"
+                            class="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
+                            Product</button>
                     </footer>
                 </div>
             </div>
