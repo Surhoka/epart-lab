@@ -1262,8 +1262,8 @@
 
                             <!-- Content -->
                             <div class="flex-grow flex flex-col px-4 pb-4">
-                                <div class="mb-4">
-                                    <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1"
+                                <div class="mb-2">
+                                    <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0"
                                         x-text="product.category || 'General'"></p>
                                     <h3 class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 cursor-pointer transition-colors"
                                         @click="viewProduct(product)" x-text="product.name"></h3>
@@ -1271,7 +1271,7 @@
 
                                 <!-- Pricing & Action -->
                                 <div
-                                    class="mt-auto pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-start">
+                                    class="mt-auto pt-2 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-start">
                                     <div class="flex flex-col">
                                         <span class="text-lg font-black text-brand-600"
                                             x-text="formatPrice(product.price)"></span>
