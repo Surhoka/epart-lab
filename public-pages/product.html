@@ -55,7 +55,7 @@
                 <!-- Buy Action Box -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
                     <div class="space-y-4">
-                        <button @click="addToCart()" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 active:scale-95">
+                        <button @click="addToCart($event.currentTarget)" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 active:scale-95">
                             <span class="w-5 h-5" x-icon="'shopping-bag'"></span>
                             Tambah Keranjang
                         </button>
