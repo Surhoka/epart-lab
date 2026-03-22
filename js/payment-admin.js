@@ -1,9 +1,8 @@
 /**
- * js/payment-gateway.js
- * Frontend logic for Payment Gateway Plugin.
+ * Frontend logic for Payment-Admin Plugin.
  * Handles Manual Bank Transfer and Midtrans configuration.
  */
-(function() {
+(function () {
     // Shared Toast Utility
     function showToast(msg, type = 'success') {
         if (typeof window.showToast === 'function') {
@@ -32,7 +31,7 @@
                 dbId: null,
                 isLoading: false,
                 manualConfig: {
-                    id: '',
+                    id: 'PAY-MANUAL',
                     type: 'manual',
                     label: 'Manual Bank Transfer',
                     bankName: '',
@@ -41,7 +40,7 @@
                     active: false
                 },
                 midtransConfig: {
-                    id: '',
+                    id: 'PAY-MIDTRANS',
                     type: 'midtrans',
                     label: 'Midtrans Gateway',
                     clientKey: '',
@@ -62,7 +61,7 @@
                         const res = await new Promise((resolve, reject) => {
                             window.sendDataToGoogle('getPaymentConfig', { dbId: this.dbId }, resolve, reject);
                         });
-                        
+
                         if (res.status === 'success' && res.data) {
                             const configs = res.data;
                             const manual = configs.find(c => c.type === 'manual');
