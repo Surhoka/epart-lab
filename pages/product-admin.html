@@ -8,11 +8,11 @@
         </div>
         <div class="flex gap-2">
             <button @click="fetchProducts()"
-                class="flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+                class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                 <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
             </button>
             <button @click="openAddModal()"
-                class="flex items-center gap-2 rounded-sm bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
                 <span class="w-4 h-4" x-icon="'plus'"></span> Add Product
             </button>
         </div>
@@ -38,7 +38,7 @@
     <!-- Products Grid -->
     <template x-if="!isLoading">
         <div
-            class="overflow-x-auto rounded-sm border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            class="overflow-x-auto rounded-lg border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <table class="w-full text-left text-sm">
                 <thead
                     class="bg-gray-50/50 dark:bg-gray-800/50 text-[10px] font-black uppercase tracking-widest text-gray-500">
@@ -56,7 +56,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
                                     <div
-                                        class="h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-gray-100 dark:bg-gray-800">
+                                        class="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                         <template x-if="product.imageurl">
                                             <img :src="product.imageurl" class="h-full w-full object-cover">
                                         </template>
@@ -97,11 +97,11 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
                                     <button @click="editProduct(product)"
-                                        class="rounded-sm border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 hover:text-brand-600 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
+                                        class="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 hover:text-brand-600 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
                                         <span class="w-4 h-4 block" x-icon="'pencil'"></span>
                                     </button>
                                     <button @click="deleteProduct(product.id)"
-                                        class="rounded-sm border border-red-500/10 p-2 text-red-500/60 hover:bg-red-500 hover:text-white dark:border-red-500/20 dark:hover:bg-red-500 transition-all">
+                                        class="rounded-lg border border-red-500/10 p-2 text-red-500/60 hover:bg-red-500 hover:text-white dark:border-red-500/20 dark:hover:bg-red-500 transition-all">
                                         <span class="w-4 h-4 block" x-icon="'trash'"></span>
                                     </button>
                                 </div>
@@ -117,7 +117,7 @@
                     <span class="w-12 h-12 text-gray-300" x-icon="'shopping-bag'"></span>
                     <p class="mt-4 font-bold text-gray-500">No featured products yet</p>
                     <button @click="openAddModal()"
-                        class="mt-4 rounded-sm bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all active:scale-95">Add
+                        class="mt-4 rounded-lg bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all active:scale-95">Add
                         First Product</button>
                 </div>
             </template>
@@ -132,7 +132,7 @@
                 @click="showModal = false"></div>
 
             <div
-                class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-sm bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+                class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
                 <!-- Modal Header -->
                 <header class="flex items-start justify-between mb-6 shrink-0">
                     <div>
@@ -155,7 +155,7 @@
                             <label
                                 class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product
                                 Image</label>
-                            <div class="relative group aspect-square w-32 overflow-hidden rounded-sm bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                            <div class="relative group aspect-square w-32 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
                                 @click="$refs.productImageInput.click()">
                                 <template x-if="editingItem.imageurl">
                                     <img :src="editingItem.imageurl" class="h-full w-full object-cover">
@@ -173,7 +173,7 @@
                                 </div>
                             </div>
                             <input type="text" x-model="editingItem.imageurl"
-                                class="mt-2 w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                class="mt-2 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                 placeholder="Or enter image URL">
                         </div>
                         <div>
@@ -181,14 +181,14 @@
                                 class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product
                                 Name *</label>
                             <input type="text" x-model="editingItem.name"
-                                class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                 placeholder="Product name">
                         </div>
                         <div>
                             <label
                                 class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
                             <textarea x-model="editingItem.description" rows="2"
-                                class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none"
+                                class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none"
                                 placeholder="Short product description"></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
@@ -197,14 +197,14 @@
                                     class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sale
                                     Price (IDR)</label>
                                 <input type="number" x-model.number="editingItem.price"
-                                    class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                             </div>
                             <div>
                                 <label
                                     class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Strike
                                     Price (IDR)</label>
                                 <input type="number" x-model.number="editingItem.originalprice"
-                                    class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
@@ -212,14 +212,14 @@
                                 <label
                                     class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Category</label>
                                 <input type="text" x-model="editingItem.category"
-                                    class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                     placeholder="Category">
                             </div>
                             <div>
                                 <label
                                     class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Badge</label>
                                 <input type="text" x-model="editingItem.badge"
-                                    class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                     placeholder="HOT, NEW, SALE">
                             </div>
                         </div>
@@ -228,7 +228,7 @@
                                 class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Product
                                 Link</label>
                             <input type="text" x-model="editingItem.link"
-                                class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                 placeholder="#shop or URL">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
@@ -237,7 +237,7 @@
                                     class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort
                                     Order</label>
                                 <input type="number" x-model.number="editingItem.sortorder"
-                                    class="w-full rounded-sm border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                             </div>
                             <div class="flex items-end pb-1">
                                 <label class="flex cursor-pointer items-center gap-2">
@@ -254,9 +254,9 @@
                     <!-- Modal Footer -->
                     <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
                         <button @click="showModal = false"
-                            class="flex-1 rounded-sm border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                            class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
                         <button id="save-product-btn" @click="saveProduct()"
-                            class="flex-1 rounded-sm bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
+                            class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
                             Product</button>
                     </footer>
                 </div>
