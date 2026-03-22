@@ -17,7 +17,7 @@
                 </span>
             </template>
             <button @click="saveProduct()" :disabled="submitting || loading"
-                class="flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 text-sm font-black text-white shadow-xl shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-50">
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-black text-white shadow-xl shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-50">
                 <template x-if="submitting">
                     <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                 </template>
@@ -31,9 +31,9 @@
         <!-- Main Form -->
         <div class="lg:col-span-2 space-y-6">
             <div
-                class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <h2 class="mb-6 text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
-                    <span class="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/20 text-brand-600">
+                    <span class="p-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600">
                         <span class="block w-5 h-5" x-icon="'edit-3'"></span>
                     </span>
                     Informasi Produk
@@ -45,7 +45,7 @@
                             class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Judul
                             Utama (Nama Produk)</label>
                         <input type="text" x-model="formData.title"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-4 text-base font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 text-base font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
                             placeholder="Contoh: Super Brake Pad XTR">
                     </div>
 
@@ -54,7 +54,7 @@
                             class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Slogan
                             / Subtitle</label>
                         <input type="text" x-model="formData.subtitle"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-4 text-sm font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 text-sm font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
                             placeholder="Contoh: Performa Pengereman Maksimal Tanpa Suara">
                     </div>
 
@@ -63,7 +63,7 @@
                             class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Deskripsi
                             Lengkap</label>
                         <textarea x-model="formData.description" rows="6"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-4 text-sm leading-relaxed transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 text-sm leading-relaxed transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
                             placeholder="Jelaskan keunggulan dan spesifikasi produk Anda secara detail..."></textarea>
                     </div>
 
@@ -73,14 +73,14 @@
                                 class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Harga
                                 Jual (IDR)</label>
                             <input type="number" x-model.number="formData.price"
-                                class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-4 text-lg font-black text-brand-600 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800">
+                                class="w-full rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 text-lg font-black text-brand-600 transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800">
                         </div>
                         <div>
                             <label
                                 class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Harga
                                 Coret / Asli (IDR)</label>
                             <input type="number" x-model.number="formData.originalPrice"
-                                class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-5 py-4 text-lg font-bold text-gray-400 line-through transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800">
+                                class="w-full rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 text-lg font-bold text-gray-400 line-through transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800">
                         </div>
                     </div>
                 </div>
@@ -91,9 +91,9 @@
         <div class="space-y-6">
             <!-- Media & Visualization -->
             <div
-                class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <h2 class="mb-6 text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
-                    <span class="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600">
+                    <span class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600">
                         <span class="block w-5 h-5" x-icon="'image'"></span>
                     </span>
                     Media Utama
@@ -101,7 +101,7 @@
 
                 <div class="space-y-4">
                     <!-- Preview -->
-                    <div class="relative group w-full aspect-video overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                    <div class="relative group w-full aspect-video overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
                         @click="$refs.landingPageImageInput.click()">
                         <template x-if="formData.imageUrl">
                             <img :src="formData.imageUrl" class="h-full w-full object-contain p-3">
@@ -114,12 +114,12 @@
                         </template>
                         <!-- Hover Overlay -->
                         <div
-                            class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 rounded-2xl">
+                            class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 rounded-lg">
                             <span class="text-white w-6 h-6" x-icon="'pencil'"></span>
                         </div>
                         <!-- Loading Overlay -->
                         <div x-show="isUploading"
-                            class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80 rounded-2xl">
+                            class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80 rounded-lg">
                             <span
                                 class="animate-spin w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full"></span>
                         </div>
@@ -127,7 +127,7 @@
 
                     <!-- Upload from local -->
                     <button type="button" @click="$refs.landingPageImageInput.click()" :disabled="isUploading"
-                        class="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-3 text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-brand-400 hover:text-brand-600 transition-all disabled:opacity-50">
+                        class="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 py-3 text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-brand-400 hover:text-brand-600 transition-all disabled:opacity-50">
                         <span class="w-4 h-4" x-icon="'upload'"></span>
                         Upload dari Lokal
                     </button>
@@ -138,7 +138,7 @@
                             class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Atau
                             Masukkan URL Gambar</label>
                         <input type="text" x-model="formData.imageUrl"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-xs transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
                             placeholder="https://example.com/product.jpg">
                     </div>
                 </div>
@@ -146,9 +146,9 @@
 
             <!-- Promotion & Tags -->
             <div
-                class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <h2 class="mb-6 text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
-                    <span class="p-2 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600">
+                    <span class="p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600">
                         <span class="block w-5 h-5" x-icon="'tag'"></span>
                     </span>
                     Pengaturan
@@ -160,7 +160,7 @@
                             class="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Nama
                             Kategori</label>
                         <input type="text" x-model="formData.category"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-xs font-bold transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white"
                             placeholder="Contoh: Spareparts">
                     </div>
 
@@ -180,11 +180,11 @@
                             </label>
                         </div>
                         <textarea x-model="formData.marqueeText" rows="2"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white resize-none"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-xs transition-all focus:bg-white focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-800 dark:text-white resize-none"
                             placeholder="Contoh: 🔥 PROMO HARI INI • GRATIS ONGKIR • STOK TERBATAS • PESAN SEKARANG"></textarea>
                         <!-- Live Preview -->
                         <template x-if="formData.marqueeText && formData.marqueeActive">
-                            <div class="mt-2 rounded-xl bg-brand-600 overflow-hidden py-1.5">
+                            <div class="mt-2 rounded-lg bg-brand-600 overflow-hidden py-1.5">
                                 <div class="marquee-preview-track flex whitespace-nowrap">
                                     <span class="text-[10px] font-black uppercase tracking-widest text-white px-6"
                                         x-text="formData.marqueeText"></span>
@@ -209,7 +209,7 @@
                         </label>
 
                         <div
-                            class="p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-100 dark:border-gray-900/30">
+                            class="p-4 rounded-lg bg-gray-50/50 dark:bg-gray-900/10 border border-gray-100 dark:border-gray-900/30">
                             <p class="text-[10px] leading-relaxed text-gray-600 dark:text-gray-400">
                                 <strong>Info:</strong> Halaman landing akan ditampilkan di domain publik Anda saat
                                 status aktif.
