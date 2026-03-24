@@ -20,9 +20,9 @@
   </div>
 
   <div x-show="!isLoading && activeTab === 'general'" x-transition>
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+    <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
       <!-- Meta Card -->
-      <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+      <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div class="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div class="relative group">
@@ -100,7 +100,7 @@
         </div>
       </div>
       <!-- Personal Information Card -->
-      <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+      <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
@@ -177,7 +177,7 @@
         </div>
       </div>
       <!-- Address Card -->
-      <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+      <div class="p-5 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
@@ -238,8 +238,8 @@
 
   <!-- Tab 2: Public Display Information -->
   <div x-show="!isLoading && activeTab === 'public'" x-transition x-cloak>
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-      <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+    <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+      <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
@@ -309,7 +309,7 @@
       </div>
 
       <!-- Social Media Visibility Status -->
-      <div class="p-6 border border-gray-100 rounded-2xl dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
+      <div class="p-6 border border-gray-100 rounded-lg dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
         <h5 class="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <div class="w-2 h-2 rounded-full bg-success-500"></div>
           Social Media Status (Active in Footer)
@@ -351,7 +351,7 @@
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isProfileInfoModal = false"></div>
     <div
-      class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
+      class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-lg bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
       <!-- close btn -->
       <button x-on:click="isProfileInfoModal = false"
         class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
@@ -471,16 +471,16 @@
           <div
             class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-theme-primary pt-8">
             <button @click="deleteAccount($el)" type="button"
-              class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-500">
+              class="btn w-full sm:w-auto flex justify-center items-center rounded-lg border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-500">
               Delete Account
             </button>
             <div class="flex w-full sm:w-auto gap-3 ml-auto">
               <button x-on:click="isProfileInfoModal = false" type="button"
-                class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
+                class="btn w-full sm:w-auto flex justify-center items-center rounded-lg border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
                 Cancel
               </button>
               <button @click="savePersonalInfo($el)" type="button"
-                class="btn w-full sm:w-auto flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
+                class="btn w-full sm:w-auto flex justify-center items-center rounded-lg bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
                 Save Changes
               </button>
             </div>
@@ -496,7 +496,7 @@
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isProfileAddressModal = false"></div>
     <div
-      class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
+      class="modal-dialog relative w-full max-w-[640px] flex flex-col max-h-[90vh] rounded-lg bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
       <!-- close btn -->
       <button x-on:click="isProfileAddressModal = false"
         class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
@@ -551,16 +551,16 @@
           <div
             class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-theme-primary pt-8">
             <button @click="clearAddress($el)" type="button"
-              class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-500">
+              class="btn w-full sm:w-auto flex justify-center items-center rounded-lg border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-500">
               Delete Address
             </button>
             <div class="flex w-full sm:w-auto gap-3 ml-auto">
               <button x-on:click="isProfileAddressModal = false" type="button"
-                class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
+                class="btn w-full sm:w-auto flex justify-center items-center rounded-lg border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
                 Cancel
               </button>
               <button @click="saveAddress($el)" type="button"
-                class="btn w-full sm:w-auto flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
+                class="btn w-full sm:w-auto flex justify-center items-center rounded-lg bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
                 Save Changes
               </button>
             </div>
@@ -577,7 +577,7 @@
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isPublicInfoModal = false"></div>
     <div
-      class="modal-dialog relative w-full max-w-[720px] flex flex-col max-h-[90vh] rounded-[32px] bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
+      class="modal-dialog relative w-full max-w-[720px] flex flex-col max-h-[90vh] rounded-lg bg-theme-secondary p-8 shadow-2xl transition-all duration-300 lg:p-12">
       <!-- close btn -->
       <button x-on:click="isPublicInfoModal = false"
         class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-theme-hover text-theme-secondary transition-all hover:scale-110">
@@ -593,8 +593,9 @@
         </p>
       </div>
       <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-        <form class="flex flex-col gap-8">
-          <!-- Public Contacts -->
+        <form class="flex flex-col">
+          <div class="flex flex-col gap-8 px-2">
+            <!-- Public Contacts -->
           <div>
             <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -677,15 +678,16 @@
             </div>
           </div>
 
+          </div>
           <!-- Footer Buttons -->
           <div
-            class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-4 modal-footer border-t border-theme-primary pt-8">
+            class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-theme-primary pt-8">
             <button x-on:click="isPublicInfoModal = false" type="button"
-              class="btn w-full sm:w-auto flex justify-center items-center rounded-xl border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
+              class="btn w-full sm:w-auto flex justify-center items-center rounded-lg border border-theme-primary bg-theme-secondary px-6 py-3 text-sm font-bold text-theme-secondary transition-all hover:bg-theme-hover">
               Cancel
             </button>
             <button @click="savePublicInfo($el)" type="button"
-              class="btn w-full sm:w-auto flex justify-center items-center rounded-xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 ml-auto">
+              class="btn w-full sm:w-auto flex justify-center items-center rounded-lg bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105 ml-auto">
               Save Operating Hours & Contact Info
             </button>
           </div>
