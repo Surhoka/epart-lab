@@ -2335,3 +2335,13 @@ span.flatpickr-weekday,
 .animate-bounce-soft {
   animation: bounce-soft 2s infinite;
 }
+
+/* Global Form Focus Styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: var(--color-brand-500) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+  transition: all 0.2s ease-in-out !important;
+}
