@@ -26,14 +26,14 @@
 
     <!-- Primary Card Wrapper (Chat Interface) -->
     <div x-show="activeTab === 'chat'" x-transition
-        class="flex flex-col h-[650px] rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+        class="flex flex-col h-[650px] rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
 
         <!-- Chat Header -->
         <div
             class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-white/5">
             <div class="flex items-center gap-3">
                 <div
-                    class="h-10 w-10 rounded-2xl bg-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    class="h-10 w-10 rounded-lg bg-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M13 10l-1-2-1 2-2 1 2 1 1 2 1-2 2-1z" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round"></path>
@@ -50,7 +50,7 @@
                 </div>
             </div>
             <button @click="closeAiResult()"
-                class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
                 title="Reset Chat">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -75,8 +75,8 @@
                     </template>
 
                     <div :class="msg.role === 'user' 
-                        ? 'bg-brand-600 text-white rounded-2xl rounded-tr-none order-1' 
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-none order-2'"
+                        ? 'bg-brand-600 text-white rounded-lg rounded-tr-none order-1' 
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg rounded-tl-none order-2'"
                         class="max-w-[85%] px-4 py-3 shadow-sm">
 
                         <!-- Message Content -->
@@ -111,10 +111,10 @@
             <div class="relative flex items-center gap-3">
                 <input type="text" x-model="chatQuery" @keydown.enter="askAi()"
                     placeholder="Tanyakan sesuatu tentang inventory..." :disabled="isChatLoading"
-                    class="w-full rounded-2xl border border-gray-200 bg-white py-4 pl-6 pr-14 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
+                    class="w-full rounded-lg border border-gray-200 bg-white py-4 pl-6 pr-14 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
 
                 <button @click="askAi()" :disabled="!chatQuery.trim() || isChatLoading"
-                    class="absolute right-2.5 h-11 w-11 flex items-center justify-center rounded-xl bg-brand-500 text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-600 hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50 disabled:scale-100 disabled:shadow-none">
+                    class="absolute right-2.5 h-11 w-11 flex items-center justify-center rounded-lg bg-brand-500 text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-600 hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50 disabled:scale-100 disabled:shadow-none">
                     <svg class="h-5 w-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
@@ -129,10 +129,10 @@
 
     <!-- AI Rules Tab -->
     <div x-show="activeTab === 'rules'" x-transition x-cloak
-        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+        class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
 
         <!-- AI Configuration -->
-        <div class="mb-8 p-5 border border-gray-100 rounded-2xl bg-gray-50/50 dark:border-gray-800 dark:bg-white/5">
+        <div class="mb-8 p-5 border border-gray-100 rounded-lg bg-gray-50/50 dark:border-gray-800 dark:bg-white/5">
             <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -149,7 +149,7 @@
                         Model</label>
                     <div class="relative">
                         <select x-model="aiConfig.model"
-                            class="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                            class="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                             <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
                             <option value="gemini-2.5-pro">Gemini 2.5 Pro (Powerful)</option>
                             <option value="gemini-3-flash-preview">Gemini 3 Flash (Preview)</option>
@@ -172,11 +172,11 @@
                     <label class="mb-1.5 block text-xs font-medium text-gray-500 dark:text-gray-400">API Key</label>
                     <input type="password" x-model="aiConfig.apiKey"
                         :placeholder="aiConfig.hasKey ? '•••••••••••••••• (Terpasang)' : 'Paste your Gemini API Key here...'"
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                        class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                 </div>
                 <div class="md:col-span-3">
                     <button @click="saveAiConfig($el)"
-                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 whitespace-nowrap dark:bg-brand-500 dark:hover:bg-brand-600">
+                        class="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-black hover:scale-105 active:scale-95 whitespace-nowrap dark:bg-brand-500 dark:hover:bg-brand-600">
                         Save
                     </button>
                 </div>
@@ -195,7 +195,7 @@
                 </button>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
                     <thead class="bg-gray-50 dark:bg-gray-800/50">
                         <tr>
@@ -272,7 +272,7 @@
             class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300">
         </div>
         <div
-            class="modal-dialog relative flex w-full max-w-[640px] flex-col max-h-[90vh] rounded-[32px] bg-white dark:bg-gray-800 p-8 shadow-2xl transition-all duration-300 lg:p-12 border border-gray-200 dark:border-gray-700">
+            class="modal-dialog relative flex w-full max-w-[640px] flex-col max-h-[90vh] rounded-lg bg-white dark:bg-gray-800 p-8 shadow-2xl transition-all duration-300 lg:p-12 border border-gray-200 dark:border-gray-700">
             <!-- close btn -->
             <button @click="closeRuleModal()"
                 class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all hover:scale-110">
@@ -299,7 +299,7 @@
                             Category
                         </label>
                         <select x-model="editingRule.category"
-                            class="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all">
+                            class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all">
                             <option value="Trigger">Trigger</option>
                             <option value="Image Template">Image Template</option>
                         </select>
@@ -310,7 +310,7 @@
                             Prompt / Template
                         </label>
                         <textarea x-model="editingRule.prompt" rows="4"
-                            class="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all"
+                            class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all"
                             placeholder="Contoh: Selalu tampilkan spek lengkap..."></textarea>
                     </div>
 
@@ -326,11 +326,11 @@
                 <div
                     class="flex flex-col-reverse sm:flex-row items-center gap-3 mt-10 modal-footer border-t border-gray-200 dark:border-gray-700 pt-8">
                     <button type="button" @click="closeRuleModal()"
-                        class="w-full sm:w-auto flex justify-center items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                        class="w-full sm:w-auto flex justify-center items-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                         Batal
                     </button>
                     <button type="button" @click="saveRule($el)"
-                        class="w-full sm:w-auto flex justify-center items-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 hover:scale-105 ml-auto">
+                        class="w-full sm:w-auto flex justify-center items-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 hover:scale-105 ml-auto">
                         Simpan Rule
                     </button>
                 </div>
