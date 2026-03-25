@@ -322,59 +322,6 @@
                                         class="dark:bg-dark-900 w-full appearance-none rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white/50"></textarea>
                                 </div>
 
-                                <!-- Public Configuration Section -->
-                                <div class="rounded-lg border border-gray-100 bg-gray-50/50 p-6 dark:border-gray-800 dark:bg-slate-800/20">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-5 h-5 text-brand-500" x-icon="'globe'"></span>
-                                            <h5 class="font-bold text-gray-900 dark:text-white">Public Display</h5>
-                                        </div>
-                                        <label class="relative inline-flex cursor-pointer items-center">
-                                            <input type="checkbox" x-model="formData.publicConfig.enabled" class="sr-only peer">
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-600 shadow-sm"></div>
-                                        </label>
-                                    </div>
-
-                                    <div x-show="formData.publicConfig.enabled" x-collapse class="space-y-4">
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-500 tracking-wider">Public Label</label>
-                                                <input type="text" x-model="formData.publicConfig.publicLabel"
-                                                    class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                                    placeholder="e.g. Featured Products">
-                                            </div>
-                                            <div>
-                                                <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-500 tracking-wider">Public Icon</label>
-                                                <input type="text" x-model="formData.publicConfig.publicIcon"
-                                                    class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                                    placeholder="e.g. star">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-500 tracking-wider">Public Page Name (Slug)</label>
-                                            <input type="text" x-model="formData.publicConfig.publicPage"
-                                                class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white font-mono"
-                                                placeholder="e.g. landing-page">
-                                        </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-500 tracking-wider">Template File (.html)</label>
-                                                <input type="text" x-model="formData.publicConfig.publicTemplate"
-                                                    class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                                    placeholder="landing-page">
-                                            </div>
-                                            <div>
-                                                <label class="mb-1.5 block text-[10px] font-bold uppercase text-gray-500 tracking-wider">Script File (.js)</label>
-                                                <input type="text" x-model="formData.publicConfig.publicScript"
-                                                    class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                                    placeholder="landing-page">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <template x-if="!formData.publicConfig.enabled">
-                                        <p class="text-[10px] text-gray-400 italic">This plugin will not be displayed on the public website.</p>
-                                    </template>
-                                </div>
                             </div>
                             </div>
 
