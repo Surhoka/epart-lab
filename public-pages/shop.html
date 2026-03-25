@@ -14,13 +14,13 @@
                 <div class="relative group">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" x-icon="'search'"></span>
                     <input type="text" x-model="searchQuery" placeholder="Cari nama produk..." 
-                        class="pl-12 pr-4 py-3 w-full sm:w-64 bg-white dark:bg-gray-800 border-2 border-transparent focus:border-brand-500 rounded-2xl shadow-sm focus:outline-none transition-all placeholder:text-gray-400">
+                        class="pl-12 pr-4 py-3 w-full sm:w-64 bg-white dark:bg-gray-800 border-2 border-transparent focus:border-brand-500 rounded-lg shadow-sm focus:outline-none transition-all placeholder:text-gray-400">
                 </div>
                 
                 <!-- Sort Dropdown -->
                 <div class="relative">
                     <select x-model="sortOrder" 
-                        class="appearance-none pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border-2 border-transparent focus:border-brand-500 rounded-2xl shadow-sm focus:outline-none transition-all cursor-pointer font-bold text-gray-700 dark:text-gray-300">
+                        class="appearance-none pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border-2 border-transparent focus:border-brand-500 rounded-lg shadow-sm focus:outline-none transition-all cursor-pointer font-bold text-gray-700 dark:text-gray-300">
                         <option value="newest">Terbaru</option>
                         <option value="price-low">Harga: Rendah ke Tinggi</option>
                         <option value="price-high">Harga: Tinggi ke Rendah</option>
@@ -39,7 +39,7 @@
                     <div class="flex flex-wrap lg:flex-col gap-2">
                         <button @click="setCategory('all')" 
                             :class="selectedCategory === 'all' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/25' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'"
-                            class="px-5 py-3 rounded-2xl font-bold transition-all text-sm flex items-center justify-between group">
+                            class="px-5 py-3 rounded-lg font-bold transition-all text-sm flex items-center justify-between group">
                             <span>Semua Produk</span>
                             <span x-show="selectedCategory === 'all'" class="w-4 h-4 ml-2" x-icon="'check'"></span>
                         </button>
@@ -47,7 +47,7 @@
                         <template x-for="category in categories" :key="category.id">
                             <button @click="setCategory(category.slug || category.name)" 
                                 :class="selectedCategory === (category.slug || category.name) ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/25' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent'"
-                                class="px-5 py-3 rounded-2xl font-bold transition-all text-sm flex items-center justify-between">
+                                class="px-5 py-3 rounded-lg font-bold transition-all text-sm flex items-center justify-between">
                                 <span x-text="category.name"></span>
                                 <span x-show="selectedCategory === (category.slug || category.name)" class="w-4 h-4 ml-2" x-icon="'check'"></span>
                             </button>
@@ -56,11 +56,11 @@
                 </div>
 
                 <!-- Info Card -->
-                <div class="bg-gradient-to-br from-brand-600 to-brand-700 rounded-[2rem] p-8 text-white shadow-2xl overflow-hidden relative group">
+                <div class="bg-gradient-to-br from-brand-600 to-brand-700 rounded-lg p-8 text-white shadow-2xl overflow-hidden relative group">
                     <div class="relative z-10">
                         <h4 class="text-xl font-bold mb-3">Butuh Bantuan?</h4>
                         <p class="text-brand-100 text-sm mb-6 leading-relaxed">Hubungi admin kami jika Anda tidak menemukan part yang dicari.</p>
-                        <a href="https://wa.me/628123456789" target="_blank" class="inline-flex items-center gap-2 bg-white text-brand-600 px-6 py-3 rounded-xl font-bold hover:scale-105 active:scale-95 transition-all text-sm">
+                        <a href="https://wa.me/628123456789" target="_blank" class="inline-flex items-center gap-2 bg-white text-brand-600 px-6 py-3 rounded-lg font-bold hover:scale-105 active:scale-95 transition-all text-sm">
                             <span class="w-5 h-5" x-icon="'message-circle'"></span>
                             Chat WhatsApp
                         </a>
@@ -80,7 +80,7 @@
                 </div>
 
                 <!-- Empty State -->
-                <div x-show="!isLoading && filteredProducts.length === 0" class="text-center py-32 bg-gray-50 dark:bg-gray-800/50 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-gray-700" x-cloak>
+                <div x-show="!isLoading && filteredProducts.length === 0" class="text-center py-32 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700" x-cloak>
                     <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
                         <span class="w-10 h-10" x-icon="'package'"></span>
                     </div>
@@ -91,13 +91,13 @@
 
                 <!-- Grid -->
                 <div x-show="!isLoading && filteredProducts.length > 0"
-                    class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4" x-cloak>
+                    class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5" x-cloak>
                     <template x-for="product in filteredProducts" :key="product.id">
                         <div
-                            class="group bg-white dark:bg-gray-800 rounded-xl p-0 shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 relative flex flex-col h-full">
+                            class="group bg-white dark:bg-gray-800 rounded-lg p-0 shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 relative flex flex-col h-full">
 
                             <!-- Image Container -->
-                            <div class="relative aspect-square mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden cursor-pointer"
+                            <div class="relative aspect-square mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg rounded-b-none overflow-hidden cursor-pointer"
                                 @click="viewProduct(product)">
                                 <img :src="product.imageurl" :alt="product.name" class="w-full h-full object-contain">
 
