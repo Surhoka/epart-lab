@@ -223,8 +223,10 @@ button:not(:disabled),
 }
 
 .tab-nav-btn svg,
-.menu-item svg {
-  fill: currentColor;
+.menu-item svg,
+.menu-dropdown-item svg {
+  stroke: currentColor;
+  fill: none;
 }
 
 .tab-nav-btn.active {
@@ -312,6 +314,7 @@ button:not(:disabled),
 .menu-dropdown-item-active {
   background-color: var(--brand-surface);
   color: var(--brand-solid);
+  font-weight: 600;
 }
 
 .menu-dropdown-item-inactive {
