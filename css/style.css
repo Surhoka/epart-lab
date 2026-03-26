@@ -1,13 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 
-html {
-  color-scheme: light;
-}
-
+/* ==========================================================================
+   DESIGN TOKENS (PRIMITIVES)
+   ========================================================================== */
 :root {
   --font-outfit: Outfit, sans-serif;
 
-  --breakpoint-2xsm: 375px;
   --breakpoint-xsm: 425px;
   --breakpoint-3xl: 2000px;
   --breakpoint-sm: 640px;
@@ -15,23 +13,6 @@ html {
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
-
-  --text-title-2xl: 72px;
-  --text-title-2xl--line-height: 90px;
-  --text-title-xl: 60px;
-  --text-title-xl--line-height: 72px;
-  --text-title-lg: 48px;
-  --text-title-lg--line-height: 60px;
-  --text-title-md: 36px;
-  --text-title-md--line-height: 44px;
-  --text-title-sm: 30px;
-  --text-title-sm--line-height: 38px;
-  --text-theme-xl: 20px;
-  --text-theme-xl--line-height: 30px;
-  --text-theme-sm: 14px;
-  --text-theme-sm--line-height: 20px;
-  --text-theme-xs: 12px;
-  --text-theme-xs--line-height: 18px;
 
   --color-current: currentColor;
   --color-transparent: transparent;
@@ -226,41 +207,16 @@ button:not(:disabled),
 }
 
 .menu-item-active {
-  background-color: var(--color-brand-50);
-  color: var(--color-brand-500);
-}
-
-.dark .menu-item-active {
-  background-color: rgba(70, 95, 255, 0.12);
-  /* brand-500/12 */
-  color: var(--color-brand-400);
+  background-color: var(--brand-surface);
+  color: var(--brand-solid);
 }
 
 .menu-item-inactive {
   color: var(--text-secondary);
 }
 
-.menu-item-inactive:hover {
-  background-color: var(--color-gray-100);
-  color: var(--text-primary);
-}
-
-.dark .menu-item-inactive {
-  color: var(--text-secondary);
-}
-
-.dark .menu-item-inactive:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  /* white/5 */
-  color: var(--text-primary);
-}
-
 .menu-item-icon-active {
-  fill: var(--color-brand-500);
-}
-
-.dark .menu-item-icon-active {
-  fill: var(--color-brand-400);
+  fill: var(--brand-solid);
 }
 
 .menu-item-icon-inactive {
@@ -364,43 +320,20 @@ button:not(:disabled),
   text-transform: uppercase;
 }
 
-.dark .menu-dropdown-badge {
-  color: var(--color-brand-400);
-}
-
 .menu-dropdown-badge-active {
   background-color: var(--color-brand-100);
 }
 
-.dark .menu-dropdown-badge-active {
-  background-color: rgba(70, 95, 255, 0.2);
-  /* brand-500/20 */
-}
-
 .menu-dropdown-badge-inactive {
-  background-color: var(--color-brand-50);
+  background-color: var(--brand-surface);
 }
 
-.menu-dropdown-badge-inactive:hover {
-  background-color: var(--color-brand-100);
-}
-
-.dark .menu-dropdown-badge-inactive {
-  background-color: rgba(70, 95, 255, 0.15);
-  /* brand-500/15 */
-}
-
-.dark .menu-dropdown-badge-inactive:hover {
-  background-color: rgba(70, 95, 255, 0.2);
-  /* brand-500/20 */
-}
-
+/* ==========================================================================
+   SCROLLBAR UTILITIES
+   ========================================================================== */
 .no-scrollbar {
-  /* Chrome, Safari and Opera */
-  -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
+  -ms-overflow-style: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -412,28 +345,9 @@ button:not(:disabled),
   height: 0.375rem;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  border-radius: 9999px;
-}
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--color-gray-200);
+  background-color: var(--border-secondary);
   border-radius: 9999px;
-}
-
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #344054;
-}
-
-body {
-  position: relative;
-  font-size: 1rem;
-  font-weight: 400;
-  font-family: var(--font-outfit);
-  z-index: 1;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  /* Set default text color */
 }
 
 /* Refactored Date/Time Input Styling */
