@@ -159,6 +159,8 @@
 .dark {
   color-scheme: dark;
 
+  --brand-solid: var(--color-brand-400);
+  --brand-surface: rgba(70, 95, 255, 0.12);
   /* Semantic Colors for Dark Mode */
   --bg-primary: var(--color-gray-900);
   --bg-secondary: var(--color-gray-dark);
@@ -192,6 +194,39 @@
 button:not(:disabled),
 [role="button"]:not(:disabled) {
   cursor: pointer;
+}
+
+/* ==========================================================================
+   COMPONENTS: TAB NAVIGATION
+   ========================================================================== */
+.tab-nav-container {
+  display: flex;
+  gap: 0.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-primary);
+  padding: 0.25rem;
+  overflow-x: auto;
+}
+
+.tab-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.tab-nav-btn.active {
+  background-color: var(--bg-secondary);
+  color: var(--brand-solid);
+  font-weight: 700;
+  box-shadow: var(--shadow-theme-xs);
 }
 
 .menu-item {
