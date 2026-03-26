@@ -6,16 +6,12 @@
   <div x-show="isLoading" class="text-center p-10">Loading profile...</div>
 
   <!-- Tab Navigation -->
-  <div class="flex items-center gap-4 mb-6 border-b border-gray-200 dark:border-gray-800">
-    <button @click="activeTab = 'general'"
-      :class="activeTab === 'general' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
-      class="pb-3 text-sm font-semibold border-b-2 transition-all">
-      General Profile
+  <div class="tab-nav-container mb-6">
+    <button @click="activeTab = 'general'" :class="{ 'active': activeTab === 'general' }" class="tab-nav-btn">
+      <span class="w-4 h-4" x-icon="'user'"></span> General Profile
     </button>
-    <button @click="activeTab = 'public'"
-      :class="activeTab === 'public' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
-      class="pb-3 text-sm font-semibold border-b-2 transition-all">
-      Public Display (Website)
+    <button @click="activeTab = 'public'" :class="{ 'active': activeTab === 'public' }" class="tab-nav-btn">
+      <span class="w-4 h-4" x-icon="'globe'"></span> Public Display (Website)
     </button>
   </div>
 
@@ -594,87 +590,91 @@
         <form class="flex flex-col">
           <div class="modal-body-content gap-8">
             <!-- Public Contacts -->
-          <div>
-            <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div class="lg:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Company Name</label>
-                <input x-model="editableProfile.publicDisplay.companyName" type="text" placeholder="Your Company Name"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div class="lg:col-span-2">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
-                  Address (Full)</label>
-                <input x-model="editableProfile.publicDisplay.storeAddress" type="text"
-                  placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
-                  Email</label>
-                <input x-model="editableProfile.publicDisplay.supportEmail" type="email"
-                  placeholder="support@ezyparts.com"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
-                  Phone</label>
-                <input x-model="editableProfile.publicDisplay.supportPhone" type="text" placeholder="+62 21 1234 5678"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div class="lg:col-span-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Company Name</label>
+                  <input x-model="editableProfile.publicDisplay.companyName" type="text" placeholder="Your Company Name"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
+                    Address (Full)</label>
+                  <input x-model="editableProfile.publicDisplay.storeAddress" type="text"
+                    placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                    Email</label>
+                  <input x-model="editableProfile.publicDisplay.supportEmail" type="email"
+                    placeholder="support@ezyparts.com"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                    Phone</label>
+                  <input x-model="editableProfile.publicDisplay.supportPhone" type="text" placeholder="+62 21 1234 5678"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Operating Hours -->
-          <div>
-            <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Operating Hours</h5>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating Hours</label>
-                <input x-model="editableProfile.publicDisplay.operatingHours" type="text" placeholder="8:00am - 8:00pm"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating Days</label>
-                <input x-model="editableProfile.publicDisplay.operatingDays" type="text" placeholder="Monday - Saturday"
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+            <!-- Operating Hours -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Operating Hours</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating
+                    Hours</label>
+                  <input x-model="editableProfile.publicDisplay.operatingHours" type="text"
+                    placeholder="8:00am - 8:00pm"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating
+                    Days</label>
+                  <input x-model="editableProfile.publicDisplay.operatingDays" type="text"
+                    placeholder="Monday - Saturday"
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Social Presence -->
-          <div>
-            <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
-                  URL</label>
-                <input x-model="editableProfile.publicDisplay.facebook" type="text"
-                  placeholder="https://facebook.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
-                  URL</label>
-                <input x-model="editableProfile.publicDisplay.twitter" type="text" placeholder="https://x.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
-                  URL</label>
-                <input x-model="editableProfile.publicDisplay.instagram" type="text"
-                  placeholder="https://instagram.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
-                  URL</label>
-                <input x-model="editableProfile.publicDisplay.linkedin" type="text"
-                  placeholder="https://linkedin.com/..."
-                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+            <!-- Social Presence -->
+            <div>
+              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
+                    URL</label>
+                  <input x-model="editableProfile.publicDisplay.facebook" type="text"
+                    placeholder="https://facebook.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
+                    URL</label>
+                  <input x-model="editableProfile.publicDisplay.twitter" type="text" placeholder="https://x.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
+                    URL</label>
+                  <input x-model="editableProfile.publicDisplay.instagram" type="text"
+                    placeholder="https://instagram.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
+                    URL</label>
+                  <input x-model="editableProfile.publicDisplay.linkedin" type="text"
+                    placeholder="https://linkedin.com/..."
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700" />
+                </div>
               </div>
             </div>
-          </div>
 
           </div>
           <!-- Footer Buttons -->
