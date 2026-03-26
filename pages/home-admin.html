@@ -3,20 +3,17 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Public Content Manager</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage public page content: Hero Slider, Categories, and Featured Products.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage public page content: Hero Slider,
+                Categories, and Featured Products.</p>
         </div>
     </div>
 
     <!-- Tab Navigation -->
-    <div class="mb-6 flex gap-1 rounded-lg border border-gray-100 bg-gray-50 p-1 dark:border-gray-800 dark:bg-gray-900/50 overflow-x-auto">
-        <button @click="activeTab = 'hero'"
-            :class="activeTab === 'hero' ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-sm font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'"
-            class="flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm transition-all">
+    <div class="tab-nav-container mb-6">
+        <button @click="activeTab = 'hero'" :class="{ 'active': activeTab === 'hero' }" class="tab-nav-btn">
             <span class="w-4 h-4" x-icon="'image'"></span> Hero Slider
         </button>
-        <button @click="activeTab = 'categories'"
-            :class="activeTab === 'categories' ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-sm font-bold' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'"
-            class="flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm transition-all">
+        <button @click="activeTab = 'categories'" :class="{ 'active': activeTab === 'categories' }" class="tab-nav-btn">
             <span class="w-4 h-4" x-icon="'layers'"></span> Categories
         </button>
     </div>
@@ -33,10 +30,12 @@
                 <span x-text="slides.length"></span> slides registered
             </p>
             <div class="flex gap-2">
-                <button @click="fetchSlides()" class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+                <button @click="fetchSlides()"
+                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
-                <button @click="openAddModal()" class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
+                <button @click="openAddModal()"
+                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
                     <span class="w-4 h-4" x-icon="'plus'"></span> Add Slide
                 </button>
             </div>
@@ -53,7 +52,8 @@
         <template x-if="!isLoading">
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <template x-for="slide in slides" :key="slide.id">
-                    <div class="group relative overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    <div
+                        class="group relative overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
                         <!-- Image -->
                         <div class="relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden">
                             <template x-if="slide.imageurl">
@@ -72,12 +72,15 @@
                         <!-- Info -->
                         <div class="p-4">
                             <h3 class="font-bold text-gray-900 dark:text-white truncate" x-text="slide.title"></h3>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate" x-text="slide.subtitle || '—'"></p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate"
+                                x-text="slide.subtitle || '—'"></p>
                             <div class="mt-3 flex items-center gap-2">
-                                <button @click="editSlide(slide)" class="flex-1 rounded-lg border border-gray-200 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">
+                                <button @click="editSlide(slide)"
+                                    class="flex-1 rounded-lg border border-gray-200 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">
                                     Edit
                                 </button>
-                                <button @click="deleteSlide(slide.id)" class="rounded-lg border border-red-100 py-1.5 px-3 text-xs font-bold text-red-500 hover:bg-red-50 dark:border-red-900/30 transition-colors">
+                                <button @click="deleteSlide(slide.id)"
+                                    class="rounded-lg border border-red-100 py-1.5 px-3 text-xs font-bold text-red-500 hover:bg-red-50 dark:border-red-900/30 transition-colors">
                                     <span class="w-3.5 h-3.5" x-icon="'trash'"></span>
                                 </button>
                             </div>
@@ -87,10 +90,13 @@
 
                 <!-- Empty State -->
                 <template x-if="slides.length === 0">
-                    <div class="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-16 dark:border-gray-800">
+                    <div
+                        class="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-16 dark:border-gray-800">
                         <span class="w-12 h-12 text-gray-300" x-icon="'image'"></span>
                         <p class="mt-4 font-bold text-gray-500">No slides yet</p>
-                        <button @click="openAddModal()" class="mt-4 rounded-lg bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Add First Slide</button>
+                        <button @click="openAddModal()"
+                            class="mt-4 rounded-lg bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Add
+                            First Slide</button>
                     </div>
                 </template>
             </div>
@@ -102,13 +108,16 @@
                 class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
                 <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
                     @click="showModal = false"></div>
-                
-                <div class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+
+                <div
+                    class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Visual configuration for the home hero banner.</p>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white"
+                                x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Visual configuration for the home
+                                hero banner.</p>
                         </div>
                         <button @click="showModal = false"
                             class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
@@ -121,50 +130,77 @@
                         <div class="space-y-4">
                             <!-- Image Upload -->
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slide Image</label>
-                                <div class="relative group aspect-video w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer" @click="$refs.heroImageInput.click()">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slide
+                                    Image</label>
+                                <div class="relative group aspect-video w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                                    @click="$refs.heroImageInput.click()">
                                     <template x-if="editingItem.imageurl">
                                         <img :src="editingItem.imageurl" class="h-full w-full object-cover">
                                     </template>
                                     <template x-if="!editingItem.imageurl">
-                                        <div class="flex h-full flex-col items-center justify-center text-gray-300 gap-2">
+                                        <div
+                                            class="flex h-full flex-col items-center justify-center text-gray-300 gap-2">
                                             <span class="w-8 h-8" x-icon="'upload'"></span>
                                             <span class="text-xs font-bold">Click to upload</span>
                                         </div>
                                     </template>
-                                    <div x-show="isUploading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80">
-                                        <span class="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
+                                    <div x-show="isUploading"
+                                        class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80">
+                                        <span
+                                            class="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                     </div>
                                 </div>
-                                <input type="text" x-model="editingItem.imageurl" class="mt-2 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Or enter image URL">
+                                <input type="text" x-model="editingItem.imageurl"
+                                    class="mt-2 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="Or enter image URL">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Title *</label>
-                                <input type="text" x-model="editingItem.title" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Slide title">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Title
+                                    *</label>
+                                <input type="text" x-model="editingItem.title"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="Slide title">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Subtitle</label>
-                                <input type="text" x-model="editingItem.subtitle" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Support text">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Subtitle</label>
+                                <input type="text" x-model="editingItem.subtitle"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="Support text">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button Text</label>
-                                    <input type="text" x-model="editingItem.buttontext" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Shop Now">
+                                    <label
+                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button
+                                        Text</label>
+                                    <input type="text" x-model="editingItem.buttontext"
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                        placeholder="Shop Now">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button Link</label>
-                                    <input type="text" x-model="editingItem.buttonlink" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="#shop">
+                                    <label
+                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button
+                                        Link</label>
+                                    <input type="text" x-model="editingItem.buttonlink"
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                        placeholder="#shop">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Urutan</label>
-                                    <input type="number" x-model.number="editingItem.sortorder" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                    <label
+                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Urutan</label>
+                                    <input type="number" x-model.number="editingItem.sortorder"
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
                                         <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
-                                        <div class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 relative"></div>
+                                        <div
+                                            class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 relative">
+                                        </div>
                                         <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
                                     </label>
                                 </div>
@@ -173,8 +209,11 @@
 
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                            <button @click="showModal = false" class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
-                            <button id="save-hero-btn" @click="saveSlide()" class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save Slide</button>
+                            <button @click="showModal = false"
+                                class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                            <button id="save-hero-btn" @click="saveSlide()"
+                                class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
+                                Slide</button>
                         </footer>
                     </div>
                 </div>
@@ -186,16 +225,20 @@
     <!-- TAB: CATEGORIES -->
     <!-- ============================================================ -->
     <div x-show="activeTab === 'categories'" x-data="categoryManager" x-init="init()">
-        <input type="file" x-ref="categoryImageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
+        <input type="file" x-ref="categoryImageInput" class="hidden" accept="image/*"
+            @change="handleImageUpload($event)">
 
         <!-- Toolbar -->
         <div class="mb-4 flex items-center justify-between">
-            <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> categories registered</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> categories
+                registered</p>
             <div class="flex gap-2">
-                <button @click="fetchCategories()" class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+                <button @click="fetchCategories()"
+                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
-                <button @click="openAddModal()" class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
+                <button @click="openAddModal()"
+                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
                     <span class="w-4 h-4" x-icon="'plus'"></span> Add Category
                 </button>
             </div>
@@ -210,15 +253,24 @@
 
         <!-- Table -->
         <template x-if="!isLoading">
-            <div class="rounded-lg border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+            <div
+                class="rounded-lg border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
                 <table class="w-full text-sm">
                     <thead class="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">Category</th>
-                            <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500 hidden sm:table-cell">Slug</th>
-                            <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">Sort Order</th>
-                            <th class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">Status</th>
-                            <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-widest text-gray-500">Action</th>
+                            <th class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500">
+                                Category</th>
+                            <th
+                                class="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-gray-500 hidden sm:table-cell">
+                                Slug</th>
+                            <th
+                                class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">
+                                Sort Order</th>
+                            <th
+                                class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">
+                                Status</th>
+                            <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-widest text-gray-500">
+                                Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
@@ -227,21 +279,26 @@
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         <template x-if="cat.imageurl">
-                                            <img :src="cat.imageurl" class="h-9 w-9 rounded-lg object-cover bg-gray-100">
+                                            <img :src="cat.imageurl"
+                                                class="h-9 w-9 rounded-lg object-cover bg-gray-100">
                                         </template>
                                         <template x-if="!cat.imageurl">
-                                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-400">
+                                            <div
+                                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-400">
                                                 <span class="w-4 h-4" x-icon="'layers'"></span>
                                             </div>
                                         </template>
                                         <div>
                                             <p class="font-bold text-gray-900 dark:text-white" x-text="cat.name"></p>
-                                            <p class="text-xs text-gray-400 truncate max-w-[160px]" x-text="cat.description || '—'"></p>
+                                            <p class="text-xs text-gray-400 truncate max-w-[160px]"
+                                                x-text="cat.description || '—'"></p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 hidden sm:table-cell">
-                                    <span class="rounded-lg bg-gray-100 dark:bg-gray-800 px-2 py-1 font-mono text-xs text-gray-600 dark:text-gray-400" x-text="cat.slug || '—'"></span>
+                                    <span
+                                        class="rounded-lg bg-gray-100 dark:bg-gray-800 px-2 py-1 font-mono text-xs text-gray-600 dark:text-gray-400"
+                                        x-text="cat.slug || '—'"></span>
                                 </td>
                                 <td class="px-4 py-3 text-center text-gray-500" x-text="cat.sortorder || 0"></td>
                                 <td class="px-4 py-3 text-center">
@@ -251,10 +308,12 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <button @click="editCategory(cat)" class="rounded-lg p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                        <button @click="editCategory(cat)"
+                                            class="rounded-lg p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                                             <span class="w-4 h-4" x-icon="'pencil'"></span>
                                         </button>
-                                        <button @click="deleteCategory(cat.id)" class="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                        <button @click="deleteCategory(cat.id)"
+                                            class="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                                             <span class="w-4 h-4" x-icon="'trash'"></span>
                                         </button>
                                     </div>
@@ -281,12 +340,15 @@
                 <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
                     @click="showModal = false"></div>
 
-                <div class="modal-dialog relative w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+                <div
+                    class="modal-dialog relative w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Organize products with relevant categories.</p>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white"
+                                x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Organize products with relevant
+                                categories.</p>
                         </div>
                         <button @click="showModal = false"
                             class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
@@ -299,9 +361,11 @@
                         <div class="space-y-4">
                             <!-- Image -->
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Image</label>
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Image</label>
                                 <div class="flex items-center gap-3">
-                                    <div class="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex-shrink-0" @click="$refs.categoryImageInput.click()">
+                                    <div class="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex-shrink-0"
+                                        @click="$refs.categoryImageInput.click()">
                                         <template x-if="editingItem.imageurl">
                                             <img :src="editingItem.imageurl" class="h-full w-full object-cover">
                                         </template>
@@ -310,34 +374,53 @@
                                                 <span class="w-6 h-6" x-icon="'upload'"></span>
                                             </div>
                                         </template>
-                                        <div x-show="isUploading" class="absolute inset-0 flex items-center justify-center bg-white/80">
-                                            <span class="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
+                                        <div x-show="isUploading"
+                                            class="absolute inset-0 flex items-center justify-center bg-white/80">
+                                            <span
+                                                class="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                         </div>
                                     </div>
-                                    <input type="text" x-model="editingItem.imageurl" class="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Image URL">
+                                    <input type="text" x-model="editingItem.imageurl"
+                                        class="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                        placeholder="Image URL">
                                 </div>
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Name *</label>
-                                <input type="text" x-model="editingItem.name" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="Category name">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Name
+                                    *</label>
+                                <input type="text" x-model="editingItem.name"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="Category name">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slug</label>
-                                <input type="text" x-model="editingItem.slug" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono dark:border-gray-700 dark:bg-gray-800 dark:text-white" placeholder="category-slug">
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slug</label>
+                                <input type="text" x-model="editingItem.slug"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    placeholder="category-slug">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
-                                <textarea x-model="editingItem.description" rows="2" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none" placeholder="Short description"></textarea>
+                                <label
+                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
+                                <textarea x-model="editingItem.description" rows="2"
+                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none"
+                                    placeholder="Short description"></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort Order</label>
-                                    <input type="number" x-model.number="editingItem.sortorder" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                    <label
+                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort
+                                        Order</label>
+                                    <input type="number" x-model.number="editingItem.sortorder"
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
                                         <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
-                                        <div class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
+                                        <div
+                                            class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700">
+                                        </div>
                                         <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
                                     </label>
                                 </div>
@@ -346,8 +429,11 @@
 
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                            <button @click="showModal = false" class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
-                            <button id="save-category-btn" @click="saveCategory()" class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save Category</button>
+                            <button @click="showModal = false"
+                                class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                            <button id="save-category-btn" @click="saveCategory()"
+                                class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
+                                Category</button>
                         </footer>
                     </div>
                 </div>
@@ -362,8 +448,13 @@
 </div>
 
 <style>
-@keyframes marquee-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-33.33%); }
-}
+    @keyframes marquee-scroll {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-33.33%);
+        }
+    }
 </style>
