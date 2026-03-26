@@ -142,6 +142,8 @@
   --z-index-99999: 99999;
   --z-index-999999: 999999;
 
+  --brand-solid: var(--color-brand-600);
+  --brand-surface: var(--color-brand-50);
   /* Semantic Colors for Light Mode */
   --bg-primary: var(--color-gray-50);
   --bg-secondary: var(--color-white);
