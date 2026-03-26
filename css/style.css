@@ -152,7 +152,7 @@
   --border-secondary: var(--color-gray-300);
   --icon-primary: var(--color-gray-500);
   --color-gridline: var(--color-gray-100);
-  --bg-hover: var(--color-gray-50);
+  --bg-hover: var(--color-gray-100);
   /* Light mode hover background */
 }
 
@@ -250,6 +250,11 @@ button:not(:disabled),
   color: var(--text-secondary);
 }
 
+.menu-item-inactive:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
 .menu-item-icon-active {
   fill: var(--brand-solid);
 }
@@ -279,11 +284,7 @@ button:not(:disabled),
 
 .menu-item-arrow-active {
   transform: rotate(180deg);
-  stroke: var(--color-brand-500);
-}
-
-.dark .menu-item-arrow-active {
-  stroke: var(--color-brand-400);
+  stroke: var(--brand-solid);
 }
 
 .menu-item-arrow-inactive {
@@ -315,14 +316,8 @@ button:not(:disabled),
 }
 
 .menu-dropdown-item-active {
-  background-color: var(--color-brand-50);
-  color: var(--color-brand-500);
-}
-
-.dark .menu-dropdown-item-active {
-  background-color: rgba(70, 95, 255, 0.12);
-  /* brand-500/12 */
-  color: var(--color-brand-400);
+  background-color: var(--brand-surface);
+  color: var(--brand-solid);
 }
 
 .menu-dropdown-item-inactive {
@@ -330,17 +325,7 @@ button:not(:disabled),
 }
 
 .menu-dropdown-item-inactive:hover {
-  background-color: var(--color-gray-100);
-  color: var(--text-primary);
-}
-
-.dark .menu-dropdown-item-inactive {
-  color: var(--text-secondary);
-}
-
-.dark .menu-dropdown-item-inactive:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  /* white/5 */
+  background-color: var(--bg-hover);
   color: var(--text-primary);
 }
 
