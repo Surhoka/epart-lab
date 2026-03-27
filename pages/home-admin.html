@@ -30,12 +30,10 @@
                 <span x-text="slides.length"></span> slides registered
             </p>
             <div class="flex gap-2">
-                <button @click="fetchSlides()"
-                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+                <button @click="fetchSlides()" class="btn btn-outline">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
-                <button @click="openAddModal()"
-                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
+                <button @click="openAddModal()" class="btn btn-primary">
                     <span class="w-4 h-4" x-icon="'plus'"></span> Add Slide
                 </button>
             </div>
@@ -75,12 +73,10 @@
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate"
                                 x-text="slide.subtitle || '—'"></p>
                             <div class="mt-3 flex items-center gap-2">
-                                <button @click="editSlide(slide)"
-                                    class="flex-1 rounded-lg border border-gray-200 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">
+                                <button @click="editSlide(slide)" class="btn btn-outline btn-sm flex-1">
                                     Edit
                                 </button>
-                                <button @click="deleteSlide(slide.id)"
-                                    class="rounded-lg border border-red-100 py-1.5 px-3 text-xs font-bold text-red-500 hover:bg-red-50 dark:border-red-900/30 transition-colors">
+                                <button @click="deleteSlide(slide.id)" class="btn btn-danger btn-sm">
                                     <span class="w-3.5 h-3.5" x-icon="'trash'"></span>
                                 </button>
                             </div>
@@ -94,9 +90,7 @@
                         class="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-16 dark:border-gray-800">
                         <span class="w-12 h-12 text-gray-300" x-icon="'image'"></span>
                         <p class="mt-4 font-bold text-gray-500">No slides yet</p>
-                        <button @click="openAddModal()"
-                            class="mt-4 rounded-lg bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600">Add
-                            First Slide</button>
+                        <button @click="openAddModal()" class="btn btn-primary mt-4">Add First Slide</button>
                     </div>
                 </template>
             </div>
@@ -120,7 +114,7 @@
                                 hero banner.</p>
                         </div>
                         <button @click="showModal = false"
-                            class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
+                            class="btn btn-secondary absolute right-6 top-6 h-10 w-10 !p-0 rounded-full">
                             <span class="w-6 h-6 block" x-icon="'close'"></span>
                         </button>
                     </header>
@@ -209,11 +203,8 @@
 
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
-                            <button @click="showModal = false"
-                                class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
-                            <button id="save-hero-btn" @click="saveSlide()"
-                                class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
-                                Slide</button>
+                            <button @click="showModal = false" class="btn btn-outline flex-1 py-3">Cancel</button>
+                            <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1 py-3">Save Slide</button>
                         </footer>
                     </div>
                 </div>
@@ -233,12 +224,10 @@
             <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> categories
                 registered</p>
             <div class="flex gap-2">
-                <button @click="fetchCategories()"
-                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+                <button @click="fetchCategories()" class="btn btn-outline">
                     <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
                 </button>
-                <button @click="openAddModal()"
-                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-600 transition-all active:scale-95">
+                <button @click="openAddModal()" class="btn btn-primary">
                     <span class="w-4 h-4" x-icon="'plus'"></span> Add Category
                 </button>
             </div>
