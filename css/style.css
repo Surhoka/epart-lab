@@ -317,11 +317,12 @@ button:not(:disabled),
 
 .tab-nav-container.tab-nav-borderless {
   border: none;
-  background-color: var(--color-gray-100);
+  background-color: transparent;
+  padding: 0;
 }
 
 .dark .tab-nav-container.tab-nav-borderless {
-  background-color: var(--color-gray-800);
+  background-color: transparent;
 }
 
 .tab-nav-btn {
