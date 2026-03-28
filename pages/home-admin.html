@@ -112,7 +112,7 @@
                     </button>
 
                     <!-- Modal Content -->
-                    <div class="modal-content custom-scrollbar overflow-y-auto px-2 min-h-0">
+                    <div class="modal-content custom-scrollbar">
                         <div class="modal-header-sticky">
                             <h3 class="h3"
                                 x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
@@ -201,8 +201,8 @@
 
                         <!-- Modal Footer -->
                         <footer class="modal-footer-actions">
-                            <button @click="showModal = false" class="btn btn-outline flex-1 py-3">Cancel</button>
-                            <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1 py-3">Save Slide</button>
+                            <button @click="showModal = false" class="btn btn-outline flex-1">Cancel</button>
+                            <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1">Save Slide</button>
                         </footer>
                     </div>
                 </div>
@@ -336,7 +336,7 @@
                     </button>
 
                     <!-- Modal Content -->
-                    <div class="modal-content custom-scrollbar overflow-y-auto px-2 min-h-0">
+                    <div class="modal-content custom-scrollbar">
                         <div class="modal-header-sticky">
                             <h3 class="h3" x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
                             <p class="mt-2 text-sm text-theme-secondary">Organize your products into logical groups.</p>
@@ -413,9 +413,9 @@
                         <!-- Modal Footer -->
                         <footer class="modal-footer-actions">
                             <button @click="showModal = false"
-                                class="btn btn-outline flex-1 py-3">Cancel</button>
+                                class="btn btn-outline flex-1">Cancel</button>
                             <button id="save-category-btn" @click="saveCategory()"
-                                class="btn btn-primary flex-1 py-3">Save
+                                class="btn btn-primary flex-1">Save
                                 Category</button>
                         </footer>
                     </div>

@@ -461,10 +461,10 @@
               Delete Account
             </button>
             <div class="flex w-full sm:w-auto gap-3 ml-auto">
-              <button x-on:click="isProfileInfoModal = false" type="button" class="btn btn-outline w-full sm:w-auto px-6 py-3">
+              <button x-on:click="isProfileInfoModal = false" type="button" class="btn btn-outline w-full sm:w-auto">
                 Cancel
               </button>
-              <button @click="savePersonalInfo($el)" type="button" class="btn btn-primary w-full sm:w-auto px-6 py-3">
+              <button @click="savePersonalInfo($el)" type="button" class="btn btn-primary w-full sm:w-auto">
                 Save Changes
               </button>
             </div>
@@ -537,10 +537,10 @@
               Delete Address
             </button>
             <div class="flex w-full sm:w-auto gap-3 ml-auto">
-              <button x-on:click="isProfileAddressModal = false" type="button" class="btn btn-outline w-full sm:w-auto px-6 py-3">
+              <button x-on:click="isProfileAddressModal = false" type="button" class="btn btn-outline w-full sm:w-auto">
                 Cancel
               </button>
-              <button @click="saveAddress($el)" type="button" class="btn btn-primary w-full sm:w-auto px-6 py-3">
+              <button @click="saveAddress($el)" type="button" class="btn btn-primary w-full sm:w-auto">
                 Save Changes
               </button>
             </div>
@@ -665,7 +665,7 @@
           </div>
           <!-- Footer Buttons -->
           <div class="modal-footer-actions w-full">
-            <button x-on:click="isPublicInfoModal = false" type="button" class="btn btn-outline w-full sm:w-auto px-6 py-3">
+            <button x-on:click="isPublicInfoModal = false" type="button" class="btn btn-outline w-full sm:w-auto">
               Cancel
             </button>
             <button @click="savePublicInfo($el)" type="button" class="btn btn-primary w-full sm:w-auto px-8 py-3 ml-auto">
