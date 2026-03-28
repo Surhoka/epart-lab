@@ -2517,8 +2517,8 @@ select:focus {
 .modal-body-content {
   display: flex;
   flex-direction: column;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 
 /* Global Modal Footer Actions */
