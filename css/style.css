@@ -2517,6 +2517,8 @@ select:focus {
 .modal-body-content {
   display: flex;
   flex-direction: column;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 
 /* Global Modal Footer Actions */
@@ -2535,6 +2537,17 @@ select:focus {
   }
 }
 
+/* Global Modal Content Area */
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  overflow-y: auto;
+  min-height: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
 /* Global Modal Header (Sticky) */
 .modal-header-sticky {
   position: sticky;
@@ -2551,8 +2564,8 @@ select:focus {
 .modal-close-btn {
   /* Positioning & Layering */
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 2.25rem;
+  right: 2rem;
   z-index: 30;
 
   /* Sizing & Shape */
