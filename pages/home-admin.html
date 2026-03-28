@@ -112,13 +112,14 @@
                     </button>
 
                     <!-- Modal Content -->
-                    <div class="modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+                    <div class="modal-content custom-scrollbar overflow-y-auto px-2 min-h-0">
                         <div class="modal-header-sticky">
                             <h3 class="h3"
                                 x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Visual configuration for the home
+                            <p class="mt-2 text-sm text-theme-secondary">Visual configuration for the home
                                 hero banner.</p>
                         </div>
+                        <div class="modal-body-content gap-5">
                             <!-- Image Upload -->
                             <div>
                                 <label
@@ -335,13 +336,12 @@
                     </button>
 
                     <!-- Modal Content -->
-                    <div class="modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
+                    <div class="modal-content custom-scrollbar overflow-y-auto px-2 min-h-0">
                         <div class="modal-header-sticky">
-                            <h3 class="h3"
-                                x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Organize products with relevant
-                                categories.</p>
+                            <h3 class="h3" x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
+                            <p class="mt-2 text-sm text-theme-secondary">Organize your products into logical groups.</p>
                         </div>
+                        <div class="modal-body-content">
                             <!-- Image -->
                             <div>
                                 <label
@@ -364,7 +364,7 @@
                                         </div>
                                     </div>
                                     <input type="text" x-model="editingItem.imageurl"
-                                        class="flex-1 rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-xs theme-primary"
+                                        class="form-input flex-1"
                                         placeholder="Image URL">
                                 </div>
                             </div>
@@ -380,7 +380,7 @@
                                 <label
                                     class="caption mb-1.5 block">Slug</label>
                                 <input type="text" x-model="editingItem.slug"
-                                    class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm font-mono theme-primary"
+                                    class="form-input font-mono"
                                     placeholder="category-slug">
                             </div>
                             <div>
