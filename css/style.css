@@ -291,6 +291,25 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Global Form Input (Slim/Premium) */
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: var(--text-placeholder);
+}
+
 .card-premium:hover {
   box-shadow: var(--shadow-theme-md);
   border-color: var(--border-secondary);
