@@ -2515,8 +2515,35 @@ select:focus {
 
 /* Global Modal Close Button */
 .modal-close-btn {
+  /* Positioning & Layering */
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
   z-index: 30;
+
+  /* Sizing & Shape */
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0 !important;
+  border-radius: var(--radius-full);
+
+  /* Base Styles (btn reset) */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+
+  /* Theme (btn-secondary) */
+  background-color: var(--brand-surface);
+  color: var(--brand-solid);
+}
+
+.modal-close-btn:hover {
+  background-color: var(--color-brand-100);
+}
+
+.modal-close-btn:active {
+  transform: scale(0.95);
 }
