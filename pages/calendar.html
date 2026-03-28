@@ -33,12 +33,12 @@
         </div>
         <div class="modal-body-content">
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Event Title</label>
+            <label class="form-label">Event Title</label>
             <input x-model="editingEvent.title" type="text"
               class="form-input" placeholder="Enter event title" />
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Description</label>
+            <label class="form-label">Description</label>
             <textarea x-model="editingEvent.description" rows="3"
               class="form-input" placeholder="Enter event description"></textarea>
           </div>
@@ -62,13 +62,13 @@
             </label>
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Start Date</label>
+            <label class="form-label">Start Date</label>
             <input x-model="editingEvent.start" :type="editingEvent.allDay ? 'date' : 'datetime-local'"
               @click="$el.showPicker()"
               class="form-input" />
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">End Date</label>
+            <label class="form-label">End Date</label>
             <input x-model="editingEvent.end" :type="editingEvent.allDay ? 'date' : 'datetime-local'"
               @click="$el.showPicker()"
               class="form-input" />
