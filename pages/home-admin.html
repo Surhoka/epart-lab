@@ -108,7 +108,7 @@
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white"
+                            <h3 class="h3"
                                 x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Visual configuration for the home
                                 hero banner.</p>
@@ -125,7 +125,7 @@
                             <!-- Image Upload -->
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slide
+                                    class="caption mb-1.5 block">Slide
                                     Image</label>
                                 <div class="relative group aspect-video w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
                                     @click="$refs.heroImageInput.click()">
@@ -151,7 +151,7 @@
                             </div>
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Title
+                                    class="caption mb-1.5 block">Title
                                     *</label>
                                 <input type="text" x-model="editingItem.title"
                                     class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
@@ -159,7 +159,7 @@
                             </div>
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Subtitle</label>
+                                    class="caption mb-1.5 block">Subtitle</label>
                                 <input type="text" x-model="editingItem.subtitle"
                                     class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                     placeholder="Support text">
@@ -167,7 +167,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button
+                                        class="caption mb-1.5 block">Button
                                         Text</label>
                                     <input type="text" x-model="editingItem.buttontext"
                                         class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
@@ -175,7 +175,7 @@
                                 </div>
                                 <div>
                                     <label
-                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Button
+                                        class="caption mb-1.5 block">Button
                                         Link</label>
                                     <input type="text" x-model="editingItem.buttonlink"
                                         class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
@@ -185,7 +185,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Urutan</label>
+                                        class="caption mb-1.5 block">Urutan</label>
                                     <input type="number" x-model.number="editingItem.sortorder"
                                         class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                                 </div>
@@ -334,13 +334,13 @@
                     <!-- Modal Header -->
                     <header class="flex items-start justify-between mb-6 shrink-0">
                         <div>
-                            <h3 class="text-xl font-black text-gray-900 dark:text-white"
+                            <h3 class="h3"
                                 x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Organize products with relevant
                                 categories.</p>
                         </div>
                         <button @click="showModal = false"
-                            class="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-500 transition-all hover:scale-110">
+                            class="btn btn-secondary absolute right-6 top-6 h-10 w-10 !p-0 rounded-full">
                             <span class="w-6 h-6 block" x-icon="'close'"></span>
                         </button>
                     </header>
@@ -351,7 +351,7 @@
                             <!-- Image -->
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Image</label>
+                                    class="caption mb-1.5 block">Image</label>
                                 <div class="flex items-center gap-3">
                                     <div class="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex-shrink-0"
                                         @click="$refs.categoryImageInput.click()">
@@ -376,7 +376,7 @@
                             </div>
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Name
+                                    class="caption mb-1.5 block">Name
                                     *</label>
                                 <input type="text" x-model="editingItem.name"
                                     class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
@@ -384,14 +384,14 @@
                             </div>
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Slug</label>
+                                    class="caption mb-1.5 block">Slug</label>
                                 <input type="text" x-model="editingItem.slug"
                                     class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                     placeholder="category-slug">
                             </div>
                             <div>
                                 <label
-                                    class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Description</label>
+                                    class="caption mb-1.5 block">Description</label>
                                 <textarea x-model="editingItem.description" rows="2"
                                     class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none"
                                     placeholder="Short description"></textarea>
@@ -399,7 +399,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="mb-1.5 block text-xs font-black uppercase tracking-widest text-gray-500">Sort
+                                        class="caption mb-1.5 block">Sort
                                         Order</label>
                                     <input type="number" x-model.number="editingItem.sortorder"
                                         class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
@@ -419,9 +419,9 @@
                         <!-- Modal Footer -->
                         <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
                             <button @click="showModal = false"
-                                class="flex-1 rounded-lg border border-gray-200 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 transition-colors">Cancel</button>
+                                class="btn btn-outline flex-1 py-3">Cancel</button>
                             <button id="save-category-btn" @click="saveCategory()"
-                                class="flex-1 rounded-lg bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 shadow-xl shadow-brand-500/10 transition-all active:scale-95">Save
+                                class="btn btn-primary flex-1 py-3">Save
                                 Category</button>
                         </footer>
                     </div>
