@@ -2562,6 +2562,11 @@ select:focus {
   background-color: var(--bg-secondary);
 }
 
+.modal-footer-actions .btn {
+  padding: 0.4375rem 1.25rem;
+  font-size: 0.8125rem;
+}
+
 @media (min-width: 1024px) {
   .modal-footer-actions {
     padding: 2rem 3rem 3rem 3rem;
