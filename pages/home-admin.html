@@ -104,9 +104,9 @@
                     @click="showModal = false"></div>
 
                 <div
-                    class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+                    class="modal-dialog relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-lg bg-theme-secondary shadow-2xl">
                     <!-- Modal Header -->
-                    <header class="flex items-start justify-between mb-6 shrink-0">
+                    <header class="modal-header-sticky flex items-start justify-between shrink-0 px-8">
                         <div>
                             <h3 class="h3"
                                 x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
@@ -120,8 +120,8 @@
                     </header>
 
                     <!-- Modal Content -->
-                    <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-                        <div class="space-y-4">
+                    <div class="modal-content custom-scrollbar overflow-y-auto pr-2 px-8 min-h-0">
+                        <div class="modal-body-content space-y-4">
                             <!-- Image Upload -->
                             <div>
                                 <label
@@ -146,7 +146,7 @@
                                     </div>
                                 </div>
                                 <input type="text" x-model="editingItem.imageurl"
-                                    class="mt-2 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="mt-2 w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-xs theme-primary"
                                     placeholder="Or enter image URL">
                             </div>
                             <div>
@@ -154,14 +154,14 @@
                                     class="caption mb-1.5 block">Title
                                     *</label>
                                 <input type="text" x-model="editingItem.title"
-                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary"
                                     placeholder="Slide title">
                             </div>
                             <div>
                                 <label
                                     class="caption mb-1.5 block">Subtitle</label>
                                 <input type="text" x-model="editingItem.subtitle"
-                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary"
                                     placeholder="Support text">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
@@ -170,7 +170,7 @@
                                         class="caption mb-1.5 block">Button
                                         Text</label>
                                     <input type="text" x-model="editingItem.buttontext"
-                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                        class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary"
                                         placeholder="Shop Now">
                                 </div>
                                 <div>
@@ -178,7 +178,7 @@
                                         class="caption mb-1.5 block">Button
                                         Link</label>
                                     <input type="text" x-model="editingItem.buttonlink"
-                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                        class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary"
                                         placeholder="#shop">
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                                     <label
                                         class="caption mb-1.5 block">Urutan</label>
                                     <input type="number" x-model.number="editingItem.sortorder"
-                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                        class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
@@ -202,7 +202,7 @@
                         </div>
 
                         <!-- Modal Footer -->
-                        <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
+                        <footer class="modal-footer-actions px-8 pb-8">
                             <button @click="showModal = false" class="btn btn-outline flex-1 py-3">Cancel</button>
                             <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1 py-3">Save Slide</button>
                         </footer>
@@ -330,9 +330,9 @@
                     @click="showModal = false"></div>
 
                 <div
-                    class="modal-dialog relative w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all duration-300">
+                    class="modal-dialog relative w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-theme-secondary shadow-2xl">
                     <!-- Modal Header -->
-                    <header class="flex items-start justify-between mb-6 shrink-0">
+                    <header class="modal-header-sticky flex items-start justify-between shrink-0 px-8">
                         <div>
                             <h3 class="h3"
                                 x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
@@ -346,8 +346,8 @@
                     </header>
 
                     <!-- Modal Content -->
-                    <div class="flex flex-col modal-content custom-scrollbar overflow-y-auto pr-2 min-h-0">
-                        <div class="space-y-4">
+                    <div class="modal-content custom-scrollbar overflow-y-auto pr-2 px-8 min-h-0">
+                        <div class="modal-body-content space-y-4">
                             <!-- Image -->
                             <div>
                                 <label
@@ -370,7 +370,7 @@
                                         </div>
                                     </div>
                                     <input type="text" x-model="editingItem.imageurl"
-                                        class="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                        class="flex-1 rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-xs theme-primary"
                                         placeholder="Image URL">
                                 </div>
                             </div>
@@ -379,21 +379,21 @@
                                     class="caption mb-1.5 block">Name
                                     *</label>
                                 <input type="text" x-model="editingItem.name"
-                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary"
                                     placeholder="Category name">
                             </div>
                             <div>
                                 <label
                                     class="caption mb-1.5 block">Slug</label>
                                 <input type="text" x-model="editingItem.slug"
-                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm font-mono theme-primary"
                                     placeholder="category-slug">
                             </div>
                             <div>
                                 <label
                                     class="caption mb-1.5 block">Description</label>
                                 <textarea x-model="editingItem.description" rows="2"
-                                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white resize-none"
+                                    class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary resize-none"
                                     placeholder="Short description"></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
@@ -402,7 +402,7 @@
                                         class="caption mb-1.5 block">Sort
                                         Order</label>
                                     <input type="number" x-model.number="editingItem.sortorder"
-                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                        class="w-full rounded-lg border border-theme-primary bg-theme-primary px-4 py-2.5 text-sm theme-primary">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
@@ -417,7 +417,7 @@
                         </div>
 
                         <!-- Modal Footer -->
-                        <footer class="mt-8 flex gap-3 pb-2 pt-4 border-t border-gray-50 dark:border-gray-800">
+                        <footer class="modal-footer-actions px-8 pb-8">
                             <button @click="showModal = false"
                                 class="btn btn-outline flex-1 py-3">Cancel</button>
                             <button id="save-category-btn" @click="saveCategory()"
