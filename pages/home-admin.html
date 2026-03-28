@@ -122,9 +122,7 @@
                         <div class="modal-body-content gap-5">
                             <!-- Image Upload -->
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Slide
-                                    Image</label>
+                                <label class="form-label">Slide Image</label>
                                 <div class="relative group aspect-video w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
                                     @click="$refs.heroImageInput.click()">
                                     <template x-if="editingItem.imageurl">
@@ -148,32 +146,28 @@
                                     placeholder="Or enter image URL">
                             </div>
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Title
+                                <label class="form-label">Title
                                     *</label>
                                 <input type="text" x-model="editingItem.title"
                                     class="form-input"
                                     placeholder="Slide title">
                             </div>
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Subtitle</label>
+                                <label class="form-label">Subtitle</label>
                                 <input type="text" x-model="editingItem.subtitle"
                                     class="form-input"
                                     placeholder="Support text">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label
-                                        class="caption mb-1.5 block">Button
+                                    <label class="form-label">Button
                                         Text</label>
                                     <input type="text" x-model="editingItem.buttontext"
                                         class="form-input"
                                         placeholder="Shop Now">
                                 </div>
                                 <div>
-                                    <label
-                                        class="caption mb-1.5 block">Button
+                                    <label class="form-label">Button
                                         Link</label>
                                     <input type="text" x-model="editingItem.buttonlink"
                                         class="form-input"
@@ -182,8 +176,7 @@
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label
-                                        class="caption mb-1.5 block">Urutan</label>
+                                    <label class="form-label">Urutan</label>
                                     <input type="number" x-model.number="editingItem.sortorder"
                                         class="form-input">
                                 </div>
@@ -344,8 +337,7 @@
                         <div class="modal-body-content">
                             <!-- Image -->
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Image</label>
+                                <label class="form-label">Image</label>
                                 <div class="flex items-center gap-3">
                                     <div class="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex-shrink-0"
                                         @click="$refs.categoryImageInput.click()">
@@ -369,31 +361,27 @@
                                 </div>
                             </div>
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Name
+                                <label class="form-label">Name
                                     *</label>
                                 <input type="text" x-model="editingItem.name"
                                     class="form-input"
                                     placeholder="Category name">
                             </div>
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Slug</label>
+                                <label class="form-label">Slug</label>
                                 <input type="text" x-model="editingItem.slug"
                                     class="form-input font-mono"
                                     placeholder="category-slug">
                             </div>
                             <div>
-                                <label
-                                    class="caption mb-1.5 block">Description</label>
+                                <label class="form-label">Description</label>
                                 <textarea x-model="editingItem.description" rows="2"
                                     class="form-input"
                                     placeholder="Short description"></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label
-                                        class="caption mb-1.5 block">Sort
+                                    <label class="form-label">Sort
                                         Order</label>
                                     <input type="number" x-model.number="editingItem.sortorder"
                                         class="form-input">

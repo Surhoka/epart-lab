@@ -94,7 +94,7 @@
       <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+            <h4 class="h4 mb-6">
               Personal Information
             </h4>
 
@@ -170,7 +170,7 @@
       <div class="p-5 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+            <h4 class="h4 mb-6">
               Address
             </h4>
 
@@ -231,7 +231,7 @@
       <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+            <h4 class="h4 mb-6">
               Public Information
             </h4>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-2xl">
@@ -357,13 +357,13 @@
         <form class="flex flex-col">
           <div class="modal-body-content">
             <div>
-              <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
+              <h5 class="h5 mb-4">
                 Social Links
               </h5>
 
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Facebook
                   </label>
                   <input x-model="editableProfile.socialLinks.facebook" type="text" placeholder="https://facebook.com/"
@@ -371,7 +371,7 @@
                 </div>
 
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     X.com
                   </label>
                   <input x-model="editableProfile.socialLinks.twitter" type="text" placeholder="https://x.com/"
@@ -379,7 +379,7 @@
                 </div>
 
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Linkedin
                   </label>
                   <input x-model="editableProfile.socialLinks.linkedin" type="text" placeholder="https://linkedin.com/"
@@ -387,7 +387,7 @@
                 </div>
 
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Instagram
                   </label>
                   <input x-model="editableProfile.socialLinks.instagram" type="text"
@@ -397,13 +397,13 @@
               </div>
             </div>
             <div class="mt-7">
-              <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
+              <h5 class="h5 mb-4">
                 Personal Information
               </h5>
 
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     First Name
                   </label>
                   <input x-model="editableProfile.personalInfo.firstName" type="text" placeholder="First Name"
@@ -411,7 +411,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Last Name
                   </label>
                   <input x-model="editableProfile.personalInfo.lastName" type="text" placeholder="Last Name"
@@ -419,7 +419,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Email Address
                   </label>
                   <input x-model="editableProfile.personalInfo.email" type="text" placeholder="email@example.com"
@@ -427,7 +427,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Phone
                   </label>
                   <input x-model="editableProfile.personalInfo.phone" type="text" placeholder="+1234567890"
@@ -435,7 +435,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Bio
                   </label>
                   <input x-model="editableProfile.personalInfo.bio" type="text" placeholder="Your bio"
@@ -443,7 +443,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="form-label">
                     Status
                   </label>
                   <select x-model="editableProfile.personalInfo.status"
@@ -500,7 +500,7 @@
           <div class="modal-body-content">
             <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                <label class="form-label">
                   Country
                 </label>
                 <input x-model="editableProfile.address.country" type="text" placeholder="Country"
@@ -508,7 +508,7 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                <label class="form-label">
                   City/State
                 </label>
                 <input x-model="editableProfile.address.cityState" type="text" placeholder="City, State"
@@ -516,7 +516,7 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                <label class="form-label">
                   Postal Code
                 </label>
                 <input x-model="editableProfile.address.postalCode" type="text" placeholder="Postal Code"
@@ -524,7 +524,7 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                <label class="form-label">
                   TAX ID
                 </label>
                 <input x-model="editableProfile.address.taxId" type="text" placeholder="TAX ID"
@@ -577,29 +577,29 @@
           <div class="modal-body-content gap-8">
             <!-- Public Contacts -->
             <div>
-              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Public Support Contacts</h5>
+              <h5 class="h5 mb-4">Public Support Contacts</h5>
               <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div class="lg:col-span-2">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Company Name</label>
+                  <label class="form-label">Company Name</label>
                   <input x-model="editableProfile.publicDisplay.companyName" type="text" placeholder="Your Company Name"
                     class="form-input" />
                 </div>
                 <div class="lg:col-span-2">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Physical Store
+                  <label class="form-label">Physical Store
                     Address (Full)</label>
                   <input x-model="editableProfile.publicDisplay.storeAddress" type="text"
                     placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
                     class="form-input" />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                  <label class="form-label">Support
                     Email</label>
                   <input x-model="editableProfile.publicDisplay.supportEmail" type="email"
                     placeholder="support@ezyparts.com"
                     class="form-input" />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Support
+                  <label class="form-label">Support
                     Phone</label>
                   <input x-model="editableProfile.publicDisplay.supportPhone" type="text" placeholder="+62 21 1234 5678"
                     class="form-input" />
@@ -609,17 +609,17 @@
 
             <!-- Operating Hours -->
             <div>
-              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Operating Hours</h5>
+              <h5 class="h5 mb-4">Operating Hours</h5>
               <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating
+                  <label class="form-label">Operating
                     Hours</label>
                   <input x-model="editableProfile.publicDisplay.operatingHours" type="text"
                     placeholder="8:00am - 8:00pm"
                     class="form-input" />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Operating
+                  <label class="form-label">Operating
                     Days</label>
                   <input x-model="editableProfile.publicDisplay.operatingDays" type="text"
                     placeholder="Monday - Saturday"
@@ -630,30 +630,30 @@
 
             <!-- Social Presence -->
             <div>
-              <h5 class="mb-4 text-base font-bold text-gray-800 dark:text-white/90">Social Media Presence</h5>
+              <h5 class="h5 mb-4">Social Media Presence</h5>
               <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Facebook
+                  <label class="form-label">Facebook
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.facebook" type="text"
                     placeholder="https://facebook.com/..."
                     class="form-input" />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Twitter (X)
+                  <label class="form-label">Twitter (X)
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.twitter" type="text" placeholder="https://x.com/..."
                     class="form-input" />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Instagram
+                  <label class="form-label">Instagram
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.instagram" type="text"
                     placeholder="https://instagram.com/..."
                     class="form-input" />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">LinkedIn
+                  <label class="form-label">LinkedIn
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.linkedin" type="text"
                     placeholder="https://linkedin.com/..."
