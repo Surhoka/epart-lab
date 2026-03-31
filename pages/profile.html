@@ -16,9 +16,9 @@
   </div>
 
   <div x-show="!isLoading && activeTab === 'general'" x-transition>
-    <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
       <!-- Meta Card -->
-      <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
+      <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div class="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div class="relative group">
@@ -27,7 +27,8 @@
                   class="w-full h-full object-cover" />
               </div>
               <!-- Edit Photo Overlay Button -->
-              <button @click="triggerPhotoUpload()" type="button" class="btn btn-primary absolute bottom-0 right-0 flex h-7 w-7 !p-0 rounded-full shadow-lg opacity-0 group-hover:opacity-100">
+              <button @click="triggerPhotoUpload()" type="button"
+                class="btn btn-primary absolute bottom-0 right-0 flex h-7 w-7 !p-0 rounded-full shadow-lg opacity-0 group-hover:opacity-100">
                 <svg class="fill-current" width="14" height="14" viewBox="0 0 18 18" fill="none"
                   xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -91,7 +92,7 @@
         </div>
       </div>
       <!-- Personal Information Card -->
-      <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
+      <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="h4 mb-6">
@@ -167,7 +168,7 @@
         </div>
       </div>
       <!-- Address Card -->
-      <div class="p-5 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
+      <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="h4 mb-6">
@@ -227,8 +228,8 @@
 
   <!-- Tab 2: Public Display Information -->
   <div x-show="!isLoading && activeTab === 'public'" x-transition x-cloak>
-    <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-      <div class="p-5 mb-6 border border-gray-200 rounded-lg dark:border-gray-800 lg:p-6">
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+      <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 class="h4 mb-6">
@@ -297,32 +298,32 @@
       </div>
 
       <!-- Social Media Visibility Status -->
-      <div class="p-6 border border-gray-100 rounded-lg dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
+      <div class="p-6 border border-gray-100 rounded-2xl dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
         <h5 class="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <div class="w-2 h-2 rounded-full bg-success-500"></div>
           Social Media Status (Active in Footer)
         </h5>
         <div class="flex flex-wrap gap-4">
           <div
-            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+            class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div class="w-4 h-4 text-blue-600" x-icon='"facebook"'></div>
             <span x-text="getSocialStatus(profile.publicDisplay.facebook)"
               :class="getSocialStatusClass(profile.publicDisplay.facebook)" class="text-xs font-medium"></span>
           </div>
           <div
-            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+            class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div class="w-4 h-4 text-gray-900 dark:text-white" x-icon='"twitter"'></div>
             <span x-text="getSocialStatus(profile.publicDisplay.twitter)"
               :class="getSocialStatusClass(profile.publicDisplay.twitter)" class="text-xs font-medium"></span>
           </div>
           <div
-            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+            class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div class="w-4 h-4 text-pink-600" x-icon='"instagram"'></div>
             <span x-text="getSocialStatus(profile.publicDisplay.instagram)"
               :class="getSocialStatusClass(profile.publicDisplay.instagram)" class="text-xs font-medium"></span>
           </div>
           <div
-            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+            class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div class="w-4 h-4 text-blue-700" x-icon='"linkedin"'></div>
             <span x-text="getSocialStatus(profile.publicDisplay.linkedin)"
               :class="getSocialStatusClass(profile.publicDisplay.linkedin)" class="text-xs font-medium"></span>
@@ -338,11 +339,9 @@
     class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isProfileInfoModal = false"></div>
-    <div
-      class="modal-dialog">
+    <div class="modal-dialog">
       <!-- close btn -->
-      <button x-on:click="isProfileInfoModal = false"
-        class="modal-close-btn">
+      <button x-on:click="isProfileInfoModal = false" class="modal-close-btn">
         <span class="w-6 h-6 block" x-icon="'close'"></span>
       </button>
       <div class="modal-content custom-scrollbar">
@@ -391,8 +390,7 @@
                     Instagram
                   </label>
                   <input x-model="editableProfile.socialLinks.instagram" type="text"
-                    placeholder="https://instagram.com/"
-                    class="form-input" />
+                    placeholder="https://instagram.com/" class="form-input" />
                 </div>
               </div>
             </div>
@@ -446,8 +444,7 @@
                   <label class="form-label">
                     Status
                   </label>
-                  <select x-model="editableProfile.personalInfo.status"
-                    class="form-input">
+                  <select x-model="editableProfile.personalInfo.status" class="form-input">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                     <option value="Verified">Verified</option>
@@ -479,11 +476,9 @@
     class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isProfileAddressModal = false"></div>
-    <div
-      class="modal-dialog">
+    <div class="modal-dialog">
       <!-- close btn -->
-      <button x-on:click="isProfileAddressModal = false"
-        class="modal-close-btn">
+      <button x-on:click="isProfileAddressModal = false" class="modal-close-btn">
         <span class="w-6 h-6 block" x-icon="'close'"></span>
       </button>
 
@@ -503,8 +498,7 @@
                 <label class="form-label">
                   Country
                 </label>
-                <input x-model="editableProfile.address.country" type="text" placeholder="Country"
-                  class="form-input" />
+                <input x-model="editableProfile.address.country" type="text" placeholder="Country" class="form-input" />
               </div>
 
               <div>
@@ -527,8 +521,7 @@
                 <label class="form-label">
                   TAX ID
                 </label>
-                <input x-model="editableProfile.address.taxId" type="text" placeholder="TAX ID"
-                  class="form-input" />
+                <input x-model="editableProfile.address.taxId" type="text" placeholder="TAX ID" class="form-input" />
               </div>
             </div>
           </div>
@@ -556,11 +549,9 @@
     class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
     <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
       x-on:click="isPublicInfoModal = false"></div>
-    <div
-      class="modal-dialog">
+    <div class="modal-dialog">
       <!-- close btn -->
-      <button x-on:click="isPublicInfoModal = false"
-        class="modal-close-btn">
+      <button x-on:click="isPublicInfoModal = false" class="modal-close-btn">
         <span class="w-6 h-6 block" x-icon="'close'"></span>
       </button>
 
@@ -588,15 +579,13 @@
                   <label class="form-label">Physical Store
                     Address (Full)</label>
                   <input x-model="editableProfile.publicDisplay.storeAddress" type="text"
-                    placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
-                    class="form-input" />
+                    placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345" class="form-input" />
                 </div>
                 <div>
                   <label class="form-label">Support
                     Email</label>
                   <input x-model="editableProfile.publicDisplay.supportEmail" type="email"
-                    placeholder="support@ezyparts.com"
-                    class="form-input" />
+                    placeholder="support@ezyparts.com" class="form-input" />
                 </div>
                 <div>
                   <label class="form-label">Support
@@ -615,15 +604,13 @@
                   <label class="form-label">Operating
                     Hours</label>
                   <input x-model="editableProfile.publicDisplay.operatingHours" type="text"
-                    placeholder="8:00am - 8:00pm"
-                    class="form-input" />
+                    placeholder="8:00am - 8:00pm" class="form-input" />
                 </div>
                 <div>
                   <label class="form-label">Operating
                     Days</label>
                   <input x-model="editableProfile.publicDisplay.operatingDays" type="text"
-                    placeholder="Monday - Saturday"
-                    class="form-input" />
+                    placeholder="Monday - Saturday" class="form-input" />
                 </div>
               </div>
             </div>
@@ -636,8 +623,7 @@
                   <label class="form-label">Facebook
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.facebook" type="text"
-                    placeholder="https://facebook.com/..."
-                    class="form-input" />
+                    placeholder="https://facebook.com/..." class="form-input" />
                 </div>
                 <div>
                   <label class="form-label">Twitter (X)
@@ -649,15 +635,13 @@
                   <label class="form-label">Instagram
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.instagram" type="text"
-                    placeholder="https://instagram.com/..."
-                    class="form-input" />
+                    placeholder="https://instagram.com/..." class="form-input" />
                 </div>
                 <div>
                   <label class="form-label">LinkedIn
                     URL</label>
                   <input x-model="editableProfile.publicDisplay.linkedin" type="text"
-                    placeholder="https://linkedin.com/..."
-                    class="form-input" />
+                    placeholder="https://linkedin.com/..." class="form-input" />
                 </div>
               </div>
             </div>
@@ -668,7 +652,8 @@
             <button x-on:click="isPublicInfoModal = false" type="button" class="btn btn-outline w-full sm:w-auto">
               Cancel
             </button>
-            <button @click="savePublicInfo($el)" type="button" class="btn btn-primary w-full sm:w-auto px-8 py-3 ml-auto">
+            <button @click="savePublicInfo($el)" type="button"
+              class="btn btn-primary w-full sm:w-auto px-8 py-3 ml-auto">
               Save Operating Hours & Contact Info
             </button>
           </div>
