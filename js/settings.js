@@ -18,7 +18,8 @@
                 headerColor: '#ffffff',
                 sidebarColor: '#ffffff',
                 footerColor: '#1e3a8a',
-                gatewayToken: ''
+                gatewayToken: '',
+                blogId: ''
             },
 
             init() {
@@ -47,6 +48,14 @@
                     if (config.gatewayToken) {
                         this.settings.gatewayToken = config.gatewayToken;
                     }
+                    if (config.blogId) {
+                        this.settings.blogId = config.blogId;
+                    }
+                }
+
+                // Fallback: Ambil langsung dari config global EzyApi jika tersedia
+                if (window.EzyApi && window.EzyApi.config && window.EzyApi.config.blogId) {
+                    this.settings.blogId = window.EzyApi.config.blogId;
                 }
             },
 
@@ -93,6 +102,12 @@
 
                         window.sendDataToGoogle('saveThemeSettings', themePayload, (res) => {
                             console.log('Theme settings synced to cloud:', res);
+                        });
+
+                        // [NEW] Simpan General Settings (Blogger ID) ke backend
+                        window.sendDataToGoogle('save_settings', { blogId: this.settings.blogId }, (res) => {
+                            console.log('General settings synced:', res);
+                            if (window.EzyApi && window.EzyApi.config) window.EzyApi.config.blogId = this.settings.blogId;
                         });
                     }
 
