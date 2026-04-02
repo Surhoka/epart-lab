@@ -75,7 +75,11 @@ window.appInitMixin = function () {
             // Step 3: Ping ke Admin WebApp
             try {
                 // console.log('Pinging server at:', webappUrl);
-                const data = await this.fetchJsonp(webappUrl, { action: 'get_config' });
+                const data = await this.fetchJsonp(webappUrl, {
+                    action: 'get_config',
+                    userWebAppUrl: webappUrl, // Laporkan URL dari widget ezy-config
+                    gatewayUrl: GATEWAY_URL   // Kirim URL Gateway dari config.js
+                });
                 // console.log('CLIENT RECEIVED CONFIG:', data);
 
                 // Step 4: Validasi respons
