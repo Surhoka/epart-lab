@@ -36,6 +36,12 @@ window.setupData = function () {
 
         init() {
             console.log('Setup initialized with role:', this.role);
+
+            // Ambil URL dari Layout Blogger jika tersedia
+            if (window.BLOGGER_WEBAPP_URL) {
+                this.webappUrl = window.BLOGGER_WEBAPP_URL;
+            }
+
             try {
 
                 const saved = localStorage.getItem('EzypartsConfig');

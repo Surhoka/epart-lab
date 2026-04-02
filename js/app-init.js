@@ -34,7 +34,10 @@ window.appInitMixin = function () {
         },
 
         async checkInitialSetup() {
-            let webappUrl = getWebAppUrl();
+            // Prioritaskan URL dari Layout Blogger jika tersedia dan valid
+            let webappUrl = (window.BLOGGER_WEBAPP_URL && window.BLOGGER_WEBAPP_URL.startsWith('http'))
+                ? window.BLOGGER_WEBAPP_URL
+                : getWebAppUrl();
             const GATEWAY_URL = (typeof CONFIG !== 'undefined') ? CONFIG.WEBAPP_URL_DEV : null;
 
             // Step 1: Discovery jika URL kosong atau belum valid

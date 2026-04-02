@@ -17,7 +17,7 @@ if (typeof window.getGatewayUrl === 'undefined') {
             return null;
         };
 
-        const urlFromParam = getParam('url') || getParam('userWebAppUrl');
+        const urlFromParam = getParam('url') || getParam('userWebAppUrl') || window.BLOGGER_WEBAPP_URL;
         if (urlFromParam) return urlFromParam.trim();
 
         if (typeof getWebAppUrl === 'function') {
