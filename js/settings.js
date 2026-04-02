@@ -100,32 +100,32 @@
                             footerColor: this.settings.footerColor
                         };
 
-                        window.sendDataToGoogle('saveThemeSettings', themePayload, (res) => {
-                            console.log('Theme settings synced to cloud:', res);
-                        });
+                        // 1. Simpan Theme Settings
+                        window.sendDataToGoogle('saveThemeSettings', themePayload);
 
-                        // [NEW] Simpan General Settings (Blogger ID) ke backend
-                        window.sendDataToGoogle('save_settings', { blogId: this.settings.blogId }, (res) => {
-                            console.log('General settings synced:', res);
-                            if (window.EzyApi && window.EzyApi.config) window.EzyApi.config.blogId = this.settings.blogId;
-                        });
-                    }
+                        // 2. Simpan General & Security Settings ke backend (PropertiesService)
+                        const settingsPayload = {
+                            blogId: this.settings.blogId,
+                            gatewayToken: this.settings.gatewayToken
+                        };
 
-                    // [NEW] Save Sensitive Security Settings to GAS ScriptProperties
-                    if (window.google && window.google.script) {
-                        google.script.run
-                            .withSuccessHandler(() => {
-                                window.showToast('Settings saved successfully!', 'success');
+                        window.sendDataToGoogle('save_settings', settingsPayload, (res) => {
+                            if (res && res.status === 'success') {
+                                window.showToast('Semua pengaturan berhasil disinkronkan ke Cloud!', 'success');
+
+                                // Update runtime config agar tidak perlu reload
+                                if (window.EzyApi && window.EzyApi.config) {
+                                    window.EzyApi.config.blogId = this.settings.blogId;
+                                    window.EzyApi.config.gatewayToken = this.settings.gatewayToken;
+                                }
                                 if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
-                            })
-                            .withFailureHandler((err) => {
-                                console.error('Security save failed', err);
-                                window.showToast('Visual settings saved, but security update failed.', 'warning');
+                            } else {
+                                window.showToast('Gagal sinkronisasi: ' + (res?.message || 'Server Error'), 'error');
                                 if (btn && window.setButtonLoading) window.setButtonLoading(btn, false);
-                            })
-                            .saveSecuritySettings({ gatewayToken: this.settings.gatewayToken });
+                            }
+                        });
                     } else {
-                        window.showToast('Settings saved to browser!', 'success');
+                        window.showToast('Mode Offline: Tersimpan di browser saja.', 'warning');
                         if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
                     }
                 }, 600);
