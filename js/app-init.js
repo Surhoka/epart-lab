@@ -34,14 +34,16 @@ window.appInitMixin = function () {
         },
 
         async checkInitialSetup() {
-            // Prioritaskan URL dari Layout Blogger jika tersedia dan valid
-            let webappUrl = (window.BLOGGER_WEBAPP_URL && window.BLOGGER_WEBAPP_URL.startsWith('http'))
-                ? window.BLOGGER_WEBAPP_URL
-                : getWebAppUrl();
+            // 1. Resolve URL Priority: Blogger Layout > LocalStorage > config.js Gateway
+            const hasBloggerUrl = (window.BLOGGER_WEBAPP_URL && window.BLOGGER_WEBAPP_URL.startsWith('http'));
+            let webappUrl = hasBloggerUrl ? window.BLOGGER_WEBAPP_URL : getWebAppUrl();
+
             const GATEWAY_URL = (typeof CONFIG !== 'undefined') ? CONFIG.WEBAPP_URL_DEV : null;
 
-            // Step 1: Discovery jika URL kosong atau belum valid
-            if (!webappUrl || !webappUrl.startsWith('http')) {
+            // Step 1: Discovery hanya jika URL benar-benar kosong DAN tidak ada di Layout Blogger.
+            // Jika ada di Layout tapi gagal, kita biarkan sistem melaporkan error dari URL tersebut
+            // daripada "melompat" kembali ke Gateway yang bisa membingungkan user.
+            if (!hasBloggerUrl && (!webappUrl || !webappUrl.startsWith('http'))) {
                 try {
                     console.log('Attempting Auto-Discovery from Gateway:', GATEWAY_URL);
                     const discovery = await this.fetchJsonp(GATEWAY_URL, { action: 'get_admin_url' });
