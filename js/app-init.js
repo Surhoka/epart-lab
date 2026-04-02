@@ -77,8 +77,10 @@ window.appInitMixin = function () {
                 // console.log('Pinging server at:', webappUrl);
                 const data = await this.fetchJsonp(webappUrl, {
                     action: 'get_config',
-                    userWebAppUrl: webappUrl, // Laporkan URL dari widget ezy-config
-                    gatewayUrl: GATEWAY_URL   // Kirim URL Gateway dari config.js
+                    userWebAppUrl: webappUrl, // Laporkan URL terbaru dari widget Blogger
+                    gatewayUrl: GATEWAY_URL,  // Pastikan Admin tahu Gateway-nya (dari config.js)
+                    email: this.currentUser?.email, // Sertakan konteks user jika ada
+                    siteKey: localStorage.getItem('EzypartsConfig') ? JSON.parse(localStorage.getItem('EzypartsConfig')).siteKey : ''
                 });
                 // console.log('CLIENT RECEIVED CONFIG:', data);
 
