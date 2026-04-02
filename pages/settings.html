@@ -43,6 +43,19 @@
                     </select>
                     <p class="mt-1 text-xs text-gray-500">Choose the language for the admin dashboard.</p>
                 </div>
+
+                <!-- Blogger Integration -->
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Blogger Blog
+                        ID</label>
+                    <input type="text" x-model="settings.blogId" placeholder="e.g. 1234567890123456789"
+                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                    <p class="mt-1 text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Blog ID diperlukan agar sistem dapat membuat halaman statis <code
+                            class="bg-gray-100 dark:bg-gray-800 px-1 rounded">/p/product.html</code> secara otomatis
+                        untuk SEO.
+                    </p>
+                </div>
             </div>
 
             <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
@@ -89,8 +102,8 @@
                                 class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
                                 <div
                                     class="w-full h-12 rounded-lg bg-blue-500 shadow-sm flex items-center justify-center overflow-hidden">
-                                    <span x-show="settings.publicTheme === 'blue'" class="block w-6 h-6 shrink-0 text-white"
-                                        x-icon="'check'"></span>
+                                    <span x-show="settings.publicTheme === 'blue'"
+                                        class="block w-6 h-6 shrink-0 text-white" x-icon="'check'"></span>
                                 </div>
                                 <span class="text-xs font-semibold">Default Blue</span>
                             </button>
@@ -103,8 +116,8 @@
                                 class="flex flex-col items-center gap-2 p-3 rounded-xl border bg-white dark:bg-white/[0.03] transition-all hover:border-brand-300 h-full">
                                 <div class="w-full h-12 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center dark:border-gray-700 overflow-hidden"
                                     :style="settings.publicTheme === 'custom' ? 'background: ' + settings.customColor : ''">
-                                    <span x-show="settings.publicTheme !== 'custom'" class="block w-6 h-6 shrink-0 text-gray-400"
-                                        x-icon="'plus'"></span>
+                                    <span x-show="settings.publicTheme !== 'custom'"
+                                        class="block w-6 h-6 shrink-0 text-gray-400" x-icon="'plus'"></span>
                                 </div>
                                 <span class="text-xs font-semibold">Custom Color</span>
                             </button>
@@ -196,8 +209,8 @@
                                 <input type="radio" name="template-choice" value="public-1" class="sr-only"
                                     x-model="settings.templateName"
                                     @change="if(settings.publicTheme === 'blue') settings.sidebarColor = '#1e3a8a'">
-                                <span class="block h-5 w-5 shrink-0 text-brand-600" x-show="settings.templateName === 'public-1'"
-                                    x-icon="'check-circle'"></span>
+                                <span class="block h-5 w-5 shrink-0 text-brand-600"
+                                    x-show="settings.templateName === 'public-1'" x-icon="'check-circle'"></span>
                             </div>
                         </label>
 
@@ -228,8 +241,8 @@
                                 <input type="radio" name="template-choice" value="public-2" class="sr-only"
                                     x-model="settings.templateName"
                                     @change="if(settings.publicTheme === 'blue') settings.sidebarColor = '#ffffff'">
-                                <span class="block h-5 w-5 shrink-0 text-brand-600" x-show="settings.templateName === 'public-2'"
-                                    x-icon="'check-circle'"></span>
+                                <span class="block h-5 w-5 shrink-0 text-brand-600"
+                                    x-show="settings.templateName === 'public-2'" x-icon="'check-circle'"></span>
                             </div>
                         </label>
                     </div>
