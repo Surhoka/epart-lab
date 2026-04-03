@@ -1,4 +1,5 @@
 /**
+ * public-js/product.js
  * Product Detail Page Logic for Public EzyParts
  * Fetches and displays a single product by slug or ID
  */
@@ -10,29 +11,54 @@ window.initProductPage = function () {
         errorTitle: '',
         errorMessage: '',
         product: {},
+        slug: null,
         
-        init() {
-            // Get slug from global router params (set by decodeState in public-1.html)
-            // We use a small delay to ensure currentParams is fully populated if needed
-            const params = window.currentParams || {};
-            const slug = params.slug || params.id;
-            
-            if (!slug) {
-                this.showError('Oops!', 'ID produk tidak valid.');
-                return;
-            }
-            
-            this.fetchProduct(slug);
-        },
-        
-        async fetchProduct(slug) {
+        async init() {
             this.loading = true;
             this.error = false;
             
+            // Extract slug from URL hash, params or Blogger path
+            this.slug = this.getSlugFromUrl();
+            
+            if (this.slug) {
+                await this.fetchProductDetail();
+            } else {
+                this.loading = false;
+                this.showError('Oops!', 'ID produk tidak ditemukan di URL.');
+            }
+        },
+
+        getSlugFromUrl() {
+            // Priority 1: Global currentParams (set by SPA router)
+            if (window.currentParams?.slug) return window.currentParams.slug;
+            if (window.app?.params?.slug) return window.app.params.slug;
+            
+            // Priority 2: Extract from direct URL (Blogger Native /p/slug.html)
+            const path = window.location.pathname;
+            if (path.includes('/p/')) {
+                const parts = path.split('/');
+                const fileName = parts[parts.length - 1];
+                return fileName.replace('.html', '');
+            }
+            
+            // Priority 3: Extract from Hash (for SPA direct navigation)
+            const hash = window.location.hash || '';
+            if (hash.includes('slug=')) {
+                const match = hash.match(/slug=([^&]+)/);
+                return match ? match[1] : null;
+            }
+            
+            return null;
+        },
+        
+        async fetchProductDetail() {
+            this.loading = true;
             try {
                 // Call the specialized getProductDetail endpoint
-                const params = { slug: slug };
-                const response = await window.AdminAPI.get('getProductDetail', params);
+                const params = { slug: this.slug };
+                const response = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle('getProductDetail', params, resolve, reject);
+                });
                 
                 if (response.status === 'success' && response.data) {
                     this.product = response.data;
@@ -55,7 +81,9 @@ window.initProductPage = function () {
                 }
             } catch (e) {
                 console.error('Error fetching product:', e);
-                this.showError('Kesalahan Sistem', 'Gagal memuat data produk. Periksa koneksi Anda.');
+                this.showError('Kesalahan Sistem', 'Gagal memuat data produk.');
+            } finally {
+                this.loading = false;
             }
         },
         
@@ -76,12 +104,8 @@ window.initProductPage = function () {
         },
         
         contactWhatsApp() {
-            // Priority: 1. Store phone from branding, 2. Global constant, 3. Placeholder
-            const storePhone = window.app?.publicPhone || '628123456789';
-            
-            // Clean phone number (remove +, spaces, etc)
+            const storePhone = window.EZY_SITE_CONFIG?.whatsapp || window.app?.publicPhone || '628123456789';
             const cleanPhone = storePhone.replace(/\D/g, '');
-            
             const message = `Halo Admin, saya tertarik dengan produk: ${this.product.name}\n\nLink: ${window.location.href}`;
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
         },
@@ -96,7 +120,7 @@ window.initProductPage = function () {
                         window.flyToCart(sourceEl, this.product.imageurl);
                     }
                 } else {
-                    console.error('Cart store not found');
+                    if (typeof window.showToast === 'function') window.showToast('Gagal menambahkan ke keranjang', 'error');
                 }
             }
         }
