@@ -1245,8 +1245,8 @@
                         <div
                             class="group bg-white dark:bg-gray-800 rounded-xl p-0 shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 relative flex flex-col h-full">
                             <!-- Image Container -->
-                            <div class="relative aspect-square mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden cursor-pointer"
-                                @click="viewProduct(product)">
+                            <a :href="'/p/' + (product.slug || product.id) + '.html'"
+                                class="relative aspect-square mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden block">
                                 <img :src="product.imageurl" :alt="product.name" class="w-full h-full object-contain">
 
                                 <!-- Badges -->
@@ -1257,15 +1257,14 @@
                                     <span x-show="product.originalprice > product.price"
                                         class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg">SALE</span>
                                 </div>
-                            </div>
+                            </a>
 
                             <!-- Content -->
                             <div class="flex-grow flex flex-col px-4 pb-4">
                                 <div class="mb-2">
-                                    <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0"
-                                        x-text="product.category || 'General'"></p>
-                                    <h3 class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 cursor-pointer transition-colors"
-                                        @click="viewProduct(product)" x-text="product.name"></h3>
+                                    <h3 class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors">
+                                        <a :href="'/p/' + (product.slug || product.id) + '.html'" x-text="product.name"></a>
+                                    </h3>
                                 </div>
 
                                 <!-- Pricing & Action -->
