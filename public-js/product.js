@@ -29,6 +29,7 @@ window.initProductPage = function () {
         },
 
         getSlugFromUrl() {
+            console.log('🔗 [Debug] Extracting slug from URL...', window.location.pathname);
             // Priority 1: Global currentParams (set by SPA router)
             if (window.currentParams?.slug) return window.currentParams.slug;
             if (window.app?.params?.slug) return window.app.params.slug;
@@ -38,21 +39,27 @@ window.initProductPage = function () {
             if (path.includes('/p/')) {
                 const parts = path.split('/');
                 const fileName = parts[parts.length - 1];
-                return fileName.replace('.html', '');
+                const slug = fileName.replace('.html', '');
+                console.log('✅ [Debug] Slug extracted from Path:', slug);
+                return slug;
             }
             
             // Priority 3: Extract from Hash (for SPA direct navigation)
             const hash = window.location.hash || '';
             if (hash.includes('slug=')) {
                 const match = hash.match(/slug=([^&]+)/);
-                return match ? match[1] : null;
+                const slug = match ? match[1] : null;
+                console.log('✅ [Debug] Slug extracted from Hash:', slug);
+                return slug;
             }
             
+            console.warn('❌ [Debug] No slug found in URL');
             return null;
         },
         
         async fetchProductDetail() {
             this.loading = true;
+            console.log('📦 [Debug] Fetching Product Detail for slug:', this.slug);
             try {
                 // Call the specialized getProductDetail endpoint
                 const params = { slug: this.slug };
@@ -60,6 +67,8 @@ window.initProductPage = function () {
                     window.sendDataToGoogle('getProductDetail', params, resolve, reject);
                 });
                 
+                console.log('📥 [Debug] Product Detail Response:', response);
+
                 if (response.status === 'success' && response.data) {
                     this.product = response.data;
                     this.loading = false;
@@ -80,7 +89,7 @@ window.initProductPage = function () {
                     this.showError('Produk Tidak Ada', response.message || 'Data produk tidak ditemukan di database.');
                 }
             } catch (e) {
-                console.error('Error fetching product:', e);
+                console.error('❌ [Debug] Error fetching product:', e);
                 this.showError('Kesalahan Sistem', 'Gagal memuat data produk.');
             } finally {
                 this.loading = false;
