@@ -14,8 +14,13 @@ window.initPostPage = function() {
             // Extract slug from URL hash, params or Blogger path
             this.slug = this.getSlugFromUrl();
             
+            console.log('🏁 [Post] Initializing for slug:', this.slug);
+
             if (this.slug) {
-                await this.fetchPost();
+                // Beri jeda sedikit agar window.AdminAPI benar-benar siap (terutama saat Pjax)
+                setTimeout(async () => {
+                   await this.fetchPost();
+                }, 150);
             } else {
                 this.isLoading = false;
                 console.error('No slug found in URL');
@@ -23,6 +28,7 @@ window.initPostPage = function() {
         },
 
         getSlugFromUrl() {
+            console.log('🔗 [Debug] Extracting slug from URL...', window.location.pathname);
             // Priority 1: Global currentParams (set by SPA router)
             if (window.currentParams?.slug) return window.currentParams.slug;
             if (window.app?.params?.slug) return window.app.params.slug;
@@ -32,24 +38,39 @@ window.initPostPage = function() {
             if (path.includes('/p/')) {
                 const parts = path.split('/');
                 const fileName = parts[parts.length - 1];
-                return fileName.replace('.html', '');
+                const slug = fileName.replace('.html', '');
+                console.log('✅ [Debug] Slug extracted from Path:', slug);
+                return slug;
             }
             
             // Priority 3: Extract from Hash (for SPA direct navigation)
             const hash = window.location.hash || '';
             if (hash.includes('slug=')) {
                 const match = hash.match(/slug=([^&]+)/);
-                return match ? match[1] : null;
+                const slug = match ? match[1] : null;
+                console.log('✅ [Debug] Slug extracted from Hash:', slug);
+                return slug;
             }
 
+            console.warn('❌ [Debug] No slug found in URL');
             return null;
         },
 
         async fetchPost() {
+            console.log('📦 [Debug] Fetching Post via AdminAPI...', this.slug);
             try {
-                const res = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('get_post_by_slug', { slug: this.slug }, resolve, reject);
-                });
+                if (!window.AdminAPI) {
+                    throw new Error('AdminAPI is not defined');
+                }
+                
+                // Ensure AdminAPI is initialized
+                if (!window.AdminAPI.baseUrl) {
+                    window.AdminAPI.init();
+                }
+
+                const res = await window.AdminAPI.get('get_post_by_slug', { slug: this.slug });
+                
+                console.log('📥 [Debug] Post API Response:', res);
 
                 if (res.status === 'success' && res.data) {
                     this.post = res.data;
@@ -57,7 +78,7 @@ window.initPostPage = function() {
                     
                     // Update Page Title
                     if (this.post.title) {
-                        document.title = `${this.post.title} | ${window.app?.blogTitle || 'EzyStore'}`;
+                        document.title = `${this.post.title} | EzyParts`;
                     }
                 } else {
                     console.error('Post not found:', res.message);

@@ -20,8 +20,13 @@ window.initProductPage = function () {
             // Extract slug from URL hash, params or Blogger path
             this.slug = this.getSlugFromUrl();
             
+            console.log('🏁 [Product] Initializing for slug:', this.slug);
+            
             if (this.slug) {
-                await this.fetchProductDetail();
+                // Beri jeda sedikit agar window.AdminAPI benar-benar siap (terutama saat Pjax)
+                setTimeout(async () => {
+                    await this.fetchProductDetail();
+                }, 150);
             } else {
                 this.loading = false;
                 this.showError('Oops!', 'ID produk tidak ditemukan di URL.');
@@ -30,6 +35,7 @@ window.initProductPage = function () {
 
         getSlugFromUrl() {
             console.log('🔗 [Debug] Extracting slug from URL...', window.location.pathname);
+            
             // Priority 1: Global currentParams (set by SPA router)
             if (window.currentParams?.slug) return window.currentParams.slug;
             if (window.app?.params?.slug) return window.app.params.slug;
@@ -59,38 +65,48 @@ window.initProductPage = function () {
         
         async fetchProductDetail() {
             this.loading = true;
-            console.log('📦 [Debug] Fetching Product Detail for slug:', this.slug);
+            console.log('📦 [Debug] Fetching Product Detail via AdminAPI...', this.slug);
             try {
-                // Call the specialized getProductDetail endpoint
-                const params = { slug: this.slug };
-                const response = await new Promise((resolve, reject) => {
-                    window.sendDataToGoogle('getProductDetail', params, resolve, reject);
-                });
+                // Menyamakan metode pemanggilan dengan Home Page (lebih stabil)
+                if (!window.AdminAPI) {
+                    throw new Error('AdminAPI is not defined');
+                }
+
+                // Refresh AdminAPI config to be extra sure
+                if (!window.AdminAPI.baseUrl) {
+                    window.AdminAPI.init();
+                }
+
+                const response = await window.AdminAPI.get('getProductDetail', { slug: this.slug });
                 
-                console.log('📥 [Debug] Product Detail Response:', response);
+                console.log('📥 [Debug] API Response Received:', response);
 
                 if (response.status === 'success' && response.data) {
                     this.product = response.data;
                     this.loading = false;
+                    this.error = false;
                     
-                    // Update Page Title and Breadcrumb
+                    // Update Page Title
                     if (this.product.name) {
-                        document.title = `${this.product.name} | ${window.app?.blogTitle || 'EzyStore'}`;
+                        document.title = `${this.product.name} | EzyParts`;
                     }
                     
+                    // Trigger Re-render breadcrumb
                     if (window.renderBreadcrumb) {
                         window.renderBreadcrumb([
                             { label: 'Beranda', action: "window.navigate('home')" },
                             { label: 'Produk', action: "window.navigate('shop')" },
-                            { label: this.product.name }
+                            { label: this.product.name || 'Detail Produk' }
                         ]);
                     }
+                } else if (response.status === 'error' && response.message?.includes('not found')) {
+                    this.showError('Produk Tidak Ditemukan', 'Maaf, produk dengan nama ini tidak ditemukan di database kami.');
                 } else {
-                    this.showError('Produk Tidak Ada', response.message || 'Data produk tidak ditemukan di database.');
+                    this.showError('Produk Tidak Tersedia', response.message || 'Gagal memuat detail produk saat ini.');
                 }
             } catch (e) {
-                console.error('❌ [Debug] Error fetching product:', e);
-                this.showError('Kesalahan Sistem', 'Gagal memuat data produk.');
+                console.error('❌ [Debug] Critical Error fetching product:', e);
+                this.showError('Koneksi Terganggu', 'Gagal memuat data. Mohon periksa Site Key atau koneksi internet Anda.');
             } finally {
                 this.loading = false;
             }
@@ -123,13 +139,9 @@ window.initProductPage = function () {
             if (this.product && this.product.id) {
                 if (window.Alpine && Alpine.store('cart')) {
                     Alpine.store('cart').add(this.product);
-                    
-                    // Trigger Fly Animation if source element is provided
                     if (sourceEl && window.flyToCart) {
                         window.flyToCart(sourceEl, this.product.imageurl);
                     }
-                } else {
-                    if (typeof window.showToast === 'function') window.showToast('Gagal menambahkan ke keranjang', 'error');
                 }
             }
         }
