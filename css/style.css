@@ -2642,3 +2642,66 @@ select:focus {
 .modal-close-btn:active {
   transform: scale(0.95);
 }
+
+/* ==========================================================================
+   SKELETON WAVE LOADER
+   ========================================================================== */
+.wave-loader {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+.wave-loader span {
+  width: 14px;
+  height: 14px;
+  background: #4a90e2;
+  border-radius: 50%;
+  display: inline-block;
+  /* Durasi total ditingkatkan agar ada waktu untuk antrean */
+  animation: jump-sequence 2s ease-in-out infinite;
+}
+
+/* Delay berantai yang rapat agar urutannya jelas */
+.wave-loader span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.wave-loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.wave-loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.wave-loader span:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+.wave-loader span:nth-child(5) {
+  animation-delay: 0.8s;
+}
+
+@keyframes jump-sequence {
+
+  /* 0% sampai 30%: Waktu untuk bergerak naik dan turun */
+  0%,
+  30% {
+    transform: translateY(0);
+  }
+
+  15% {
+    transform: translateY(-20px);
+    background: #ff6600;
+    /* Perubahan warna saat melompat */
+  }
+
+  /* 31% sampai 100%: Waktu diam menunggu giliran titik lain selesai */
+  31%,
+  100% {
+    transform: translateY(0);
+  }
+}
