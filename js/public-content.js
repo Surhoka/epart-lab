@@ -949,6 +949,207 @@
     };
 
     // ================================================================
+    // PUBLIC POST PAGE MANAGER (for storefront)
+    // ================================================================
+    const registerPublicPostPage = () => {
+        if (window.Alpine?.data && !window.Alpine.data('initPostPage')) {
+            window.Alpine.data('initPostPage', () => ({
+                post: null,
+                isLoading: true,
+                slug: null,
+                featuredImage: null,
+
+                async init() {
+                    this.isLoading = true;
+                    // Extract slug from URL hash or path
+                    this.slug = this.getSlugFromUrl();
+                    if (this.slug) {
+                        await this.fetchPost();
+                    } else {
+                        this.isLoading = false;
+                        console.error('No slug found in URL');
+                    }
+                },
+
+                getSlugFromUrl() {
+                    // Try to get from window.app.params (if set by navigate)
+                    if (window.app?.params?.slug) return window.app.params.slug;
+                    
+                    // Fallback to URL parsing (for direct hits on /p/ or #post)
+                    const hash = window.location.hash || '';
+                    if (hash.includes('slug=')) {
+                        const match = hash.match(/slug=([^&]+)/);
+                        return match ? match[1] : null;
+                    }
+                    
+                    // For Blogger Native pages /p/slug.html
+                    const path = window.location.pathname;
+                    if (path.includes('/p/')) {
+                        const parts = path.split('/');
+                        const fileName = parts[parts.length - 1];
+                        return fileName.replace('.html', '');
+                    }
+
+                    return null;
+                },
+
+                async fetchPost() {
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('get_post_by_slug', { slug: this.slug }, resolve, reject);
+                        });
+
+                        if (res.status === 'success' && res.data) {
+                            this.post = res.data;
+                            this.extractFeaturedImage();
+                        } else {
+                            console.error('Post not found:', res.message);
+                        }
+                    } catch (e) {
+                        console.error('fetchPost error:', e);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                extractFeaturedImage() {
+                    if (!this.post || !this.post.content) return;
+                    // Simple regex to find first <img> tag src
+                    const match = this.post.content.match(/<img[^>]+src="([^">]+)"/);
+                    if (match) {
+                        this.featuredImage = match[1];
+                    }
+                },
+
+                formatDate(dateStr) {
+                    if (!dateStr) return '';
+                    try {
+                        const date = new Date(dateStr);
+                        return date.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    } catch (e) {
+                        return dateStr;
+                    }
+                },
+
+                share(platform) {
+                    const url = encodeURIComponent(window.location.href);
+                    const text = encodeURIComponent(this.post.title);
+                    let shareUrl = '';
+
+                    switch (platform) {
+                        case 'facebook':
+                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                            break;
+                        case 'twitter':
+                            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+                            break;
+                        case 'whatsapp':
+                            shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
+                            break;
+                    }
+
+                    if (shareUrl) {
+                        window.open(shareUrl, '_blank', 'width=600,height=400');
+                    }
+                },
+
+                copyLink() {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('Link berhasil disalin ke clipboard');
+                        }
+                    });
+                }
+            }));
+        }
+    };
+
+    // ================================================================
+    // PUBLIC PRODUCT PAGE MANAGER (for storefront)
+    // ================================================================
+    const registerPublicProductPage = () => {
+        if (window.Alpine?.data && !window.Alpine.data('initProductPage')) {
+            window.Alpine.data('initProductPage', () => ({
+                product: {},
+                loading: true,
+                error: false,
+                slug: null,
+
+                async init() {
+                    this.loading = true;
+                    this.slug = this.getSlugFromUrl();
+                    if (this.slug) {
+                        await this.fetchProductDetail();
+                    } else {
+                        this.loading = false;
+                        this.error = true;
+                    }
+                },
+
+                getSlugFromUrl() {
+                    // Try to get from window.app.params (if set by navigate)
+                    if (window.app?.params?.slug) return window.app.params.slug;
+                    
+                    // Fallback to URL parsing (for direct hits on /p/ or #product)
+                    const hash = window.location.hash || '';
+                    if (hash.includes('slug=')) {
+                        const match = hash.match(/slug=([^&]+)/);
+                        return match ? match[1] : null;
+                    }
+                    
+                    // For Blogger Native pages /p/slug.html
+                    const path = window.location.pathname;
+                    if (path.includes('/p/')) {
+                        const parts = path.split('/');
+                        const fileName = parts[parts.length - 1];
+                        return fileName.replace('.html', '');
+                    }
+                    return null;
+                },
+
+                async fetchProductDetail() {
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('getProductDetail', { slug: this.slug }, resolve, reject);
+                        });
+
+                        if (res.status === 'success' && res.data) {
+                            this.product = res.data;
+                            this.loading = false;
+                        } else {
+                            this.error = true;
+                            this.loading = false;
+                        }
+                    } catch (e) {
+                        console.error('fetchProductDetail error:', e);
+                        this.error = true;
+                        this.loading = false;
+                    }
+                },
+
+                formatCurrency(value) {
+                    if (!value) return 'Rp 0';
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0
+                    }).format(value);
+                },
+
+                contactWhatsApp() {
+                    const text = `Halo, saya tertarik dengan produk *${this.product.name}* (ID: ${this.product.id || this.slug}). Mohon info selengkapnya. \n\nLink: ${window.location.href}`;
+                    const waUrl = `https://wa.me/${window.EZY_SITE_CONFIG?.whatsapp || ''}?text=${encodeURIComponent(text)}`;
+                    window.open(waUrl, '_blank');
+                }
+            }));
+        }
+    };
+
+    // ================================================================
     // INITIALIZATION
     // ================================================================
     const registerAll = () => {
@@ -958,6 +1159,8 @@
         registerLandingConfigManager();
         registerLandingPageAdmin();
         registerPostEditor();
+        registerPublicPostPage();
+        registerPublicProductPage();
     };
 
     if (window.Alpine) {
