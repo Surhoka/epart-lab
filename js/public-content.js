@@ -551,6 +551,404 @@
     };
 
     // ================================================================
+    // POST EDITOR MANAGER
+    // ================================================================
+    const registerPostEditor = () => {
+        if (window.Alpine?.data && !window.Alpine.data('postEditor')) {
+            window.Alpine.data('postEditor', () => ({
+                activeTab: 'list', // 'list' or 'editor'
+                savedRange: null,
+                accordion: { date: false },
+                defaultPost: {
+                    id: null,
+                    title: '',
+                    slug: '',
+                    content: '',
+                    status: 'Draft',
+                    category: [],
+                    tags: '',
+                    image: '',
+                    location: '',
+                    commentOption: 'allow',
+                    dateMode: 'auto',
+                    publishDate: '',
+                    permalinkMode: 'auto'
+                },
+                post: {},
+                posts: [],
+                isLoading: false,
+                currentPage: 1,
+                itemsPerPage: 10,
+
+                get totalPages() {
+                    return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
+                },
+
+                get paginatedPosts() {
+                    const start = (this.currentPage - 1) * this.itemsPerPage;
+                    const end = start + this.itemsPerPage;
+                    return this.posts.slice(start, end);
+                },
+                publicBlogUrl: window.app?.publicBlogUrl || '',
+                siteKey: window.app?.siteKey || '',
+                categories: [],
+                formattingTools: [
+                    { icon: 'bold', cmd: 'bold', label: 'Bold' },
+                    { icon: 'italic', cmd: 'italic', label: 'Italic' },
+                    { icon: 'underline', cmd: 'underline', label: 'Underline' },
+                    { icon: 'strikethrough', cmd: 'strikethrough', label: 'Strikethrough' },
+                    { icon: 'eraser', cmd: 'removeFormat', label: 'Clear Formatting' },
+                    { icon: 'list-bullet', cmd: 'insertUnorderedList', label: 'Bullet List' },
+                    { icon: 'list-number', cmd: 'insertOrderedList', label: 'Numbered List' },
+                    { icon: 'outdent', cmd: 'outdent', label: 'Decrease Indent' },
+                    { icon: 'indent', cmd: 'indent', label: 'Increase Indent' },
+                    { icon: 'quote', cmd: 'formatBlock:blockquote', label: 'Quote' },
+                    { icon: 'code', cmd: 'formatBlock:pre', label: 'Code Block' },
+                    { icon: 'minus', cmd: 'insertHorizontalRule', label: 'Horizontal Line' }
+                ],
+
+                async init() {
+                    console.log('[POST.JS] Komponen postEditor diinisialisasi.');
+                    this.post = JSON.parse(JSON.stringify(this.defaultPost));
+                    this.$watch('post.title', value => {
+                        if (value && this.post.permalinkMode === 'auto') {
+                            this.post.slug = value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+                        } else if (!value && this.post.permalinkMode === 'auto') {
+                            this.post.slug = '';
+                        }
+                    });
+                    this.$watch('post.dateMode', (val) => {
+                        if (val === 'custom') {
+                            this.$nextTick(() => this.initDatePicker());
+                        } else {
+                            this.destroyDatePicker();
+                        }
+                    });
+                    await this.fetchPosts();
+                },
+
+                get selectedPostIds() {
+                    return this.posts.filter(p => p.selected).map(p => p.id);
+                },
+
+                selectAll(event) {
+                    const checked = event.target.checked;
+                    this.posts.forEach(p => p.selected = checked);
+                },
+
+                formatDate(dateString) {
+                    if (!dateString) return '';
+                    const date = new Date(dateString);
+                    return isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+                },
+
+                addCategory(name = null) {
+                    if (!name) name = prompt("Nama Label Baru:");
+                    if (name && name.trim()) {
+                        if (!this.categories.includes(name)) {
+                            this.categories.push(name);
+                            this.categories.sort();
+                        }
+                        if (!this.post.category.includes(name)) {
+                            this.post.category.push(name);
+                        }
+                    }
+                },
+
+                async fetchPosts() {
+                    this.isLoading = true;
+                    // Note: Use getDbId() for multi-tenant support if needed, but the original used direct sendDataToGoogle
+                    window.sendDataToGoogle('get_posts', { dbId: getDbId() }, (res) => {
+                        this.isLoading = false;
+                        if (res.status === 'success') {
+                            const allCategories = new Set();
+                            this.posts = (res.data || []).map(p => {
+                                const postData = {
+                                    id: p.ID || p.id,
+                                    title: p.Title || p.title,
+                                    slug: p.Slug || p.slug,
+                                    content: p.Content || p.content,
+                                    status: p.Status || p.status,
+                                    category: p.Category || p.category,
+                                    tags: p.Tags || p.tags,
+                                    image: p.Image || p.image,
+                                    location: p.Location || p.location,
+                                    publishDate: p.PublishDate || p.publishDate,
+                                    commentOption: p.CommentOption || p.commentOption,
+                                    permalinkMode: p.PermalinkMode || p.permalinkMode,
+                                    date: this.formatDate(p.DateCreated || p.dateCreated),
+                                    lastModified: p.LastModified || p.lastModified,
+                                    selected: false
+                                };
+                                if (Array.isArray(postData.category)) {
+                                    postData.category.forEach(cat => allCategories.add(cat));
+                                } else if (typeof postData.category === 'string') {
+                                    postData.category.split(',').forEach(cat => allCategories.add(cat.trim()));
+                                }
+                                return postData;
+                            });
+                            this.categories = Array.from(allCategories).sort();
+                            this.currentPage = 1;
+                        } else {
+                            showToast('Gagal memuat post: ' + res.message, 'error');
+                        }
+                    }, (err) => {
+                        showToast('Error API saat memuat post.', 'error');
+                        this.isLoading = false;
+                    });
+                },
+
+                execCommand(command, value = null) {
+                    if (command.startsWith('formatBlock:')) {
+                        const tag = command.split(':')[1];
+                        document.execCommand('formatBlock', false, tag);
+                    } else {
+                        document.execCommand(command, false, value);
+                    }
+                    document.getElementById('classic-editor-body').focus();
+                },
+
+                insertLink() {
+                    this.saveSelection();
+                    const url = prompt("Enter URL:");
+                    if (url) {
+                        this.restoreSelection();
+                        document.execCommand('createLink', false, url);
+                    }
+                },
+
+                triggerImageUpload() {
+                    this.saveSelection();
+                    // Need to find the ref in the actual DOM if using this component
+                    const input = document.querySelector('input[x-ref="imageInput"]');
+                    if (input) input.click();
+                },
+
+                saveSelection() {
+                    const sel = window.getSelection();
+                    if (sel.getRangeAt && sel.rangeCount) {
+                        this.savedRange = sel.getRangeAt(0);
+                    }
+                },
+
+                restoreSelection() {
+                    const editor = document.getElementById('classic-editor-body');
+                    if (editor) {
+                        editor.focus();
+                        if (this.savedRange) {
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(this.savedRange);
+                        }
+                    }
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)", "error"); return; }
+                    showToast("Uploading image...", "info");
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: file.name,
+                            fileData: e.target.result.split(',')[1],
+                            mimeType: file.type,
+                            dbId: getDbId()
+                        }, (res) => {
+                            if (res.status === 'success') {
+                                this.insertImageAtCursor(res.url);
+                                showToast("Image uploaded!", "success");
+                            } else {
+                                showToast("Upload failed: " + res.message, "error");
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                },
+
+                insertImageAtCursor(url) {
+                    this.restoreSelection();
+                    const imgHtml = `<img src="${url}" class="max-w-full h-auto rounded-lg my-4" alt="Image" />`;
+                    document.execCommand('insertHTML', false, imgHtml);
+                },
+
+                async saveDraft() {
+                    this.post.status = 'Draft';
+                    await this.savePost();
+                },
+
+                async publishPost() {
+                    if (!this.post.title) { showToast("Please enter a title before publishing", "warning"); return; }
+                    this.post.status = 'Published';
+                    await this.savePost();
+                },
+
+                async savePost() {
+                    const editorBody = document.getElementById('classic-editor-body');
+                    if (editorBody) this.post.content = editorBody.innerHTML;
+                    if (!this.post.id) this.post.dateCreated = new Date().toISOString();
+                    showToast("Saving post...", "info");
+
+                    const payload = { ...this.post, dbId: getDbId() };
+                    // Get blogId from admin core if available for sync
+                    const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                    if (config.blogId) payload.blogId = config.blogId;
+
+                    if (Array.isArray(payload.category)) payload.category = payload.category.join(',');
+
+                    window.sendDataToGoogle('save_post', payload, (res) => {
+                        if (res.status === 'success') {
+                            showToast("Post saved successfully!", "success");
+                            if (res.id && !this.post.id) this.post.id = res.id;
+                            this.fetchPosts();
+                            this.activeTab = 'list';
+                        } else {
+                            showToast("Error saving: " + res.message, "error");
+                        }
+                    });
+                },
+
+                async deletePost(id) {
+                    if (!confirm("Are you sure you want to delete this post?")) return;
+                    showToast("Deleting...", "info");
+                    window.sendDataToGoogle('delete_post', { id: id, dbId: getDbId() }, (res) => {
+                        if (res.status === 'success') { showToast("Post removed", "success"); this.fetchPosts(); }
+                        else showToast("Delete failed", "error");
+                    });
+                },
+
+                async bulkDelete() {
+                    const ids = this.selectedPostIds;
+                    if (ids.length === 0) return;
+                    if (!confirm(`Are you sure you want to delete ${ids.length} selected posts?`)) return;
+                    showToast(`Deleting ${ids.length} posts...`, "info");
+                    const promises = ids.map(id => {
+                        return new Promise(resolve => window.sendDataToGoogle('delete_post', { id, dbId: getDbId() }, resolve, resolve));
+                    });
+                    await Promise.all(promises);
+                    showToast(`${ids.length} post(s) deleted!`, "success");
+                    this.fetchPosts();
+                },
+
+                _switchToEditor(postData) {
+                    this.post = postData;
+                    this.activeTab = 'editor';
+                    this.$nextTick(() => {
+                        if (this.post.dateMode === 'custom') this.initDatePicker();
+                        else this.destroyDatePicker();
+                    });
+                    setTimeout(() => {
+                        const editorBody = document.getElementById('classic-editor-body');
+                        if (editorBody) {
+                            editorBody.innerHTML = this.post.content || '';
+                            editorBody.focus();
+                        }
+                        window.scrollTo({ top: 0, behavior: 'instant' });
+                    }, 50);
+                },
+
+                editPost(item) {
+                    const categories = item.category || item.Category || [];
+                    const normalizedPost = {
+                        id: item.id || item.ID,
+                        title: item.title || item.Title || '',
+                        slug: item.slug || item.Slug || '',
+                        content: item.content || item.Content || '',
+                        status: item.status || item.Status || 'Draft',
+                        category: Array.isArray(categories) ? [...categories] : String(categories).split(',').map(c => c.trim()).filter(Boolean),
+                        tags: item.tags || item.Tags || '',
+                        image: item.image || item.Image || '',
+                        dateCreated: item.dateCreated || item.DateCreated,
+                        location: item.location || item.Location || '',
+                        commentOption: item.commentOption || item.CommentOption || 'allow',
+                        dateMode: (item.publishDate || item.PublishDate) ? 'custom' : 'auto',
+                        publishDate: item.publishDate || item.PublishDate || '',
+                        permalinkMode: item.permalinkMode || item.PermalinkMode || 'auto'
+                    };
+                    this._switchToEditor(normalizedPost);
+                },
+
+                cancelEditor() {
+                    this.activeTab = 'list';
+                    this.post = JSON.parse(JSON.stringify(this.defaultPost));
+                    setTimeout(() => {
+                        const editorBody = document.getElementById('classic-editor-body');
+                        if (editorBody) editorBody.innerHTML = '';
+                    }, 50);
+                },
+
+                newPost() {
+                    this._switchToEditor(JSON.parse(JSON.stringify(this.defaultPost)));
+                },
+
+                fpDate: null, fpTime: null,
+                initDatePicker() {
+                    if (this.fpDate) return;
+                    this.$nextTick(() => {
+                        const container = document.querySelector('[x-ref="calendarMount"]');
+                        const timeInput = document.querySelector('[x-ref="timeInput"]');
+                        if (!container || !timeInput) return;
+                        const dateVal = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+                        this.updateCompactHeader(dateVal);
+                        try {
+                            this.fpDate = flatpickr(container, {
+                                inline: true, className: 'flatpickr-compact', dateFormat: 'Y-m-d', defaultDate: dateVal,
+                                locale: {
+                                    firstDayOfWeek: 1,
+                                    months: {
+                                        shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                                        longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                                    }
+                                },
+                                onChange: (selectedDates) => {
+                                    this.updateTime(selectedDates[0], null);
+                                    if (selectedDates[0]) this.updateCompactHeader(selectedDates[0]);
+                                }
+                            });
+                            this.fpTime = flatpickr(timeInput, {
+                                enableTime: true, noCalendar: true, dateFormat: 'H.i', time_24hr: true, defaultDate: dateVal,
+                                onChange: (selectedDates) => this.updateTime(null, selectedDates[0])
+                            });
+                        } catch (e) { console.error(e); }
+                    });
+                },
+                destroyDatePicker() {
+                    if (this.fpDate) { this.fpDate.destroy(); this.fpDate = null; }
+                    if (this.fpTime) { this.fpTime.destroy(); this.fpTime = null; }
+                },
+                updateTime(datePart, timePart) {
+                    let current = this.post.publishDate ? new Date(this.post.publishDate) : new Date();
+                    if (datePart) { current.setFullYear(datePart.getFullYear()); current.setMonth(datePart.getMonth()); current.setDate(datePart.getDate()); }
+                    if (timePart) { current.setHours(timePart.getHours()); current.setMinutes(timePart.getMinutes()); }
+                    this.post.publishDate = current.toISOString();
+                },
+                updateCompactHeader(date) {
+                    const cy = document.querySelector('[x-ref="compactYear"]');
+                    const csd = document.querySelector('[x-ref="compactSelectedDate"]');
+                    if (cy && csd && date) {
+                        const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                        cy.textContent = date.getFullYear();
+                        csd.textContent = `${dayNames[date.getDay()]}, ${date.getDate()} ${monthNames[date.getMonth()]}`;
+                    }
+                    this.updateMonthLabel(date);
+                },
+                updateMonthLabel(date) {
+                    const cml = document.querySelector('[x-ref="compactMonthLabel"]');
+                    if (cml && date) {
+                        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                        cml.textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                    }
+                },
+                prevMonth() { if (this.fpDate) this.fpDate.changeMonth(-1); },
+                nextMonth() { if (this.fpDate) this.fpDate.changeMonth(1); }
+            }));
+        }
+    };
+
+    // ================================================================
     // INITIALIZATION
     // ================================================================
     const registerAll = () => {
@@ -559,6 +957,7 @@
         registerFeaturedProductManager();
         registerLandingConfigManager();
         registerLandingPageAdmin();
+        registerPostEditor();
     };
 
     if (window.Alpine) {
