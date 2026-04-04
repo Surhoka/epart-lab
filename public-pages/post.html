@@ -1,75 +1,76 @@
 <div x-data="initPostPage()" x-init="init()" class="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-    <!-- Shimmer Loading State -->
-    <template x-if="isLoading">
-        <div class="space-y-8 animate-pulse">
-            <!-- Featured Image Shimmer -->
-            <div class="w-full aspect-video bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>
-            <!-- Title Shimmer -->
-            <div class="space-y-3">
-                <div class="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-3/4"></div>
-                <div class="h-6 bg-gray-100 dark:bg-gray-800 rounded-lg w-1/4"></div>
-            </div>
-            <!-- Content Shimmer -->
-            <div class="space-y-4 pt-10">
-                <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
-                <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
-                <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded w-5/6"></div>
-                <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
-                <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded w-4/5"></div>
-            </div>
-        </div>
-    </template>
+    <!-- Breadcrumb Container -->
+    <div id="breadcrumb-container" class="mb-8"></div>
+
+    <!-- Loading State -->
+    <div x-show="isLoading" class="flex flex-col items-center justify-center py-32 space-y-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+        <p class='mt-4 text-sm font-medium tracking-wide text-gray-500 dark:text-gray-400 animate-pulse'>Loading...
+        </p>
+    </div>
 
     <!-- Error State -->
     <template x-if="!isLoading && !post">
         <div class="text-center py-20">
-            <div class="w-20 h-20 bg-red-50 dark:bg-red-900/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div
+                class="w-20 h-20 bg-red-50 dark:bg-red-900/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span class="w-10 h-10 text-red-500" x-icon="'alert-circle'"></span>
             </div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Postingan tidak ditemukan</h2>
             <p class="text-gray-500 dark:text-gray-400 mb-8">Maaf, kami tidak dapat menemukan apa yang Anda cari.</p>
-            <button @click="window.navigate('home')" class="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-2xl font-bold transition-all active:scale-95">
+            <button @click="window.navigate('home')"
+                class="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-2xl font-bold transition-all active:scale-95">
                 Kembali ke Beranda
             </button>
         </div>
     </template>
 
     <!-- Main Content -->
-    <template x-if="!isLoading && post">
+    <div x-show="!isLoading && post" x-cloak>
         <article class="space-y-10">
             <!-- Header Meta -->
             <div class="space-y-6">
                 <div class="flex flex-wrap items-center gap-3">
                     <template x-for="cat in post.category" :key="cat">
-                        <span class="px-4 py-1.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-xs font-bold rounded-full uppercase tracking-wider" x-text="cat"></span>
+                        <span
+                            class="px-4 py-1.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-xs font-bold rounded-full uppercase tracking-wider"
+                            x-text="cat"></span>
                     </template>
                     <div class="h-4 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
-                    <span class="text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="formatDate(post.date)"></span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 font-medium"
+                        x-text="formatDate(post.publishdate)"></span>
                 </div>
-                
-                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-[1.1]" x-text="post.title"></h1>
+
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-[1.1]"
+                    x-text="post.title"></h1>
             </div>
 
             <!-- Featured Image (Optional) -->
             <template x-if="featuredImage">
                 <div class="relative group">
-                    <img :src="featuredImage" :alt="post.title" class="w-full object-cover rounded-[2rem] shadow-2xl shadow-brand-500/10 border border-gray-100 dark:border-gray-800 transition-transform duration-500 group-hover:scale-[1.01]" />
+                    <img :src="featuredImage" :alt="post.title"
+                        class="w-full object-cover rounded-[2rem] shadow-2xl shadow-brand-500/10 border border-gray-100 dark:border-gray-800 transition-transform duration-500 group-hover:scale-[1.01]" />
                 </div>
             </template>
 
             <!-- Social Share Bar (Floating Left on Desktop, Bottom on Mobile) -->
             <div class="flex items-center gap-4 py-6 border-y border-gray-100 dark:border-gray-800">
-                <span class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mr-4">Share:</span>
-                <button @click="share('facebook')" class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300">
+                <span
+                    class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mr-4">Share:</span>
+                <button @click="share('facebook')"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300">
                     <span class="w-5 h-5" x-icon="'facebook'"></span>
                 </button>
-                <button @click="share('twitter')" class="w-10 h-10 flex items-center justify-center rounded-full bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-all duration-300">
+                <button @click="share('twitter')"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-all duration-300">
                     <span class="w-5 h-5" x-icon="'twitter'"></span>
                 </button>
-                <button @click="share('whatsapp')" class="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300">
+                <button @click="share('whatsapp')"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300">
                     <span class="w-5 h-5" x-icon="'whatsapp'"></span>
                 </button>
-                <button @click="copyLink()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-300">
+                <button @click="copyLink()"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-300">
                     <span class="w-5 h-5" x-icon="'link'"></span>
                 </button>
             </div>
@@ -80,7 +81,7 @@
                 prose-p:text-gray-600 dark:prose-p:text-gray-300
                 prose-a:text-brand-500 hover:prose-a:text-brand-600
                 prose-img:rounded-3xl prose-img:shadow-lg
-                prose-blockquote:border-l-4 prose-blockquote:border-brand-500 prose-blockquote:bg-brand-50/50 dark:prose-blockquote:bg-brand-900/10 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl prose-blockquote:italic" 
+                prose-blockquote:border-l-4 prose-blockquote:border-brand-500 prose-blockquote:bg-brand-50/50 dark:prose-blockquote:bg-brand-900/10 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl prose-blockquote:italic"
                 x-html="post.content">
             </div>
 
@@ -88,21 +89,23 @@
             <div class="pt-12 border-t border-gray-100 dark:border-gray-800">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center">
+                        <div
+                            class="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center">
                             <span class="w-6 h-6 text-brand-600 dark:text-brand-400" x-icon="'user'"></span>
                         </div>
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Diterbitkan oleh</p>
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">Admin Toko</p>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">Admin</p>
                         </div>
                     </div>
-                    
-                    <button @click="window.navigate('home')" class="flex items-center gap-2 text-sm font-bold text-brand-500 hover:text-brand-600 transition-colors">
+
+                    <button @click="window.navigate('home')"
+                        class="flex items-center gap-2 text-sm font-bold text-brand-500 hover:text-brand-600 transition-colors">
                         <span class="w-4 h-4" x-icon="'arrow-left'"></span>
                         Beralih ke Beranda
                     </button>
                 </div>
             </div>
         </article>
-    </template>
+    </div>
 </div>
