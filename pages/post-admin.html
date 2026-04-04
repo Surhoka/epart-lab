@@ -5,16 +5,19 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Post Manager</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Create, edit, and manage your blog posts and articles.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Create, edit, and manage your blog posts and
+                articles.</p>
         </div>
     </div>
 
     <!-- Tab Navigation -->
     <div class="tab-nav-container tab-nav-borderless mb-6">
-        <button type="button" @click="activeTab = 'list'" :class="{ 'active': activeTab === 'list' }" class="tab-nav-btn">
+        <button type="button" @click="activeTab = 'list'" :class="{ 'active': activeTab === 'list' }"
+            class="tab-nav-btn">
             <span class="w-4 h-4" x-icon="'table'"></span> Posts
         </button>
-        <button type="button" @click="activeTab = 'editor'" :class="{ 'active': activeTab === 'editor' }" class="tab-nav-btn">
+        <button type="button" @click="activeTab = 'editor'" :class="{ 'active': activeTab === 'editor' }"
+            class="tab-nav-btn">
             <span class="w-4 h-4" x-icon="'pencil'"></span> Editor
         </button>
     </div>
@@ -142,8 +145,7 @@
                         Previous
                     </button>
                     <button type="button" @click="currentPage < totalPages ? currentPage++ : null"
-                        :disabled="currentPage === totalPages"
-                        class="btn btn-outline btn-sm">
+                        :disabled="currentPage === totalPages" class="btn btn-outline btn-sm">
                         Next
                     </button>
                 </div>
@@ -163,7 +165,7 @@
             <div class="flex items-center gap-3">
                 <div class="relative flex items-center rounded-2xl border border-gray-200 bg-white transition-all hover:border-gray-300 dark:border-gray-800 dark:bg-white/5 dark:hover:border-gray-700"
                     x-data="{ open: false }">
-                    <button type="button" @click="saveDraft()"
+                    <button type="button" @click="saveDraft()" id="btn-save-draft"
                         class="group flex items-center gap-2 rounded-l-2xl px-4 py-3 text-sm font-bold text-gray-600 transition-all hover:bg-gray-50 active:scale-95 dark:text-gray-400 dark:hover:bg-white/10">
                         <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
                             x-icon="'refresh'"></span>
@@ -182,7 +184,7 @@
                                 class="w-4 h-4" x-icon="'close'"></span>Cancel</button>
                     </div>
                 </div>
-                <button type="button" @click="publishPost()" class="btn btn-primary px-8">
+                <button type="button" @click="publishPost()" id="btn-publish-post" class="btn btn-primary px-8">
                     <span class="w-4 h-4" x-icon="'zap'"></span>
                     Publish
                 </button>
