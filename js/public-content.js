@@ -22,7 +22,7 @@
     function getDbId() {
         try {
             const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
-            return config.sheetId || null;
+            return config.sheetId || config.dbId || null;
         } catch (e) {
             console.error('Failed to parse EzypartsConfig:', e);
             return null;
