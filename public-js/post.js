@@ -2,7 +2,7 @@
  * public-js/post.js
  * Storefront logic for displaying a single post by slug.
  */
-window.initPostPage = function() {
+window.initPostPage = function () {
     return {
         post: null,
         isLoading: true,
@@ -11,138 +11,117 @@ window.initPostPage = function() {
 
         async init() {
             this.isLoading = true;
-            // Extract slug from URL hash, params or Blogger path
             this.slug = this.getSlugFromUrl();
-            
             console.log('🏁 [Post] Initializing for slug:', this.slug);
 
             if (this.slug) {
-                // Beri jeda sedikit agar window.AdminAPI benar-benar siap (terutama saat Pjax)
-                setTimeout(async () => {
-                   await this.fetchPost();
-                }, 150);
+                await this.fetchPost();
             } else {
                 this.isLoading = false;
-                console.error('No slug found in URL');
+                console.error('[Post] No slug found in URL');
             }
         },
 
         getSlugFromUrl() {
-            console.log('🔗 [Debug] Extracting slug from URL...', window.location.pathname);
-            // Priority 1: Global currentParams (set by SPA router)
-            if (window.currentParams?.slug) return window.currentParams.slug;
-            if (window.app?.params?.slug) return window.app.params.slug;
-            
-            // Priority 2: Extract from direct URL (Blogger Native /p/slug.html)
+            // Priority 1: SPA router params (set by handleHashChange before fetchPage)
+            const slug = window.currentParams?.slug || window.app?.params?.slug;
+            if (slug) return slug;
+
+            // Priority 2: Blogger native path /p/slug.html
             const path = window.location.pathname;
             if (path.includes('/p/')) {
-                const parts = path.split('/');
-                const fileName = parts[parts.length - 1];
-                const slug = fileName.replace('.html', '');
-                console.log('✅ [Debug] Slug extracted from Path:', slug);
-                return slug;
-            }
-            
-            // Priority 3: Extract from Hash (for SPA direct navigation)
-            const hash = window.location.hash || '';
-            if (hash.includes('slug=')) {
-                const match = hash.match(/slug=([^&]+)/);
-                const slug = match ? match[1] : null;
-                console.log('✅ [Debug] Slug extracted from Hash:', slug);
-                return slug;
+                const fileName = path.split('/').pop();
+                const s = fileName.replace('.html', '');
+                if (s && s !== 'p') return s;
             }
 
-            console.warn('❌ [Debug] No slug found in URL');
+            // Priority 3: Hash param ?slug=xxx
+            const hash = window.location.hash || '';
+            const match = hash.match(/slug=([^&]+)/);
+            if (match) return match[1];
+
             return null;
         },
 
         async fetchPost() {
-            console.log('📦 [Debug] Fetching Post via AdminAPI...', this.slug);
             try {
-                if (!window.AdminAPI) {
-                    throw new Error('AdminAPI is not defined');
-                }
-                
-                // Ensure AdminAPI is initialized
-                if (!window.AdminAPI.baseUrl) {
-                    window.AdminAPI.init();
-                }
+                if (!window.AdminAPI) throw new Error('AdminAPI not available');
+                if (!window.AdminAPI.baseUrl) window.AdminAPI.init();
 
                 const res = await window.AdminAPI.get('get_post_by_slug', { slug: this.slug });
-                
-                console.log('📥 [Debug] Post API Response:', res);
+                console.log('📥 [Post] API Response:', res);
 
                 if (res.status === 'success' && res.data) {
-                    this.post = res.data;
+                    // Normalize field names — sheetToObjects_ returns lowercase keys
+                    const d = res.data;
+                    this.post = {
+                        id:            d.id || d.ID || '',
+                        title:         d.title || d.Title || '',
+                        slug:          d.slug || d.Slug || this.slug,
+                        content:       d.content || d.Content || '',
+                        status:        d.status || d.Status || '',
+                        category:      this._normalizeCategory(d.category || d.Category),
+                        image:         d.image || d.Image || '',
+                        publishdate:   d.publishdate || d.PublishDate || d.datecreated || d.DateCreated || '',
+                        location:      d.location || d.Location || '',
+                        commentoption: d.commentoption || d.CommentOption || 'allow',
+                    };
                     this.extractFeaturedImage();
-                    
-                    // Update Page Title
-                    if (this.post.title) {
-                        document.title = `${this.post.title} | EzyParts`;
-                    }
+                    if (this.post.title) document.title = `${this.post.title} | EzyParts`;
                 } else {
-                    console.error('Post not found:', res.message);
+                    console.error('[Post] Not found:', res.message);
+                    this.post = null;
                 }
             } catch (e) {
-                console.error('fetchPost error:', e);
+                console.error('[Post] fetchPost error:', e);
+                this.post = null;
             } finally {
                 this.isLoading = false;
             }
         },
 
+        _normalizeCategory(cat) {
+            if (!cat) return [];
+            if (Array.isArray(cat)) return cat;
+            return String(cat).split(',').map(s => s.trim()).filter(Boolean);
+        },
+
         extractFeaturedImage() {
-            if (!this.post || !this.post.content) return;
-            // Simple regex to find first <img> tag src
-            const match = this.post.content.match(/<img[^>]+src="([^">]+)"/);
-            if (match) {
-                this.featuredImage = match[1];
+            // Use explicit image field first, then extract from content
+            if (this.post.image) {
+                this.featuredImage = this.post.image;
+                return;
+            }
+            if (this.post.content) {
+                const match = this.post.content.match(/<img[^>]+src="([^">]+)"/);
+                if (match) this.featuredImage = match[1];
             }
         },
 
         formatDate(dateStr) {
             if (!dateStr) return '';
             try {
-                const date = new Date(dateStr);
-                return date.toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
+                return new Date(dateStr).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'long', year: 'numeric'
                 });
-            } catch (e) {
-                return dateStr;
-            }
+            } catch (e) { return dateStr; }
         },
 
         share(platform) {
             const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent(this.post.title);
-            let shareUrl = '';
-
-            switch (platform) {
-                case 'facebook':
-                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-                    break;
-                case 'twitter':
-                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-                    break;
-                case 'whatsapp':
-                    shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
-                    break;
-            }
-
-            if (shareUrl) {
-                window.open(shareUrl, '_blank', 'width=600,height=400');
-            }
+            const text = encodeURIComponent(this.post?.title || '');
+            const map = {
+                facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+                twitter:   `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
+                whatsapp:  `https://api.whatsapp.com/send?text=${text}%20${url}`,
+            };
+            if (map[platform]) window.open(map[platform], '_blank', 'width=600,height=400');
         },
 
         copyLink() {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    if (typeof window.showToast === 'function') {
-                        window.showToast('Link berhasil disalin ke clipboard');
-                    }
-                });
-            }
+            navigator.clipboard?.writeText(window.location.href).then(() => {
+                window.showToast?.('Link berhasil disalin ke clipboard');
+            });
         }
     };
 };

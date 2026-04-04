@@ -31,7 +31,6 @@ window.initHomePage = function () {
             // Load data if connected
             if (this.connectionStatus.connected) {
                 await this.loadAllHomeData();
-                await this.loadPosts();
             }
 
             // Start Slider
@@ -41,6 +40,7 @@ window.initHomePage = function () {
         async loadAllHomeData() {
             this.isLoadingSlides = true;
             this.isLoadingProducts = true;
+            this.isLoadingPosts = true;
             try {
                 const response = await window.AdminAPI.get('getPublicHomeData');
                 if (response.status === 'success') {
@@ -49,6 +49,7 @@ window.initHomePage = function () {
                     this.totalSlides = this.slides.length;
                     this.activeSlide = 0;
                     this.products = d.products || [];
+                    this.posts = d.posts || [];
                     
                     // Trigger categories update if needed
                     if (window.app && d.categories) {
@@ -60,6 +61,7 @@ window.initHomePage = function () {
             } finally {
                 this.isLoadingSlides = false;
                 this.isLoadingProducts = false;
+                this.isLoadingPosts = false;
             }
         },
 
@@ -174,6 +176,11 @@ window.initHomePage = function () {
         viewProduct(product) {
             // Navigate to product detail page
             window.navigate('product', { slug: product.slug || product.id });
+        },
+
+        getSnippet(text) {
+            if (!text) return '';
+            return text.replace(/<[^>]*>/g, '').replace(/[*_~`]/g, '').trim().slice(0, 120) + (text.length > 120 ? '...' : '');
         },
 
         // Refresh data
