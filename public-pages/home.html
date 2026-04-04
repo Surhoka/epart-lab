@@ -1349,12 +1349,15 @@
                             class="h-8 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400 text-sm font-medium">
                             Valvoline</div>
                     </div>
-                         <!-- Latest Motoring News (Dynamic) -->
+                </div>
+            </section>
+
+            <!-- Latest Motoring News (Dynamic) -->
             <section class="py-16 bg-gray-50 dark:bg-gray-800">
                 <div class="container mx-auto px-4">
                     <div class="flex justify-between items-center mb-8">
                         <h2 class="text-3xl font-bold">Latest Motoring News</h2>
-                        <a href="#posts" class="text-brand-600 font-bold hover:underline">Lihat Semua Berita →</a>
+                        <a href="#" @click.prevent="window.navigate('post-list')" class="text-brand-600 font-bold hover:underline">Lihat Semua Berita →</a>
                     </div>
                     
                     <!-- Loading State -->
@@ -1439,3 +1442,5 @@
                 </div>
             </section>
         </div>
+    </section>
+</div>
