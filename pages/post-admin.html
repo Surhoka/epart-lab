@@ -1,27 +1,29 @@
 <div x-data="postEditor" id="post-editor-page" class="w-full animate-fade-in">
     <input type="file" x-ref="imageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
+
+    <!-- Header -->
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Post Manager</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Create, edit, and manage your blog posts and articles.</p>
+        </div>
+    </div>
+
     <!-- Tab Navigation -->
-    <div class="mb-8 flex border-b border-gray-100 dark:border-gray-800">
-        <button type="button" @click="activeTab = 'list'"
-            :class="activeTab === 'list' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
-            class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
-            <span class="w-4 h-4" x-icon="'table'"></span>
-            Posts
+    <div class="tab-nav-container tab-nav-borderless mb-6">
+        <button type="button" @click="activeTab = 'list'" :class="{ 'active': activeTab === 'list' }" class="tab-nav-btn">
+            <span class="w-4 h-4" x-icon="'table'"></span> Posts
         </button>
-        <button type="button" @click="activeTab = 'editor'"
-            :class="activeTab === 'editor' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-400 hover:text-gray-600'"
-            class="flex items-center gap-2 border-b-2 px-6 py-4 text-sm font-bold transition-all">
-            <span class="w-4 h-4" x-icon="'pencil'"></span>
-            Editor
+        <button type="button" @click="activeTab = 'editor'" :class="{ 'active': activeTab === 'editor' }" class="tab-nav-btn">
+            <span class="w-4 h-4" x-icon="'pencil'"></span> Editor
         </button>
     </div>
 
     <!-- Tab 1: Post List -->
     <div x-show="activeTab === 'list'" class="space-y-6" x-transition>
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Post Library</h2>
-            <button type="button" @click.prevent="newPost()"
-                class="flex items-center gap-2 rounded-2xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-brand-600 active:scale-95">
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Post Library</h2>
+            <button type="button" @click.prevent="newPost()" class="btn btn-primary">
                 <span class="w-4 h-4" x-icon="'plus'"></span>
                 Create New Post
             </button>
@@ -42,7 +44,7 @@
 
         <!-- Dashboard Table -->
         <div
-            class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
+            class="rounded-lg border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr
@@ -110,14 +112,16 @@
                             </td>
                             <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
                             <td class="px-6 py-5 text-right space-x-2">
-                                <button type="button" @click.prevent="editPost(p)"
-                                    class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-brand-500 hover:border-brand-500 transition-all dark:bg-slate-900 dark:border-gray-800">
-                                    <span class="w-4 h-4 mx-auto" x-icon="'pencil'"></span>
-                                </button>
-                                <button type="button" @click.prevent="deletePost(p.id)"
-                                    class="h-8 w-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-error-500 hover:border-error-500 transition-all dark:bg-slate-900 dark:border-gray-800">
-                                    <span class="w-4 h-4 mx-auto" x-icon="'trash'"></span>
-                                </button>
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button" @click.prevent="editPost(p)"
+                                        class="rounded-lg p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                                        <span class="w-4 h-4" x-icon="'pencil'"></span>
+                                    </button>
+                                    <button type="button" @click.prevent="deletePost(p.id)"
+                                        class="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                        <span class="w-4 h-4" x-icon="'trash'"></span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -134,12 +138,12 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button type="button" @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1"
-                        class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        class="btn btn-outline btn-sm">
                         Previous
                     </button>
                     <button type="button" @click="currentPage < totalPages ? currentPage++ : null"
                         :disabled="currentPage === totalPages"
-                        class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        class="btn btn-outline btn-sm">
                         Next
                     </button>
                 </div>
@@ -178,8 +182,7 @@
                                 class="w-4 h-4" x-icon="'close'"></span>Cancel</button>
                     </div>
                 </div>
-                <button type="button" @click="publishPost()"
-                    class="flex items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/25 transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95">
+                <button type="button" @click="publishPost()" class="btn btn-primary px-8">
                     <span class="w-4 h-4" x-icon="'zap'"></span>
                     Publish
                 </button>
@@ -328,9 +331,9 @@
                             placeholder="Start telling your story...">
                         </div>
 
-                        <!-- Word Count & Info Overlay -->
+                        <!-- Info Overlay -->
                         <div
-                            class="absolute bottom-6 left-10 flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                            class="absolute bottom-6 left-10 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                             <div class="flex items-center gap-1.5">
                                 <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                                 Auto-saved at 14:32
