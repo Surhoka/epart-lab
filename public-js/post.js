@@ -45,10 +45,19 @@ window.initPostPage = function () {
 
         async fetchPost() {
             try {
-                if (!window.AdminAPI) throw new Error('AdminAPI not available');
-                if (!window.AdminAPI.baseUrl) window.AdminAPI.init();
+                if (typeof window.sendDataToGoogle !== 'function') {
+                    throw new Error('sendDataToGoogle not available');
+                }
 
-                const res = await window.AdminAPI.get('get_post_by_slug', { slug: this.slug });
+                const res = await new Promise((resolve, reject) => {
+                    window.sendDataToGoogle(
+                        'get_post_by_slug',
+                        { slug: this.slug },
+                        resolve,
+                        reject
+                    );
+                });
+
                 console.log('📥 [Post] API Response:', res);
 
                 if (res.status === 'success' && res.data) {
