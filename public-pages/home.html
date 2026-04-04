@@ -1349,62 +1349,49 @@
                             class="h-8 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400 text-sm font-medium">
                             Valvoline</div>
                     </div>
-                </div>
-            </section>
-
-            <!-- Latest Motoring News -->
+                         <!-- Latest Motoring News (Dynamic) -->
             <section class="py-16 bg-gray-50 dark:bg-gray-800">
                 <div class="container mx-auto px-4">
-                    <h2 class="text-3xl font-bold mb-8">Latest Motoring News</h2>
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-bold">Latest Motoring News</h2>
+                        <a href="#posts" class="text-brand-600 font-bold hover:underline">Lihat Semua Berita →</a>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div x-show="isLoadingPosts" class="flex justify-center py-12">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- News Article 1 -->
-                        <article
-                            class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=250&fit=crop"
-                                alt="Sports Car" class="w-full h-48 object-cover">
-                            <div class="p-6">
-                                <div class="text-sm text-yellow-500 font-medium mb-2">AUTOMOTIVE NEWS</div>
-                                <h3 class="text-xl font-bold mb-3">Latest Electric Vehicle Technology Advances</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Discover the newest innovations
-                                    in electric
-                                    vehicle technology and what they mean for the future of automotive...</p>
-                                <a href="#" class="text-yellow-500 hover:text-yellow-600 font-medium text-sm">Read More
-                                    →</a>
-                            </div>
-                        </article>
+                    <!-- Empty State -->
+                    <div x-show="!isLoadingPosts && posts.length === 0" class="text-center py-12 text-gray-500" x-cloak>
+                        Belum ada berita yang diterbitkan.
+                    </div>
 
-                        <!-- News Article 2 -->
-                        <article
-                            class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=250&fit=crop"
-                                alt="Luxury Car" class="w-full h-48 object-cover">
-                            <div class="p-6">
-                                <div class="text-sm text-yellow-500 font-medium mb-2">MAINTENANCE TIPS</div>
-                                <h3 class="text-xl font-bold mb-3">Essential Car Maintenance for Winter</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Prepare your vehicle for winter
-                                    weather
-                                    with these essential maintenance tips and recommended parts...</p>
-                                <a href="#" class="text-yellow-500 hover:text-yellow-600 font-medium text-sm">Read More
-                                    →</a>
-                            </div>
-                        </article>
-
-                        <!-- News Article 3 -->
-                        <article
-                            class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop"
-                                alt="Car Interior" class="w-full h-48 object-cover">
-                            <div class="p-6">
-                                <div class="text-sm text-yellow-500 font-medium mb-2">PRODUCT REVIEW</div>
-                                <h3 class="text-xl font-bold mb-3">Top 10 Car Accessories for 2024</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Our comprehensive review of the
-                                    best car
-                                    accessories available this year, from tech gadgets to performance parts...</p>
-                                <a href="#" class="text-yellow-500 hover:text-yellow-600 font-medium text-sm">Read More
-                                    →</a>
-                            </div>
-                        </article>
+                    <div x-show="!isLoadingPosts && posts.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-8" x-cloak>
+                        <template x-for="post in posts" :key="post.id">
+                            <article class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group">
+                                <div class="relative h-48 overflow-hidden">
+                                    <img :src="post.image || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=250&fit=crop'"
+                                        :alt="post.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4">
+                                        <span class="bg-brand-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg" x-text="post.category || 'NEWS'"></span>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <div class="text-xs text-gray-400 mb-2" x-text="formatDate(post.publishdate)"></div>
+                                    <h3 class="text-xl font-bold mb-3 line-clamp-2" x-text="post.title"></h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3" x-text="getSnippet(post.content)"></p>
+                                    <a :href="'/p/' + (post.slug || post.id) + '.html'" 
+                                       data-type="post"
+                                       class="text-brand-600 hover:text-brand-700 font-bold text-sm inline-flex items-center gap-1">
+                                        Read More
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </article>
+                        </template>
                     </div>
                 </div>
             </section>
