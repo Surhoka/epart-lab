@@ -3,7 +3,7 @@
  * Unified frontend logic for Public Content Manager & Landing Page Admin.
  * Combines Hero Slides, Categories, Featured Products, Landing Config, and Sales Page logic.
  */
-(function() {
+(function () {
     // Shared Toast Utility
     function showToast(msg, type = 'success') {
         if (typeof window.showToast === 'function') {
@@ -782,14 +782,16 @@
                 async publishPost() {
                     if (!this.post.title) { showToast("Please enter a title before publishing", "warning"); return; }
                     this.post.status = 'Published';
-                    await this.savePost();
+                    await this.savePost('btn-publish-post');
                 },
 
-                async savePost() {
+                async savePost(btnId = 'btn-save-draft') {
+                    const btn = document.getElementById(btnId);
+                    if (btn) window.setButtonLoading?.(btn, true);
+
                     const editorBody = document.getElementById('classic-editor-body');
                     if (editorBody) this.post.content = editorBody.innerHTML;
                     if (!this.post.id) this.post.dateCreated = new Date().toISOString();
-                    showToast("Saving post...", "info");
 
                     const payload = { ...this.post, dbId: getDbId() };
                     // Get blogId from admin core if available for sync
@@ -798,15 +800,19 @@
 
                     if (Array.isArray(payload.category)) payload.category = payload.category.join(',');
 
-                    window.sendDataToGoogle('save_post', payload, (res) => {
-                        if (res.status === 'success') {
-                            showToast("Post saved successfully!", "success");
-                            if (res.id && !this.post.id) this.post.id = res.id;
-                            this.fetchPosts();
-                            this.activeTab = 'list';
-                        } else {
-                            showToast("Error saving: " + res.message, "error");
-                        }
+                    return new Promise((resolve) => {
+                        window.sendDataToGoogle('save_post', payload, (res) => {
+                            if (res.status === 'success') {
+                                showToast("Postingan berhasil disimpan", "success");
+                                if (res.id && !this.post.id) this.post.id = res.id;
+                                this.fetchPosts();
+                                this.activeTab = 'list';
+                            } else {
+                                showToast("Gagal menyimpan: " + res.message, "error");
+                            }
+                            if (btn) window.setButtonLoading?.(btn, false);
+                            resolve();
+                        }, () => { if (btn) window.setButtonLoading?.(btn, false); resolve(); });
                     });
                 },
 
@@ -947,10 +953,6 @@
             }));
         }
     };
-
-    // ================================================================
-    // INITIALIZATION
-    // ================================================================
 
     // ================================================================
     // INITIALIZATION
