@@ -620,6 +620,9 @@
                     this.$nextTick(() => {
                         const editor = document.getElementById('classic-editor-body');
                         if (editor) {
+                            // Mengaktifkan handle resize bawaan (terutama untuk Firefox)
+                            try { document.execCommand("enableObjectResizers", false, "true"); } catch (e) { }
+
                             editor.addEventListener('click', (e) => {
                                 if (e.target.tagName === 'IMG') {
                                     this.editImageInContent(e.target);
@@ -784,17 +787,46 @@
 
                 insertImageAtCursor(url) {
                     this.restoreSelection();
-                    const imgHtml = `<img src="${url}" class="max-w-full h-auto rounded-lg my-4" alt="Image" />`;
+                    // Menambahkan atribut draggable dan cursor pointer agar user tahu ini bisa berinteraksi
+                    const imgHtml = `<img src="${url}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Image" />`;
                     document.execCommand('insertHTML', false, imgHtml);
                 },
 
                 editImageInContent(imgElement) {
-                    const currentUrl = imgElement.src;
-                    const newUrl = prompt("Edit URL Gambar:", currentUrl);
-                    if (newUrl !== null && newUrl.trim() !== "") {
-                        imgElement.src = newUrl;
-                        showToast("Gambar di editor berhasil diperbarui!", "success");
+                    // Memberi tanda visual gambar sedang dipilih
+                    imgElement.classList.add('selected-img');
+
+                    const action = prompt(
+                        "PENGATURAN GAMBAR\n" +
+                        "--------------------------\n" +
+                        "1. Ganti URL / Sumber Gambar\n" +
+                        "2. Atur Lebar (contoh: 50% atau 300px)\n" +
+                        "3. Hapus Gambar dari Konten\n\n" +
+                        "Ketik nomor pilihan (1/2/3):", "1"
+                    );
+
+                    if (action === "1") {
+                        const newUrl = prompt("Masukkan URL Gambar baru:", imgElement.src);
+                        if (newUrl && newUrl.trim()) {
+                            imgElement.src = newUrl;
+                            showToast("URL gambar diperbarui", "success");
+                        }
+                    } else if (action === "2") {
+                        const currentWidth = imgElement.style.width || "Auto";
+                        const newWidth = prompt("Masukkan lebar baru (contoh: 50%, 100%, atau pixel):", currentWidth);
+                        if (newWidth) {
+                            imgElement.style.width = newWidth;
+                            imgElement.style.height = "auto"; // Menjaga aspek rasio
+                            showToast("Ukuran diperbarui", "success");
+                        }
+                    } else if (action === "3") {
+                        if (confirm("Hapus gambar ini dari artikel?")) {
+                            imgElement.remove();
+                            showToast("Gambar dihapus", "info");
+                        }
                     }
+
+                    setTimeout(() => imgElement.classList.remove('selected-img'), 500);
                 },
 
                 async saveDraft() {
