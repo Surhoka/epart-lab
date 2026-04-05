@@ -753,11 +753,15 @@
                         window.sendDataToGoogle('uploadImageAndGetUrl', {
                             fileName: file.name,
                             fileData: e.target.result.split(',')[1],
-                            mimeType: file.type,
+                            fileType: file.type,
                             dbId: getDbId()
                         }, (res) => {
                             if (res.status === 'success') {
                                 this.insertImageAtCursor(res.url);
+                                // Set gambar utama otomatis jika masih kosong
+                                if (!this.post.image) {
+                                    this.post.image = res.url;
+                                }
                                 showToast("Image uploaded!", "success");
                             } else {
                                 showToast("Upload failed: " + res.message, "error");
