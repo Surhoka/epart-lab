@@ -77,6 +77,12 @@ window.initPostPage = function () {
                     };
                     this.extractFeaturedImage();
                     if (this.post.title) document.title = `${this.post.title} | EzyParts`;
+                    // Persist slug→type so hard reload detects 'post' correctly
+                    try {
+                        const map = JSON.parse(localStorage.getItem('ezy_slug_type') || '{}');
+                        map[this.slug] = 'post';
+                        localStorage.setItem('ezy_slug_type', JSON.stringify(map));
+                    } catch (_) {}
                 } else {
                     console.error('[Post] Not found:', res.message);
                     this.post = null;
