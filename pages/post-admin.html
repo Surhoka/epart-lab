@@ -1,4 +1,19 @@
 <div x-data="postEditor" id="post-editor-page" class="w-full animate-fade-in">
+    <style>
+        #classic-editor-body img {
+            transition: all 0.2s;
+            outline: 2px solid transparent;
+        }
+
+        #classic-editor-body img:hover {
+            outline-color: #3b82f6;
+        }
+
+        #classic-editor-body img.selected-img {
+            outline: 4px solid #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+    </style>
     <input type="file" x-ref="imageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
 
     <!-- Header -->
