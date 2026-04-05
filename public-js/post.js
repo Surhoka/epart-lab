@@ -67,16 +67,16 @@ window.initPostPage = function () {
                     // Normalize field names — sheetToObjects_ returns lowercase keys
                     const d = res.data;
                     this.post = {
-                        id: d.id || d.ID || '',
-                        title: d.title || d.Title || '',
-                        slug: d.slug || d.Slug || this.slug,
-                        content: d.content || d.Content || '',
-                        status: d.status || d.Status || '',
-                        category: this._normalizeCategory(d.category || d.Category),
-                        image: d.image || d.Image || '',
-                        publishdate: d.publishdate || d.PublishDate || d.datecreated || d.DateCreated || '',
-                        location: d.location || d.Location || '',
-                        commentoption: d.commentoption || d.CommentOption || 'allow',
+                        id: d.id || '',
+                        title: d.title || '',
+                        slug: d.slug || this.slug,
+                        content: d.content || '',
+                        status: d.status || '',
+                        category: this._normalizeCategory(d.category),
+                        image: d.image || '',
+                        publishdate: d.publishdate || d.datecreated || '',
+                        location: d.location || '',
+                        commentoption: d.commentoption || 'allow',
                     };
                     this.extractFeaturedImage();
                     if (this.post.title) document.title = `${this.post.title} | EzyParts`;
