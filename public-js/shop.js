@@ -28,14 +28,65 @@ window.initShopPage = function () {
         async fetchData() {
             this.isLoading = true;
             try {
-                // We use the same home data endpoint as it contains all we need
-                const response = await window.AdminAPI.get('getPublicHomeData');
-                if (response.status === 'success' && response.data) {
-                    this.products = response.data.products || [];
-                    this.categories = response.data.categories || [];
+                // OPTIMASI EKSTREM: Mengambil data Produk dari Edge CDN Blogger secara Native
+                const res = await fetch('/feeds/pages/default?alt=json&max-results=500');
+                if (!res.ok) throw new Error('Blogger Feed tidak dapat dijangkau');
+                const data = await res.json();
+
+                let extractedProducts = [];
+
+                if (data.feed && data.feed.entry) {
+                    const parser = new DOMParser();
+                    data.feed.entry.forEach(entry => {
+                        const htmlContent = entry.content ? entry.content.$t : '';
+                        if (!htmlContent) return;
+
+                        const doc = parser.parseFromString(htmlContent, 'text/html');
+                        const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]');
+                        
+                        if (metaNode) {
+                            try {
+                                const prodData = JSON.parse(metaNode.textContent);
+                                
+                                const linkNode = entry.link.find(l => l.rel === 'alternate');
+                                if (linkNode) {
+                                    const pathMatch = new URL(linkNode.href).pathname.match(/\/p\/([^.]+)\.html/);
+                                    if (pathMatch) prodData.slug = pathMatch[1];
+                                }
+
+                                // Deteksi apakah ini Produk (Produk mutlak memiliki atribut price)
+                                if (prodData.price !== undefined) {
+                                    prodData.name = prodData.title || entry.title.$t;
+                                    prodData.imageurl = prodData.image || ''; // Fallback property
+                                    extractedProducts.push(prodData);
+                                }
+                            } catch (parseError) {
+                                console.warn('[Shop] Gagal menguraikan metadata untuk:', entry.title.$t);
+                            }
+                        }
+                    });
                 }
+
+                this.products = extractedProducts;
+
+                // Bangun Ulang Kategori secara Dinamis berformat array {id, name, slug}
+                const catSet = new Set();
+                this.products.forEach(p => {
+                    if (Array.isArray(p.category)) {
+                        p.category.forEach(c => { if(c) catSet.add(c) });
+                    } else if (p.category && typeof p.category === 'string') {
+                        p.category.split(',').forEach(c => { if(c.trim()) catSet.add(c.trim()) });
+                    }
+                });
+                
+                this.categories = Array.from(catSet).sort().map(c => ({
+                    id: c,
+                    name: c,
+                    slug: c
+                }));
+
             } catch (e) {
-                console.error('Error fetching shop data:', e);
+                console.error('[Shop] Error CDN fetching data:', e);
             } finally {
                 this.isLoading = false;
             }
