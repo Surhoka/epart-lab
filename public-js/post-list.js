@@ -14,28 +14,64 @@ window.initPostListPage = function () {
         async fetchData() {
             this.isLoading = true;
             try {
-                // Mengambil seluruh berita yang ada di database public
-                const res = await window.AdminAPI.get('get_posts', { isPublic: true });
+                // OPTIMASI EKSTREM: Mengambil data dari Edge CDN Blogger secara Native
+                const res = await fetch('/feeds/pages/default?alt=json&max-results=500');
+                if (!res.ok) throw new Error('Blogger Feed tidak dapat dijangkau');
+                const data = await res.json();
 
-                if (res.status === 'success' && res.data) {
-                    // Normalisasi data: hanya yang Published dan urutkan dari yang terbaru
-                    this.posts = res.data
-                        .filter(p => p.status === 'Published')
-                        .sort((a, b) => new Date(b.publishdate || b.datecreated) - new Date(a.publishdate || a.datecreated));
+                let extractedPosts = [];
 
-                    // Ekstrak daftar kategori unik untuk dropdown filter
-                    const catSet = new Set();
-                    this.posts.forEach(p => {
-                        if (Array.isArray(p.category)) {
-                            p.category.forEach(c => catSet.add(c));
-                        } else if (p.category) {
-                            p.category.split(',').forEach(c => catSet.add(c.trim()));
+                if (data.feed && data.feed.entry) {
+                    const parser = new DOMParser();
+                    data.feed.entry.forEach(entry => {
+                        const htmlContent = entry.content ? entry.content.$t : '';
+                        if (!htmlContent) return;
+
+                        // Ekstraksi Metadata JSON yang disuntikkan oleh Backend
+                        const doc = parser.parseFromString(htmlContent, 'text/html');
+                        const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]');
+                        
+                        if (metaNode) {
+                            try {
+                                const postData = JSON.parse(metaNode.textContent);
+                                
+                                // Simpan URL path slug yang absulut
+                                const linkNode = entry.link.find(l => l.rel === 'alternate');
+                                if (linkNode) {
+                                    const pathMatch = new URL(linkNode.href).pathname.match(/\/p\/([^.]+)\.html/);
+                                    if (pathMatch) postData.slug = pathMatch[1];
+                                }
+
+                                // Pisahkan antara struktur Products vs Posts 
+                                // (Posts tidak memiliki properti price di meta-nya)
+                                if (postData.price === undefined) {
+                                    // Pastikan data yang kosong diformat dengan baik
+                                    postData.title = postData.title || entry.title.$t;
+                                    extractedPosts.push(postData);
+                                }
+                            } catch (parseError) {
+                                console.warn('[PostList] Gagal menguraikan metadata untuk:', entry.title.$t);
+                            }
                         }
                     });
-                    this.categories = Array.from(catSet).sort();
                 }
+
+                // Normalisasi data: urutkan dari yang terbaru
+                this.posts = extractedPosts.sort((a, b) => new Date(b.publishdate || 0) - new Date(a.publishdate || 0));
+
+                // Ekstrak daftar kategori unik untuk dropdown filter
+                const catSet = new Set();
+                this.posts.forEach(p => {
+                    if (Array.isArray(p.category)) {
+                        p.category.forEach(c => { if(c) catSet.add(c) });
+                    } else if (p.category && typeof p.category === 'string') {
+                        p.category.split(',').forEach(c => { if(c.trim()) catSet.add(c.trim()) });
+                    }
+                });
+                this.categories = Array.from(catSet).sort();
+
             } catch (e) {
-                console.error('[PostList] Error fetching data:', e);
+                console.error('[PostList] Error CDN fetching data:', e);
             } finally {
                 this.isLoading = false;
             }
@@ -67,7 +103,7 @@ window.initPostListPage = function () {
         updateBreadcrumb() {
             if (window.renderBreadcrumb) {
                 window.renderBreadcrumb([
-                    { label: 'Beranda', action: "window.navigate('home')" },
+                    { label: 'Home', action: "window.navigate('home')" },
                     { label: 'News' }
                 ]);
             }
