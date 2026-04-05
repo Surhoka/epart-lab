@@ -39,9 +39,9 @@
         <!-- Empty State -->
         <template x-if="filteredPosts.length === 0">
             <div
-                class="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
+                class="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
                 <div
-                    class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <span class="w-8 h-8 text-gray-400" x-icon="'search'"></span>
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tidak ada berita ditemukan</h3>
@@ -55,7 +55,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <template x-for="post in filteredPosts" :key="post.id">
                 <article
-                    class="group bg-white dark:bg-gray-800 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col h-full">
+                    class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col h-full">
                     <!-- Image -->
                     <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
                         class="relative h-56 bg-gray-50 dark:bg-gray-900/50 overflow-hidden block flex-shrink-0">
@@ -64,7 +64,7 @@
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         <div class="absolute top-4 left-4">
                             <span
-                                class="bg-brand-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg shadow-brand-500/20 uppercase tracking-widest"
+                                class="bg-brand-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-lg shadow-brand-500/20 uppercase tracking-widest"
                                 x-text="Array.isArray(post.category) ? post.category[0] : (post.category || 'News')"></span>
                         </div>
                     </a>
