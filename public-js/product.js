@@ -94,8 +94,8 @@ window.initProductPage = function () {
                     // Trigger Re-render breadcrumb
                     if (window.renderBreadcrumb) {
                         window.renderBreadcrumb([
-                            { label: 'Beranda', action: "window.navigate('home')" },
-                            { label: 'Produk', action: "window.navigate('shop')" },
+                            { label: 'Home', action: "window.navigate('home')" },
+                            { label: 'Product', action: "window.navigate('shop')" },
                             { label: this.product.name || 'Detail Produk' }
                         ]);
                     }
