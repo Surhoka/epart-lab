@@ -15,7 +15,10 @@ window.initPostPage = function () {
             console.log('🏁 [Post] Initializing for slug:', this.slug);
 
             if (this.slug) {
-                await this.fetchPost();
+                // Beri jeda sedikit agar window.AdminAPI benar-benar siap (terutama saat Pjax)
+                setTimeout(async () => {
+                    await this.fetchPost();
+                }, 150);
             } else {
                 this.isLoading = false;
                 console.error('[Post] No slug found in URL');
@@ -83,12 +86,13 @@ window.initPostPage = function () {
                         map[this.slug] = 'post';
                         localStorage.setItem('ezy_slug_type', JSON.stringify(map));
                     } catch (_) { }
-                    // Update breadcrumb
+
+                    // Trigger Re-render breadcrumb
                     if (window.renderBreadcrumb) {
                         window.renderBreadcrumb([
                             { label: 'Home', action: "window.navigate('home')" },
-                            { label: 'Artikel', action: "window.navigate('post')" },
-                            { label: this.post?.title || this.post?.slug || 'Judul Artikel' }
+                            { label: 'News', action: "window.navigate('post-list')" },
+                            { label: this.post.title || 'Detail Berita' }
                         ]);
                     }
                 } else {
