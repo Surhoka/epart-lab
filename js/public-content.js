@@ -617,6 +617,16 @@
                             this.post.slug = '';
                         }
                     });
+                    this.$nextTick(() => {
+                        const editor = document.getElementById('classic-editor-body');
+                        if (editor) {
+                            editor.addEventListener('click', (e) => {
+                                if (e.target.tagName === 'IMG') {
+                                    this.editImageInContent(e.target);
+                                }
+                            });
+                        }
+                    });
                     this.$watch('post.dateMode', (val) => {
                         if (val === 'custom') {
                             this.$nextTick(() => this.initDatePicker());
@@ -776,6 +786,15 @@
                     this.restoreSelection();
                     const imgHtml = `<img src="${url}" class="max-w-full h-auto rounded-lg my-4" alt="Image" />`;
                     document.execCommand('insertHTML', false, imgHtml);
+                },
+
+                editImageInContent(imgElement) {
+                    const currentUrl = imgElement.src;
+                    const newUrl = prompt("Edit URL Gambar:", currentUrl);
+                    if (newUrl !== null && newUrl.trim() !== "") {
+                        imgElement.src = newUrl;
+                        showToast("Gambar di editor berhasil diperbarui!", "success");
+                    }
                 },
 
                 async saveDraft() {
