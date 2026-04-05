@@ -83,6 +83,14 @@ window.initPostPage = function () {
                         map[this.slug] = 'post';
                         localStorage.setItem('ezy_slug_type', JSON.stringify(map));
                     } catch (_) {}
+                    // Update breadcrumb: Home > News > Article Title
+                    if (typeof window.renderBreadcrumb === 'function') {
+                        window.renderBreadcrumb([
+                            { label: 'Home', link: '/', action: "window.navigate('home')" },
+                            { label: 'News', link: '/' },
+                            { label: this.post.title }
+                        ]);
+                    }
                 } else {
                     console.error('[Post] Not found:', res.message);
                     this.post = null;
