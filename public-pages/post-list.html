@@ -55,43 +55,39 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <template x-for="post in filteredPosts" :key="post.id">
                 <article
-                    class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col h-full">
+                    class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full">
                     <!-- Image -->
                     <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
-                        class="relative h-56 bg-gray-50 dark:bg-gray-900/50 overflow-hidden block flex-shrink-0">
-                        <img :src="post.image || 'https://dummyimage.com/600x400/f3f4f6/94a3b8&text=No+Image'"
+                        class="relative h-48 bg-gray-50 dark:bg-gray-900/50 overflow-hidden block flex-shrink-0">
+                        <img :src="post.imageurl || post.image || 'https://dummyimage.com/600x400/f3f4f6/94a3b8&text=No+Image'"
                             :alt="post.title"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute top-4 left-4">
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-3 left-3">
                             <span
-                                class="bg-brand-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-lg shadow-brand-500/20 uppercase tracking-widest"
-                                x-text="Array.isArray(post.category) ? post.category[0] : (post.category || 'News')"></span>
+                                class="bg-brand-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm capitalize"
+                                x-text="Array.isArray(post.category) ? post.category[0] : (post.category || 'NEWS')"></span>
                         </div>
                     </a>
 
                     <!-- Content -->
-                    <div class="flex-grow flex flex-col p-6 lg:p-8">
-                        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
-                            <span class="w-4 h-4" x-icon="'clock'"></span>
-                            <span x-text="formatDate(post.publishdate || post.datecreated)"></span>
-                        </div>
-
+                    <div class="flex-grow flex flex-col px-4 pb-4 pt-4">
+                        <div class="text-xs text-gray-400 mb-2" x-text="formatDate(post.publishdate || post.datecreated)"></div>
+                        
                         <h3
-                            class="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-brand-600 transition-colors mb-4">
+                            class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors mb-2">
                             <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
                                 x-text="post.title"></a>
                         </h3>
 
-                        <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-3 mb-6 leading-relaxed"
-                            x-text="getSnippet(post.content)"></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-4"
+                            x-text="post.snippet || getSnippet(post.content)"></p>
 
-                        <div class="mt-auto pt-6 border-t border-gray-50 dark:border-gray-700/50">
+                        <div class="mt-auto pt-2 border-t border-gray-50 dark:border-gray-700/50">
                             <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
-                                class="text-brand-600 dark:text-brand-400 hover:text-brand-700 font-bold text-sm inline-flex items-center gap-2 group/link">
-                                Baca Selengkapnya
-                                <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                class="text-brand-600 hover:text-brand-700 font-bold text-sm inline-flex items-center gap-1">
+                                Read More
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                 </svg>
                             </a>
