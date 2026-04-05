@@ -677,20 +677,20 @@
                             const allCategories = new Set();
                             this.posts = (res.data || []).map(p => {
                                 const postData = {
-                                    id: p.ID || p.id,
-                                    title: p.Title || p.title,
-                                    slug: p.Slug || p.slug,
-                                    content: p.Content || p.content,
-                                    status: p.Status || p.status,
-                                    category: p.Category || p.category,
-                                    tags: p.Tags || p.tags,
-                                    image: p.Image || p.image,
-                                    location: p.Location || p.location,
-                                    publishDate: p.PublishDate || p.publishDate,
-                                    commentOption: p.CommentOption || p.commentOption,
-                                    permalinkMode: p.PermalinkMode || p.permalinkMode,
-                                    date: this.formatDate(p.DateCreated || p.dateCreated),
-                                    lastModified: p.LastModified || p.lastModified,
+                                    id: p.id,
+                                    title: p.title,
+                                    slug: p.slug,
+                                    content: p.content,
+                                    status: p.status,
+                                    category: p.category,
+                                    tags: p.tags,
+                                    image: p.image,
+                                    location: p.location,
+                                    publishDate: p.publishdate,
+                                    commentOption: p.commentoption,
+                                    permalinkMode: p.permalinkmode,
+                                    date: this.formatDate(p.datecreated),
+                                    lastModified: p.lastmodified,
                                     selected: false
                                 };
                                 if (Array.isArray(postData.category)) {
@@ -861,7 +861,7 @@
                                 showToast("Postingan berhasil disimpan", "success");
                                 if (res.id && !this.post.id) this.post.id = res.id;
                                 this.fetchPosts();
-                                this.activeTab = 'list';
+                                this.cancelEditor();
                             } else {
                                 showToast("Gagal menyimpan: " + res.message, "error");
                             }
