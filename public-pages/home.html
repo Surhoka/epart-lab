@@ -1262,8 +1262,10 @@
                             <!-- Content -->
                             <div class="flex-grow flex flex-col px-4 pb-4">
                                 <div class="mb-2">
-                                    <h3 class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors">
-                                        <a :href="'/p/' + (product.slug || product.id) + '.html'" x-text="product.name"></a>
+                                    <h3
+                                        class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors">
+                                        <a :href="'/p/' + (product.slug || product.id) + '.html'"
+                                            x-text="product.name"></a>
                                     </h3>
                                 </div>
 
@@ -1277,8 +1279,11 @@
                                             x-show="product.originalprice > product.price"
                                             x-text="formatPrice(product.originalprice)"></span>
                                     </div>
-                                    <button @click.stop="$store.cart.add(product); flyToCart($event.currentTarget, product.imageurl)" class="p-2 bg-brand-50 dark:bg-brand-900/30 hover:bg-brand-600 text-brand-600 hover:text-white rounded-lg transition-all active:scale-95 group/btn shadow-sm hover:shadow-lg shadow-brand-500/10">
-                                        <span class="w-5 h-5 flex items-center justify-center" x-icon="'shopping-bag'"></span>
+                                    <button
+                                        @click.stop="$store.cart.add(product); flyToCart($event.currentTarget, product.imageurl)"
+                                        class="p-2 bg-brand-50 dark:bg-brand-900/30 hover:bg-brand-600 text-brand-600 hover:text-white rounded-lg transition-all active:scale-95 group/btn shadow-sm hover:shadow-lg shadow-brand-500/10">
+                                        <span class="w-5 h-5 flex items-center justify-center"
+                                            x-icon="'shopping-bag'"></span>
                                     </button>
                                 </div>
                             </div>
@@ -1356,7 +1361,8 @@
             <div class="mb-12">
                 <div class="flex justify-between items-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Latest Motoring News</h2>
-                    <button @click="window.navigate('post-list')" class="text-brand-600 font-bold hover:underline">Lihat Semua Berita →</button>
+                    <button @click="window.navigate('post-list')" class="text-brand-600 font-bold hover:underline">Lihat
+                        Semua Berita →</button>
                 </div>
 
                 <!-- Loading State -->
@@ -1371,18 +1377,19 @@
                 </div>
 
                 <!-- Grid -->
-                <div x-show="!isLoadingPosts && posts.length > 0"
-                    class="grid grid-cols-1 md:grid-cols-3 gap-6" x-cloak>
+                <div x-show="!isLoadingPosts && posts.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6" x-cloak>
                     <template x-for="post in posts" :key="post.id">
-                        <article class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full">
+                        <article
+                            class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full">
                             <!-- Image -->
                             <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
                                 class="relative h-48 bg-gray-50 dark:bg-gray-900/50 overflow-hidden block flex-shrink-0">
-                                <img :src="post.image || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=250&fit=crop'"
+                                <img :src="post.imageurl || post.image || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=250&fit=crop'"
                                     :alt="post.title"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 <div class="absolute top-3 left-3">
-                                    <span class="bg-brand-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm"
+                                    <span
+                                        class="bg-brand-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm"
                                         x-text="post.category || 'NEWS'"></span>
                                 </div>
                             </a>
@@ -1390,16 +1397,20 @@
                             <!-- Content -->
                             <div class="flex-grow flex flex-col px-4 pb-4 pt-4">
                                 <div class="text-xs text-gray-400 mb-2" x-text="formatDate(post.publishdate)"></div>
-                                <h3 class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors mb-2">
-                                    <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post" x-text="post.title"></a>
+                                <h3
+                                    class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors mb-2">
+                                    <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
+                                        x-text="post.title"></a>
                                 </h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-4" x-text="getSnippet(post.content)"></p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-4"
+                                    x-text="getSnippet(post.content)"></p>
                                 <div class="mt-auto pt-2 border-t border-gray-50 dark:border-gray-700/50">
                                     <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
                                         class="text-brand-600 hover:text-brand-700 font-bold text-sm inline-flex items-center gap-1">
                                         Read More
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                         </svg>
                                     </a>
                                 </div>
