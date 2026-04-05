@@ -64,15 +64,15 @@ window.initPostPage = function () {
                     // Normalize field names — sheetToObjects_ returns lowercase keys
                     const d = res.data;
                     this.post = {
-                        id:            d.id || d.ID || '',
-                        title:         d.title || d.Title || '',
-                        slug:          d.slug || d.Slug || this.slug,
-                        content:       d.content || d.Content || '',
-                        status:        d.status || d.Status || '',
-                        category:      this._normalizeCategory(d.category || d.Category),
-                        image:         d.image || d.Image || '',
-                        publishdate:   d.publishdate || d.PublishDate || d.datecreated || d.DateCreated || '',
-                        location:      d.location || d.Location || '',
+                        id: d.id || d.ID || '',
+                        title: d.title || d.Title || '',
+                        slug: d.slug || d.Slug || this.slug,
+                        content: d.content || d.Content || '',
+                        status: d.status || d.Status || '',
+                        category: this._normalizeCategory(d.category || d.Category),
+                        image: d.image || d.Image || '',
+                        publishdate: d.publishdate || d.PublishDate || d.datecreated || d.DateCreated || '',
+                        location: d.location || d.Location || '',
                         commentoption: d.commentoption || d.CommentOption || 'allow',
                     };
                     this.extractFeaturedImage();
@@ -82,13 +82,13 @@ window.initPostPage = function () {
                         const map = JSON.parse(localStorage.getItem('ezy_slug_type') || '{}');
                         map[this.slug] = 'post';
                         localStorage.setItem('ezy_slug_type', JSON.stringify(map));
-                    } catch (_) {}
-                    // Update breadcrumb: Home > News > Article Title
+                    } catch (_) { }
+                    // Update breadcrumb
                     if (typeof window.renderBreadcrumb === 'function') {
                         window.renderBreadcrumb([
                             { label: 'Home', link: '/', action: "window.navigate('home')" },
                             { label: 'News', link: '/' },
-                            { label: this.post.title }
+                            { label: this.post.title || 'Detail Post' }
                         ]);
                     }
                 } else {
@@ -134,9 +134,9 @@ window.initPostPage = function () {
             const url = encodeURIComponent(window.location.href);
             const text = encodeURIComponent(this.post?.title || '');
             const map = {
-                facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-                twitter:   `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
-                whatsapp:  `https://api.whatsapp.com/send?text=${text}%20${url}`,
+                facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+                twitter: `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
+                whatsapp: `https://api.whatsapp.com/send?text=${text}%20${url}`,
             };
             if (map[platform]) window.open(map[platform], '_blank', 'width=600,height=400');
         },
