@@ -84,11 +84,11 @@ window.initPostPage = function () {
                         localStorage.setItem('ezy_slug_type', JSON.stringify(map));
                     } catch (_) { }
                     // Update breadcrumb
-                    if (typeof window.renderBreadcrumb === 'function') {
+                    if (window.renderBreadcrumb) {
                         window.renderBreadcrumb([
-                            { label: 'Home', link: '/', action: "window.navigate('home')" },
-                            { label: 'News', link: '/' },
-                            { label: this.post.title || 'Detail Post' }
+                            { label: 'Home', action: "window.navigate('home')" },
+                            { label: 'Artikel', action: "window.navigate('post')" },
+                            { label: this.post?.title || this.post?.slug || 'Judul Artikel' }
                         ]);
                     }
                 } else {
