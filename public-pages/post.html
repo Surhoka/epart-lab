@@ -31,24 +31,24 @@
             <!-- Header Meta -->
             <div class="space-y-6">
                 <div class="flex flex-wrap items-center gap-3">
-                    <template x-for="cat in post.category" :key="cat">
+                    <template x-for="cat in (post?.category || [])" :key="cat">
                         <span
                             class="px-4 py-1.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-xs font-bold rounded-full uppercase tracking-wider"
                             x-text="cat"></span>
                     </template>
                     <div class="h-4 w-px bg-gray-200 dark:bg-gray-800 mx-1"></div>
                     <span class="text-sm text-gray-500 dark:text-gray-400 font-medium"
-                        x-text="formatDate(post.publishdate)"></span>
+                        x-text="formatDate(post?.publishdate)"></span>
                 </div>
 
                 <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-[1.1]"
-                    x-text="post.title"></h1>
+                    x-text="post?.title"></h1>
             </div>
 
             <!-- Featured Image (Optional) -->
             <template x-if="featuredImage">
                 <div class="relative group">
-                    <img :src="featuredImage" :alt="post.title"
+                    <img :src="featuredImage" :alt="post?.title"
                         class="w-full object-cover rounded-[2rem] shadow-2xl shadow-brand-500/10 border border-gray-100 dark:border-gray-800 transition-transform duration-500 group-hover:scale-[1.01]" />
                 </div>
             </template>
@@ -82,7 +82,7 @@
                 prose-a:text-brand-500 hover:prose-a:text-brand-600
                 prose-img:rounded-3xl prose-img:shadow-lg
                 prose-blockquote:border-l-4 prose-blockquote:border-brand-500 prose-blockquote:bg-brand-50/50 dark:prose-blockquote:bg-brand-900/10 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl prose-blockquote:italic"
-                x-html="post.content">
+                x-html="post?.content">
             </div>
 
             <!-- Footer Meta -->
