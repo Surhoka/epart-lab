@@ -1,21 +1,30 @@
-<div x-data="initProductPage()" x-init="init()" class="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-    <!-- Breadcrumb Container -->
-    <div id="breadcrumb-container" class="mb-8"></div>
+<div x-data="typeof initProductPage === 'function' ? initProductPage() : { loading: true, error: false, product: {}, init(){} }"
+    x-init="init()" class="fade-in">
+    <div class="max-w-7xl mx-auto px-4 lg:px-6 py-8">
+        <!-- Breadcrumb Container -->
+        <div id="breadcrumb-container" class="mb-8"></div>
 
         <!-- Loading State -->
         <div x-show="loading" class="flex flex-col items-center justify-center py-32 space-y-4">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
-            <p class="text-gray-400 font-medium">Menyipiskan detail produk...</p>
+            <p class='mt-4 text-sm font-medium tracking-wide text-gray-500 dark:text-gray-400 animate-pulse'>Loading...
+            </p>
         </div>
 
         <!-- Error State -->
-        <div x-show="error" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-12 text-center shadow-sm" x-cloak>
-            <div class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600">
+        <div x-show="error"
+            class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-12 text-center shadow-sm"
+            x-cloak>
+            <div
+                class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600">
                 <span class="w-10 h-10" x-icon="'alert-octagon'"></span>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" x-text="errorTitle">Produk Tidak Ditemukan</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto" x-text="errorMessage">Mohon maaf, data produk yang Anda cari tidak tersedia atau telah dihapus.</p>
-            <button @click="window.navigate('home')" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 mx-auto active:scale-95">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" x-text="errorTitle">Produk Tidak Ditemukan
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto" x-text="errorMessage">Mohon maaf, data
+                produk yang Anda cari tidak tersedia atau telah dihapus.</p>
+            <button @click="window.navigate('home')"
+                class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 mx-auto active:scale-95">
                 <span class="w-5 h-5" x-icon="'home'"></span>
                 Kembali ke Beranda
             </button>
@@ -23,18 +32,23 @@
 
         <!-- Product Detail Content -->
         <div x-show="!loading && !error" class="grid lg:grid-cols-2 gap-10 items-start" x-cloak>
-            
+
             <!-- Left: Product Image -->
             <div class="space-y-4">
-                <div class="relative aspect-square bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 group">
-                    <img :src="product.imageurl" :alt="product.name" class="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-105">
-                    
+                <div
+                    class="relative aspect-square bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 group">
+                    <img :src="product.imageurl" :alt="product.name"
+                        class="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-105">
+
                     <div class="absolute top-6 left-6 flex flex-col gap-2">
                         <template x-if="product.badge">
-                            <span class="bg-brand-500 text-white text-[10px] font-black tracking-wider px-3 py-1.5 rounded-full shadow-lg" x-text="product.badge"></span>
+                            <span
+                                class="bg-brand-500 text-white text-[10px] font-black tracking-wider px-3 py-1.5 rounded-full shadow-lg"
+                                x-text="product.badge"></span>
                         </template>
                         <template x-if="product.originalprice > product.price">
-                            <span class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">SALE</span>
+                            <span
+                                class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">SALE</span>
                         </template>
                     </div>
                 </div>
@@ -43,35 +57,48 @@
             <!-- Right: Product Info -->
             <div class="space-y-10">
                 <div>
-                    <p class="text-[10px] uppercase font-black tracking-widest text-gray-400 mb-2" x-text="product.category || 'Sparepart'"></p>
-                    <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight" x-text="product.name"></h1>
+                    <p class="text-[10px] uppercase font-black tracking-widest text-gray-400 mb-2"
+                        x-text="product.category || 'Sparepart'"></p>
+                    <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight"
+                        x-text="product.name"></h1>
                     <div class="flex items-center gap-4">
                         <span class="text-3xl font-black text-brand-600" x-text="formatCurrency(product.price)"></span>
-                        <span class="text-lg text-gray-400 line-through font-medium" x-show="product.originalprice > product.price" x-text="formatCurrency(product.originalprice)"></span>
+                        <span class="text-lg text-gray-400 line-through font-medium"
+                            x-show="product.originalprice > product.price"
+                            x-text="formatCurrency(product.originalprice)"></span>
                     </div>
                 </div>
 
                 <!-- Buy Action Box -->
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
                     <div class="space-y-4">
-                        <button @click="$store.cart.add(product); if(window.flyToCart) flyToCart($event.currentTarget, product.imageurl)" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 active:scale-95">
+                        <button
+                            @click="$store.cart.add(product); if(window.flyToCart) flyToCart($event.currentTarget, product.imageurl)"
+                            class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 active:scale-95">
                             <span class="w-5 h-5" x-icon="'shopping-bag'"></span>
                             Tambah Keranjang
                         </button>
-                        <button @click="contactWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl font-bold shadow-lg shadow-green-500/10 transition-all flex items-center justify-center gap-3 active:scale-95">
+                        <button @click="contactWhatsApp()"
+                            class="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl font-bold shadow-lg shadow-green-500/10 transition-all flex items-center justify-center gap-3 active:scale-95">
                             <span class="w-6 h-6" x-icon="'message-circle'"></span>
                             Tanya Langsung (WA)
                         </button>
                     </div>
 
                     <!-- Payment Methods Integrated -->
-                    <div x-show="product.paymentMethods && product.paymentMethods.length > 0" class="pt-6 border-t border-gray-50 dark:border-gray-700/50">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Metode Pembayaran Tersedia</p>
+                    <div x-show="product.paymentMethods && product.paymentMethods.length > 0"
+                        class="pt-6 border-t border-gray-50 dark:border-gray-700/50">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Metode Pembayaran
+                            Tersedia</p>
                         <div class="flex flex-wrap gap-2">
                             <template x-for="method in product.paymentMethods" :key="method.id">
-                                <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400">
-                                    <span class="w-3.5 h-3.5" x-icon="method.id.includes('midtrans') ? 'credit-card' : 'bank'"></span>
-                                    <span x-text="method.bankname || (method.id.includes('midtrans') ? 'Midtrans' : 'Transfer')"></span>
+                                <div
+                                    class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400">
+                                    <span class="w-3.5 h-3.5"
+                                        x-icon="method.id.includes('midtrans') ? 'credit-card' : 'bank'"></span>
+                                    <span
+                                        x-text="method.bankname || (method.id.includes('midtrans') ? 'Midtrans' : 'Transfer')"></span>
                                 </div>
                             </template>
                         </div>
@@ -80,13 +107,16 @@
 
                 <div class="prose prose-brand dark:prose-invert max-w-none">
                     <h3 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Informasi Produk</h3>
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap text-sm" x-text="product.description"></p>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap text-sm"
+                        x-text="product.description"></p>
                 </div>
 
                 <!-- Product Meta -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-8">
-                    <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                        <div class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center text-brand-600 shadow-sm">
+                    <div
+                        class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <div
+                            class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center text-brand-600 shadow-sm">
                             <span class="w-5 h-5" x-icon="'shield-check'"></span>
                         </div>
                         <div>
@@ -94,13 +124,16 @@
                             <p class="text-sm font-bold text-gray-900 dark:text-white leading-none">Asli / Certified</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                        <div class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center text-brand-600 shadow-sm">
+                    <div
+                        class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <div
+                            class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center text-brand-600 shadow-sm">
                             <span class="w-5 h-5" x-icon="'truck'"></span>
                         </div>
                         <div>
                             <p class="text-xs font-black uppercase tracking-widest text-gray-400 mb-0.5">Pengiriman</p>
-                            <p class="text-sm font-bold text-gray-900 dark:text-white leading-none">Seluruh Indonesia</p>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white leading-none">Seluruh Indonesia
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -108,4 +141,3 @@
         </div>
     </div>
 </div>
-
