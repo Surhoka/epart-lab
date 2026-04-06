@@ -1,7 +1,6 @@
-<div x-data="typeof initProductPage === 'function' ? initProductPage() : { loading: true, error: false, product: {}, init(){} }" x-init="init()" class="fade-in">
-    <div class="max-w-7xl mx-auto px-4 lg:px-6 py-8">
-        <!-- Breadcrumb Container -->
-        <div id="breadcrumb-container" class="mb-8"></div>
+<div x-data="initProductPage()" x-init="init()" class="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
+    <!-- Breadcrumb Container -->
+    <div id="breadcrumb-container" class="mb-8"></div>
 
         <!-- Loading State -->
         <div x-show="loading" class="flex flex-col items-center justify-center py-32 space-y-4">
