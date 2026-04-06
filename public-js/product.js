@@ -99,7 +99,7 @@ window.initProductPage = function () {
                             { label: this.product.name || 'Detail Produk' }
                         ]);
                     }
-                } else if (response.status === 'error' && response.message?.includes('not found')) {
+                } else if (response.status === 'error' && (response.message?.toLowerCase().includes('not found') || response.message?.toLowerCase().includes('tidak ditemukan'))) {
                     // Jika produk benar-benar tidak ada di database, lempar ke halaman 404
                     window.navigate('404');
                 } else {
