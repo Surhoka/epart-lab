@@ -12,16 +12,16 @@ window.initProductPage = function () {
         errorMessage: '',
         product: {},
         slug: null,
-        
+
         async init() {
             this.loading = true;
             this.error = false;
-            
+
             // Extract slug from URL hash, params or Blogger path
             this.slug = this.getSlugFromUrl();
-            
+
             console.log('🏁 [Product] Initializing for slug:', this.slug);
-            
+
             if (this.slug) {
                 // Beri jeda sedikit agar window.AdminAPI benar-benar siap (terutama saat Pjax)
                 setTimeout(async () => {
@@ -35,11 +35,11 @@ window.initProductPage = function () {
 
         getSlugFromUrl() {
             console.log('🔗 [Debug] Extracting slug from URL...', window.location.pathname);
-            
+
             // Priority 1: Global currentParams (set by SPA router)
             if (window.currentParams?.slug) return window.currentParams.slug;
             if (window.app?.params?.slug) return window.app.params.slug;
-            
+
             // Priority 2: Extract from direct URL (Blogger Native /p/slug.html)
             const path = window.location.pathname;
             if (path.includes('/p/')) {
@@ -49,7 +49,7 @@ window.initProductPage = function () {
                 console.log('✅ [Debug] Slug extracted from Path:', slug);
                 return slug;
             }
-            
+
             // Priority 3: Extract from Hash (for SPA direct navigation)
             const hash = window.location.hash || '';
             if (hash.includes('slug=')) {
@@ -58,11 +58,11 @@ window.initProductPage = function () {
                 console.log('✅ [Debug] Slug extracted from Hash:', slug);
                 return slug;
             }
-            
+
             console.warn('❌ [Debug] No slug found in URL');
             return null;
         },
-        
+
         async fetchProductDetail() {
             this.loading = true;
             console.log('📦 [Debug] Fetching Product Detail via AdminAPI...', this.slug);
@@ -78,19 +78,19 @@ window.initProductPage = function () {
                 }
 
                 const response = await window.AdminAPI.get('getProductDetail', { slug: this.slug });
-                
+
                 console.log('📥 [Debug] API Response Received:', response);
 
                 if (response.status === 'success' && response.data) {
                     this.product = response.data;
                     this.loading = false;
                     this.error = false;
-                    
+
                     // Update Page Title
                     if (this.product.name) {
                         document.title = `${this.product.name} | EzyParts`;
                     }
-                    
+
                     // Trigger Re-render breadcrumb
                     if (window.renderBreadcrumb) {
                         window.renderBreadcrumb([
@@ -100,7 +100,8 @@ window.initProductPage = function () {
                         ]);
                     }
                 } else if (response.status === 'error' && response.message?.includes('not found')) {
-                    this.showError('Produk Tidak Ditemukan', 'Maaf, produk dengan nama ini tidak ditemukan di database kami.');
+                    // Jika produk benar-benar tidak ada di database, lempar ke halaman 404
+                    window.navigate('404');
                 } else {
                     this.showError('Produk Tidak Tersedia', response.message || 'Gagal memuat detail produk saat ini.');
                 }
@@ -111,14 +112,14 @@ window.initProductPage = function () {
                 this.loading = false;
             }
         },
-        
+
         showError(title, msg) {
             this.error = true;
             this.loading = false;
             this.errorTitle = title;
             this.errorMessage = msg;
         },
-        
+
         formatCurrency(val) {
             if (!val) return 'Rp 0';
             return new Intl.NumberFormat('id-ID', {
@@ -127,14 +128,14 @@ window.initProductPage = function () {
                 maximumFractionDigits: 0
             }).format(val);
         },
-        
+
         contactWhatsApp() {
             const storePhone = window.EZY_SITE_CONFIG?.whatsapp || window.app?.publicPhone || '628123456789';
             const cleanPhone = storePhone.replace(/\D/g, '');
             const message = `Halo Admin, saya tertarik dengan produk: ${this.product.name}\n\nLink: ${window.location.href}`;
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
         },
-        
+
         addToCart(sourceEl) {
             if (this.product && this.product.id) {
                 if (window.Alpine && Alpine.store('cart')) {
