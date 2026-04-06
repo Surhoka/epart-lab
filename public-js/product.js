@@ -100,7 +100,8 @@ window.initProductPage = function () {
                         ]);
                     }
                 } else if (response.status === 'error' && (response.message?.toLowerCase().includes('not found') || response.message?.toLowerCase().includes('tidak ditemukan'))) {
-                    // Jika produk benar-benar tidak ada di database, lempar ke halaman 404
+                    // Jika produk tidak ada di database, pastikan rute berubah ke 404
+                    this.error = true;
                     window.navigate('404');
                 } else {
                     this.showError('Produk Tidak Tersedia', response.message || 'Gagal memuat detail produk saat ini.');
