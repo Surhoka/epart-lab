@@ -65,6 +65,22 @@ async function discoverEzyApi() {
         } catch (e) { }
     }
 
+    // [NEW] Blogger Feed Discovery as secondary truth
+    const discoverBloggerPages = async () => {
+        try {
+            const response = await fetch('/feeds/pages/default?alt=json');
+            const json = await response.json();
+            const pages = json.feed.entry || [];
+            const pageMap = pages.map(entry => {
+                const link = entry.link.find(l => l.rel === 'alternate');
+                return link ? link.href.split('/').pop().replace('.html', '') : null;
+            }).filter(Boolean);
+
+            // Simpan daftar halaman yang valid untuk mencegah rute 404 yang salah
+            localStorage.setItem('ezy_valid_pages', JSON.stringify(pageMap));
+        } catch (e) { console.warn('Blogger Feed discovery failed'); }
+    };
+
     if (!CURRENT_URL) {
         console.warn('Ezyparts Discovery: No URL found. Forcing setup mode.');
         forceSetupMode();
@@ -117,6 +133,7 @@ async function discoverEzyApi() {
             if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
                 applyRoleUrl(config);
+                discoverBloggerPages(); // Jalankan validasi feed di background
             } else if (config.statusNote === 'setup_in_progress') {
                 // Keep UI state if setup is in progress
                 applyRoleUrl(config);
