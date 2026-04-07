@@ -29,6 +29,16 @@
         }
     }
 
+    // Shared Blog ID Utility
+    function getBlogId() {
+        try {
+            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+            return config.blogId || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
     // ================================================================
     // HERO SLIDES MANAGER (from home-admin.js)
     // ================================================================
@@ -82,8 +92,13 @@
                     const btn = document.getElementById('save-hero-btn');
                     window.setButtonLoading?.(btn, true);
                     try {
+                        const payload = {
+                            ...this.editingItem,
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('saveHeroSlide', { ...this.editingItem, dbId: this.dbId }, resolve, reject);
+                            window.sendDataToGoogle('saveHeroSlide', payload, resolve, reject);
                         });
                         if (res.status === 'success') {
                             showToast('Slide berhasil disimpan');
@@ -103,7 +118,12 @@
                     if (!confirm('Hapus slide ini?')) return;
                     try {
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('deleteHeroSlide', { id, dbId: this.dbId }, resolve, reject);
+                            const payload = {
+                                id,
+                                dbId: this.dbId,
+                                blogId: getBlogId()
+                            };
+                            window.sendDataToGoogle('deleteHeroSlide', payload, resolve, reject);
                         });
                         if (res.status === 'success') { showToast('Slide dihapus'); await this.fetchSlides(); }
                         else showToast(res.message || 'Gagal menghapus', 'error');
@@ -191,8 +211,13 @@
                     const btn = document.getElementById('save-category-btn');
                     window.setButtonLoading?.(btn, true);
                     try {
+                        const payload = {
+                            ...this.editingItem,
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('saveCategory', { ...this.editingItem, dbId: this.dbId }, resolve, reject);
+                            window.sendDataToGoogle('saveCategory', payload, resolve, reject);
                         });
                         if (res.status === 'success') {
                             showToast('Kategori berhasil disimpan');
@@ -212,7 +237,12 @@
                     if (!confirm('Hapus kategori ini?')) return;
                     try {
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('deleteCategory', { id, dbId: this.dbId }, resolve, reject);
+                            const payload = {
+                                id,
+                                dbId: this.dbId,
+                                blogId: getBlogId()
+                            };
+                            window.sendDataToGoogle('deleteCategory', payload, resolve, reject);
                         });
                         if (res.status === 'success') { showToast('Kategori dihapus'); await this.fetchCategories(); }
                         else showToast(res.message || 'Gagal menghapus', 'error');
@@ -300,8 +330,13 @@
                     const btn = document.getElementById('save-product-btn');
                     window.setButtonLoading?.(btn, true);
                     try {
+                        const payload = {
+                            ...this.editingItem,
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('saveFeaturedProduct', { ...this.editingItem, dbId: this.dbId }, resolve, reject);
+                            window.sendDataToGoogle('saveFeaturedProduct', payload, resolve, reject);
                         });
                         if (res.status === 'success') {
                             showToast('Produk berhasil disimpan');
@@ -848,10 +883,7 @@
                     if (editorBody) this.post.content = editorBody.innerHTML;
                     if (!this.post.id) this.post.dateCreated = new Date().toISOString();
 
-                    const payload = { ...this.post, dbId: getDbId() };
-                    // Get blogId from admin core if available for sync
-                    const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
-                    if (config.blogId) payload.blogId = config.blogId;
+                    const payload = { ...this.post, dbId: getDbId(), blogId: getBlogId() };
 
                     if (Array.isArray(payload.category)) payload.category = payload.category.join(',');
 
