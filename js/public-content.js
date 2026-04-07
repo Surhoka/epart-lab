@@ -33,9 +33,14 @@
     function getBlogId() {
         try {
             const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
-            return config.blogId || null;
+            const blogId = config.blogId;
+            // Return empty string if blogId is null, "null" (string), undefined, or empty string
+            if (blogId === null || blogId === 'null' || blogId === undefined || blogId === '') {
+                return '';
+            }
+            return String(blogId); // Ensure it's a string
         } catch (e) {
-            return null;
+            return ''; // Default to empty string on error
         }
     }
 
