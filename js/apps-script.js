@@ -68,16 +68,31 @@ async function discoverEzyApi() {
     // [NEW] Blogger Feed Discovery as secondary truth
     const discoverBloggerPages = async () => {
         try {
-            const response = await fetch('/feeds/pages/default?alt=json');
+            const response = await fetch('/feeds/pages/default?alt=json&max-results=50');
             const json = await response.json();
             const pages = json.feed.entry || [];
-            const pageMap = pages.map(entry => {
-                const link = entry.link.find(l => l.rel === 'alternate');
-                return link ? link.href.split('/').pop().replace('.html', '') : null;
-            }).filter(Boolean);
 
-            // Simpan daftar halaman yang valid untuk mencegah rute 404 yang salah
-            localStorage.setItem('ezy_valid_pages', JSON.stringify(pageMap));
+            const validPages = [];
+            const slugTypeMap = JSON.parse(localStorage.getItem('ezy_slug_type') || '{}');
+
+            pages.forEach(entry => {
+                const link = entry.link.find(l => l.rel === 'alternate');
+                if (link) {
+                    const slug = link.href.split('/').pop().replace('.html', '');
+                    validPages.push(slug);
+                    // Jika konten mengandung shell produk, tandai tipenya di cache router
+                    if (entry.content.$t.includes('SSR_HYBRID_PRODUCT_SHELL')) {
+                        slugTypeMap[slug] = 'product';
+                    } else if (entry.content.$t.includes('SSR_HYBRID_HOME_DATA')) {
+                        slugTypeMap[slug] = 'home'; // Redirect ke home jika diakses via /p/home.html
+                    } else if (entry.content.$t.includes('SSR_HYBRID_SHELL')) {
+                        slugTypeMap[slug] = 'post';
+                    }
+                }
+            });
+
+            localStorage.setItem('ezy_valid_pages', JSON.stringify(validPages));
+            localStorage.setItem('ezy_slug_type', JSON.stringify(slugTypeMap));
         } catch (e) { console.warn('Blogger Feed discovery failed'); }
     };
 
