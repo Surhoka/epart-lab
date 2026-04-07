@@ -42,24 +42,23 @@ window.initHomePage = function () {
             this.isLoadingProducts = true;
             this.isLoadingPosts = true;
             try {
-                // 1. Ambil Data Struktur (Heroes & Categories) tetap via AdminAPI
-                const response = await window.AdminAPI.get('getPublicHomeData');
-                if (response.status === 'success') {
-                    const d = response.data;
-                    this.slides = d.heroes || [];
-                    this.totalSlides = this.slides.length;
-                    this.activeSlide = 0;
-
-                    // Trigger categories update if needed
-                    if (window.app && d.categories) {
-                        window.app.categories = d.categories;
-                    }
-                }
-
-                // 2. Fetch Products via Blogger Feed (Laman Statis)
+                // 1. Ambil SEMUA data (Home Config & Products) dalam satu tarikan Feed
                 const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=50');
                 const pageJson = await pageRes.json();
                 if (pageJson.feed && pageJson.feed.entry) {
+                    // Cari Laman 'home' untuk Slider & Kategori
+                    const homeEntry = pageJson.feed.entry.find(e => e.content.$t.includes('SSR_HYBRID_HOME_DATA'));
+                    if (homeEntry) {
+                        const metaMatch = homeEntry.content.$t.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
+                        if (metaMatch) {
+                            const homeData = JSON.parse(metaMatch[1]);
+                            this.slides = homeData.heroes || [];
+                            this.totalSlides = this.slides.length;
+                            if (window.app) window.app.categories = homeData.categories || [];
+                        }
+                    }
+
+                    // Filter Products
                     this.products = pageJson.feed.entry
                         .filter(entry => entry.content.$t.includes('SSR_HYBRID_PRODUCT_SHELL'))
                         .map(entry => {
