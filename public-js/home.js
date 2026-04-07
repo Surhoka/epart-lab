@@ -42,19 +42,68 @@ window.initHomePage = function () {
             this.isLoadingProducts = true;
             this.isLoadingPosts = true;
             try {
+                // 1. Ambil Data Struktur (Heroes & Categories) tetap via AdminAPI
                 const response = await window.AdminAPI.get('getPublicHomeData');
                 if (response.status === 'success') {
                     const d = response.data;
                     this.slides = d.heroes || [];
                     this.totalSlides = this.slides.length;
                     this.activeSlide = 0;
-                    this.products = d.products || [];
-                    this.posts = d.posts || [];
-                    
+
                     // Trigger categories update if needed
                     if (window.app && d.categories) {
                         window.app.categories = d.categories;
                     }
+                }
+
+                // 2. Fetch Products via Blogger Feed (Laman Statis)
+                const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=50');
+                const pageJson = await pageRes.json();
+                if (pageJson.feed && pageJson.feed.entry) {
+                    this.products = pageJson.feed.entry
+                        .filter(entry => entry.content.$t.includes('SSR_HYBRID_PRODUCT_SHELL'))
+                        .map(entry => {
+                            const metaMatch = entry.content.$t.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
+                            if (metaMatch && metaMatch[1]) {
+                                try {
+                                    const meta = JSON.parse(metaMatch[1]);
+                                    return {
+                                        id: meta.id,
+                                        name: meta.title,
+                                        slug: entry.link.find(l => l.rel === 'alternate').href.split('/').pop().replace('.html', ''),
+                                        imageurl: meta.image,
+                                        price: meta.price,
+                                        originalprice: meta.originalprice,
+                                        category: meta.category,
+                                        badge: meta.badge,
+                                        publishdate: meta.publishdate
+                                    };
+                                } catch (e) { return null; }
+                            }
+                            return null;
+                        })
+                        .filter(p => p !== null);
+                }
+
+                // 3. Fetch Posts via Blogger Feed (Postingan Berita)
+                const postRes = await fetch('/feeds/posts/default?alt=json&max-results=6');
+                const postJson = await postRes.json();
+                if (postJson.feed && postJson.feed.entry) {
+                    this.posts = postJson.feed.entry.map(entry => {
+                        const content = entry.content.$t;
+                        const metaMatch = content.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
+                        const meta = metaMatch ? JSON.parse(metaMatch[1]) : {};
+
+                        return {
+                            id: entry.id.$t,
+                            title: entry.title.$t,
+                            slug: entry.link.find(l => l.rel === 'alternate').href.split('/').pop().replace('.html', ''),
+                            content: meta.snippet || entry.summary?.$t || entry.content.$t.replace(/<[^>]*>?/gm, '').substring(0, 120),
+                            imageurl: entry.media$thumbnail?.url.replace('s72-c', 's1600') || meta.image || '',
+                            publishdate: entry.published.$t,
+                            category: entry.category ? entry.category[0].term : (meta.category || 'News')
+                        };
+                    });
                 }
             } catch (error) {
                 console.error('Error loading home data:', error);
@@ -119,30 +168,13 @@ window.initHomePage = function () {
         },
 
         async loadProducts() {
-            // Already handled by loadAllHomeData for efficiency
+            // Produk sekarang dimuat via Feed di loadAllHomeData
+            return Promise.resolve();
         },
 
         async loadPosts() {
-            this.isLoadingPosts = true;
-
-            try {
-                const response = await window.AdminAPI.getPosts({
-                    limit: 4,
-                    status: 'published'
-                });
-
-                if (response.status === 'success') {
-                    this.posts = response.data || [];
-                } else {
-                    console.warn('Failed to load posts:', response.message);
-                    this.posts = [];
-                }
-            } catch (error) {
-                console.error('Error loading posts:', error);
-                this.posts = [];
-            } finally {
-                this.isLoadingPosts = false;
-            }
+            // Postingan sekarang dimuat via Feed di loadAllHomeData
+            return Promise.resolve();
         },
 
         // Utility functions
