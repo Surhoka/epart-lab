@@ -17,7 +17,7 @@ window.initHomePage = function () {
 
         // Loading states
         isLoadingProducts: true,
-        isLoadingPosts: false,
+        isLoadingPosts: true,
         isLoadingSlides: false,
 
         // Slider State
@@ -44,17 +44,32 @@ window.initHomePage = function () {
             this.isLoadingProducts = true;
             this.isLoadingPosts = true;
             try {
-                // 1. Ambil SEMUA data (Home Config & Products) dalam satu tarikan Feed
-                const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=50');
+                // 1. Ambil SEMUA data (Home Config, Products, dan News) dalam satu tarikan Feed
+                // Menggunakan Edge CDN Blogger secara Native agar loading super cepat
+                const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=100');
                 const pageJson = await pageRes.json();
+
                 if (pageJson.feed && pageJson.feed.entry) {
-                    // Unified parser: extract ezy-meta from all entries
+                    const parser = new DOMParser();
+
+                    // Unified parser: Ekstraksi metadata JSON secara native menggunakan DOM
                     const allMeta = pageJson.feed.entry.map(entry => {
-                        const metaMatch = entry.content.$t.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
-                        if (!metaMatch) return null;
+                        const htmlContent = entry.content ? entry.content.$t : '';
+                        if (!htmlContent) return null;
+
+                        const doc = parser.parseFromString(htmlContent, 'text/html');
+                        const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]') ||
+                            doc.querySelector('script.ezy-meta');
+
+                        if (!metaNode) return null;
+
                         try {
-                            const meta = JSON.parse(metaMatch[1]);
+                            const meta = JSON.parse(metaNode.textContent);
                             meta._entry = entry; // Attach original entry for slug extraction
+
+                            const linkNode = entry.link.find(l => l.rel === 'alternate');
+                            if (linkNode) meta._href = linkNode.href;
+
                             return meta;
                         } catch (e) { return null; }
                     }).filter(Boolean);
@@ -92,30 +107,24 @@ window.initHomePage = function () {
                                 originalprice: meta.originalprice,
                                 category: meta.category,
                                 badge: meta.badge,
-                                publishdate: meta.publishdate
+                                publishdate: meta.publishdate || meta._entry.published.$t
                             };
                         });
-                }
 
-                // 3. Fetch Posts via Blogger Feed (Postingan Berita)
-                const postRes = await fetch('/feeds/posts/default?alt=json&max-results=6');
-                const postJson = await postRes.json();
-                if (postJson.feed && postJson.feed.entry) {
-                    this.posts = postJson.feed.entry.map(entry => {
-                        const content = entry.content.$t;
-                        const metaMatch = content.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
-                        const meta = metaMatch ? JSON.parse(metaMatch[1]) : {};
-
-                        return {
-                            id: entry.id.$t,
-                            title: entry.title.$t,
-                            slug: entry.link.find(l => l.rel === 'alternate').href.split('/').pop().replace('.html', ''),
-                            content: meta.snippet || entry.summary?.$t || entry.content.$t.replace(/<[^>]*>?/gm, '').substring(0, 120),
-                            imageurl: entry.media$thumbnail?.url.replace('s72-c', 's1600') || meta.image || '',
-                            publishdate: entry.published.$t,
-                            category: entry.category ? entry.category[0].term : (meta.category || 'News')
-                        };
-                    });
+                    // 3. Filter Posts (News): Diambil dari metadata yang tidak memiliki harga dan hero slider
+                    this.posts = allMeta
+                        .filter(m => m._type === 'post' || (m._type === undefined && m.price === undefined && m.heroes === undefined))
+                        .map(meta => ({
+                            id: meta.id || meta._entry.id.$t,
+                            title: meta.title || meta._entry.title.$t,
+                            slug: meta.slug || meta._href.split('/').pop().replace('.html', ''),
+                            content: meta.snippet || meta._entry.summary?.$t || '',
+                            imageurl: meta.image || '',
+                            publishdate: meta.publishdate || meta._entry.published.$t,
+                            category: Array.isArray(meta.category) ? meta.category[0] : (meta.category || 'News')
+                        }))
+                        .sort((a, b) => new Date(b.publishdate) - new Date(a.publishdate))
+                        .slice(0, 6);
                 }
             } catch (error) {
                 console.error('Error loading home data:', error);
