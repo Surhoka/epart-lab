@@ -3,7 +3,7 @@
     <!-- Hero Slider Section -->
     <section class="relative bg-white dark:bg-gray-900 z-10">
         <div class="flex">
-            <!-- Categories Sidebar -->
+            <!-- Categories Sidebar (Dynamic from ezy-meta feed) -->
             <div
                 class="hidden lg:block w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 relative">
                 <div class="p-4">
@@ -14,9 +14,106 @@
                         <h3 class="font-semibold text-gray-900 dark:text-white">Shop Categories</h3>
                     </div>
 
-                    <div class="space-y-1">
-                        <div class="category-item active flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group relative"
-                            data-category="accessories">
+                    <!-- Loading Skeleton -->
+                    <template x-if="isLoadingSlides">
+                        <div class="space-y-2">
+                            <template x-for="i in 8" :key="i">
+                                <div class="flex items-center gap-3 p-3 rounded-lg animate-pulse">
+                                    <div class="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Dynamic Categories List -->
+                    <div class="space-y-1" x-show="!isLoadingSlides" x-cloak>
+                        <template x-for="(cat, catIndex) in (window.app?.categories || [])" :key="cat.id || catIndex">
+                            <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 text-gray-700 dark:text-gray-300 group relative"
+                                @click="window.navigate && window.navigate('shop', {category: cat.slug || cat.name})">
+
+                                <!-- Category Icon/Image -->
+                                <template x-if="cat.imageurl">
+                                    <img :src="cat.imageurl" :alt="cat.name"
+                                        class="w-5 h-5 object-contain rounded flex-shrink-0">
+                                </template>
+                                <template x-if="!cat.imageurl">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                </template>
+
+                                <span class="text-sm font-medium flex-1 truncate" x-text="cat.name"></span>
+
+                                <!-- Chevron (shown when has subcategories) -->
+                                <svg x-show="(window.app?.subcategories || {})[cat.id]?.length > 0"
+                                    class="w-4 h-4 opacity-50 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                                </svg>
+
+                                <!-- Mega-menu Subcategory Dropdown -->
+                                <template x-if="(window.app?.subcategories || {})[cat.id]?.length > 0">
+                                    <div
+                                        class="category-dropdown absolute left-full top-0 ml-2 w-[600px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                        <div class="p-6">
+                                            <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-base border-b border-gray-100 dark:border-gray-700 pb-3"
+                                                x-text="cat.name"></h4>
+                                            <div class="grid grid-cols-3 gap-4">
+                                                <template
+                                                    x-for="sub in (window.app?.subcategories || {})[cat.id] || []"
+                                                    :key="sub.id">
+                                                    <a :href="'#shop/' + (sub.slug || sub.name)"
+                                                        class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group/sub">
+                                                        <template x-if="sub.image">
+                                                            <img :src="sub.image" :alt="sub.name"
+                                                                class="w-8 h-8 rounded object-cover flex-shrink-0">
+                                                        </template>
+                                                        <template x-if="!sub.image">
+                                                            <div
+                                                                class="w-8 h-8 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                                                <svg class="w-4 h-4 text-gray-400" fill="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path
+                                                                        d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                                                                </svg>
+                                                            </div>
+                                                        </template>
+                                                        <span
+                                                            class="text-sm text-gray-600 dark:text-gray-400 group-hover/sub:text-blue-600 dark:group-hover/sub:text-blue-400 transition-colors truncate"
+                                                            x-text="sub.name"></span>
+                                                    </a>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Empty State -->
+                        <div x-show="!(window.app?.categories || []).length"
+                            class="text-center py-6 text-gray-400 text-sm" x-cloak>
+                            <p>Belum ada kategori</p>
+                        </div>
+
+                        <!-- View All Link -->
+                        <div x-show="(window.app?.categories || []).length > 0"
+                            class="pt-3 border-t border-gray-100 dark:border-gray-700 mt-2" x-cloak>
+                            <a href="#shop"
+                                class="flex items-center gap-2 p-3 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-sm font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                View All Categories
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path
                                     d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
