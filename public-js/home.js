@@ -8,6 +8,8 @@ window.initHomePage = function () {
         products: [],
         posts: [],
         slides: [],
+        categories: [],
+        subcategories: {},
         connectionStatus: {
             connected: false,
             error: null
@@ -59,14 +61,21 @@ window.initHomePage = function () {
 
                     // Cari data Home (slider + kategori)
                     const homeMeta = allMeta.find(m => m._type === 'home') ||
-                                     allMeta.find(m => m.heroes !== undefined);
+                        allMeta.find(m => m.heroes !== undefined);
                     if (homeMeta) {
                         this.slides = homeMeta.heroes || [];
                         this.totalSlides = this.slides.length;
-                        if (window.app) {
-                            window.app.categories = homeMeta.categories || [];
-                            window.app.subcategories = homeMeta.subcategories || {};
-                        }
+
+                        // Proses Kategori: Pisahkan Parent dan Children
+                        const allCats = homeMeta.categories || [];
+                        this.categories = allCats.filter(c => !c.parentid || c.parentid === '');
+                        this.subcategories = {};
+                        allCats.forEach(c => {
+                            if (c.parentid) {
+                                if (!this.subcategories[c.parentid]) this.subcategories[c.parentid] = [];
+                                this.subcategories[c.parentid].push(c);
+                            }
+                        });
                     }
 
                     // Filter Products: use _type first, fallback to price check
