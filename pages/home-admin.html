@@ -269,7 +269,10 @@
                                             </div>
                                         </template>
                                         <div>
-                                            <p class="font-bold text-gray-900 dark:text-white" x-text="cat.name"></p>
+                                            <p class="font-bold text-gray-900 dark:text-white">
+                                                <span x-show="cat.parentid" class="text-gray-400 mr-1">└</span>
+                                                <span x-text="cat.name"></span>
+                                            </p>
                                             <p class="text-xs text-gray-400 truncate max-w-[160px]"
                                                 x-text="cat.description || '—'"></p>
                                         </div>
@@ -378,6 +381,15 @@
                                 <textarea x-model="editingItem.description" rows="2"
                                     class="form-input"
                                     placeholder="Short description"></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">Parent Category</label>
+                                <select x-model="editingItem.parentid" class="form-input">
+                                    <option value="">— None (Top Level) —</option>
+                                    <template x-for="cat in categories.filter(c => !c.parentid && c.id !== editingItem.id)" :key="cat.id">
+                                        <option :value="cat.id" x-text="cat.name"></option>
+                                    </template>
+                                </select>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
