@@ -30,11 +30,11 @@ window.initPostListPage = function () {
                         // Ekstraksi Metadata JSON yang disuntikkan oleh Backend
                         const doc = parser.parseFromString(htmlContent, 'text/html');
                         const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]');
-                        
+
                         if (metaNode) {
                             try {
                                 const postData = JSON.parse(metaNode.textContent);
-                                
+
                                 // Simpan URL path slug yang absulut
                                 const linkNode = entry.link.find(l => l.rel === 'alternate');
                                 if (linkNode) {
@@ -42,10 +42,10 @@ window.initPostListPage = function () {
                                     if (pathMatch) postData.slug = pathMatch[1];
                                 }
 
-                                // Deteksi Post: v1 schema → _type, fallback → !price (exclude home)
-                                const isPost = postData._type === 'post' || 
-                                    (postData._type === undefined && postData.price === undefined && postData.heroes === undefined);
-                                if (isPost) {
+                                // Pisahkan antara struktur Products vs Posts 
+                                // (Posts tidak memiliki properti price di meta-nya)
+                                if (postData.price === undefined) {
+                                    // Pastikan data yang kosong diformat dengan baik
                                     postData.title = postData.title || entry.title.$t;
                                     extractedPosts.push(postData);
                                 }
@@ -63,9 +63,9 @@ window.initPostListPage = function () {
                 const catSet = new Set();
                 this.posts.forEach(p => {
                     if (Array.isArray(p.category)) {
-                        p.category.forEach(c => { if(c) catSet.add(c) });
+                        p.category.forEach(c => { if (c) catSet.add(c) });
                     } else if (p.category && typeof p.category === 'string') {
-                        p.category.split(',').forEach(c => { if(c.trim()) catSet.add(c.trim()) });
+                        p.category.split(',').forEach(c => { if (c.trim()) catSet.add(c.trim()) });
                     }
                 });
                 this.categories = Array.from(catSet).sort();

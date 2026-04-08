@@ -11,20 +11,20 @@ window.initShopPage = function () {
         selectedCategory: 'all',
         searchQuery: '',
         sortOrder: 'newest', // newest, price-low, price-high, name-asc
-        
+
         async init() {
             // Get initial category from params if navigated from elsewhere
             const params = window.currentParams || {};
             if (params.category) {
                 this.selectedCategory = params.category;
             }
-            
+
             await this.fetchData();
-            
+
             // Re-render breadcrumb
             this.updateBreadcrumb();
         },
-        
+
         async fetchData() {
             this.isLoading = true;
             try {
@@ -43,22 +43,21 @@ window.initShopPage = function () {
 
                         const doc = parser.parseFromString(htmlContent, 'text/html');
                         const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]');
-                        
+
                         if (metaNode) {
                             try {
                                 const prodData = JSON.parse(metaNode.textContent);
-                                
+
                                 const linkNode = entry.link.find(l => l.rel === 'alternate');
                                 if (linkNode) {
                                     const pathMatch = new URL(linkNode.href).pathname.match(/\/p\/([^.]+)\.html/);
                                     if (pathMatch) prodData.slug = pathMatch[1];
                                 }
 
-                                // Deteksi Produk: v1 schema → _type, fallback → price check
-                                const isProduct = prodData._type === 'product' || (prodData._type === undefined && prodData.price !== undefined);
-                                if (isProduct) {
+                                // Deteksi apakah ini Produk (Produk mutlak memiliki atribut price)
+                                if (prodData.price !== undefined) {
                                     prodData.name = prodData.title || entry.title.$t;
-                                    prodData.imageurl = prodData.image || '';
+                                    prodData.imageurl = prodData.image || ''; // Fallback property
                                     extractedProducts.push(prodData);
                                 }
                             } catch (parseError) {
@@ -74,12 +73,12 @@ window.initShopPage = function () {
                 const catSet = new Set();
                 this.products.forEach(p => {
                     if (Array.isArray(p.category)) {
-                        p.category.forEach(c => { if(c) catSet.add(c) });
+                        p.category.forEach(c => { if (c) catSet.add(c) });
                     } else if (p.category && typeof p.category === 'string') {
-                        p.category.split(',').forEach(c => { if(c.trim()) catSet.add(c.trim()) });
+                        p.category.split(',').forEach(c => { if (c.trim()) catSet.add(c.trim()) });
                     }
                 });
-                
+
                 this.categories = Array.from(catSet).sort().map(c => ({
                     id: c,
                     name: c,
@@ -92,43 +91,43 @@ window.initShopPage = function () {
                 this.isLoading = false;
             }
         },
-        
+
         updateBreadcrumb() {
             if (window.renderBreadcrumb) {
                 const crumbs = [
                     { label: 'Beranda', action: "window.navigate('home')" },
                     { label: 'Shop' }
                 ];
-                
+
                 if (this.selectedCategory !== 'all') {
                     const cat = this.categories.find(c => c.slug === this.selectedCategory || c.id === this.selectedCategory);
                     if (cat) {
                         crumbs.push({ label: cat.name });
                     }
                 }
-                
+
                 window.renderBreadcrumb(crumbs);
             }
         },
-        
+
         // Computed: Filtered and Sorted Products
         get filteredProducts() {
             let list = [...this.products];
-            
+
             // 1. Category Filter
             if (this.selectedCategory !== 'all') {
                 list = list.filter(p => p.category === this.selectedCategory || p.categoryId === this.selectedCategory);
             }
-            
+
             // 2. Search Filter
             if (this.searchQuery.trim()) {
                 const q = this.searchQuery.toLowerCase();
-                list = list.filter(p => 
-                    p.name.toLowerCase().includes(q) || 
+                list = list.filter(p =>
+                    p.name.toLowerCase().includes(q) ||
                     (p.description && p.description.toLowerCase().includes(q))
                 );
             }
-            
+
             // 3. Sorting
             switch (this.sortOrder) {
                 case 'price-low':
@@ -147,10 +146,10 @@ window.initShopPage = function () {
                     list.sort((a, b) => (b.id > a.id ? 1 : -1));
                     break;
             }
-            
+
             return list;
         },
-        
+
         setCategory(slug) {
             this.selectedCategory = slug;
             this.updateBreadcrumb();
@@ -159,11 +158,11 @@ window.initShopPage = function () {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         },
-        
+
         viewProduct(product) {
             window.navigate('product', { slug: product.slug || product.id });
         },
-        
+
         formatPrice(val) {
             if (!val) return 'Rp 0';
             return new Intl.NumberFormat('id-ID', {
