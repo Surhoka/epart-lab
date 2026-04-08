@@ -54,10 +54,11 @@ window.initShopPage = function () {
                                     if (pathMatch) prodData.slug = pathMatch[1];
                                 }
 
-                                // Deteksi apakah ini Produk (Produk mutlak memiliki atribut price)
-                                if (prodData.price !== undefined) {
+                                // Deteksi Produk: v1 schema → _type, fallback → price check
+                                const isProduct = prodData._type === 'product' || (prodData._type === undefined && prodData.price !== undefined);
+                                if (isProduct) {
                                     prodData.name = prodData.title || entry.title.$t;
-                                    prodData.imageurl = prodData.image || ''; // Fallback property
+                                    prodData.imageurl = prodData.image || '';
                                     extractedProducts.push(prodData);
                                 }
                             } catch (parseError) {

@@ -42,10 +42,10 @@ window.initPostListPage = function () {
                                     if (pathMatch) postData.slug = pathMatch[1];
                                 }
 
-                                // Pisahkan antara struktur Products vs Posts 
-                                // (Posts tidak memiliki properti price di meta-nya)
-                                if (postData.price === undefined) {
-                                    // Pastikan data yang kosong diformat dengan baik
+                                // Deteksi Post: v1 schema → _type, fallback → !price (exclude home)
+                                const isPost = postData._type === 'post' || 
+                                    (postData._type === undefined && postData.price === undefined && postData.heroes === undefined);
+                                if (isPost) {
                                     postData.title = postData.title || entry.title.$t;
                                     extractedPosts.push(postData);
                                 }

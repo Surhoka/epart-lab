@@ -46,42 +46,46 @@ window.initHomePage = function () {
                 const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=50');
                 const pageJson = await pageRes.json();
                 if (pageJson.feed && pageJson.feed.entry) {
-                    // Cari Laman 'home' untuk Slider & Kategori
-                    const homeEntry = pageJson.feed.entry.find(e => e.content.$t.includes('SSR_HYBRID_HOME_DATA'));
-                    if (homeEntry) {
-                        const metaMatch = homeEntry.content.$t.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
-                        if (metaMatch) {
-                            const homeData = JSON.parse(metaMatch[1]);
-                            this.slides = homeData.heroes || [];
-                            this.totalSlides = this.slides.length;
-                            if (window.app) window.app.categories = homeData.categories || [];
+                    // Unified parser: extract ezy-meta from all entries
+                    const allMeta = pageJson.feed.entry.map(entry => {
+                        const metaMatch = entry.content.$t.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
+                        if (!metaMatch) return null;
+                        try {
+                            const meta = JSON.parse(metaMatch[1]);
+                            meta._entry = entry; // Attach original entry for slug extraction
+                            return meta;
+                        } catch (e) { return null; }
+                    }).filter(Boolean);
+
+                    // Cari data Home (slider + kategori)
+                    const homeMeta = allMeta.find(m => m._type === 'home') ||
+                                     allMeta.find(m => m.heroes !== undefined);
+                    if (homeMeta) {
+                        this.slides = homeMeta.heroes || [];
+                        this.totalSlides = this.slides.length;
+                        if (window.app) {
+                            window.app.categories = homeMeta.categories || [];
+                            window.app.subcategories = homeMeta.subcategories || {};
                         }
                     }
 
-                    // Filter Products
-                    this.products = pageJson.feed.entry
-                        .filter(entry => entry.content.$t.includes('SSR_HYBRID_PRODUCT_SHELL'))
-                        .map(entry => {
-                            const metaMatch = entry.content.$t.match(/class="ezy-meta">([\s\S]*?)<\/script>/);
-                            if (metaMatch && metaMatch[1]) {
-                                try {
-                                    const meta = JSON.parse(metaMatch[1]);
-                                    return {
-                                        id: meta.id,
-                                        name: meta.title,
-                                        slug: entry.link.find(l => l.rel === 'alternate').href.split('/').pop().replace('.html', ''),
-                                        imageurl: meta.image,
-                                        price: meta.price,
-                                        originalprice: meta.originalprice,
-                                        category: meta.category,
-                                        badge: meta.badge,
-                                        publishdate: meta.publishdate
-                                    };
-                                } catch (e) { return null; }
-                            }
-                            return null;
-                        })
-                        .filter(p => p !== null);
+                    // Filter Products: use _type first, fallback to price check
+                    this.products = allMeta
+                        .filter(m => m._type === 'product' || (m._type === undefined && m.price !== undefined))
+                        .map(meta => {
+                            const entry = meta._entry;
+                            return {
+                                id: meta.id,
+                                name: meta.title,
+                                slug: meta.slug || entry.link.find(l => l.rel === 'alternate').href.split('/').pop().replace('.html', ''),
+                                imageurl: meta.image,
+                                price: meta.price,
+                                originalprice: meta.originalprice,
+                                category: meta.category,
+                                badge: meta.badge,
+                                publishdate: meta.publishdate
+                            };
+                        });
                 }
 
                 // 3. Fetch Posts via Blogger Feed (Postingan Berita)
