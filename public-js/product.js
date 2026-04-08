@@ -67,50 +67,77 @@ window.initProductPage = function () {
             this.loading = true;
             console.log('📦 [Debug] Fetching Product Detail via AdminAPI...', this.slug);
             try {
-                // Menyamakan metode pemanggilan dengan Home Page (lebih stabil)
-                if (!window.AdminAPI) {
-                    throw new Error('AdminAPI is not defined');
+                const parser = new DOMParser();
+
+                // 1. Cek apakah metadata sudah ada di DOM (Jika akses langsung/Blogger Native)
+                const localMetaNode = document.querySelector('script.ezy-meta');
+                if (localMetaNode) {
+                    try {
+                        const localMeta = JSON.parse(localMetaNode.textContent);
+                        // Pastikan slug cocok agar tidak salah data saat navigasi SPA
+                        if (localMeta.slug === this.slug || window.location.pathname.includes(this.slug)) {
+                            console.log('🚀 [Product] Found metadata in local DOM');
+                            this.renderProduct(localMeta);
+                            return;
+                        }
+                    } catch (e) { console.warn('Failed to parse local meta'); }
                 }
 
-                // Refresh AdminAPI config to be extra sure
-                if (!window.AdminAPI.baseUrl) {
-                    window.AdminAPI.init();
-                }
+                // 2. Cari di Blogger Feed (Edge CDN Native)
+                const feedRes = await fetch('/feeds/pages/default?alt=json&max-results=100');
+                const feedJson = await feedRes.json();
 
-                const response = await window.AdminAPI.get('getProductDetail', { slug: this.slug });
+                if (feedJson.feed && feedJson.feed.entry) {
+                    const entry = feedJson.feed.entry.find(e => {
+                        const link = e.link.find(l => l.rel === 'alternate');
+                        return link && link.href.includes(this.slug);
+                    });
 
-                console.log('📥 [Debug] API Response Received:', response);
-
-                if (response.status === 'success' && response.data) {
-                    this.product = response.data;
-                    this.loading = false;
-                    this.error = false;
-
-                    // Update Page Title
-                    if (this.product.name) {
-                        document.title = `${this.product.name} | EzyParts`;
+                    if (entry) {
+                        const doc = parser.parseFromString(entry.content.$t, 'text/html');
+                        const metaNode = doc.querySelector('script.ezy-meta');
+                        if (metaNode) {
+                            const meta = JSON.parse(metaNode.textContent);
+                            console.log('🚀 [Product] Found metadata in Blogger Feed');
+                            this.renderProduct(meta);
+                            return;
+                        }
                     }
-
-                    // Trigger Re-render breadcrumb
-                    if (window.renderBreadcrumb) {
-                        window.renderBreadcrumb([
-                            { label: 'Home', action: "window.navigate('home')" },
-                            { label: 'Product', action: "window.navigate('shop')" },
-                            { label: this.product.name || 'Detail Produk' }
-                        ]);
-                    }
-                } else if (response.status === 'error' && (response.message?.toLowerCase().includes('not found') || response.message?.toLowerCase().includes('tidak ditemukan'))) {
-                    // Jika produk tidak ada di database, pastikan rute berubah ke 404
-                    this.error = true;
-                    window.navigate('404');
-                } else {
-                    this.showError('Produk Tidak Tersedia', response.message || 'Gagal memuat detail produk saat ini.');
                 }
+
+                // 3. Fallback terakhir: AdminAPI (Server-side)
+                if (window.AdminAPI) {
+                    const response = await window.AdminAPI.get('getProductDetail', { slug: this.slug });
+                    if (response.status === 'success' && response.data) {
+                        this.renderProduct(response.data);
+                        return;
+                    }
+                }
+
+                this.showError('Produk Tidak Ditemukan', 'Detail produk tidak tersedia di sistem.');
             } catch (e) {
                 console.error('❌ [Debug] Critical Error fetching product:', e);
                 this.showError('Koneksi Terganggu', 'Gagal memuat data. Mohon periksa Site Key atau koneksi internet Anda.');
             } finally {
                 this.loading = false;
+            }
+        },
+
+        renderProduct(data) {
+            this.product = data;
+            this.loading = false;
+            this.error = false;
+
+            if (this.product.name || this.product.title) {
+                document.title = `${this.product.name || this.product.title} | EzyParts`;
+            }
+
+            if (window.renderBreadcrumb) {
+                window.renderBreadcrumb([
+                    { label: 'Home', action: "window.navigate('home')" },
+                    { label: 'Product', action: "window.navigate('shop')" },
+                    { label: this.product.name || this.product.title || 'Detail Produk' }
+                ]);
             }
         },
 
