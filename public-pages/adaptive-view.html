@@ -125,44 +125,114 @@
             content: {}, // Untuk detail
             collection: [], // Untuk list/grid
             searchQuery: '',
+            selectedCategory: 'all',
+            sortOrder: 'newest',
 
             async init() {
                 this.isLoading = true;
+                const page = window.app.page;
+                const params = window.app.params;
+                const slug = params.slug || params.id;
+
                 try {
-                    const page = window.app.page;
-                    const params = window.app.params;
-
                     if (page === 'product' || page === 'post') {
-                        // Fetch detail data
-                        const action = page === 'product' ? 'getProductDetail' : 'get_post_by_slug';
-                        const res = await window.AdminAPI.get(action, { slug: params.slug });
-                        if (res.status === 'success') this.content = res.data;
-                        else this.error = true;
+                        await this.fetchDetail(page, slug);
                     } else {
-                        // Fetch list data
-                        const action = page === 'shop' ? 'getFeaturedProducts' : 'get_posts';
-                        const res = await window.AdminAPI.get(action);
-                        if (res.status === 'success') this.collection = res.data;
+                        await this.fetchCollection(page);
                     }
-
                     this.updateBreadcrumb();
                 } catch (e) {
+                    console.error('Initialization error:', e);
                     this.error = true;
                 } finally {
                     this.isLoading = false;
                 }
             },
 
+            // LOGIKA NATIVE: Fetch dari Blogger Feed CDN
+            async fetchCollection(pageType) {
+                const res = await fetch('/feeds/pages/default?alt=json&max-results=500');
+                if (!res.ok) throw new Error('Blogger Feed unreachable');
+                const data = await res.json();
+
+                let items = [];
+                const parser = new DOMParser();
+
+                if (data.feed && data.feed.entry) {
+                    data.feed.entry.forEach(entry => {
+                        const htmlContent = entry.content ? entry.content.$t : '';
+                        const doc = parser.parseFromString(htmlContent, 'text/html');
+                        const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]');
+
+                        if (metaNode) {
+                            try {
+                                const meta = JSON.parse(metaNode.textContent);
+                                const isProduct = meta.price !== undefined;
+
+                                // Filter berdasarkan tipe halaman
+                                if ((pageType === 'shop' && isProduct) || (pageType === 'post-list' && !isProduct)) {
+                                    meta.id = meta.id || entry.id.$t;
+                                    meta.title = meta.title || meta.name || entry.title.$t;
+                                    meta.imageurl = meta.imageurl || meta.image || '';
+                                    items.push(meta);
+                                }
+                            } catch (e) { console.warn('Meta parse error'); }
+                        }
+                    });
+                }
+                this.collection = items;
+            },
+
+            async fetchDetail(pageType, slug) {
+                // 1. Cek di DOM Lokal (SEO Benefit - Jika Blogger merender tag meta di halaman ini)
+                const localMeta = document.querySelector('script.ezy-meta');
+                if (localMeta) {
+                    const data = JSON.parse(localMeta.textContent);
+                    if (data.slug === slug) {
+                        this.content = data;
+                        return;
+                    }
+                }
+
+                // 2. Fallback: Cari di Feed CDN (Edge Cache)
+                const res = await fetch('/feeds/pages/default?alt=json&max-results=150');
+                const data = await res.json();
+                const entry = data.feed?.entry?.find(e => e.link.some(l => l.rel === 'alternate' && l.href.includes(slug)));
+
+                if (entry) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(entry.content.$t, 'text/html');
+                    const metaNode = doc.querySelector('script.ezy-meta');
+                    if (metaNode) {
+                        this.content = JSON.parse(metaNode.textContent);
+                        return;
+                    }
+                }
+
+                // 3. Last Resort: AdminAPI (Direct Server Call)
+                const action = pageType === 'product' ? 'getProductDetail' : 'get_post_by_slug';
+                const apiRes = await window.AdminAPI.get(action, { slug: slug });
+                if (apiRes.status === 'success') this.content = apiRes.data;
+                else this.error = true;
+            },
+
             get filteredItems() {
-                if (!this.searchQuery) return this.collection;
+                let list = [...this.collection];
                 const q = this.searchQuery.toLowerCase();
-                return this.collection.filter(i =>
-                    (i.name || i.title || '').toLowerCase().includes(q)
-                );
+
+                if (q) {
+                    list = list.filter(i => (i.name || i.title || '').toLowerCase().includes(q));
+                }
+
+                // Tambahkan logika sorting jika diperlukan
+                if (this.sortOrder === 'newest') {
+                    list.sort((a, b) => new Date(b.publishdate || 0) - new Date(a.publishdate || 0));
+                }
+                return list;
             },
 
             viewDetail(item) {
-                const type = window.app.page === 'shop' ? 'product' : 'post';
+                const type = (item.price !== undefined) ? 'product' : 'post';
                 window.navigate(type, { slug: item.slug || item.id });
             },
 
