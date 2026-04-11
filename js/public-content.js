@@ -34,13 +34,13 @@
         try {
             const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
             const blogId = config.blogId;
-            // Return empty string if blogId is null, "null" (string), undefined, or empty string
+            // Pastikan tidak mengirim string "null" ke backend
             if (blogId === null || blogId === 'null' || blogId === undefined || blogId === '') {
                 return '';
             }
-            return String(blogId); // Ensure it's a string
+            return String(blogId);
         } catch (e) {
-            return ''; // Default to empty string on error
+            return '';
         }
     }
 
@@ -617,6 +617,7 @@
                 post: {},
                 posts: [],
                 isLoading: false,
+                isSyncing: false,
                 currentPage: 1,
                 itemsPerPage: 10,
 
@@ -749,6 +750,42 @@
                         showToast('Error API saat memuat post.', 'error');
                         this.isLoading = false;
                     });
+                },
+
+                async syncAllToBlogger() {
+                    const publishedCount = this.posts.filter(p => p.status === 'Published').length;
+                    if (publishedCount === 0) {
+                        showToast('Tidak ada postingan Published yang perlu disinkronkan.', 'warning');
+                        return;
+                    }
+
+                    if (!confirm(`Apakah Anda yakin ingin menyinkronkan ${publishedCount} postingan ke Blogger? Ini akan memperbarui seluruh metadata artikel Anda.`)) {
+                        return;
+                    }
+
+                    this.isSyncing = true;
+                    showToast('Sedang menyinkronkan seluruh postingan...', 'info');
+
+                    try {
+                        const payload = {
+                            dbId: getDbId(),
+                            blogId: getBlogId()
+                        };
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('syncAllToBlogger', payload, resolve, reject);
+                        });
+
+                        if (res.status === 'success') {
+                            showToast(res.message, 'success');
+                        } else {
+                            showToast(res.message || 'Gagal melakukan sinkronisasi massal', 'error');
+                        }
+                    } catch (e) {
+                        console.error('syncAllToBlogger error:', e);
+                        showToast('Terjadi kesalahan koneksi saat sinkronisasi.', 'error');
+                    } finally {
+                        this.isSyncing = false;
+                    }
                 },
 
                 execCommand(command, value = null) {
