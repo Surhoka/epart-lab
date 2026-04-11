@@ -10,6 +10,7 @@ window.initHomePage = function () {
         slides: [],
         categories: [],
         subcategories: {},
+        expandedCategories: [],
         connectionStatus: {
             connected: false,
             error: null
@@ -188,6 +189,15 @@ window.initHomePage = function () {
         setSlide(index) {
             this.activeSlide = index;
             this.startSlider();
+        },
+
+        toggleCategory(id) {
+            const index = this.expandedCategories.indexOf(id);
+            if (index === -1) {
+                this.expandedCategories.push(id);
+            } else {
+                this.expandedCategories.splice(index, 1);
+            }
         },
 
         async checkConnection() {
