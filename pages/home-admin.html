@@ -469,51 +469,6 @@
     </div>
 </div>
 
-<script>
-    (function() {
-        // Setup Manager Logic
-        if (window.Alpine && !window.Alpine.data('setupManager')) {
-            window.Alpine.data('setupManager', () => ({
-                isSyncing: false,
-                dbId: null,
-                blogId: null,
-
-                init() {
-                    const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
-                    this.dbId = config.dbId;
-                    this.blogId = config.blogId;
-                },
-
-                async deployPages() {
-                    const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
-                    this.blogId = config.blogId;
-                    
-                    if (!this.blogId) {
-                        showToast('Blog ID belum terkonfigurasi.', 'error');
-                        return;
-                    }
-
-                    this.isSyncing = true;
-                    window.sendDataToGoogle('deployStandardPagesToBlogger', {
-                        dbId: this.dbId,
-                        blogId: this.blogId
-                    }, (res) => {
-                        this.isSyncing = false;
-                        if (res.status === 'success') {
-                            showToast('Setup Laman Standar Berhasil!');
-                        } else {
-                            showToast('Gagal: ' + res.message, 'error');
-                        }
-                    }, () => {
-                        this.isSyncing = false;
-                        showToast('Terjadi kesalahan saat memproses setup.', 'error');
-                    });
-                }
-            }));
-        }
-    })();
-</script>
-
 <style>
     @keyframes marquee-scroll {
         0% {
