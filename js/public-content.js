@@ -53,6 +53,7 @@
                 dbId: null,
                 slides: [],
                 isLoading: false,
+                isSyncing: false,
                 isUploading: false,
                 showModal: false,
                 isEditing: false,
@@ -137,6 +138,22 @@
                     }
                 },
 
+                async syncToBlogger() {
+                    this.isSyncing = true;
+                    showToast('Menyinkronkan data beranda...', 'info');
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('syncHomeFullToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
+                        });
+                        if (res.status === 'success') showToast(res.message);
+                        else showToast(res.message, 'error');
+                    } catch (e) {
+                        showToast('Gagal sinkron: ' + e, 'error');
+                    } finally {
+                        this.isSyncing = false;
+                    }
+                },
+
                 handleImageUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
@@ -172,6 +189,7 @@
                 dbId: null,
                 categories: [],
                 isLoading: false,
+                isSyncing: false,
                 isUploading: false,
                 showModal: false,
                 isEditing: false,
@@ -256,6 +274,22 @@
                     }
                 },
 
+                async syncToBlogger() {
+                    this.isSyncing = true;
+                    showToast('Menyinkronkan kategori...', 'info');
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('syncHomeFullToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
+                        });
+                        if (res.status === 'success') showToast(res.message);
+                        else showToast(res.message, 'error');
+                    } catch (e) {
+                        showToast('Gagal sinkron: ' + e, 'error');
+                    } finally {
+                        this.isSyncing = false;
+                    }
+                },
+
                 handleImageUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
@@ -290,7 +324,9 @@
             window.Alpine.data('featuredProductManager', () => ({
                 dbId: null,
                 products: [],
+                categories: [],
                 isLoading: false,
+                isSyncing: false,
                 isUploading: false,
                 showModal: false,
                 isEditing: false,
@@ -299,7 +335,10 @@
                 async init() {
                     this.dbId = getDbId();
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
-                    await this.fetchProducts();
+                    await Promise.all([
+                        this.fetchProducts(),
+                        this.fetchCategories()
+                    ]);
                 },
 
                 async fetchProducts() {
@@ -315,6 +354,55 @@
                         showToast('Gagal memuat produk', 'error');
                     } finally {
                         this.isLoading = false;
+                    }
+                },
+
+                async fetchCategories() {
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('getCategories', { dbId: this.dbId }, resolve, reject);
+                        });
+                        if (res.status === 'success') {
+                            this.categories = res.data || [];
+                        }
+                    } catch (e) {
+                        console.error('fetchCategories in product manager:', e);
+                    }
+                },
+
+                async syncAllToBlogger() {
+                    const activeCount = this.products.filter(p => p.active === true || p.active === 'TRUE').length;
+                    if (activeCount === 0) {
+                        showToast('Tidak ada produk aktif yang perlu disinkronkan.', 'warning');
+                        return;
+                    }
+
+                    if (!confirm(`Apakah Anda yakin ingin menyinkronkan ${activeCount} produk ke Blogger?`)) {
+                        return;
+                    }
+
+                    this.isSyncing = true;
+                    showToast('Sedang menyinkronkan seluruh produk...', 'info');
+
+                    try {
+                        const payload = {
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('syncAllProductsToBlogger', payload, resolve, reject);
+                        });
+
+                        if (res.status === 'success') {
+                            showToast(res.message, 'success');
+                        } else {
+                            showToast(res.message || 'Gagal melakukan sinkronisasi massal', 'error');
+                        }
+                    } catch (e) {
+                        console.error('syncAllProductsToBlogger error:', e);
+                        showToast('Terjadi kesalahan koneksi saat sinkronisasi.', 'error');
+                    } finally {
+                        this.isSyncing = false;
                     }
                 },
 
