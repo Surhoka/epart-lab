@@ -59,15 +59,38 @@ window.initHomePage = function () {
                     return (entries || []).map(entry => {
                         const htmlContent = entry.content ? entry.content.$t : '';
                         const doc = parser.parseFromString(htmlContent, 'text/html');
-                        const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]') || doc.querySelector('script.ezy-meta');
-                        if (!metaNode) return null;
-                        try {
-                            const meta = JSON.parse(metaNode.textContent);
+                        
+                        // Detect via Selector (New Div or Old Script)
+                        const metaNode = doc.querySelector('.ezy-meta');
+                        let meta = null;
+
+                        if (metaNode) {
+                            try {
+                                const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
+                                meta = JSON.parse(rawData);
+                            } catch(e) {}
+                        } else {
+                            // Regex Fallback for truncated content
+                            const divMatch = htmlContent.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=["'](.*?)["']/);
+                            const scriptMatch = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
+                            
+                            try {
+                                if (divMatch && divMatch[1]) {
+                                    const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+                                    meta = JSON.parse(decoded);
+                                } else if (scriptMatch && scriptMatch[1]) {
+                                    meta = JSON.parse(scriptMatch[1]);
+                                }
+                            } catch(e) {}
+                        }
+
+                        if (meta) {
                             meta._entry = entry;
                             const linkNode = entry.link.find(l => l.rel === 'alternate');
                             if (linkNode) meta._href = linkNode.href;
                             return meta;
-                        } catch (e) { return null; }
+                        }
+                        return null;
                     }).filter(Boolean);
                 };
 
