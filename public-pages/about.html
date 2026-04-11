@@ -1,28 +1,4 @@
-<div x-data="{
-    stats: [
-        { label: 'Tahun Pengalaman', value: '15+' },
-        { label: 'Suku Cadang Tersedia', value: '50k+' },
-        { label: 'Pelanggan Puas', value: '100k+' },
-        { label: 'Mitra Bengkel', value: '500+' }
-    ],
-    values: [
-        { 
-            title: 'Kualitas Premium', 
-            desc: 'Kami hanya menyediakan produk asli dan bersertifikat untuk keamanan kendaraan Anda.',
-            icon: 'award'
-        },
-        { 
-            title: 'Inovasi Digital', 
-            desc: 'Kemudahan akses suku cadang melalui platform digital yang canggih dan responsif.',
-            icon: 'cpu'
-        },
-        { 
-            title: 'Layanan Terpadu', 
-            desc: 'Dukungan teknis dan konsultasi ahli untuk memastikan Anda mendapatkan produk yang tepat.',
-            icon: 'heart-handshake'
-        }
-    ]
-}" class="fade-in">
+<div x-data="initAboutPage()" x-init="init()" class="fade-in">
     <!-- Hero Section -->
     <section class="relative h-[400px] lg:h-[500px] flex items-center justify-center overflow-hidden rounded-3xl mb-12">
         <div class="absolute inset-0">
@@ -112,6 +88,47 @@
         </div>
     </section>
 </div>
+
+<script>
+function initAboutPage() {
+    return {
+        stats: [
+            { label: 'Tahun Pengalaman', value: '15+' },
+            { label: 'Suku Cadang Tersedia', value: '50k+' },
+            { label: 'Pelanggan Puas', value: '100k+' },
+            { label: 'Mitra Bengkel', value: '500+' }
+        ],
+        values: [
+            { 
+                title: 'Kualitas Premium', 
+                desc: 'Kami hanya menyediakan produk asli dan bersertifikat untuk keamanan kendaraan Anda.',
+                icon: 'award'
+            },
+            { 
+                title: 'Inovasi Digital', 
+                desc: 'Kemudahan akses suku cadang melalui platform digital yang canggih dan responsif.',
+                icon: 'cpu'
+            },
+            { 
+                title: 'Layanan Terpadu', 
+                desc: 'Dukungan teknis dan konsultasi ahli untuk memastikan Anda mendapatkan produk yang tepat.',
+                icon: 'heart-handshake'
+            }
+        ],
+        init() {
+            this.updateBreadcrumb();
+        },
+        updateBreadcrumb() {
+            if (window.renderBreadcrumb) {
+                window.renderBreadcrumb([
+                    { label: 'Home', link: '/' },
+                    { label: 'About' }
+                ]);
+            }
+        }
+    };
+}
+</script>
 
 <style>
     .fade-in {

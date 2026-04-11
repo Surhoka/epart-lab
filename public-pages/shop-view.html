@@ -1,0 +1,180 @@
+<div x-data="initShopPage()" x-init="init()" class="max-w-7xl mx-auto px-4 lg:px-6 py-8 animate-fade-in space-y-12">
+
+    <!-- Header & Search -->
+    <div class="flex flex-col md:flex-row justify-between items-end gap-6 bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-theme-xs border border-gray-100 dark:border-gray-700">
+        <div class="space-y-2">
+            <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Katalog Suku Cadang</h1>
+            <p class="text-gray-500 font-medium">Temukan komponen presisi untuk kendaraan favorit Anda.</p>
+        </div>
+        <div class="flex gap-4 w-full md:w-auto">
+            <div class="relative w-full md:w-80 group">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
+                    <span class="w-5 h-5" x-icon="'search'"></span>
+                </span>
+                <input type="text" x-model="searchQuery" placeholder="Cari nama sparepart..."
+                    class="pl-12 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 w-full focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all placeholder:text-gray-400">
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADING & ERROR STATES -->
+    <template x-if="isLoading">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <template x-for="i in 8">
+                <div class="aspect-[3/4] rounded-[2rem] bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
+            </template>
+        </div>
+    </template>
+
+    <template x-if="!isLoading && error">
+        <div class="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+            <p class="text-gray-500 font-medium">Gagal memuat katalog. Silakan coba sesaat lagi.</p>
+            <button @click="init()" class="mt-4 text-brand-600 font-bold hover:underline">Cek Koneksi</button>
+        </div>
+    </template>
+
+    <!-- PRODUCT GRID -->
+    <div x-show="!isLoading && !error" x-cloak>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <template x-for="item in filteredItems" :key="item.id || item.slug">
+                <div @click="viewDetail(item)"
+                    class="group cursor-pointer bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                    
+                    <!-- Media Area -->
+                    <div class="aspect-square p-6 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
+                        <img :src="item.image || item.imageurl"
+                            class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
+                            :alt="item.name">
+                        
+                        <!-- Discount Badge -->
+                        <template x-if="item.originalPrice > item.price">
+                            <div class="absolute top-4 right-4 bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">
+                                -<span x-text="getDiscountPercentage(item.price, item.originalPrice)"></span>%
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Info Area -->
+                    <div class="p-6 md:p-8 space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black text-brand-600 uppercase tracking-widest bg-brand-50 dark:bg-brand-900/30 px-2 py-0.5 rounded" x-text="item.category || 'Sparepart'"></span>
+                        </div>
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 transition-colors"
+                            x-text="item.name"></h3>
+                        
+                        <div class="pt-2 flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <template x-if="item.originalPrice > item.price">
+                                    <span class="text-[10px] text-gray-400 line-through" x-text="formatCurrency(item.originalPrice)"></span>
+                                </template>
+                                <p class="text-xl font-black text-gray-900 dark:text-white" x-text="formatCurrency(item.price)"></p>
+                            </div>
+                            <div class="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all">
+                                <span class="w-5 h-5" x-icon="'arrow-right'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Empty State -->
+        <template x-if="filteredItems.length === 0">
+            <div class="text-center py-32 space-y-4">
+                <div class="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                    <span class="w-10 h-10" x-icon="'search'"></span>
+                </div>
+                <p class="text-gray-500 font-medium">Tidak menemukan produk yang cocok dengan "<span class="text-gray-900 dark:text-white" x-text="searchQuery"></span>"</p>
+                <button @click="searchQuery = ''" class="text-brand-600 font-bold hover:underline">Hapus Pencarian</button>
+            </div>
+        </template>
+    </div>
+
+</div>
+
+<script>
+function initShopPage() {
+    return {
+        isLoading: true,
+        error: false,
+        collection: [],
+        searchQuery: '',
+
+        async init() {
+            this.isLoading = true;
+            try {
+                // 1. Fetch from Blogger Feed (Fast CDN)
+                const res = await fetch('/feeds/pages/default?alt=json&max-results=500');
+                if (!res.ok) throw new Error('Feed error');
+                const data = await res.json();
+
+                let items = [];
+                if (data.feed && data.feed.entry) {
+                    data.feed.entry.forEach(entry => {
+                        const html = entry.content ? entry.content.$t : '';
+                        const metaMatch = html.match(/data-meta=["'](.*?)["']/);
+                        if (metaMatch && metaMatch[1]) {
+                            try {
+                                const cleanJson = metaMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+                                const meta = JSON.parse(cleanJson);
+                                if (meta.price !== undefined) {
+                                    // Map link for search optimization
+                                    const altLink = entry.link.find(l => l.rel === 'alternate');
+                                    if (altLink) meta.path = new URL(altLink.href).pathname;
+                                    items.push(meta);
+                                }
+                            } catch(e) {}
+                        }
+                    });
+                }
+                
+                // 2. Fallback to AdminAPI if Feed is empty
+                if (items.length === 0) {
+                    const apiRes = await window.AdminAPI.getProducts();
+                    if (apiRes.status === 'success') items = apiRes.data || [];
+                }
+
+                this.collection = items;
+                this.updateBreadcrumb();
+            } catch (e) {
+                console.error('Shop load failure:', e);
+                this.error = true;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        get filteredItems() {
+            if (!this.searchQuery) return this.collection;
+            const q = this.searchQuery.toLowerCase();
+            return this.collection.filter(i => (i.name || '').toLowerCase().includes(q));
+        },
+
+        viewDetail(item) {
+            if (item.path) {
+                window.location.pathname = item.path;
+            } else {
+                window.navigate('product', { slug: item.slug || item.id });
+            }
+        },
+
+        getDiscountPercentage(price, original) {
+            if (!original || original <= price) return 0;
+            return Math.round(((original - price) / original) * 100);
+        },
+
+        formatCurrency(val) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+        },
+
+        updateBreadcrumb() {
+            if (window.renderBreadcrumb) {
+                window.renderBreadcrumb([
+                    { label: 'Home', link: '/' },
+                    { label: 'Shop' }
+                ]);
+            }
+        }
+    }
+}
+</script>

@@ -156,3 +156,22 @@
         </div>
     </div>
 </div>
+
+<script>
+function initContactPage() {
+    return {
+        init() {
+            console.log('Contact page initialized');
+            this.updateBreadcrumb();
+        },
+        updateBreadcrumb() {
+            if (window.renderBreadcrumb) {
+                window.renderBreadcrumb([
+                    { label: 'Home', link: '/' },
+                    { label: 'Contact' }
+                ]);
+            }
+        }
+    };
+}
+</script>

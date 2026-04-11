@@ -316,4 +316,54 @@
             }
         }
     </style>
+
+    <script>
+    function initLandingPage() {
+        return {
+            selectedProduct: null,
+            loading: true,
+
+            async init() {
+                await this.fetchLandingData();
+                this.updateBreadcrumb();
+            },
+
+            async fetchLandingData() {
+                this.loading = true;
+                try {
+                    const res = await window.AdminAPI.get('getPublicLandingData');
+                    
+                    if (res && res.status === 'success') {
+                        const products = res.data || [];
+                        this.selectedProduct = products.length > 0 ? products[0] : null;
+                    } else {
+                        console.error('Failed to fetch sales data:', res?.message);
+                    }
+                } catch (e) {
+                    console.error('Error fetching sales data:', e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            formatPrice(price) {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+            },
+
+            getDiscountPercentage(price, originalPrice) {
+                if (!originalPrice || originalPrice <= price) return 0;
+                return Math.round(((originalPrice - price) / originalPrice) * 100);
+            },
+
+            updateBreadcrumb() {
+                if (window.renderBreadcrumb) {
+                    window.renderBreadcrumb([
+                        { label: 'Home', link: '/' },
+                        { label: this.selectedProduct ? this.selectedProduct.title : 'Promo' }
+                    ]);
+                }
+            }
+        };
+    }
+    </script>
 </div>
