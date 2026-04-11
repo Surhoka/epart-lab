@@ -24,52 +24,51 @@
     <!-- 4. ADAPTIVE CONTENT AREAS -->
     <div x-show="!isLoading && !error" x-cloak>
 
-        <!-- A. LAYOUT: DETAIL (Post & Product) -->
-        <template x-if="page === 'post' || page === 'product'">
+        <!-- A. LAYOUT: PRODUCT DETAIL -->
+        <template x-if="page === 'product'">
             <article class="grid lg:grid-cols-2 gap-10 items-start">
-                <!-- Media Section -->
-                <div
-                    class="relative aspect-square bg-gray-50 dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                <div class="relative aspect-square bg-gray-50 dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700">
                     <img :src="content.image" class="w-full h-full object-contain p-4">
                 </div>
-
-                <!-- Info Section -->
                 <div class="space-y-6">
                     <div class="space-y-2">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-brand-600"
-                            x-text="content.category"></span>
-                        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight"
-                            x-text="content.title || content.name"></h1>
-
-                        <!-- Product Specific Price -->
-                        <template x-if="page === 'product'">
-                            <div class="flex items-center gap-4 pt-4">
-                                <span class="text-3xl font-black text-brand-600"
-                                    x-text="formatCurrency(content.price)"></span>
-                                <span class="text-lg text-gray-400 line-through"
-                                    x-show="content.originalprice > content.price"
-                                    x-text="formatCurrency(content.originalprice)"></span>
-                            </div>
-                        </template>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-brand-600" x-text="content.category"></span>
+                        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight" x-text="content.title || content.name"></h1>
+                        <div class="flex items-center gap-4 pt-4">
+                            <span class="text-3xl font-black text-brand-600" x-text="formatCurrency(content.price)"></span>
+                            <span class="text-lg text-gray-400 line-through" x-show="content.originalprice > content.price" x-text="formatCurrency(content.originalprice)"></span>
+                        </div>
                     </div>
-
-                    <div class="prose dark:prose-invert max-w-none" x-html="content.description">
-                    </div>
-
-                    <!-- Call to Action -->
+                    <div class="prose dark:prose-invert max-w-none" x-html="content.description"></div>
                     <div class="pt-6 border-t border-gray-100 dark:border-gray-800">
-                        <template x-if="page === 'product'">
-                            <button @click="$store.cart.add(content)"
-                                class="w-full bg-brand-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-brand-700 transition-all flex items-center justify-center gap-2">
-                                <span class="w-5 h-5" x-icon="'shopping-bag'"></span> Tambah Keranjang
-                            </button>
-                        </template>
-                        <template x-if="page === 'post'">
-                            <button @click="share()" class="flex items-center gap-2 text-brand-600 font-bold">
-                                <span class="w-5 h-5" x-icon="'share-2'"></span> Bagikan Berita
-                            </button>
-                        </template>
+                        <button @click="$store.cart.add(content)" class="w-full bg-brand-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-brand-700 transition-all flex items-center justify-center gap-2">
+                            <span class="w-5 h-5" x-icon="'shopping-bag'"></span> Tambah Keranjang
+                        </button>
                     </div>
+                </div>
+            </article>
+        </template>
+
+        <!-- B. LAYOUT: POST DETAIL -->
+        <template x-if="page === 'post'">
+            <article class="max-w-4xl mx-auto space-y-10">
+                <div x-show="content.image" class="aspect-video bg-gray-50 dark:bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm">
+                    <img :src="content.image" class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-4 text-center max-w-3xl mx-auto">
+                    <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-brand-50 text-brand-600 text-xs font-bold uppercase tracking-widest" x-text="content.category || 'News'"></span>
+                    <h1 class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight" x-text="content.title"></h1>
+                    <div class="flex items-center justify-center gap-4 text-gray-400 text-sm font-medium">
+                        <span x-text="content.publishdate ? new Date(content.publishdate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Baru saja'"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
+                        <span>Artikel</span>
+                    </div>
+                </div>
+                <div class="prose prose-lg dark:prose-invert max-w-3xl mx-auto px-4 md:px-0 leading-relaxed text-gray-600 dark:text-gray-300" x-html="content.description"></div>
+                <div class="pt-10 border-t border-gray-100 dark:border-gray-800 flex justify-center">
+                    <button @click="share()" class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 px-6 py-3 rounded-2xl text-brand-600 font-bold hover:bg-brand-50 transition-all">
+                        <span class="w-5 h-5" x-icon="'share-2'"></span> Bagikan Berita
+                    </button>
                 </div>
             </article>
         </template>
@@ -165,29 +164,48 @@
                     data.feed.entry.forEach(entry => {
                         const htmlContent = entry.content ? entry.content.$t : '';
                         const doc = parser.parseFromString(htmlContent, 'text/html');
-                        const metaNode = doc.querySelector('script.ezy-meta[type="application/json"]');
+                        // Detect via Selector (New Div or Old Script)
+                        const metaNode = doc.querySelector('.ezy-meta');
+                        let meta = null;
 
                         if (metaNode) {
                             try {
-                                const meta = JSON.parse(metaNode.textContent);
-                                const isProduct = meta.price !== undefined || meta._type === 'product';
-
-                                // Filter berdasarkan tipe halaman
-                                if ((pageType === 'shop' && isProduct) || (pageType === 'post-list' && !isProduct)) {
-                                    // Backup fields for legacy nodes
-                                    meta.id = meta.id || entry.id.$t;
-                                    meta.title = meta.title || meta.name || entry.title.$t;
-                                    meta.image = meta.image || meta.imageurl || '';
-                                    
-                                    // Extract actual pathname
-                                    const linkNode = entry.link.find(l => l.rel === 'alternate');
-                                    if (linkNode) {
-                                        meta.path = new URL(linkNode.href).pathname;
-                                    }
-                                    
-                                    items.push(meta);
+                                const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
+                                meta = JSON.parse(rawData);
+                            } catch(e) {}
+                        } else {
+                            // Regex Fallback for truncated content
+                            const divMatch = htmlContent.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=["'](.*?)["']/);
+                            const scriptMatch = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
+                            
+                            try {
+                                if (divMatch && divMatch[1]) {
+                                    const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+                                    meta = JSON.parse(decoded);
+                                } else if (scriptMatch && scriptMatch[1]) {
+                                    meta = JSON.parse(scriptMatch[1]);
                                 }
-                            } catch (e) { console.warn('Meta parse error'); }
+                            } catch(e) {}
+                        }
+
+                        if (meta) {
+                            const isProduct = meta.price !== undefined || meta._type === 'product';
+
+                            // Filter berdasarkan tipe halaman
+                            if ((pageType === 'shop' && isProduct) || (pageType === 'post-list' && !isProduct)) {
+                                // Backup fields for legacy nodes
+                                meta.id = meta.id || entry.id.$t;
+                                meta.title = meta.title || meta.name || entry.title.$t;
+                                meta.image = meta.image || meta.imageurl || '';
+
+                                // Extract actual pathname
+                                const linkNode = entry.link.find(l => l.rel === 'alternate');
+                                if (linkNode) {
+                                    meta.path = new URL(linkNode.href).pathname;
+                                }
+
+                                items.push(meta);
+                            }
                         }
                     });
                 }
