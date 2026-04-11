@@ -1172,6 +1172,172 @@
     };
 
     // ================================================================
+    // ABOUT ADMIN (Static Pages)
+    // ================================================================
+    const registerAboutAdmin = () => {
+        if (window.Alpine?.data && !window.Alpine.data('aboutAdmin')) {
+            window.Alpine.data('aboutAdmin', () => ({
+                formData: {
+                    id: 'about',
+                    title: 'Tentang Kami',
+                    slug: 'about',
+                    payload: { content: '' }
+                },
+                loading: false,
+                submitting: false,
+                dbId: null,
+
+                async init() {
+                    this.dbId = getDbId();
+                    await this.fetchData();
+                },
+
+                async fetchData() {
+                    this.loading = true;
+                    return new Promise((resolve) => {
+                        window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'about' }, (res) => {
+                            if (res && res.status === 'success' && res.data) {
+                                this.formData = { ...res.data };
+                                if (!this.formData.payload) this.formData.payload = { content: '' };
+                            }
+                            this.loading = false;
+                            resolve();
+                        }, () => {
+                            this.loading = false;
+                            resolve();
+                        });
+                    });
+                },
+
+                async savePage() {
+                    this.submitting = true;
+                    window.sendDataToGoogle('saveStaticPage', {
+                        dbId: this.dbId,
+                        ...this.formData
+                    }, (res) => {
+                        this.submitting = false;
+                        if (res.status === 'success') {
+                            showToast('Laman Tentang Kami berhasil disimpan');
+                        } else {
+                            showToast('Gagal menyimpan: ' + res.message, 'error');
+                        }
+                    }, () => {
+                        this.submitting = false;
+                        showToast('Error saat menyimpan laman', 'error');
+                    });
+                }
+            }));
+        }
+    };
+
+    // ================================================================
+    // CONTACT ADMIN (Static Pages)
+    // ================================================================
+    const registerContactAdmin = () => {
+        if (window.Alpine?.data && !window.Alpine.data('contactAdmin')) {
+            window.Alpine.data('contactAdmin', () => ({
+                formData: {
+                    id: 'contact',
+                    title: 'Hubungi Kami',
+                    slug: 'contact',
+                    payload: {
+                        address: '', phone: '', email: '', mapsUrl: '',
+                        instagram: '', facebook: '', marketplace: ''
+                    }
+                },
+                loading: false,
+                submitting: false,
+                dbId: null,
+
+                async init() {
+                    this.dbId = getDbId();
+                    await this.fetchData();
+                },
+
+                async fetchData() {
+                    this.loading = true;
+                    return new Promise((resolve) => {
+                        window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'contact' }, (res) => {
+                            if (res && res.status === 'success' && res.data) {
+                                this.formData = { ...res.data };
+                                if (!this.formData.payload) this.formData.payload = { 
+                                    address: '', phone: '', email: '', mapsUrl: '',
+                                    instagram: '', facebook: '', marketplace: '' 
+                                };
+                            }
+                            this.loading = false;
+                            resolve();
+                        }, () => {
+                            this.loading = false;
+                            resolve();
+                        });
+                    });
+                },
+
+                async savePage() {
+                    this.submitting = true;
+                    window.sendDataToGoogle('saveStaticPage', {
+                        dbId: this.dbId,
+                        ...this.formData
+                    }, (res) => {
+                        this.submitting = false;
+                        if (res.status === 'success') {
+                            showToast('Laman Kontak berhasil disimpan');
+                        } else {
+                            showToast('Gagal menyimpan: ' + res.message, 'error');
+                        }
+                    }, () => {
+                        this.submitting = false;
+                        showToast('Error saat menyimpan laman', 'error');
+                    });
+                }
+            }));
+        }
+    };
+
+    // ================================================================
+    // SETUP MANAGER (Store Setup)
+    // ================================================================
+    const registerSetupManager = () => {
+        if (window.Alpine?.data && !window.Alpine.data('setupManager')) {
+            window.Alpine.data('setupManager', () => ({
+                isSyncing: false,
+                dbId: null,
+                blogId: null,
+
+                init() {
+                    this.dbId = getDbId();
+                    this.blogId = getBlogId();
+                },
+
+                async deployPages() {
+                    this.blogId = getBlogId();
+                    if (!this.blogId) {
+                        showToast('Blog ID belum terkonfigurasi di Profile.', 'error');
+                        return;
+                    }
+
+                    this.isSyncing = true;
+                    window.sendDataToGoogle('deployStandardPagesToBlogger', {
+                        dbId: this.dbId,
+                        blogId: this.blogId
+                    }, (res) => {
+                        this.isSyncing = false;
+                        if (res.status === 'success') {
+                            showToast('Setup Laman Standar Berhasil!');
+                        } else {
+                            showToast('Gagal: ' + res.message, 'error');
+                        }
+                    }, () => {
+                        this.isSyncing = false;
+                        showToast('Terjadi kesalahan saat memproses setup.', 'error');
+                    });
+                }
+            }));
+        }
+    };
+
+    // ================================================================
     // INITIALIZATION
     // ================================================================
     const registerAll = () => {
@@ -1181,6 +1347,9 @@
         registerLandingConfigManager();
         registerLandingPageAdmin();
         registerPostEditor();
+        registerAboutAdmin();
+        registerContactAdmin();
+        registerSetupManager();
     };
 
     if (window.Alpine) {
