@@ -19,7 +19,7 @@
     <div x-show="!isLoading && !error" x-cloak>
         <article class="grid lg:grid-cols-2 gap-10 items-start">
             <div class="relative aspect-square bg-gray-50 dark:bg-gray-900/50 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700">
-                <img :src="content.image" class="w-full h-full object-contain p-4" :alt="content.name">
+                <img :src="content.image || content.imageurl || content.imageUrl" class="w-full h-full object-contain p-4" :alt="content.name || content.title">
             </div>
             
             <div class="space-y-6">
