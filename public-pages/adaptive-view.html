@@ -260,6 +260,8 @@
                         const cleanJson = rawData.replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
                         const data = JSON.parse(cleanJson);
                         if (data.slug === slug || data.id === slug) {
+                            // Type Correction based on Metadata
+                            if (data._type) window.app.page = data._type;
                             this.content = data;
                             return;
                         }
@@ -336,6 +338,7 @@
             },
 
             formatCurrency(val) {
+                if (val === undefined || val === null || isNaN(val)) return '-';
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
             },
 
