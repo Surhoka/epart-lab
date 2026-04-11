@@ -98,6 +98,7 @@ window.initHomePage = function () {
                         id: meta.id,
                         title: meta.title, // Standardized
                         slug: meta.slug || meta._href.split('/').pop().replace('.html', ''),
+                        path: new URL(meta._href).pathname, // Actual path from Blogger
                         image: meta.image || meta.imageurl || '', // Unified to 'image'
                         price: meta.price,
                         originalprice: meta.originalprice,
@@ -113,6 +114,7 @@ window.initHomePage = function () {
                         id: meta.id || meta._entry.id.$t,
                         title: meta.title || meta._entry.title.$t,
                         slug: meta.slug || meta._href.split('/').pop().replace('.html', ''),
+                        path: new URL(meta._href).pathname, // Actual path from Blogger
                         description: meta.description || meta.snippet || '', // Unified
                         image: meta.image || '', // Unified
                         publishdate: meta.publishdate || meta._entry.published.$t,
