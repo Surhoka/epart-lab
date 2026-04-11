@@ -214,7 +214,8 @@
 
             async fetchDetail(pageType, slug) {
                 // 0. Cek Data Hand-off dari Pjax Router (Instant & Paling Akurat)
-                if (window._lastResolvedMeta && (window._lastResolvedMeta.slug === slug || window._lastResolvedMeta.id === slug)) {
+                // Hanya terima jika deskripsi sudah terisi (hasil Deep Extraction)
+                if (window._lastResolvedMeta && (window._lastResolvedMeta.slug === slug || window._lastResolvedMeta.id === slug) && window._lastResolvedMeta.description) {
                     this.content = window._lastResolvedMeta;
                     window._lastResolvedMeta = null;
                     return;
