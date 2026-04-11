@@ -30,7 +30,7 @@
                 <!-- Media Section -->
                 <div
                     class="relative aspect-square bg-gray-50 dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700">
-                    <img :src="content.image || content.imageurl" class="w-full h-full object-contain p-4">
+                    <img :src="content.image" class="w-full h-full object-contain p-4">
                 </div>
 
                 <!-- Info Section -->
@@ -53,7 +53,7 @@
                         </template>
                     </div>
 
-                    <div class="prose dark:prose-invert max-w-none" x-html="content.content || content.description">
+                    <div class="prose dark:prose-invert max-w-none" x-html="content.description">
                     </div>
 
                     <!-- Call to Action -->
@@ -98,7 +98,7 @@
                         <div @click="viewDetail(item)"
                             class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all">
                             <div class="aspect-square bg-gray-50 dark:bg-gray-900/50 p-4">
-                                <img :src="item.imageurl || item.image"
+                                <img :src="item.image"
                                     class="w-full h-full object-contain group-hover:scale-105 transition-transform">
                             </div>
                             <div class="p-4 space-y-2">
@@ -151,7 +151,10 @@
 
             // LOGIKA NATIVE: Fetch dari Blogger Feed CDN
             async fetchCollection(pageType) {
-                const res = await fetch('/feeds/pages/default?alt=json&max-results=500');
+                // [OPTIMIZED] Use Label Feed for Articles to speed up loading
+                const feedPath = pageType === 'post-list' ? '/feeds/posts/default/-/Article?alt=json&max-results=150' : '/feeds/pages/default?alt=json&max-results=500';
+                
+                const res = await fetch(feedPath);
                 if (!res.ok) throw new Error('Blogger Feed unreachable');
                 const data = await res.json();
 
@@ -167,13 +170,14 @@
                         if (metaNode) {
                             try {
                                 const meta = JSON.parse(metaNode.textContent);
-                                const isProduct = meta.price !== undefined;
+                                const isProduct = meta.price !== undefined || meta._type === 'product';
 
                                 // Filter berdasarkan tipe halaman
                                 if ((pageType === 'shop' && isProduct) || (pageType === 'post-list' && !isProduct)) {
+                                    // Backup fields for legacy nodes
                                     meta.id = meta.id || entry.id.$t;
                                     meta.title = meta.title || meta.name || entry.title.$t;
-                                    meta.imageurl = meta.imageurl || meta.image || '';
+                                    meta.image = meta.image || meta.imageurl || '';
                                     items.push(meta);
                                 }
                             } catch (e) { console.warn('Meta parse error'); }
