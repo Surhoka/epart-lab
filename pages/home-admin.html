@@ -32,7 +32,7 @@
             <div class="flex gap-2">
                 <button @click="syncToBlogger()" :disabled="isSyncing"
                     class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:text-blue-400 transition-colors disabled:opacity-50">
-                    <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'sync'"></span> 
+                    <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                     <span x-text="isSyncing ? 'Syncing...' : 'Sync to Blogger'"></span>
                 </button>
                 <button @click="openAddModal()" class="btn btn-primary">
@@ -105,19 +105,16 @@
                 <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
                     @click="showModal = false"></div>
 
-                <div
-                    class="modal-dialog">
+                <div class="modal-dialog">
                     <!-- close btn -->
-                    <button @click="showModal = false"
-                        class="modal-close-btn">
+                    <button @click="showModal = false" class="modal-close-btn">
                         <span class="w-6 h-6 block" x-icon="'close'"></span>
                     </button>
 
                     <!-- Modal Content -->
                     <div class="modal-content custom-scrollbar">
                         <div class="modal-header-sticky">
-                            <h3 class="h3"
-                                x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
+                            <h3 class="h3" x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
                             <p class="mt-2 text-sm text-theme-secondary">Visual configuration for the home
                                 hero banner.</p>
                         </div>
@@ -143,44 +140,38 @@
                                             class="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                     </div>
                                 </div>
-                                <input type="text" x-model="editingItem.imageurl"
-                                    class="form-input mt-2"
+                                <input type="text" x-model="editingItem.imageurl" class="form-input mt-2"
                                     placeholder="Or enter image URL">
                             </div>
                             <div>
                                 <label class="form-label">Title
                                     *</label>
-                                <input type="text" x-model="editingItem.title"
-                                    class="form-input"
+                                <input type="text" x-model="editingItem.title" class="form-input"
                                     placeholder="Slide title">
                             </div>
                             <div>
                                 <label class="form-label">Subtitle</label>
-                                <input type="text" x-model="editingItem.subtitle"
-                                    class="form-input"
+                                <input type="text" x-model="editingItem.subtitle" class="form-input"
                                     placeholder="Support text">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="form-label">Button
                                         Text</label>
-                                    <input type="text" x-model="editingItem.buttontext"
-                                        class="form-input"
+                                    <input type="text" x-model="editingItem.buttontext" class="form-input"
                                         placeholder="Shop Now">
                                 </div>
                                 <div>
                                     <label class="form-label">Button
                                         Link</label>
-                                    <input type="text" x-model="editingItem.buttonlink"
-                                        class="form-input"
+                                    <input type="text" x-model="editingItem.buttonlink" class="form-input"
                                         placeholder="#shop">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="form-label">Urutan</label>
-                                    <input type="number" x-model.number="editingItem.sortorder"
-                                        class="form-input">
+                                    <input type="number" x-model.number="editingItem.sortorder" class="form-input">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
@@ -197,7 +188,8 @@
                         <!-- Modal Footer -->
                         <footer class="modal-footer-actions">
                             <button @click="showModal = false" class="btn btn-outline flex-1">Cancel</button>
-                            <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1">Save Slide</button>
+                            <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1">Save
+                                Slide</button>
                         </footer>
                     </div>
                 </div>
@@ -219,7 +211,7 @@
             <div class="flex gap-2">
                 <button @click="syncToBlogger()" :disabled="isSyncing"
                     class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:text-blue-400 transition-colors disabled:opacity-50">
-                    <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'sync'"></span> 
+                    <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                     <span x-text="isSyncing ? 'Syncing...' : 'Sync to Blogger'"></span>
                 </button>
                 <button @click="openAddModal()" class="btn btn-primary">
@@ -327,11 +319,9 @@
                 <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
                     @click="showModal = false"></div>
 
-                <div
-                    class="modal-dialog">
+                <div class="modal-dialog">
                     <!-- close btn -->
-                    <button @click="showModal = false"
-                        class="modal-close-btn">
+                    <button @click="showModal = false" class="modal-close-btn">
                         <span class="w-6 h-6 block" x-icon="'close'"></span>
                     </button>
 
@@ -362,35 +352,33 @@
                                                 class="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
                                         </div>
                                     </div>
-                                    <input type="text" x-model="editingItem.imageurl"
-                                        class="form-input flex-1"
+                                    <input type="text" x-model="editingItem.imageurl" class="form-input flex-1"
                                         placeholder="Image URL">
                                 </div>
                             </div>
                             <div>
                                 <label class="form-label">Name
                                     *</label>
-                                <input type="text" x-model="editingItem.name"
-                                    class="form-input"
+                                <input type="text" x-model="editingItem.name" class="form-input"
                                     placeholder="Category name">
                             </div>
                             <div>
                                 <label class="form-label">Slug</label>
-                                <input type="text" x-model="editingItem.slug"
-                                    class="form-input font-mono"
+                                <input type="text" x-model="editingItem.slug" class="form-input font-mono"
                                     placeholder="category-slug">
                             </div>
                             <div>
                                 <label class="form-label">Description</label>
-                                <textarea x-model="editingItem.description" rows="2"
-                                    class="form-input"
+                                <textarea x-model="editingItem.description" rows="2" class="form-input"
                                     placeholder="Short description"></textarea>
                             </div>
                             <div>
                                 <label class="form-label">Parent Category</label>
                                 <select x-model="editingItem.parentid" class="form-input">
                                     <option value="">— None (Top Level) —</option>
-                                    <template x-for="cat in categories.filter(c => !c.parentid && c.id !== editingItem.id)" :key="cat.id">
+                                    <template
+                                        x-for="cat in categories.filter(c => !c.parentid && c.id !== editingItem.id)"
+                                        :key="cat.id">
                                         <option :value="cat.id" x-text="cat.name"></option>
                                     </template>
                                 </select>
@@ -399,8 +387,7 @@
                                 <div>
                                     <label class="form-label">Sort
                                         Order</label>
-                                    <input type="number" x-model.number="editingItem.sortorder"
-                                        class="form-input">
+                                    <input type="number" x-model.number="editingItem.sortorder" class="form-input">
                                 </div>
                                 <div class="flex items-end pb-1">
                                     <label class="flex cursor-pointer items-center gap-2">
@@ -416,10 +403,8 @@
 
                         <!-- Modal Footer -->
                         <footer class="modal-footer-actions">
-                            <button @click="showModal = false"
-                                class="btn btn-outline flex-1">Cancel</button>
-                            <button id="save-category-btn" @click="saveCategory()"
-                                class="btn btn-primary flex-1">Save
+                            <button @click="showModal = false" class="btn btn-outline flex-1">Cancel</button>
+                            <button id="save-category-btn" @click="saveCategory()" class="btn btn-primary flex-1">Save
                                 Category</button>
                         </footer>
                     </div>
