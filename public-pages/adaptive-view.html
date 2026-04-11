@@ -195,22 +195,20 @@
             },
 
             async fetchDetail(pageType, slug) {
-                console.log(`🔍 [FetchDetail] Start: ${pageType} | ${slug}`);
-                // 0. Cek Data Hand-off dari Pjax Router (Instant)
+                // 0. Cek Data Hand-off dari Pjax Router (Instant & Paling Akurat)
                 if (window._lastResolvedMeta && (window._lastResolvedMeta.slug === slug || window._lastResolvedMeta.id === slug)) {
-                    console.log('✅ [FetchDetail] Source: Pjax Hand-off');
                     this.content = window._lastResolvedMeta;
-                    window._lastResolvedMeta = null; // Clear after use
+                    window._lastResolvedMeta = null;
                     return;
                 }
 
-                // 1. Cek di DOM Lokal (SEO Benefit)
-                const localMeta = document.querySelector('script.ezy-meta');
+                // 1. Cek di DOM (Server-rendered content)
+                const bloggerMain = document.getElementById('blogger-main-container');
+                const localMeta = bloggerMain ? bloggerMain.querySelector('script.ezy-meta') : document.querySelector('script.ezy-meta');
                 if (localMeta) {
                     try {
                         const data = JSON.parse(localMeta.textContent);
                         if (data.slug === slug || data.id === slug) {
-                            console.log('✅ [FetchDetail] Source: Local DOM Meta');
                             this.content = data;
                             return;
                         }
@@ -218,32 +216,39 @@
                 }
 
                 // 2. Fallback: Cari di Feed CDN (Edge Cache)
-                console.log('🔄 [FetchDetail] Source: Blogger Feed Fallback...');
                 const feedPath = pageType === 'post' ? '/feeds/posts/default/-/Article?alt=json&max-results=150' : '/feeds/pages/default?alt=json&max-results=150';
-                const res = await fetch(feedPath);
-                const data = await res.json();
-                const entry = data.feed?.entry?.find(e => e.link.some(l => l.rel === 'alternate' && l.href.includes(slug)));
+                try {
+                    const res = await fetch(feedPath);
+                    const data = await res.json();
+                    const entry = data.feed?.entry?.find(e => e.link.some(l => l.rel === 'alternate' && l.href.includes(slug)));
 
-                if (entry) {
-                    console.log('✅ [FetchDetail] Source: Blogger Feed');
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(entry.content.$t, 'text/html');
-                    const metaNode = doc.querySelector('script.ezy-meta');
-                    if (metaNode) {
-                        this.content = JSON.parse(metaNode.textContent);
-                        return;
+                    if (entry) {
+                        const htmlContent = entry.content ? entry.content.$t : '';
+                        
+                        // Robust Parse: Try DOMParser first, then Regex if truncated
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlContent, 'text/html');
+                        const metaNode = doc.querySelector('script.ezy-meta');
+                        
+                        if (metaNode) {
+                            this.content = JSON.parse(metaNode.textContent);
+                        } else {
+                            // Regex Fallback if HTML is truncated but script tag survived partly
+                            const match = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
+                            if (match && match[1]) {
+                                this.content = JSON.parse(match[1]);
+                            }
+                        }
+                        if (this.content) return;
                     }
-                }
+                } catch(e) { console.warn('Feed fetch failed'); }
 
                 // 3. Last Resort: AdminAPI (Direct Server Call)
-                console.log('⚠️ [FetchDetail] Source: AdminAPI (Last Resort)');
                 const action = pageType === 'product' ? 'getProductDetail' : 'get_post_by_slug';
                 const apiRes = await window.AdminAPI.get(action, { slug: slug });
                 if (apiRes.status === 'success') {
-                    console.log('✅ [FetchDetail] Source: AdminAPI');
                     this.content = apiRes.data;
                 } else {
-                    console.error('❌ [FetchDetail] All sources failed');
                     this.error = true;
                 }
             },
