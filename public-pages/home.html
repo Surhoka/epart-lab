@@ -470,7 +470,7 @@
                             <!-- Image Container -->
                             <a :href="'/p/' + (product.slug || product.id) + '.html'"
                                 class="relative aspect-square mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg overflow-hidden block">
-                                <img :src="product.imageurl" :alt="product.name" class="w-full h-full object-contain">
+                                <img :src="product.image" :alt="product.title" class="w-full h-full object-contain">
 
                                 <!-- Badges -->
                                 <div class="absolute top-3 left-3 flex flex-col gap-1">
@@ -488,7 +488,7 @@
                                     <h3
                                         class="font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-brand-600 transition-colors">
                                         <a :href="'/p/' + (product.slug || product.id) + '.html'"
-                                            x-text="product.name"></a>
+                                            x-text="product.title"></a>
                                     </h3>
                                 </div>
 
@@ -503,7 +503,7 @@
                                             x-text="formatPrice(product.originalprice)"></span>
                                     </div>
                                     <button
-                                        @click.stop="$store.cart.add(product); flyToCart($event.currentTarget, product.imageurl)"
+                                        @click.stop="$store.cart.add(product); flyToCart($event.currentTarget, product.image)"
                                         class="p-2 bg-brand-50 dark:bg-brand-900/30 hover:bg-brand-600 text-brand-600 hover:text-white rounded-lg transition-all active:scale-95 group/btn shadow-sm hover:shadow-lg shadow-brand-500/10">
                                         <span class="w-5 h-5 flex items-center justify-center"
                                             x-icon="'shopping-bag'"></span>
@@ -607,7 +607,7 @@
                             <!-- Image -->
                             <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
                                 class="relative h-48 bg-gray-50 dark:bg-gray-900/50 overflow-hidden block flex-shrink-0">
-                                <img :src="post.imageurl || post.image || 'https://dummyimage.com/400x250/cccccc/000000&text=No+Image'"
+                                <img :src="post.image || 'https://dummyimage.com/400x250/cccccc/000000&text=No+Image'"
                                     :alt="post.title"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 <div class="absolute top-3 left-3">
@@ -626,7 +626,7 @@
                                         x-text="post.title"></a>
                                 </h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-4"
-                                    x-text="getSnippet(post.content)"></p>
+                                    x-text="getSnippet(post.description)"></p>
                                 <div class="mt-auto pt-2 border-t border-gray-50 dark:border-gray-700/50">
                                     <a :href="'/p/' + (post.slug || post.id) + '.html'" data-type="post"
                                         class="text-brand-600 hover:text-brand-700 font-bold text-sm inline-flex items-center gap-1">
