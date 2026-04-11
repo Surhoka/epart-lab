@@ -178,6 +178,13 @@
                                     meta.id = meta.id || entry.id.$t;
                                     meta.title = meta.title || meta.name || entry.title.$t;
                                     meta.image = meta.image || meta.imageurl || '';
+                                    
+                                    // Extract actual pathname
+                                    const linkNode = entry.link.find(l => l.rel === 'alternate');
+                                    if (linkNode) {
+                                        meta.path = new URL(linkNode.href).pathname;
+                                    }
+                                    
                                     items.push(meta);
                                 }
                             } catch (e) { console.warn('Meta parse error'); }
@@ -199,7 +206,8 @@
                 }
 
                 // 2. Fallback: Cari di Feed CDN (Edge Cache)
-                const res = await fetch('/feeds/pages/default?alt=json&max-results=150');
+                const feedPath = pageType === 'post' ? '/feeds/posts/default/-/Article?alt=json&max-results=150' : '/feeds/pages/default?alt=json&max-results=150';
+                const res = await fetch(feedPath);
                 const data = await res.json();
                 const entry = data.feed?.entry?.find(e => e.link.some(l => l.rel === 'alternate' && l.href.includes(slug)));
 
@@ -236,6 +244,10 @@
             },
 
             viewDetail(item) {
+                if (item.path) {
+                    window.location.pathname = item.path;
+                    return;
+                }
                 const type = (item.price !== undefined) ? 'product' : 'post';
                 window.navigate(type, { slug: item.slug || item.id });
             },
