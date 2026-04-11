@@ -27,14 +27,17 @@ window.initHomePage = function () {
         sliderInterval: null,
 
         async init() {
+            // Aktifkan loading state segera untuk mencegah flicker
+            this.isLoadingSlides = true;
+            this.isLoadingProducts = true;
+            this.isLoadingPosts = true;
 
-            // Check connection status
-            await this.checkConnection();
-
-            // Load data if connected
-            if (this.connectionStatus.connected) {
-                await this.loadAllHomeData();
-            }
+            // Jalankan pengecekan koneksi dan pengambilan data secara paralel
+            // sehingga tidak ada saling tunggu (menghilangkan kesan 2x reload)
+            Promise.all([
+                this.checkConnection(),
+                this.loadAllHomeData()
+            ]);
 
             // Start Slider
             this.startSlider();
