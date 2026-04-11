@@ -42,7 +42,7 @@
                     
                     <!-- Media Area -->
                     <div class="aspect-square p-6 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
-                        <img :src="item.image || item.imageurl"
+                        <img :src="item.image || item.imageurl || item.imageUrl"
                             class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
                             :alt="item.name">
                         

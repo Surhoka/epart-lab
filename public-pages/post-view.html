@@ -19,8 +19,8 @@
     <div x-show="!isLoading && !error" x-cloak>
         <article class="max-w-4xl mx-auto space-y-10">
             <!-- Featured Image -->
-            <div x-show="content.image || content.imageurl" class="aspect-video bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm relative group">
-                <img :src="content.image || content.imageurl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div x-show="content.image || content.imageurl || content.imageUrl" class="aspect-video bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm relative group">
+                <img :src="content.image || content.imageurl || content.imageUrl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                 <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent"></div>
             </div>
 
