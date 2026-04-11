@@ -204,10 +204,11 @@
 
                 // 1. Cek di DOM (Server-rendered content)
                 const bloggerMain = document.getElementById('blogger-main-container');
-                const localMeta = bloggerMain ? bloggerMain.querySelector('script.ezy-meta') : document.querySelector('script.ezy-meta');
-                if (localMeta) {
+                const localMetaNode = bloggerMain ? bloggerMain.querySelector('.ezy-meta') : document.querySelector('.ezy-meta');
+                if (localMetaNode) {
                     try {
-                        const data = JSON.parse(localMeta.textContent);
+                        const rawData = localMetaNode.getAttribute('data-meta') || localMetaNode.textContent;
+                        const data = JSON.parse(rawData);
                         if (data.slug === slug || data.id === slug) {
                             this.content = data;
                             return;
@@ -228,15 +229,22 @@
                         // Robust Parse: Try DOMParser first, then Regex if truncated
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(htmlContent, 'text/html');
-                        const metaNode = doc.querySelector('script.ezy-meta');
+                        const metaNode = doc.querySelector('.ezy-meta');
                         
                         if (metaNode) {
-                            this.content = JSON.parse(metaNode.textContent);
+                            const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
+                            this.content = JSON.parse(rawData);
                         } else {
-                            // Regex Fallback if HTML is truncated but script tag survived partly
-                            const match = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
-                            if (match && match[1]) {
-                                this.content = JSON.parse(match[1]);
+                            // Regex Fallback: Search for div data-meta or script tag
+                            const divMatch = htmlContent.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=["'](.*?)["']/);
+                            const scriptMatch = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
+                            
+                            if (divMatch && divMatch[1]) {
+                                // Decode HTML entities from attribute
+                                const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+                                this.content = JSON.parse(decoded);
+                            } else if (scriptMatch && scriptMatch[1]) {
+                                this.content = JSON.parse(scriptMatch[1]);
                             }
                         }
                         if (this.content) return;
