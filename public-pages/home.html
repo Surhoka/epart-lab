@@ -17,44 +17,43 @@
                     <div class="space-y-1">
                         <!-- Dynamic Categories -->
                         <template x-for="cat in categories" :key="cat.id">
-                            <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group relative"
-                                @click="window.navigate('shop', { category: cat.slug || cat.name })">
-                                <template x-if="cat.imageurl">
-                                    <img :src="cat.imageurl" class="w-4 h-4 object-cover rounded shadow-sm">
-                                </template>
-                                <template x-if="!cat.imageurl">
-                                    <span class="w-4 h-4 text-gray-400" x-icon="'layers'"></span>
-                                </template>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1"
-                                    x-text="cat.name"></span>
-                                <svg x-show="subcategories[cat.id] && subcategories[cat.id].length > 0"
-                                    class="w-4 h-4 opacity-50 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                                </svg>
+                            <div class="category-group">
+                                <div class="category-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 group"
+                                    @click="window.navigate('shop', { category: cat.slug || cat.name })">
+                                    <template x-if="cat.imageurl">
+                                        <img :src="cat.imageurl" class="w-4 h-4 object-cover rounded shadow-sm">
+                                    </template>
+                                    <template x-if="!cat.imageurl">
+                                        <span class="w-4 h-4 text-gray-400" x-icon="'layers'"></span>
+                                    </template>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1"
+                                        x-text="cat.name"></span>
+                                    
+                                    <!-- Toggle Button (Chevron) -->
+                                    <template x-if="subcategories[cat.id] && subcategories[cat.id].length > 0">
+                                        <button @click.stop="toggleCategory(cat.id)" 
+                                            class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-all"
+                                            :class="expandedCategories.includes(cat.id) ? 'rotate-90' : ''">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </template>
+                                </div>
 
-                                <!-- Hover Dropdown for Subcategories -->
-                                <template x-if="subcategories[cat.id] && subcategories[cat.id].length > 0">
-                                    <div
-                                        class="category-dropdown absolute left-full top-0 ml-2 w-[480px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                                        <div class="p-6">
-                                            <div
-                                                class="flex items-center gap-3 mb-4 border-b border-gray-100 dark:border-gray-700 pb-3">
-                                                <h4 class="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-xs"
-                                                    x-text="cat.name"></h4>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-x-6 gap-y-2">
-                                                <template x-for="sub in subcategories[cat.id]" :key="sub.id">
-                                                    <a href="#"
-                                                        @click.prevent="window.navigate('shop', { category: sub.slug || sub.name })"
-                                                        class="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-2 py-1 transition-colors">
-                                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                                        <span x-text="sub.name"></span>
-                                                    </a>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
+                                <!-- Inline Subcategories (Accordion) -->
+                                <div x-show="expandedCategories.includes(cat.id)" 
+                                     x-collapse
+                                     class="pl-10 pr-4 py-1 space-y-1">
+                                    <template x-for="sub in subcategories[cat.id]" :key="sub.id">
+                                        <a href="#"
+                                            @click.prevent="window.navigate('shop', { category: sub.slug || sub.name })"
+                                            class="text-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 flex items-center gap-2 py-1.5 transition-colors">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                            <span x-text="sub.name"></span>
+                                        </a>
+                                    </template>
+                                </div>
                             </div>
                         </template>
                     </div>
