@@ -104,15 +104,10 @@ window.initHomePage = function () {
                 if (homeMeta) {
                     this.slides = homeMeta.heroes || [];
                     this.totalSlides = this.slides.length;
-                    const allCats = homeMeta.categories || [];
-                    this.categories = allCats.filter(c => !c.parentid || c.parentid === '');
-                    this.subcategories = {};
-                    allCats.forEach(c => {
-                        if (c.parentid) {
-                            if (!this.subcategories[c.parentid]) this.subcategories[c.parentid] = [];
-                            this.subcategories[c.parentid].push(c);
-                        }
-                    });
+                    
+                    // Gunakan data kategori yang sudah diproses oleh backend (syncHomeDataToBlogger_)
+                    this.categories = homeMeta.categories || [];
+                    this.subcategories = homeMeta.subcategories || {};
                 }
 
                 // Filter Products (Standardized)
