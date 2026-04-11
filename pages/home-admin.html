@@ -30,8 +30,10 @@
                 <span x-text="slides.length"></span> slides registered
             </p>
             <div class="flex gap-2">
-                <button @click="fetchSlides()" class="btn btn-outline">
-                    <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
+                <button @click="syncToBlogger()" :disabled="isSyncing"
+                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:text-blue-400 transition-colors disabled:opacity-50">
+                    <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'sync'"></span> 
+                    <span x-text="isSyncing ? 'Syncing...' : 'Sync to Blogger'"></span>
                 </button>
                 <button @click="openAddModal()" class="btn btn-primary">
                     <span class="w-4 h-4" x-icon="'plus'"></span> Add Slide
@@ -215,8 +217,10 @@
             <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> categories
                 registered</p>
             <div class="flex gap-2">
-                <button @click="fetchCategories()" class="btn btn-outline">
-                    <span class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''" x-icon="'refresh'"></span> Refresh
+                <button @click="syncToBlogger()" :disabled="isSyncing"
+                    class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:text-blue-400 transition-colors disabled:opacity-50">
+                    <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'sync'"></span> 
+                    <span x-text="isSyncing ? 'Syncing...' : 'Sync to Blogger'"></span>
                 </button>
                 <button @click="openAddModal()" class="btn btn-primary">
                     <span class="w-4 h-4" x-icon="'plus'"></span> Add Category
