@@ -1,0 +1,189 @@
+<div x-data="contactAdmin" class="w-full animate-fade-in">
+    <!-- Header -->
+    <header class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90">Layanan Hubungi Kami</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Atur cara pelanggan dapat menghubungi toko Anda dengan mudah.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <template x-if="loading">
+                <span class="flex items-center gap-2 text-xs font-bold text-gray-400">
+                    <span class="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-transparent"></span>
+                    Memuat...
+                </span>
+            </template>
+            <button @click="savePage()" :disabled="submitting || loading"
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-black text-white shadow-xl shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-50">
+                <template x-if="submitting">
+                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                </template>
+                <span class="w-4 h-4" x-icon="'save'"></span>
+                Simpan Kontak
+            </button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Form -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <h2 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90 flex items-center gap-3">
+                    <span class="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600">
+                        <span class="block w-5 h-5" x-icon="'map-pin'"></span>
+                    </span>
+                    Lokasi & Alamat
+                </h2>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Judul Halaman</label>
+                        <input type="text" x-model="formData.title"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="Contoh: Hubungi EzyParts Store">
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Alamat Lengkap Toko</label>
+                        <textarea x-model="formData.payload.address" rows="3"
+                            class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="Tuliskan alamat fisik atau lokasi cabang utama Anda..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Google Maps Embed URL (Opsional)</label>
+                        <input type="text" x-model="formData.payload.mapsUrl"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="https://www.google.com/maps/embed?pb=...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <h2 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90 flex items-center gap-3">
+                    <span class="p-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600">
+                        <span class="block w-5 h-5" x-icon="'phone-call'"></span>
+                    </span>
+                    Kontak Layanan
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">WhatsApp / No. Telp</label>
+                        <input type="text" x-model="formData.payload.phone"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="Contoh: 628123456789">
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email Store</label>
+                        <input type="email" x-model="formData.payload.email"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="Contoh: support@ezyparts.com">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Socials -->
+        <div class="space-y-6">
+            <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <h2 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90 flex items-center gap-3">
+                    <span class="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600">
+                        <span class="block w-5 h-5" x-icon="'share-2'"></span>
+                    </span>
+                    Media Sosial
+                </h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 text-[10px] uppercase font-bold tracking-widest text-gray-400">Instagram</label>
+                        <input type="text" x-model="formData.payload.instagram"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="@username">
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 text-[10px] uppercase font-bold tracking-widest text-gray-400">Facebook</label>
+                        <input type="text" x-model="formData.payload.facebook"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="URL Profil">
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 text-[10px] uppercase font-bold tracking-widest text-gray-400">Shopee / Marketplace</label>
+                        <input type="text" x-model="formData.payload.marketplace"
+                            class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                            placeholder="URL Toko">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        if (window.Alpine && !window.Alpine.data('contactAdmin')) {
+            window.Alpine.data('contactAdmin', () => ({
+                formData: {
+                    id: 'contact',
+                    title: 'Hubungi Kami',
+                    slug: 'contact',
+                    payload: {
+                        address: '',
+                        phone: '',
+                        email: '',
+                        mapsUrl: '',
+                        instagram: '',
+                        facebook: '',
+                        marketplace: ''
+                    }
+                },
+                loading: false,
+                submitting: false,
+                dbId: null,
+
+                async init() {
+                    const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                    this.dbId = config.dbId;
+                    await this.fetchData();
+                },
+
+                async fetchData() {
+                    this.loading = true;
+                    return new Promise((resolve) => {
+                        window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'contact' }, (res) => {
+                            if (res && res.status === 'success' && res.data) {
+                                this.formData = { ...res.data };
+                                if (!this.formData.payload) this.formData.payload = { 
+                                    address: '', phone: '', email: '', mapsUrl: '',
+                                    instagram: '', facebook: '', marketplace: '' 
+                                };
+                            }
+                            this.loading = false;
+                            resolve();
+                        }, () => {
+                            this.loading = false;
+                            resolve();
+                        });
+                    });
+                },
+
+                async savePage() {
+                    this.submitting = true;
+                    window.sendDataToGoogle('saveStaticPage', {
+                        dbId: this.dbId,
+                        ...this.formData
+                    }, (res) => {
+                        this.submitting = false;
+                        if (res.status === 'success') {
+                            showToast('Laman Kontak berhasil disimpan');
+                        } else {
+                            showToast('Gagal menyimpan: ' + res.message, 'error');
+                        }
+                    }, () => {
+                        this.submitting = false;
+                        showToast('Error saat menyimpan laman', 'error');
+                    });
+                }
+            }));
+        }
+    })();
+</script>

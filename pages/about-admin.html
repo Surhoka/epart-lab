@@ -1,0 +1,113 @@
+<div x-data="aboutAdmin" class="w-full animate-fade-in">
+    <!-- Header -->
+    <header class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90">Manajer Konten 'Tentang Kami'</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ceritakan kisah toko Anda untuk meningkatkan kepercayaan pelanggan.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <template x-if="loading">
+                <span class="flex items-center gap-2 text-xs font-bold text-gray-400">
+                    <span class="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-transparent"></span>
+                    Memuat...
+                </span>
+            </template>
+            <button @click="savePage()" :disabled="submitting || loading"
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-black text-white shadow-xl shadow-brand-500/20 transition-all hover:bg-brand-600 active:scale-95 disabled:opacity-50">
+                <template x-if="submitting">
+                    <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                </template>
+                <span class="w-4 h-4" x-icon="'save'"></span>
+                Simpan Profil
+            </button>
+        </div>
+    </header>
+
+    <div class="space-y-6">
+        <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="mb-6 flex items-center gap-3">
+                <span class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600">
+                    <span class="block w-5 h-5" x-icon="'book-open'"></span>
+                </span>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Profil & Kisah Toko</h2>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Judul Halaman</label>
+                    <input type="text" x-model="formData.title"
+                        class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                        placeholder="Contoh: Tentang EzyParts Store">
+                </div>
+
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Konten Utama (HTML didukung)</label>
+                    <textarea x-model="formData.payload.content" rows="15"
+                        class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-sm leading-relaxed dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                        placeholder="Tuliskan kisah perjalanan toko, visi, misi, dan kelebihan layanan Anda..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        if (window.Alpine && !window.Alpine.data('aboutAdmin')) {
+            window.Alpine.data('aboutAdmin', () => ({
+                formData: {
+                    id: 'about',
+                    title: 'Tentang Kami',
+                    slug: 'about',
+                    payload: {
+                        content: ''
+                    }
+                },
+                loading: false,
+                submitting: false,
+                dbId: null,
+
+                async init() {
+                    const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                    this.dbId = config.dbId;
+                    await this.fetchData();
+                },
+
+                async fetchData() {
+                    this.loading = true;
+                    return new Promise((resolve) => {
+                        window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'about' }, (res) => {
+                            if (res && res.status === 'success' && res.data) {
+                                this.formData = { ...res.data };
+                                if (!this.formData.payload) this.formData.payload = { content: '' };
+                            }
+                            this.loading = false;
+                            resolve();
+                        }, () => {
+                            this.loading = false;
+                            resolve();
+                        });
+                    });
+                },
+
+                async savePage() {
+                    this.submitting = true;
+                    window.sendDataToGoogle('saveStaticPage', {
+                        dbId: this.dbId,
+                        ...this.formData
+                    }, (res) => {
+                        this.submitting = false;
+                        if (res.status === 'success') {
+                            showToast('Laman Tentang Kami berhasil disimpan');
+                        } else {
+                            showToast('Gagal menyimpan: ' + res.message, 'error');
+                        }
+                    }, () => {
+                        this.submitting = false;
+                        showToast('Error saat menyimpan laman', 'error');
+                    });
+                }
+            }));
+        }
+    })();
+</script>
