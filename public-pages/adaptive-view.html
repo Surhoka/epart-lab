@@ -341,7 +341,32 @@
 
             updateBreadcrumb() {
                 if (window.renderBreadcrumb) {
-                    window.renderBreadcrumb(window.app.pageLabels[window.app.page]);
+                    const page = window.app.page;
+                    const items = [{ label: 'Home', link: '/' }];
+                    
+                    if (page === 'post') {
+                        // Jalur: Home > News (Archive) > Title
+                        items.push({ 
+                            label: window.app.pageLabels['post'] || 'News', 
+                            action: "window.navigate('post-list')" 
+                        });
+                        items.push({ label: this.content.title || 'Artikel' });
+                    } else if (page === 'product') {
+                        // Jalur: Home > Shop > Title
+                        items.push({ 
+                            label: window.app.pageLabels['shop'] || 'Shop', 
+                            action: "window.navigate('shop')" 
+                        });
+                        items.push({ label: this.content.name || this.content.title || 'Produk' });
+                    } else if (page === 'post-list' || page === 'shop') {
+                        // Jalur: Home > News / Shop
+                        items.push({ label: window.app.pageLabels[page] });
+                    } else {
+                        // Jalur Standar: Home > Page
+                        items.push({ label: window.app.pageLabels[page] || page });
+                    }
+                    
+                    window.renderBreadcrumb(items);
                 }
             }
         }
