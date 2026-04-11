@@ -75,37 +75,65 @@
 
         <!-- B. LAYOUT: GRID (Shop & Post List) -->
         <template x-if="page === 'shop' || page === 'post-list'">
-            <div>
+            <div class="space-y-12">
                 <!-- Header Filter -->
-                <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+                <div class="flex flex-col md:flex-row justify-between items-end gap-6">
                     <div class="space-y-2">
-                        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white"
-                            x-text="page === 'shop' ? 'Katalog Sparepart' : 'Berita Terbaru'"></h1>
-                        <p class="text-gray-500"
-                            x-text="page === 'shop' ? 'Temukan suku cadang orisinal untuk kendaraan Anda.' : 'Update informasi dunia otomotif setiap hari.'">
+                        <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight"
+                            x-text="page === 'shop' ? 'Sparepart Katalog' : 'Update Otomotif'"></h1>
+                        <p class="text-gray-500 font-medium"
+                            x-text="page === 'shop' ? 'Koleksi lengkap komponen orisinal dengan jaminan kualitas terbaik.' : 'Wawasan terbaru, tips modifikasi, dan berita industri otomotif.'">
                         </p>
                     </div>
                     <div class="flex gap-4 w-full md:w-auto">
-                        <input type="text" x-model="searchQuery" placeholder="Cari..."
-                            class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 w-full md:w-64 focus:ring-2 focus:ring-brand-500 outline-none">
+                        <div class="relative w-full md:w-72">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <span class="w-4 h-4" x-icon="'search'"></span>
+                            </span>
+                            <input type="text" x-model="searchQuery" placeholder="Cari konten..."
+                                class="pl-11 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 w-full focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 outline-none transition-all">
+                        </div>
                     </div>
                 </div>
 
                 <!-- The Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div :class="page === 'shop' ? 'grid grid-cols-2 lg:grid-cols-4 gap-6' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'">
                     <template x-for="item in filteredItems" :key="item.id">
                         <div @click="viewDetail(item)"
-                            class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all">
-                            <div class="aspect-square bg-gray-50 dark:bg-gray-900/50 p-4">
+                            class="group cursor-pointer bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                            
+                            <!-- Media: Square for Shop, Wide for Post -->
+                            <div :class="page === 'shop' ? 'aspect-square p-6 bg-gray-50 dark:bg-gray-900/50' : 'aspect-video'">
                                 <img :src="item.image"
-                                    class="w-full h-full object-contain group-hover:scale-105 transition-transform">
+                                    :class="page === 'shop' ? 'w-full h-full object-contain' : 'w-full h-full object-cover'"
+                                    class="group-hover:scale-105 transition-transform duration-500">
                             </div>
-                            <div class="p-4 space-y-2">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase" x-text="item.category"></p>
-                                <h3 class="font-bold text-gray-900 dark:text-white line-clamp-2"
+
+                            <div class="p-6 space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-brand-600 uppercase tracking-widest" x-text="item.category"></span>
+                                    <template x-if="page === 'post-list'">
+                                        <span class="text-[10px] text-gray-400 font-bold">• ARTIKEL</span>
+                                    </template>
+                                </div>
+                                <h3 :class="page === 'shop' ? 'text-sm' : 'text-lg'" 
+                                    class="font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 transition-colors"
                                     x-text="item.name || item.title"></h3>
+                                
                                 <template x-if="page === 'shop'">
-                                    <p class="text-brand-600 font-black" x-text="formatCurrency(item.price)"></p>
+                                    <div class="pt-2 flex items-center justify-between">
+                                        <p class="text-lg font-black text-gray-900 dark:text-white" x-text="formatCurrency(item.price)"></p>
+                                        <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span class="w-4 h-4" x-icon="'arrow-right'"></span>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template x-if="page === 'post-list'">
+                                    <div class="flex items-center justify-between pt-2">
+                                        <p class="text-xs text-gray-400 font-medium" x-text="item.publishdate ? new Date(item.publishdate).toLocaleDateString('id-ID') : ''"></p>
+                                        <span class="text-xs font-bold text-brand-600">Baca Selengkapnya</span>
+                                    </div>
                                 </template>
                             </div>
                         </div>
@@ -171,7 +199,8 @@
                         if (metaNode) {
                             try {
                                 const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
-                                meta = JSON.parse(rawData);
+                                const cleanJson = rawData.replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+                                meta = JSON.parse(cleanJson);
                             } catch(e) {}
                         } else {
                             // Regex Fallback for truncated content
@@ -180,7 +209,7 @@
                             
                             try {
                                 if (divMatch && divMatch[1]) {
-                                    const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+                                    const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
                                     meta = JSON.parse(decoded);
                                 } else if (scriptMatch && scriptMatch[1]) {
                                     meta = JSON.parse(scriptMatch[1]);
@@ -221,13 +250,15 @@
                     return;
                 }
 
-                // 1. Cek di DOM (Server-rendered content)
+                // 1. Cek di DOM (Server-rendered content dalam wrapper baru)
                 const bloggerMain = document.getElementById('blogger-main-container');
-                const localMetaNode = bloggerMain ? bloggerMain.querySelector('.ezy-meta') : document.querySelector('.ezy-meta');
+                const targetWrapper = document.getElementById('native-post-wrapper') || document.getElementById('native-product-wrapper') || bloggerMain;
+                const localMetaNode = targetWrapper ? targetWrapper.querySelector('.ezy-meta') : document.querySelector('.ezy-meta');
                 if (localMetaNode) {
                     try {
                         const rawData = localMetaNode.getAttribute('data-meta') || localMetaNode.textContent;
-                        const data = JSON.parse(rawData);
+                        const cleanJson = rawData.replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+                        const data = JSON.parse(cleanJson);
                         if (data.slug === slug || data.id === slug) {
                             this.content = data;
                             return;
