@@ -1260,9 +1260,9 @@
                         window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'contact' }, (res) => {
                             if (res && res.status === 'success' && res.data) {
                                 this.formData = { ...res.data };
-                                if (!this.formData.payload) this.formData.payload = { 
+                                if (!this.formData.payload) this.formData.payload = {
                                     address: '', phone: '', email: '', mapsUrl: '',
-                                    instagram: '', facebook: '', marketplace: '' 
+                                    instagram: '', facebook: '', marketplace: ''
                                 };
                             }
                             this.loading = false;
@@ -1312,10 +1312,6 @@
 
                 async deployPages() {
                     this.blogId = getBlogId();
-                    if (!this.blogId) {
-                        showToast('Blog ID belum terkonfigurasi di Profile.', 'error');
-                        return;
-                    }
 
                     this.isSyncing = true;
                     window.sendDataToGoogle('deployStandardPagesToBlogger', {
