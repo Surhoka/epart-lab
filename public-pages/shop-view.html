@@ -38,13 +38,13 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <template x-for="item in filteredItems" :key="item.id || item.slug">
                 <div @click="viewDetail(item)"
-                    class="group cursor-pointer bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md">
+                    class="group cursor-pointer bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md hover:-translate-y-2 transition-all duration-300">
                     
                     <!-- Media Area -->
                     <div class="aspect-square p-4 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
                         <img :src="item.image || item.imageurl || item.imageUrl"
                             class="w-full h-full object-contain"
-                            :alt="item.name">
+                            :alt="item.title || item.name">
                         
                         <!-- Badges -->
                         <template x-if="item.badge || (Number(item.originalprice || item.originalPrice) > Number(item.price))">
@@ -70,7 +70,7 @@
                             <span class="text-[9px] font-black text-brand-600 uppercase tracking-widest bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 rounded" x-text="item.category || 'Sparepart'"></span>
                         </div>
                         <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600"
-                            x-text="item.name"></h3>
+                            x-text="item.title || item.name"></h3>
                         
                         <div class="pt-1 flex items-center justify-between">
                             <div class="flex flex-col">
@@ -172,7 +172,7 @@ function initShopPage() {
         get filteredItems() {
             if (!this.searchQuery) return this.collection;
             const q = this.searchQuery.toLowerCase();
-            return this.collection.filter(i => (i.name || '').toLowerCase().includes(q));
+            return this.collection.filter(i => (i.title || i.name || '').toLowerCase().includes(q));
         },
 
         viewDetail(item) {
