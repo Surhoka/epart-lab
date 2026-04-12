@@ -3,12 +3,14 @@
     <header class="mb-8 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90">Manajer Konten 'Tentang Kami'</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ceritakan kisah toko Anda untuk meningkatkan kepercayaan pelanggan.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ceritakan kisah toko Anda untuk meningkatkan
+                kepercayaan pelanggan.</p>
         </div>
         <div class="flex items-center gap-3">
             <template x-if="loading">
                 <span class="flex items-center gap-2 text-xs font-bold text-gray-400">
-                    <span class="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-transparent"></span>
+                    <span
+                        class="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-transparent"></span>
                     Memuat...
                 </span>
             </template>
@@ -23,30 +25,130 @@
         </div>
     </header>
 
-    <div class="space-y-6">
+    <div class="space-y-8">
+        <!-- Bagian Hero & Judul -->
         <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="mb-6 flex items-center gap-3">
                 <span class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600">
+                    <span class="block w-5 h-5" x-icon="'image'"></span>
+                </span>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Tampilan Header (Hero)</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Judul Utama</label>
+                    <input type="text" x-model="formData.title"
+                        class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                        placeholder="Contoh: Membangun Masa Depan Distribusi Otomotif">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Slogan / Deskripsi
+                        Singkat</label>
+                    <textarea x-model="formData.payload.subtitle" rows="2"
+                        class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                        placeholder="Contoh: EzyStore hadir sebagai solusi terdepan dalam penyediaan suku cadang otomotif berkualitas..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian Statistik -->
+        <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="mb-6 flex items-center gap-3">
+                <span class="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600">
+                    <span class="block w-5 h-5" x-icon="'bar-chart'"></span>
+                </span>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Statistik Perusahaan</h2>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <template x-for="(stat, index) in formData.payload.stats" :key="index">
+                    <div
+                        class="space-y-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Label Stat <span
+                                x-text="index + 1"></span></label>
+                        <input type="text" x-model="stat.label" placeholder="Tahun Pengalaman"
+                            class="w-full bg-white dark:bg-gray-900 border-none rounded-lg text-xs p-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nilai</label>
+                        <input type="text" x-model="stat.value" placeholder="15+"
+                            class="w-full bg-white dark:bg-gray-900 border-none rounded-lg text-sm font-bold p-2 text-brand-600">
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Bagian Visi & Misi -->
+        <div class="rounded-lg border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="mb-6 flex items-center gap-3">
+                <span class="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600">
                     <span class="block w-5 h-5" x-icon="'book-open'"></span>
                 </span>
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Profil & Kisah Toko</h2>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Visi & Konten Cerita</h2>
             </div>
 
             <div class="space-y-6">
                 <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Judul Halaman</label>
-                    <input type="text" x-model="formData.title"
-                        class="h-11 w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-800 dark:text-white"
-                        placeholder="Contoh: Tentang EzyParts Store">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Paragraf Visi
+                        (Tampil di samping foto gudang)</label>
+                    <textarea x-model="formData.payload.content" rows="6"
+                        class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-sm leading-relaxed dark:border-gray-800 dark:bg-gray-800 dark:text-white"
+                        placeholder="Tuliskan detail visi misi atau perkenalan toko Anda..."></textarea>
                 </div>
 
+                <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <h3 class="mb-4 text-sm font-bold uppercase tracking-widest text-gray-400">Nilai-Nilai Perusahaan (3
+                        Item)</h3>
+                    <div class="space-y-4">
+                        <template x-for="(val, index) in formData.payload.values" :key="index">
+                            <div
+                                class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <div class="md:col-span-2">
+                                    <label class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Ikon
+                                        Lucide</label>
+                                    <input type="text" x-model="val.icon" placeholder="award, zap, etc"
+                                        class="w-full rounded-lg border-gray-200 bg-white dark:bg-gray-900 text-xs p-2">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label
+                                        class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Judul</label>
+                                    <input type="text" x-model="val.title"
+                                        class="w-full rounded-lg border-gray-200 bg-white dark:bg-gray-900 text-sm p-2">
+                                </div>
+                                <div class="md:col-span-7">
+                                    <label
+                                        class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Deskripsi</label>
+                                    <input type="text" x-model="val.desc"
+                                        class="w-full rounded-lg border-gray-200 bg-white dark:bg-gray-900 text-sm p-2">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian CTA Bawah -->
+        <div class="rounded-lg border border-gray-100 bg-brand-600 p-8 shadow-lg">
+            <h2 class="mb-6 text-lg font-bold text-white flex items-center gap-3">
+                <span class="block w-5 h-5" x-icon="'zap'"></span>
+                Banner Ajakan Bertindak (CTA)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Konten Utama (HTML didukung)</label>
-                    <textarea x-model="formData.payload.content" rows="15"
-                        class="w-full rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-sm leading-relaxed dark:border-gray-800 dark:bg-gray-800 dark:text-white"
-                        placeholder="Tuliskan kisah perjalanan toko, visi, misi, dan kelebihan layanan Anda..."></textarea>
+                    <label class="mb-1.5 block text-[10px] font-bold uppercase text-brand-200">Judul Banner</label>
+                    <input type="text" x-model="formData.payload.cta_title"
+                        class="w-full rounded-lg border-brand-500 bg-brand-700 text-white text-sm px-4 py-2.5 placeholder:text-brand-400"
+                        placeholder="Mulai Perjalanan Anda...">
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-[10px] font-bold uppercase text-brand-200">Sub-judul Banner</label>
+                    <input type="text" x-model="formData.payload.cta_desc"
+                        class="w-full rounded-lg border-brand-500 bg-brand-700 text-white text-sm px-4 py-2.5 placeholder:text-brand-400"
+                        placeholder="Temukan jutaan suku cadang...">
                 </div>
             </div>
         </div>
     </div>
+</div>
+</div>
 </div>
