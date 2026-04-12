@@ -275,6 +275,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'savePurchaseOrder', 'deletePurchaseOrder', 'processReceiving', 'sendPOToSupplier', 'getMasterParts', 'saveMasterPart', // Purchase Order Actions
         'send_personal_message', 'receive_personal_message', 'mark_as_read', // Personal Messaging Actions
         'saveLandingProduct', 'deleteLandingProduct', // Landing Page Actions
+        'saveAboutPage', 'saveContactPage', 'saveStaticPage', // Static Page Actions
         'get_post_by_slug' // Post read via POST for reliable dbId passing
     ];
 
