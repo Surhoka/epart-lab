@@ -111,31 +111,46 @@
 
                     let items = [];
                     if (data.feed && data.feed.entry) {
+                        const parser = new DOMParser();
                         data.feed.entry.forEach(entry => {
                             const html = entry.content ? entry.content.$t : '';
-                            const metaMatch = html.match(/data-meta=["'](.*?)["']/);
-                            if (metaMatch && metaMatch[1]) {
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const metaNode = doc.querySelector('.ezy-meta');
+                            let meta = null;
+
+                            if (metaNode) {
                                 try {
-                                    // Unescape JSON string agar aman saat diparsing
-                                    const cleanJson = metaMatch[1]
-                                        .replace(/&apos;/g, "'")
-                                        .replace(/&quot;/g, '"')
-                                        .replace(/&amp;/g, "&");
-                                    const meta = JSON.parse(cleanJson);
+                                    const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
+                                    meta = JSON.parse(rawData);
+                                } catch(e) {}
+                            } else {
+                                // Regex Fallback for truncated content
+                                const divMatch = html.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=(['"])([\s\S]*?)\1/);
+                                const scriptMatch = html.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
 
-                                    // Pemulihan ID/Slug jika metadata tidak lengkap
-                                    if (!meta.id) meta.id = entry.id.$t.split('post-').pop();
-                                    if (!meta.slug) {
-                                        const altLink = entry.link.find(l => l.rel === 'alternate');
-                                        if (altLink) meta.slug = altLink.href.split('/').pop().replace('.html', '');
+                                try {
+                                    if (divMatch && divMatch[2]) {
+                                        const decoded = divMatch[2].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+                                        meta = JSON.parse(decoded);
+                                    } else if (scriptMatch && scriptMatch[1]) {
+                                        meta = JSON.parse(scriptMatch[1]);
                                     }
+                                } catch(e) {}
+                            }
 
-                                    // Map link
+                            if (meta) {
+                                // Pemulihan ID/Slug jika metadata tidak lengkap
+                                if (!meta.id) meta.id = entry.id.$t.split('post-').pop();
+                                if (!meta.slug) {
                                     const altLink = entry.link.find(l => l.rel === 'alternate');
-                                    if (altLink) meta.path = new URL(altLink.href).pathname;
+                                    if (altLink) meta.slug = altLink.href.split('/').pop().replace('.html', '');
+                                }
 
-                                    items.push(meta);
-                                } catch (e) { }
+                                // Map link
+                                const altLink = entry.link.find(l => l.rel === 'alternate');
+                                if (altLink) meta.path = new URL(altLink.href).pathname;
+
+                                items.push(meta);
                             }
                         });
                     }
