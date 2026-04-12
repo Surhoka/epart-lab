@@ -1199,13 +1199,12 @@
                 async fetchData() {
                     this.loading = true;
                     return new Promise((resolve) => {
-                        window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'about' }, (res) => {
+                        window.sendDataToGoogle('getAboutPage', { dbId: this.dbId }, (res) => {
                             if (res && res.status === 'success' && res.data) {
                                 this.formData = { ...res.data };
-                                if (!this.formData.payload) this.formData.payload = {};
 
                                 // Pastikan payload adalah objek
-                                if (typeof this.formData.payload === 'string') {
+                                if (this.formData.payload && typeof this.formData.payload === 'string') {
                                     try { this.formData.payload = JSON.parse(this.formData.payload); } catch (e) { this.formData.payload = {}; }
                                 }
 
@@ -1226,7 +1225,7 @@
 
                 async savePage() {
                     this.submitting = true;
-                    window.sendDataToGoogle('saveStaticPage', {
+                    window.sendDataToGoogle('saveAboutPage', {
                         dbId: this.dbId,
                         blogId: getBlogId(),
                         ...this.formData
@@ -1345,13 +1344,24 @@
                 async fetchData() {
                     this.loading = true;
                     return new Promise((resolve) => {
-                        window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'contact' }, (res) => {
+                        window.sendDataToGoogle('getContactPage', { dbId: this.dbId }, (res) => {
                             if (res && res.status === 'success' && res.data) {
                                 this.formData = { ...res.data };
-                                if (!this.formData.payload) this.formData.payload = {
-                                    address: '', phone: '', email: '', mapsUrl: '',
-                                    instagram: '', facebook: '', marketplace: ''
-                                };
+
+                                // Pastikan payload adalah objek (parsing jika string)
+                                if (this.formData.payload && typeof this.formData.payload === 'string') {
+                                    try { this.formData.payload = JSON.parse(this.formData.payload); } catch (e) { this.formData.payload = {}; }
+                                }
+
+                                if (!this.formData.payload) this.formData.payload = {};
+                                // Inisialisasi default agar tidak undefined saat binding di UI
+                                this.formData.payload.address = this.formData.payload.address || '';
+                                this.formData.payload.phone = this.formData.payload.phone || '';
+                                this.formData.payload.email = this.formData.payload.email || '';
+                                this.formData.payload.mapsUrl = this.formData.payload.mapsUrl || '';
+                                this.formData.payload.instagram = this.formData.payload.instagram || '';
+                                this.formData.payload.facebook = this.formData.payload.facebook || '';
+                                this.formData.payload.marketplace = this.formData.payload.marketplace || '';
                             }
                             this.loading = false;
                             resolve();
@@ -1364,7 +1374,7 @@
 
                 async savePage() {
                     this.submitting = true;
-                    window.sendDataToGoogle('saveStaticPage', {
+                    window.sendDataToGoogle('saveContactPage', {
                         dbId: this.dbId,
                         blogId: getBlogId(),
                         ...this.formData
