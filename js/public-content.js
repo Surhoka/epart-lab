@@ -1181,7 +1181,16 @@
                     id: 'about',
                     title: 'about',
                     slug: 'about',
-                    payload: { content: '' }
+                    payload: {
+                        content: '',
+                        hero_image: '',
+                        vision_image: '',
+                        subtitle: '',
+                        stats: [],
+                        values: [],
+                        cta_title: '',
+                        cta_desc: ''
+                    }
                 },
                 loading: false,
                 submitting: false,
@@ -1193,6 +1202,9 @@
 
                 async init() {
                     this.dbId = getDbId();
+                    if (!this.dbId) {
+                        console.error('Database ID (sheetId) not found in EzypartsConfig.');
+                    }
                     await this.fetchData();
                 },
 
@@ -1205,7 +1217,7 @@
 
                                 // Pastikan payload adalah objek
                                 if (this.formData.payload && typeof this.formData.payload === 'string') {
-                                    try { this.formData.payload = JSON.parse(this.formData.payload); } catch (e) { this.formData.payload = {}; }
+                                    try { this.formData.payload = JSON.parse(this.formData.payload); } catch (e) { this.formData.payload = { content: '' }; }
                                 }
 
                                 // Inisialisasi struktur dinamis (kosong jika tidak ada data)
@@ -1216,7 +1228,8 @@
                             }
                             this.loading = false;
                             resolve();
-                        }, () => {
+                        }, (err) => {
+                            console.error('Fetch about data error:', err);
                             this.loading = false;
                             resolve();
                         });
@@ -1225,20 +1238,27 @@
 
                 async savePage() {
                     this.submitting = true;
-                    window.sendDataToGoogle('saveAboutPage', {
-                        dbId: this.dbId,
-                        blogId: getBlogId(),
-                        ...this.formData
-                    }, (res) => {
-                        this.submitting = false;
-                        if (res.status === 'success') {
-                            showToast('Laman Tentang Kami berhasil disimpan');
-                        } else {
-                            showToast('Gagal menyimpan: ' + res.message, 'error');
-                        }
-                    }, () => {
-                        this.submitting = false;
-                        showToast('Error saat menyimpan laman', 'error');
+                    return new Promise((resolve) => {
+                        const payload = {
+                            dbId: this.dbId,
+                            blogId: getBlogId(),
+                            ...this.formData
+                        };
+                        window.sendDataToGoogle('saveAboutPage', payload, (res) => {
+                            if (res && res.status === 'success') {
+                                showToast('Laman Tentang Kami berhasil disimpan', 'success');
+                            } else {
+                                const msg = res ? res.message : 'Unknown error';
+                                showToast('Gagal menyimpan: ' + msg, 'error');
+                            }
+                            this.submitting = false;
+                            resolve();
+                        }, (err) => {
+                            console.error('Save about page error:', err);
+                            showToast('Terjadi kesalahan saat menyimpan.', 'error');
+                            this.submitting = false;
+                            resolve();
+                        });
                     });
                 },
 
@@ -1271,6 +1291,17 @@
                     const file = event.target.files[0];
                     if (!file) return;
 
+                    if (!file.type.startsWith('image/')) {
+                        showToast('File harus berupa gambar', 'warning');
+                        return;
+                    }
+
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        showToast('Ukuran file maksimal 5MB', 'warning');
+                        return;
+                    }
+
                     const isHero = this.uploadType === 'hero_image';
                     if (isHero) this.isUploadingHero = true;
                     else this.isUploadingVision = true;
@@ -1288,17 +1319,28 @@
 
                             if (res?.status === 'success') {
                                 this.formData.payload[this.uploadType] = res.url;
-                                showToast('Gambar berhasil diunggah');
+                                showToast('Gambar berhasil diupload', 'success');
                             } else {
                                 showToast('Gagal upload: ' + (res?.message || ''), 'error');
                             }
+                        }, (err) => {
+                            if (isHero) this.isUploadingHero = false;
+                            else this.isUploadingVision = false;
+                            console.error('Upload error:', err);
+                            showToast('Terjadi kesalahan saat upload gambar', 'error');
                         });
+                    };
+                    reader.onerror = () => {
+                        if (isHero) this.isUploadingHero = false;
+                        else this.isUploadingVision = false;
+                        showToast('Gagal membaca file', 'error');
                     };
                     reader.readAsDataURL(file);
                     event.target.value = '';
                 },
 
                 addStat() {
+                    if (!this.formData.payload.stats) this.formData.payload.stats = [];
                     this.formData.payload.stats.push({ label: '', value: '' });
                 },
 
@@ -1307,6 +1349,7 @@
                 },
 
                 addValue() {
+                    if (!this.formData.payload.values) this.formData.payload.values = [];
                     this.formData.payload.values.push({ title: '', desc: '', icon: 'zap' });
                 },
 
