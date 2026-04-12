@@ -1248,9 +1248,10 @@
                     showToast('Menyinkronkan laman ke Blogger...', 'info');
                     try {
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('deployStandardPagesToBlogger', {
+                            window.sendDataToGoogle('syncStaticPage', {
                                 dbId: this.dbId,
-                                blogId: getBlogId()
+                                blogId: getBlogId(),
+                                slug: 'about'
                             }, resolve, reject);
                         });
                         if (res.status === 'success') showToast(res.message);
