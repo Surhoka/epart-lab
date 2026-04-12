@@ -1,6 +1,12 @@
 <!-- Contact Page -->
 <div x-data="initContactPage()" class="fade-in">
-    <div>
+    <!-- LOADING STATE -->
+    <div x-show="isLoading" class="flex flex-col items-center justify-center py-32 space-y-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+        <p class="text-sm font-medium text-gray-500 animate-pulse">Menghubungkan layanan...</p>
+    </div>
+
+    <div x-show="!isLoading" x-cloak>
 
         <!-- Header Section -->
         <div class="text-center mb-16">
@@ -22,7 +28,7 @@
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Our Office</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed"
-                    x-text="publicAddress || 'Loading address...'"></p>
+                    x-text="content.payload?.address || publicAddress || 'Loading address...'"></p>
             </div>
 
             <!-- Phone Card -->
@@ -34,7 +40,8 @@
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Phone Number</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm mb-1">Mon-Fri from 8am to 5pm</p>
-                <p class="text-blue-600 dark:text-blue-400 font-semibold" x-text="publicPhone || 'Loading phone...'">
+                <p class="text-blue-600 dark:text-blue-400 font-semibold"
+                    x-text="content.payload?.phone || publicPhone || 'Loading phone...'">
                 </p>
             </div>
 
@@ -48,7 +55,7 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Email Address</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm mb-1">Our friendly team is here to help.</p>
                 <p class="text-blue-600 dark:text-blue-400 font-semibold"
-                    x-text="publicEmail || 'contact@ezyparts.com'"></p>
+                    x-text="content.payload?.email || publicEmail || 'contact@ezyparts.com'"></p>
             </div>
 
             <!-- Hours Card -->
@@ -144,12 +151,13 @@
                         </div>
                         <span class="font-bold text-gray-900 dark:text-white">Our Location</span>
                     </div>
-                    <p class="text-xs text-gray-600 dark:text-gray-400 font-medium" x-text="publicAddress"></p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 font-medium"
+                        x-text="content.payload?.address || publicAddress"></p>
                 </div>
 
                 <!-- Map Iframe -->
                 <iframe class="w-full h-full"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126906.516565158!2d106.7891557!3d-6.2297465!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e430ae1e9b%3A0x62955519ec55d487!2sJakarta%20Pusat%2C%20Kota%20Jakarta%20Pusat%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+                    :src="content.payload?.mapsUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126906.516565158!2d106.7891557!3d-6.2297465!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e430ae1e9b%3A0x62955519ec55d487!2sJakarta%20Pusat%2C%20Kota%20Jakarta%20Pusat%2C%20Daerah%20Khusus%20Ibukota%20Jakarta!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid'"
                     style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
@@ -158,20 +166,45 @@
 </div>
 
 <script>
-function initContactPage() {
-    return {
-        init() {
-            console.log('Contact page initialized');
-            this.updateBreadcrumb();
-        },
-        updateBreadcrumb() {
-            if (window.renderBreadcrumb) {
-                window.renderBreadcrumb([
-                    { label: 'Home', link: '/' },
-                    { label: 'Contact' }
-                ]);
+    function initContactPage() {
+        return {
+            isLoading: true,
+            content: { payload: {} },
+            async init() {
+                try {
+                    const slug = 'contact';
+                    // 1. Cek Data Hand-off (CDN Blogger)
+                    if (window._lastResolvedMeta && window._lastResolvedMeta.slug === slug) {
+                        console.log('🚀 [Contact] Using native Edge CDN data');
+                        this.content = window._lastResolvedMeta;
+                        window._lastResolvedMeta = null;
+                    } else {
+                        // 2. Fetch via AdminAPI (Fallback)
+                        const res = await window.AdminAPI.get('getStaticPage', { slug: slug });
+                        if (res.status === 'success') {
+                            this.content = res.data;
+                        }
+                    }
+
+                    if (typeof this.content.payload === 'string') {
+                        try { this.content.payload = JSON.parse(this.content.payload); } catch (e) { }
+                    }
+
+                    this.updateBreadcrumb();
+                } catch (e) {
+                    console.error('Contact page load error:', e);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            updateBreadcrumb() {
+                if (window.renderBreadcrumb) {
+                    window.renderBreadcrumb([
+                        { label: 'Home', link: '/' },
+                        { label: 'Contact' }
+                    ]);
+                }
             }
-        }
-    };
-}
+        };
+    }
 </script>
