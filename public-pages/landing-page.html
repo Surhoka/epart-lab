@@ -328,12 +328,31 @@
                 this.updateBreadcrumb();
             },
 
+            normalizeProductData(p) {
+                if (!p) return null;
+                const getBoolDefaultTrue = (v1, v2) => {
+                    if (v1 !== undefined) return v1 !== false && String(v1).toLowerCase() !== 'false';
+                    if (v2 !== undefined) return v2 !== false && String(v2).toLowerCase() !== 'false';
+                    return true;
+                };
+                
+                return {
+                    ...p,
+                    imageUrl: p.imageUrl || p.imageurl || p.imageURL || '',
+                    originalPrice: Number(p.originalPrice || p.originalprice || 0),
+                    price: Number(p.price || 0),
+                    marqueeText: p.marqueeText || p.marqueetext || '',
+                    marqueeActive: getBoolDefaultTrue(p.marqueeActive, p.marqueeactive),
+                    sortOrder: Number(p.sortOrder || p.sortorder || 0)
+                };
+            },
+
             async fetchLandingData() {
                 this.loading = true;
                 try {
                     // Lapis 1: Memory Hand-off (Instant SPA Navigation)
                     if (window._lastResolvedMeta && window._lastResolvedMeta._type === 'landing-page') {
-                        this.selectedProduct = window._lastResolvedMeta;
+                        this.selectedProduct = this.normalizeProductData(window._lastResolvedMeta);
                         this.loading = false;
                         return;
                     }
@@ -356,7 +375,7 @@
                                     const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
                                     const meta = JSON.parse(rawData);
                                     if (meta && meta._type === 'landing-page') {
-                                        this.selectedProduct = meta;
+                                        this.selectedProduct = this.normalizeProductData(meta);
                                         window._lastResolvedMeta = meta; // Cache to SPA Router
                                         this.loading = false;
                                         return;
@@ -373,7 +392,7 @@
                     
                     if (res && res.status === 'success') {
                         const products = res.data || [];
-                        this.selectedProduct = products.length > 0 ? products[0] : null;
+                        this.selectedProduct = products.length > 0 ? this.normalizeProductData(products[0]) : null;
                     } else {
                         console.error('Failed to fetch sales data:', res?.message);
                     }
