@@ -1186,6 +1186,10 @@
                 loading: false,
                 submitting: false,
                 dbId: null,
+                isUploadingHero: false,
+                isUploadingVision: false,
+                isSyncing: false,
+                uploadType: '',
 
                 async init() {
                     this.dbId = getDbId();
@@ -1198,7 +1202,18 @@
                         window.sendDataToGoogle('getStaticPage', { dbId: this.dbId, slug: 'about' }, (res) => {
                             if (res && res.status === 'success' && res.data) {
                                 this.formData = { ...res.data };
-                                if (!this.formData.payload) this.formData.payload = { content: '' };
+                                if (!this.formData.payload) this.formData.payload = {};
+
+                                // Pastikan payload adalah objek
+                                if (typeof this.formData.payload === 'string') {
+                                    try { this.formData.payload = JSON.parse(this.formData.payload); } catch (e) { this.formData.payload = {}; }
+                                }
+
+                                // Inisialisasi struktur dinamis (kosong jika tidak ada data)
+                                if (!this.formData.payload.hero_image) this.formData.payload.hero_image = '';
+                                if (!this.formData.payload.vision_image) this.formData.payload.vision_image = '';
+                                if (!this.formData.payload.stats) this.formData.payload.stats = [];
+                                if (!this.formData.payload.values) this.formData.payload.values = [];
                             }
                             this.loading = false;
                             resolve();
@@ -1213,6 +1228,7 @@
                     this.submitting = true;
                     window.sendDataToGoogle('saveStaticPage', {
                         dbId: this.dbId,
+                        blogId: getBlogId(),
                         ...this.formData
                     }, (res) => {
                         this.submitting = false;
@@ -1225,6 +1241,77 @@
                         this.submitting = false;
                         showToast('Error saat menyimpan laman', 'error');
                     });
+                },
+
+                async syncToBlogger() {
+                    this.isSyncing = true;
+                    showToast('Menyinkronkan laman ke Blogger...', 'info');
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('deployStandardPagesToBlogger', {
+                                dbId: this.dbId,
+                                blogId: getBlogId()
+                            }, resolve, reject);
+                        });
+                        if (res.status === 'success') showToast(res.message);
+                        else showToast(res.message, 'error');
+                    } catch (e) {
+                        showToast('Gagal sinkron: ' + e, 'error');
+                    } finally {
+                        this.isSyncing = false;
+                    }
+                },
+
+                triggerImageUpload(type) {
+                    this.uploadType = type;
+                    this.$refs.imageInput.click();
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const isHero = this.uploadType === 'hero_image';
+                    if (isHero) this.isUploadingHero = true;
+                    else this.isUploadingVision = true;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `about-${this.uploadType}-${Date.now()}-${file.name}`,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId
+                        }, (res) => {
+                            if (isHero) this.isUploadingHero = false;
+                            else this.isUploadingVision = false;
+
+                            if (res?.status === 'success') {
+                                this.formData.payload[this.uploadType] = res.url;
+                                showToast('Gambar berhasil diunggah');
+                            } else {
+                                showToast('Gagal upload: ' + (res?.message || ''), 'error');
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                },
+
+                addStat() {
+                    this.formData.payload.stats.push({ label: '', value: '' });
+                },
+
+                removeStat(index) {
+                    this.formData.payload.stats.splice(index, 1);
+                },
+
+                addValue() {
+                    this.formData.payload.values.push({ title: '', desc: '', icon: 'zap' });
+                },
+
+                removeValue(index) {
+                    this.formData.payload.values.splice(index, 1);
                 }
             }));
         }
@@ -1278,6 +1365,7 @@
                     this.submitting = true;
                     window.sendDataToGoogle('saveStaticPage', {
                         dbId: this.dbId,
+                        blogId: getBlogId(),
                         ...this.formData
                     }, (res) => {
                         this.submitting = false;
