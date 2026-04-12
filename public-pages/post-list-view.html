@@ -190,11 +190,7 @@
             },
 
             viewDetail(item) {
-                if (item.path) {
-                    window.location.pathname = item.path;
-                } else {
-                    window.navigate('post', { slug: item.slug || item.id });
-                }
+                window.navigate('post', { slug: item.slug || item.id, path: item.path });
             },
 
             getSnippet(html) {

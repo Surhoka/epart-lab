@@ -169,11 +169,7 @@ function initShopPage() {
         },
 
         viewDetail(item) {
-            if (item.path) {
-                window.location.pathname = item.path;
-            } else {
-                window.navigate('product', { slug: item.slug || item.id });
-            }
+            window.navigate('product', { slug: item.slug || item.id, path: item.path });
         },
 
         getDiscountPercentage(price, original) {
