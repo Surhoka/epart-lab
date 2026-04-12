@@ -1,14 +1,17 @@
 <div x-data="initPostListPage()" x-init="init()" class="max-w-7xl mx-auto px-4 lg:px-6 py-8 animate-fade-in space-y-12">
 
     <!-- Header & Search -->
-    <div class="flex flex-col md:flex-row justify-between items-end gap-6 bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-theme-xs border border-gray-100 dark:border-gray-700">
+    <div
+        class="flex flex-col md:flex-row justify-between items-end gap-6 bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-theme-xs border border-gray-100 dark:border-gray-700">
         <div class="space-y-2">
             <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Update Otomotif</h1>
-            <p class="text-gray-500 font-medium">Tips perawatan, wawasan industri, dan berita terbaru seputar otomotif.</p>
+            <p class="text-gray-500 font-medium">Tips perawatan, wawasan industri, dan berita terbaru seputar otomotif.
+            </p>
         </div>
         <div class="flex gap-4 w-full md:w-auto">
             <div class="relative w-full md:w-82 group">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
+                <span
+                    class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors">
                     <span class="w-5 h-5" x-icon="'search'"></span>
                 </span>
                 <input type="text" x-model="searchQuery" placeholder="Cari artikel atau tips..."
@@ -27,7 +30,8 @@
     </template>
 
     <template x-if="!isLoading && error">
-        <div class="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div
+            class="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <p class="text-gray-500 font-medium">Gagal memuat berita. Silakan coba sesaat lagi.</p>
             <button @click="init()" class="mt-4 text-brand-600 font-bold hover:underline">Sinyal Ulang</button>
         </div>
@@ -39,35 +43,44 @@
             <template x-for="item in filteredItems" :key="item.id || item.slug">
                 <article @click="viewDetail(item)"
                     class="group cursor-pointer bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
-                    
+
                     <!-- Thumbnail Area -->
                     <div class="aspect-video relative overflow-hidden">
                         <img :src="item.image || item.imageurl || item.imageUrl"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             :alt="item.title">
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+
                         <!-- Category Badge -->
                         <div class="absolute top-6 left-6">
-                            <span class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-[10px] font-black text-brand-600 px-3 py-1.5 rounded-full shadow-lg uppercase tracking-widest" x-text="item.category || 'Berita'"></span>
+                            <span
+                                class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-[10px] font-black text-brand-600 px-3 py-1.5 rounded-full shadow-lg uppercase tracking-widest"
+                                x-text="item.category || 'Berita'"></span>
                         </div>
                     </div>
 
                     <!-- Content Area -->
                     <div class="p-8 space-y-4">
                         <div class="flex items-center gap-3 text-gray-400 text-xs font-bold">
-                            <span x-text="item.publishdate ? new Date(item.publishdate).toLocaleDateString('id-ID') : 'Baru'"></span>
+                            <span
+                                x-text="item.publishdate ? new Date(item.publishdate).toLocaleDateString('id-ID') : 'Baru'"></span>
                             <span class="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700"></span>
                             <span>EzyStore</span>
                         </div>
                         <h3 class="text-xl md:text-2xl font-black text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 transition-colors"
                             x-text="item.title"></h3>
-                        
-                        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed" x-text="getSnippet(item.description)"></p>
-                        
-                        <div class="pt-4 flex items-center justify-between border-t border-gray-50 dark:border-gray-700/50">
-                            <span class="text-xs font-black text-brand-600 uppercase tracking-widest">Baca Selengkapnya</span>
-                            <div class="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 flex items-center justify-center -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+
+                        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed"
+                            x-text="getSnippet(item.description)"></p>
+
+                        <div
+                            class="pt-4 flex items-center justify-between border-t border-gray-50 dark:border-gray-700/50">
+                            <span class="text-xs font-black text-brand-600 uppercase tracking-widest">Baca
+                                Selengkapnya</span>
+                            <div
+                                class="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 flex items-center justify-center -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
                                 <span class="w-5 h-5" x-icon="'arrow-right'"></span>
                             </div>
                         </div>
@@ -79,7 +92,8 @@
         <!-- Empty State -->
         <template x-if="filteredItems.length === 0">
             <div class="text-center py-32 space-y-4">
-                <div class="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                <div
+                    class="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto text-gray-300">
                     <span class="w-10 h-10" x-icon="'book-open'"></span>
                 </div>
                 <p class="text-gray-500 font-medium">Tidak ada artikel yang sesuai dengan kata pencarian Anda.</p>
@@ -91,87 +105,110 @@
 </div>
 
 <script>
-function initPostListPage() {
-    return {
-        isLoading: true,
-        error: false,
-        collection: [],
-        searchQuery: '',
+    function initPostListPage() {
+        return {
+            isLoading: true,
+            error: false,
+            collection: [],
+            searchQuery: '',
 
-        async init() {
-            this.isLoading = true;
-            try {
-                // 1. Fetch from Blogger Article Feed
-                const res = await fetch('/feeds/posts/default/-/Article?alt=json&max-results=150');
-                if (!res.ok) throw new Error('Feed error');
-                const data = await res.json();
+            async init() {
+                this.isLoading = true;
+                try {
+                    // 1. Fetch from Blogger Article Feed
+                    const res = await fetch('/feeds/posts/default/-/Article?alt=json&max-results=150');
+                    if (!res.ok) throw new Error('Feed error');
+                    const data = await res.json();
 
-                let items = [];
-                if (data.feed && data.feed.entry) {
-                    data.feed.entry.forEach(entry => {
-                        const html = entry.content ? entry.content.$t : '';
-                        const metaMatch = html.match(/data-meta=["'](.*?)["']/);
-                        if (metaMatch && metaMatch[1]) {
-                            try {
-                                const cleanJson = metaMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-                                const meta = JSON.parse(cleanJson);
-                                
-                                // Map link
-                                const altLink = entry.link.find(l => l.rel === 'alternate');
-                                if (altLink) meta.path = new URL(altLink.href).pathname;
-                                
-                                items.push(meta);
-                            } catch(e) {}
+                    let items = [];
+                    if (data.feed && data.feed.entry) {
+                        data.feed.entry.forEach(entry => {
+                            const html = entry.content ? entry.content.$t : '';
+                            const metaMatch = html.match(/data-meta=["'](.*?)["']/);
+                            if (metaMatch && metaMatch[1]) {
+                                try {
+                                    // Unescape JSON string agar aman saat diparsing
+                                    const cleanJson = metaMatch[1]
+                                        .replace(/&apos;/g, "'")
+                                        .replace(/&quot;/g, '"')
+                                        .replace(/&amp;/g, "&");
+                                    const meta = JSON.parse(cleanJson);
+
+                                    // Pemulihan ID/Slug jika metadata tidak lengkap
+                                    if (!meta.id) meta.id = entry.id.$t.split('post-').pop();
+                                    if (!meta.slug) {
+                                        const altLink = entry.link.find(l => l.rel === 'alternate');
+                                        if (altLink) meta.slug = altLink.href.split('/').pop().replace('.html', '');
+                                    }
+
+                                    // Map link
+                                    const altLink = entry.link.find(l => l.rel === 'alternate');
+                                    if (altLink) meta.path = new URL(altLink.href).pathname;
+
+                                    items.push(meta);
+                                } catch (e) { }
+                            }
+                        });
+                    }
+
+                    // 2. Fallback to AdminAPI if needed
+                    if (items.length === 0) {
+                        const apiRes = await window.AdminAPI.getPosts();
+                        if (apiRes.status === 'success') items = apiRes.data || [];
+                    }
+
+                    // Deduplikasi data berdasarkan ID untuk mencegah Alpine Key collision
+                    const uniqueItems = [];
+                    const seen = new Set();
+                    items.forEach(item => {
+                        const key = item.id || item.slug || Math.random().toString(36);
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            uniqueItems.push(item);
                         }
                     });
+
+                    this.collection = uniqueItems;
+                    this.updateBreadcrumb();
+                } catch (e) {
+                    console.error('PostList load failure:', e);
+                    this.error = true;
+                } finally {
+                    this.isLoading = false;
                 }
-                
-                // 2. Fallback to AdminAPI if needed
-                if (items.length === 0) {
-                    const apiRes = await window.AdminAPI.getPosts();
-                    if (apiRes.status === 'success') items = apiRes.data || [];
+            },
+
+            get filteredItems() {
+                if (!Array.isArray(this.collection)) return [];
+                if (!this.searchQuery) return this.collection;
+                const q = this.searchQuery.toLowerCase();
+                return this.collection.filter(i => (i && i.title || '').toLowerCase().includes(q));
+            },
+
+            viewDetail(item) {
+                if (item.path) {
+                    window.location.pathname = item.path;
+                } else {
+                    window.navigate('post', { slug: item.slug || item.id });
                 }
+            },
 
-                this.collection = items;
-                this.updateBreadcrumb();
-            } catch (e) {
-                console.error('PostList load failure:', e);
-                this.error = true;
-            } finally {
-                this.isLoading = false;
-            }
-        },
+            getSnippet(html) {
+                if (!html) return '';
+                const tmp = document.createElement('div');
+                tmp.innerHTML = html.replace(/<[^>]*>?/gm, ' ');
+                const text = tmp.textContent || tmp.innerText || '';
+                return text.length > 120 ? text.substring(0, 120) + '...' : text;
+            },
 
-        get filteredItems() {
-            if (!this.searchQuery) return this.collection;
-            const q = this.searchQuery.toLowerCase();
-            return this.collection.filter(i => (i.title || '').toLowerCase().includes(q));
-        },
-
-        viewDetail(item) {
-            if (item.path) {
-                window.location.pathname = item.path;
-            } else {
-                window.navigate('post', { slug: item.slug || item.id });
-            }
-        },
-
-        getSnippet(html) {
-            if (!html) return '';
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html.replace(/<[^>]*>?/gm, ' ');
-            const text = tmp.textContent || tmp.innerText || '';
-            return text.length > 120 ? text.substring(0, 120) + '...' : text;
-        },
-
-        updateBreadcrumb() {
-            if (window.renderBreadcrumb) {
-                window.renderBreadcrumb([
-                    { label: 'Home', link: '/' },
-                    { label: 'News' }
-                ]);
+            updateBreadcrumb() {
+                if (window.renderBreadcrumb) {
+                    window.renderBreadcrumb([
+                        { label: 'Home', link: '/' },
+                        { label: 'News' }
+                    ]);
+                }
             }
         }
     }
-}
 </script>
