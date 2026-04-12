@@ -1213,18 +1213,18 @@
                     return new Promise((resolve) => {
                         window.sendDataToGoogle('getAboutPage', { dbId: this.dbId }, (res) => {
                             if (res && res.status === 'success' && res.data) {
-                                this.formData = { ...res.data };
+                                // [FIX] Gunakan struktur payload yang konsisten
+                                const raw = res.data;
+                                const payload = typeof raw.payload === 'object' ? raw.payload : {};
 
-                                // Pastikan payload adalah objek
-                                if (this.formData.payload && typeof this.formData.payload === 'string') {
-                                    try { this.formData.payload = JSON.parse(this.formData.payload); } catch (e) { this.formData.payload = { content: '' }; }
-                                }
-
-                                // Inisialisasi struktur dinamis (kosong jika tidak ada data)
-                                if (!this.formData.payload.hero_image) this.formData.payload.hero_image = '';
-                                if (!this.formData.payload.vision_image) this.formData.payload.vision_image = '';
-                                if (!this.formData.payload.stats) this.formData.payload.stats = [];
-                                if (!this.formData.payload.values) this.formData.payload.values = [];
+                                this.formData.id = raw.id || 'about';
+                                this.formData.title = raw.title || 'About Us';
+                                this.formData.payload = {
+                                    ...this.formData.payload,
+                                    ...payload,
+                                    hero_image: payload.hero_image || raw.hero_image || '',
+                                    vision_image: payload.vision_image || raw.vision_image || ''
+                                };
                             }
                             this.loading = false;
                             resolve();
