@@ -10,17 +10,17 @@
         <section
             class="relative h-[400px] lg:h-[500px] flex items-center justify-center overflow-hidden rounded-3xl mb-12">
             <div class="absolute inset-0">
-                <img :src="content.payload?.hero_image || 'https://dummyimage.com/1200x600/f3f4f6/9ca3af&text=Tentang+Kami'"
+                <img :src="content.hero_image || 'https://dummyimage.com/1200x600/f3f4f6/9ca3af&text=Tentang+Kami'"
                     alt="About EzyStore" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/60 to-transparent"></div>
             </div>
 
             <div class="relative z-10 max-w-4xl px-6 text-left w-full ml-0 md:ml-12">
                 <h1 class="text-4xl lg:text-6xl font-extrabold text-white mb-6 leading-tight"
-                    x-text="content.title || 'Tentang Kami'">
+                    x-text="content.title || 'About'">
                 </h1>
                 <p class="text-lg lg:text-xl text-gray-200 max-w-2xl mb-8 leading-relaxed"
-                    x-text="content.payload?.subtitle || 'Solusi terdepan penyediaan suku cadang otomotif berkualitas.'">
+                    x-text="content.subtitle || 'Solusi terdepan penyediaan suku cadang otomotif berkualitas.'">
                 </p>
                 <div class="flex gap-4">
                     <button
@@ -37,7 +37,8 @@
 
         <!-- Company Stats -->
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-            <template x-for="stat in (content.payload?.stats || stats)" :key="stat.label">
+            <template x-for="stat in (content.stats && content.stats.length > 0 ? content.stats : defaultStats)"
+                :key="stat.label">
                 <div
                     class="p-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
                     <div class="text-3xl lg:text-4xl font-bold text-brand-500 mb-2" x-text="stat.value"></div>
@@ -57,11 +58,13 @@
                     x-text="content.title"></h2>
 
                 <div class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed prose dark:prose-invert"
-                    x-html="content.payload?.content || 'Kami percaya bahwa setiap kendaraan berhak mendapatkan suku cadang terbaik.'">
+                    x-html="content.content || 'Kami percaya bahwa setiap kendaraan berhak mendapatkan suku cadang terbaik.'">
                 </div>
 
                 <div class="space-y-4">
-                    <template x-for="value in (content.payload?.values || values)" :key="value.title">
+                    <template
+                        x-for="value in (content.values && content.values.length > 0 ? content.values : defaultValues)"
+                        :key="value.title">
                         <div
                             class="flex gap-4 items-start p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl transition-colors">
                             <div
@@ -80,7 +83,7 @@
                 <div
                     class="absolute -inset-4 bg-brand-500/10 rounded-3xl blur-2xl group-hover:bg-brand-500/20 transition-all">
                 </div>
-                <img :src="content.payload?.vision_image || 'https://dummyimage.com/800x600/f3f4f6/9ca3af&text=Visi+Kami'"
+                <img :src="content.vision_image || 'https://dummyimage.com/800x600/f3f4f6/9ca3af&text=Visi+Kami'"
                     alt="Warehouse Operations"
                     class="relative rounded-3xl shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
             </div>
@@ -97,9 +100,9 @@
 
             <div class="relative z-10 max-w-3xl mx-auto text-center">
                 <h2 class="text-3xl lg:text-4xl font-bold mb-6 italic"
-                    x-text="content.payload?.cta_title || 'Mulai Perjalanan Anda Bersama EzyStore'"></h2>
+                    x-text="content.cta_title || 'Mulai Perjalanan Anda Bersama EzyStore'"></h2>
                 <p class="text-brand-100 mb-8 text-lg"
-                    x-text="content.payload?.cta_desc || 'Temukan jutaan suku cadang dengan harga kompetitif.'"></p>
+                    x-text="content.cta_desc || 'Temukan jutaan suku cadang dengan harga kompetitif.'"></p>
                 <a href="#shop" x-on:click.prevent="window.navigate('shop')"
                     class="inline-block bg-white text-brand-600 px-10 py-4 rounded-full font-extrabold text-lg hover:bg-brand-50 transition-colors shadow-xl">
                     Belanja Sekarang
@@ -113,14 +116,14 @@
     function initAboutPage() {
         return {
             isLoading: true,
-            content: { title: '', payload: { content: '' } },
-            stats: [
+            content: { title: '', content: '', hero_image: '', vision_image: '', stats: [], values: [] },
+            defaultStats: [
                 { label: 'Tahun Pengalaman', value: '15+' },
                 { label: 'Suku Cadang Tersedia', value: '50k+' },
                 { label: 'Pelanggan Puas', value: '100k+' },
                 { label: 'Mitra Bengkel', value: '500+' }
             ],
-            values: [
+            defaultValues: [
                 {
                     title: 'Kualitas Premium',
                     desc: 'Kami hanya menyediakan produk asli dan bersertifikat untuk keamanan kendaraan Anda.',
@@ -140,23 +143,37 @@
             async init() {
                 try {
                     const slug = 'about';
-                    // 1. Cek Data Hand-off (Instant Load dari CDN Blogger)
-                    if (window._lastResolvedMeta && window._lastResolvedMeta.slug === slug) {
-                        console.log('🚀 [About] Using native Edge CDN data');
-                        this.content = window._lastResolvedMeta;
+                    let meta = null;
+
+                    // 1. Ambil data dari Global Meta (Blogger Edge CDN Hand-off)
+                    if (window._lastResolvedMeta && (window._lastResolvedMeta.slug === slug || window._lastResolvedMeta._type === 'about')) {
+                        console.log('🚀 [About] Using native Blogger Edge CDN data');
+                        meta = window._lastResolvedMeta;
                         window._lastResolvedMeta = null;
                     } else {
-                        // 2. Fetch via AdminAPI (Fallback jika navigasi internal SPA)
-                        console.log('📡 [About] Fetching from Admin API');
+                        // 2. Fallback via AdminAPI (Jika navigasi internal SPA tanpa reload)
                         const res = await window.AdminAPI.get('getStaticPage', { slug: slug });
                         if (res.status === 'success') {
-                            this.content = res.data;
+                            meta = res.data;
                         }
                     }
 
-                    // Normalisasi payload jika masih string
-                    if (typeof this.content.payload === 'string') {
-                        try { this.content.payload = JSON.parse(this.content.payload); } catch (e) { }
+                    if (meta) {
+                        // Normalisasi struktur data (menangani data flat dari sheet atau nested payload)
+                        const p = (typeof meta.payload === 'object' && meta.payload !== null) ? meta.payload : {};
+                        this.content = { ...meta, ...p };
+
+                        // Handle JSON fallbacks untuk kolom statistik dan nilai jika datang dari backend .gs
+                        if (typeof this.content.stats_json === 'string') {
+                            try { this.content.stats = JSON.parse(this.content.stats_json); } catch (e) { }
+                        }
+                        if (typeof this.content.values_json === 'string') {
+                            try { this.content.values = JSON.parse(this.content.values_json); } catch (e) { }
+                        }
+
+                        // Pastikan properti array selalu terdefinisi
+                        if (!Array.isArray(this.content.stats)) this.content.stats = [];
+                        if (!Array.isArray(this.content.values)) this.content.values = [];
                     }
 
                     this.updateBreadcrumb();
