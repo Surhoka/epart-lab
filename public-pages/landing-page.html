@@ -331,6 +331,44 @@
             async fetchLandingData() {
                 this.loading = true;
                 try {
+                    // Lapis 1: Memory Hand-off (Instant SPA Navigation)
+                    if (window._lastResolvedMeta && window._lastResolvedMeta._type === 'landing-page') {
+                        this.selectedProduct = window._lastResolvedMeta;
+                        this.loading = false;
+                        return;
+                    }
+
+                    // Lapis 2: Edge CDN (DOMParser API)
+                    try {
+                        const feedFetch = await fetch('/feeds/pages/default?alt=json');
+                        if (feedFetch.ok) {
+                            const data = await feedFetch.json();
+                            const entry = data.feed?.entry?.find(e => {
+                                const selfLink = e.link.find(l => l.rel === 'alternate');
+                                return selfLink && selfLink.href.includes('/p/landing-page.html');
+                            });
+
+                            if (entry) {
+                                const html = entry.content ? entry.content.$t : '';
+                                const doc = new DOMParser().parseFromString(html, 'text/html');
+                                const metaNode = doc.querySelector('.ezy-meta');
+                                if (metaNode) {
+                                    const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
+                                    const meta = JSON.parse(rawData);
+                                    if (meta && meta._type === 'landing-page') {
+                                        this.selectedProduct = meta;
+                                        window._lastResolvedMeta = meta; // Cache to SPA Router
+                                        this.loading = false;
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (feedErr) {
+                        console.warn('CDN Feed fetch failed for landing-page:', feedErr);
+                    }
+
+                    // Lapis 3: AdminAPI Fallback (Direct Database Query)
                     const res = await window.AdminAPI.get('getPublicLandingData');
                     
                     if (res && res.status === 'success') {
