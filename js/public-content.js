@@ -1384,44 +1384,6 @@
     };
 
     // ================================================================
-    // SETUP MANAGER (Store Setup)
-    // ================================================================
-    const registerSetupManager = () => {
-        if (window.Alpine?.data && !window.Alpine.data('setupManager')) {
-            window.Alpine.data('setupManager', () => ({
-                isSyncing: false,
-                dbId: null,
-                blogId: null,
-
-                init() {
-                    this.dbId = getDbId();
-                    this.blogId = getBlogId();
-                },
-
-                async deployPages() {
-                    this.blogId = getBlogId();
-
-                    this.isSyncing = true;
-                    window.sendDataToGoogle('deployStandardPagesToBlogger', {
-                        dbId: this.dbId,
-                        blogId: this.blogId
-                    }, (res) => {
-                        this.isSyncing = false;
-                        if (res.status === 'success') {
-                            showToast('Setup Laman Standar Berhasil!');
-                        } else {
-                            showToast('Gagal: ' + res.message, 'error');
-                        }
-                    }, () => {
-                        this.isSyncing = false;
-                        showToast('Terjadi kesalahan saat memproses setup.', 'error');
-                    });
-                }
-            }));
-        }
-    };
-
-    // ================================================================
     // INITIALIZATION
     // ================================================================
     const registerAll = () => {
@@ -1433,7 +1395,6 @@
         registerPostEditor();
         registerAboutAdmin();
         registerContactAdmin();
-        registerSetupManager();
     };
 
     if (window.Alpine) {
