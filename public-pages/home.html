@@ -456,7 +456,7 @@
                 <!-- Grid -->
                 <div x-show="!isLoadingProducts && products.length > 0"
                     class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" x-cloak>
-                    <template x-for="product in products" :key="product.id">
+                    <template x-for="(product, index) in products" :key="product.id || index">
                         <div
                             class="group bg-white dark:bg-gray-800 rounded-xl p-0 shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 relative flex flex-col h-full">
                             <!-- Image Container -->
@@ -593,7 +593,7 @@
 
                 <!-- Grid -->
                 <div x-show="!isLoadingPosts && posts.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6" x-cloak>
-                    <template x-for="post in posts" :key="post.id">
+                    <template x-for="(post, index) in posts" :key="post.id || index">
                         <article
                             class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full">
                             <!-- Image -->
