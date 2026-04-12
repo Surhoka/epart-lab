@@ -1179,7 +1179,7 @@
             window.Alpine.data('aboutAdmin', () => ({
                 formData: {
                     id: 'about',
-                    title: 'Tentang Kami',
+                    title: 'about',
                     slug: 'about',
                     payload: { content: '' }
                 },
@@ -1325,7 +1325,7 @@
             window.Alpine.data('contactAdmin', () => ({
                 formData: {
                     id: 'contact',
-                    title: 'Hubungi Kami',
+                    title: 'contact',
                     slug: 'contact',
                     payload: {
                         address: '', phone: '', email: '', mapsUrl: '',
