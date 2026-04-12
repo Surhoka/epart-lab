@@ -35,42 +35,49 @@
 
     <!-- PRODUCT GRID -->
     <div x-show="!isLoading && !error" x-cloak>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <template x-for="item in filteredItems" :key="item.id || item.slug">
                 <div @click="viewDetail(item)"
-                    class="group cursor-pointer bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                    class="group cursor-pointer bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md">
                     
                     <!-- Media Area -->
-                    <div class="aspect-square p-6 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
+                    <div class="aspect-square p-4 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
                         <img :src="item.image || item.imageurl || item.imageUrl"
-                            class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
+                            class="w-full h-full object-contain"
                             :alt="item.name">
                         
-                        <!-- Discount Badge -->
-                        <template x-if="item.originalPrice > item.price">
-                            <div class="absolute top-4 right-4 bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">
-                                -<span x-text="getDiscountPercentage(item.price, item.originalPrice)"></span>%
+                        <!-- Badges -->
+                        <template x-if="item.badge || (Number(item.originalprice || item.originalPrice) > Number(item.price))">
+                            <div class="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
+                                <!-- Custom Badge -->
+                                <template x-if="item.badge">
+                                    <div class="bg-brand-500 text-white text-[9px] font-black px-2 py-1 rounded shadow-sm tracking-widest uppercase"
+                                        x-text="item.badge"></div>
+                                </template>
+                                <!-- Discount Percentage -->
+                                <template x-if="Number(item.originalprice || item.originalPrice) > Number(item.price)">
+                                    <div class="bg-red-500 text-white text-[9px] font-black px-2 py-1 rounded shadow-sm">
+                                        -<span x-text="getDiscountPercentage(item.price, (item.originalprice || item.originalPrice))"></span>%
+                                    </div>
+                                </template>
                             </div>
                         </template>
                     </div>
 
                     <!-- Info Area -->
-                    <div class="p-6 md:p-8 space-y-4">
+                    <div class="p-4 space-y-2">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-black text-brand-600 uppercase tracking-widest bg-brand-50 dark:bg-brand-900/30 px-2 py-0.5 rounded" x-text="item.category || 'Sparepart'"></span>
+                            <span class="text-[9px] font-black text-brand-600 uppercase tracking-widest bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 rounded" x-text="item.category || 'Sparepart'"></span>
                         </div>
-                        <h3 class="text-base font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 transition-colors"
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600"
                             x-text="item.name"></h3>
                         
-                        <div class="pt-2 flex items-center justify-between">
+                        <div class="pt-1 flex items-center justify-between">
                             <div class="flex flex-col">
-                                <template x-if="item.originalPrice > item.price">
-                                    <span class="text-[10px] text-gray-400 line-through" x-text="formatCurrency(item.originalPrice)"></span>
+                                <template x-if="Number(item.originalprice || item.originalPrice) > Number(item.price)">
+                                    <span class="text-[10px] text-gray-400 line-through" x-text="formatCurrency(item.originalprice || item.originalPrice)"></span>
                                 </template>
-                                <p class="text-xl font-black text-gray-900 dark:text-white" x-text="formatCurrency(item.price)"></p>
-                            </div>
-                            <div class="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all">
-                                <span class="w-5 h-5" x-icon="'arrow-right'"></span>
+                                <p class="text-lg font-black text-gray-900 dark:text-white" x-text="formatCurrency(item.price)"></p>
                             </div>
                         </div>
                     </div>
