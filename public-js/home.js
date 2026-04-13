@@ -48,11 +48,15 @@ window.initHomePage = function () {
             this.isLoadingProducts = true;
             this.isLoadingPosts = true;
             try {
-                // 1. Ambil Data Halaman (Slider, Kategori, Produk)
-                const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=100');
+                // 1. Ambil Data Halaman (Slider, Kategori)
+                const pageRes = await fetch('/feeds/pages/default?alt=json&max-results=50');
                 const pageJson = await pageRes.json();
-                
-                // 2. Ambil Data Artikel (Blogger Posts dengan Label 'Article')
+
+                // 2. Ambil Data Produk (Blogger Posts dengan Label 'Product')
+                const productRes = await fetch('/feeds/posts/default/-/Product?alt=json&max-results=50');
+                const productJson = await productRes.json();
+
+                // 3. Ambil Data Artikel (Blogger Posts dengan Label 'Article')
                 const postRes = await fetch('/feeds/posts/default/-/Article?alt=json&max-results=10');
                 const postJson = await postRes.json();
 
@@ -63,7 +67,7 @@ window.initHomePage = function () {
                     return (entries || []).map(entry => {
                         const htmlContent = entry.content ? entry.content.$t : '';
                         const doc = parser.parseFromString(htmlContent, 'text/html');
-                        
+
                         // Detect via Selector (New Div or Old Script)
                         const metaNode = doc.querySelector('.ezy-meta');
                         let meta = null;
@@ -72,12 +76,12 @@ window.initHomePage = function () {
                             try {
                                 const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
                                 meta = JSON.parse(rawData);
-                            } catch(e) {}
+                            } catch (e) { }
                         } else {
                             // Regex Fallback for truncated content
                             const divMatch = htmlContent.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=["'](.*?)["']/);
                             const scriptMatch = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
-                            
+
                             try {
                                 if (divMatch && divMatch[1]) {
                                     const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
@@ -85,7 +89,7 @@ window.initHomePage = function () {
                                 } else if (scriptMatch && scriptMatch[1]) {
                                     meta = JSON.parse(scriptMatch[1]);
                                 }
-                            } catch(e) {}
+                            } catch (e) { }
                         }
 
                         if (meta) {
@@ -99,22 +103,22 @@ window.initHomePage = function () {
                 };
 
                 const pageMeta = extractMeta(pageJson.feed?.entry);
+                const productMeta = extractMeta(productJson.feed?.entry);
                 const articleMeta = extractMeta(postJson.feed?.entry);
-                const allMeta = [...pageMeta, ...articleMeta];
 
                 // Cari data Home (slider + kategori)
                 const homeMeta = pageMeta.find(m => m._type === 'home' || m.heroes !== undefined);
                 if (homeMeta) {
                     this.slides = homeMeta.heroes || [];
                     this.totalSlides = this.slides.length;
-                    
+
                     // Gunakan data kategori yang sudah diproses oleh backend (syncHomeDataToBlogger_)
                     this.categories = homeMeta.categories || [];
                     this.subcategories = homeMeta.subcategories || {};
                 }
 
                 // Filter Products (Standardized)
-                this.products = pageMeta
+                this.products = productMeta
                     .filter(m => m._type === 'product' || m.price !== undefined)
                     .map(meta => ({
                         id: meta.id,
