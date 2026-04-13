@@ -131,6 +131,8 @@
                                     window.EzyApi.config.blogId = this.settings.blogId;
                                     window.EzyApi.config.gatewayToken = this.settings.gatewayToken;
                                     window.EzyApi.config.dbName = this.settings.dbName;
+                                    window.EzyApi.config.adminUrl = this.settings.adminUrl;
+                                    window.EzyApi.config.siteKey = this.settings.siteKey;
                                 }
 
                                 // Update Local Cache untuk konsistensi antar halaman
@@ -152,9 +154,7 @@
 
             downloadPublicTemplate(raw = false) {
                 try {
-                    // Get config from global EzyApi or localStorage
-                    const configCache = localStorage.getItem('Ezyparts_Config_Cache');
-                    const config = configCache ? JSON.parse(configCache) : (window.EzyApi?.config || {});
+                    const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
 
                     // Determine Gateway URL
                     // Prioritize CONFIG.WEBAPP_URL_DEV (Gateway) over EzyApi.gatewayUrl (which might be Project URL)
@@ -167,9 +167,10 @@
                         return;
                     }
 
-                    // Determine Admin URL (Self) & Site Key
-                    const adminUrl = config.adminUrl || config.webappUrl || window.EzyApi?.url;
-                    const siteKey = config.siteKey;
+                    // [FIX] Gunakan data dari state Alpine (this.settings) agar sinkron dengan yang tampil di UI
+                    const adminUrl = this.settings.adminUrl || config.adminUrl || config.webappUrl || window.EzyApi?.url;
+                    const siteKey = this.settings.siteKey || config.siteKey;
+                    const dbName = this.settings.dbName || config.dbName || 'Database';
 
                     if (!adminUrl || !siteKey) {
                         window.showToast('Configuration incomplete (Missing Site Key or URL).', 'error');
@@ -180,7 +181,7 @@
                         action: 'download_public_template',
                         adminUrl: adminUrl,
                         siteKey: siteKey,
-                        dbName: config.dbName || 'Database',
+                        dbName: dbName,
                         theme: this.settings.publicTheme === 'custom' ? this.settings.customColor : (this.settings.publicTheme || 'blue'),
                         templateName: this.settings.templateName || 'public-1',
                         headerColor: this.settings.headerColor,
