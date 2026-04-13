@@ -19,7 +19,10 @@
                 sidebarColor: '#ffffff',
                 footerColor: '#1e3a8a',
                 gatewayToken: '',
-                blogId: ''
+                blogId: '',
+                siteKey: '',
+                adminUrl: '',
+                dbName: ''
             },
 
             init() {
@@ -50,6 +53,15 @@
                     }
                     if (config.blogId) {
                         this.settings.blogId = config.blogId;
+                    }
+                    if (config.siteKey) {
+                        this.settings.siteKey = config.siteKey;
+                    }
+                    if (config.adminUrl || config.webappUrl) {
+                        this.settings.adminUrl = config.adminUrl || config.webappUrl;
+                    }
+                    if (config.dbName) {
+                        this.settings.dbName = config.dbName;
                     }
                 }
 
@@ -106,7 +118,8 @@
                         // 2. Simpan General & Security Settings ke backend (PropertiesService)
                         const settingsPayload = {
                             blogId: this.settings.blogId,
-                            gatewayToken: this.settings.gatewayToken
+                            gatewayToken: this.settings.gatewayToken,
+                            dbName: this.settings.dbName
                         };
 
                         window.sendDataToGoogle('save_settings', settingsPayload, (res) => {
@@ -117,7 +130,13 @@
                                 if (window.EzyApi && window.EzyApi.config) {
                                     window.EzyApi.config.blogId = this.settings.blogId;
                                     window.EzyApi.config.gatewayToken = this.settings.gatewayToken;
+                                    window.EzyApi.config.dbName = this.settings.dbName;
                                 }
+
+                                // Update Local Cache untuk konsistensi antar halaman
+                                const currentCache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                                localStorage.setItem('Ezyparts_Config_Cache', JSON.stringify({ ...currentCache, ...settingsPayload }));
+
                                 if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
                             } else {
                                 window.showToast('Gagal sinkronisasi: ' + (res?.message || 'Server Error'), 'error');
