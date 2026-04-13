@@ -85,7 +85,7 @@
                         // 2. Fetch via Blogger CDN dengan DOMParser
                         try {
                             // Mencari di postingan karena produk sekarang berupa Post
-                            const res = await fetch(`/feeds/posts/default/-/Product?q=${encodeURIComponent(slug)}&alt=json`);
+                            const res = await fetch(`/feeds/posts/default?q=${encodeURIComponent(slug)}&alt=json`);
                             if (res.ok) {
                                 const data = await res.json();
                                 if (data.feed && data.feed.entry) {
