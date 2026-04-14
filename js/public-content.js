@@ -171,7 +171,10 @@
                         }, (res) => {
                             this.isUploading = false;
                             console.log('Test upload for hero:', res);
-                            if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload'); }
+                            if (res?.status === 'success') { 
+                                this.editingItem.imageurl = res.url; 
+                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
+                            }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
                     };
@@ -307,7 +310,7 @@
                             dbId: this.dbId
                         }, (res) => {
                             this.isUploading = false;
-                            if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload'); }
+                            if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : '')); }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
                     };
@@ -478,7 +481,7 @@
                             console.log('Product upload result:', res);
                             if (res?.status === 'success') { 
                                 this.editingItem.imageurl = res.url; 
-                                showToast('Gambar berhasil diupload');
+                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
                                 console.log('Product image uploaded, albumId:', res.albumId);
                             }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
