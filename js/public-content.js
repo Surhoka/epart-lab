@@ -21,10 +21,10 @@
     // Shared DB ID Utility
     function getDbId() {
         try {
-            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+            const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
             return config.sheetId || config.dbId || null;
         } catch (e) {
-            console.error('Failed to parse EzypartsConfig:', e);
+            console.error('Failed to parse Ezyparts_Config_Cache:', e);
             return null;
         }
     }
@@ -32,7 +32,7 @@
     // Shared Blog ID Utility
     function getBlogId() {
         try {
-            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+            const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
             const blogId = config.blogId;
             // Pastikan tidak mengirim string "null" ke backend
             if (blogId === null || blogId === 'null' || blogId === undefined || blogId === '') {
@@ -162,6 +162,7 @@
                     this.isUploading = true;
                     const reader = new FileReader();
                     reader.onload = (e) => {
+                        console.log('Test upload for hero:', { dbId: this.dbId, fileName: `hero-${Date.now()}-${file.name}` });
                         window.sendDataToGoogle('uploadImageAndGetUrl', {
                             fileName: `hero-${Date.now()}-${file.name}`,
                             fileData: e.target.result,
@@ -169,6 +170,7 @@
                             dbId: this.dbId
                         }, (res) => {
                             this.isUploading = false;
+                            console.log('Test upload for hero:', res);
                             if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload'); }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
@@ -509,6 +511,7 @@
 
                 async init() {
                     this.dbId = getDbId();
+                    console.log('Album Manager dbId:', this.dbId);
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
                     await this.fetchAlbums();
                 },
@@ -519,8 +522,10 @@
                         const res = await new Promise((resolve, reject) => {
                             window.sendDataToGoogle('getAlbums', { dbId: this.dbId }, resolve, reject);
                         });
+                        console.log('Current albums:', res);
                         if (res?.status === 'success') {
                             this.albums = res.data || [];
+                            console.log('Loaded albums:', this.albums.length, 'albums');
                             if (!this.selectedAlbumId && this.albums.length) {
                                 this.selectAlbum(this.albums[0].id);
                             }
