@@ -638,6 +638,9 @@
                     if (!this.selectedAlbumId) { showToast('Pilih album terlebih dahulu', 'warning'); return; }
 
                     this.isUploading = true;
+                    const blogId = getBlogId();
+                    const target = blogId ? 'PUBLIC' : 'ADMIN'; // Auto-select target
+                    
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         window.sendDataToGoogle('uploadImageAndGetUrl', {
@@ -647,11 +650,13 @@
                             fileType: file.type,
                             dbId: this.dbId,
                             albumId: this.selectedAlbumId,
-                            blogId: getBlogId() // Tambahkan blogId
+                            blogId: blogId,
+                            target: target  // Explicit target selection
                         }, (res) => {
                             this.isUploading = false;
                             if (res?.status === 'success') {
-                                showToast('Gambar berhasil diupload');
+                                const domainLabel = res.domain?.includes('blogger') ? 'Blogger' : 'Drive';
+                                showToast(`Gambar berhasil diupload ke ${domainLabel}`);
                                 this.fetchAlbumFiles(this.selectedAlbumId);
                             } else {
                                 showToast(res?.message || 'Gagal upload gambar', 'error');
@@ -1712,6 +1717,110 @@
     };
 
     // ================================================================
+    // PUBLIC BRANDING MANAGER (moved from profile.js)
+    // ================================================================
+    const registerPublicBrandingManager = () => {
+        if (window.Alpine?.data && !window.Alpine.data('publicBrandingManager')) {
+            window.Alpine.data('publicBrandingManager', () => ({
+                dbId: null,
+                isLoading: false,
+                showModal: false,
+                editingData: {
+                    companyName: '',
+                    supportEmail: '',
+                    supportPhone: '',
+                    storeAddress: '',
+                    operatingHours: '',
+                    operatingDays: '',
+                    facebook: '',
+                    twitter: '',
+                    instagram: '',
+                    linkedin: ''
+                },
+                displayData: {},
+
+                async init() {
+                    this.dbId = getDbId();
+                    if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
+                    await this.fetchBrandingData();
+                },
+
+                async fetchBrandingData() {
+                    this.isLoading = true;
+                    const userId = JSON.parse(localStorage.getItem('signedInUser') || '{}').id;
+                    if (!userId) {
+                        showToast('User ID tidak ditemukan', 'error');
+                        this.isLoading = false;
+                        return;
+                    }
+
+                    window.sendDataToGoogle('getProfile', { userId: userId, dbId: this.dbId }, (res) => {
+                        this.isLoading = false;
+                        if (res.status === 'success' && res.data && res.data.publicDisplay) {
+                            this.displayData = { ...res.data.publicDisplay };
+                            console.log('Loaded branding data:', this.displayData);
+                        } else {
+                            console.log('No branding data found, using defaults');
+                            this.displayData = {};
+                        }
+                    }, (err) => {
+                        console.error('Fetch branding error:', err);
+                        showToast('Gagal memuat data branding', 'error');
+                        this.isLoading = false;
+                    });
+                },
+
+                openEditModal() {
+                    this.editingData = JSON.parse(JSON.stringify(this.displayData || {}));
+                    this.showModal = true;
+                },
+
+                async savePublicInfo(button) {
+                    window.setButtonLoading?.(button, true);
+                    const userId = JSON.parse(localStorage.getItem('signedInUser') || '{}').id;
+                    if (!userId) {
+                        window.showToast('User ID tidak ditemukan', 'error');
+                        window.setButtonLoading?.(button, false);
+                        return;
+                    }
+
+                    const payload = {
+                        personalInfo: {},
+                        publicDisplay: this.editingData
+                    };
+
+                    window.sendDataToGoogle('updatePublicProfile', {
+                        userId: userId,
+                        profileData: JSON.stringify(payload),
+                        dbId: this.dbId
+                    }, (res) => {
+                        window.setButtonLoading?.(button, false);
+                        if (res.status === 'success') {
+                            showToast('Informasi publik berhasil diperbarui', 'success');
+                            this.showModal = false;
+                            this.fetchBrandingData();
+                        } else {
+                            showToast(`Gagal menyimpan: ${res.message}`, 'error');
+                        }
+                    }, (err) => {
+                        window.setButtonLoading?.(button, false);
+                        console.error('Update public profile error:', err);
+                        showToast('Terjadi kesalahan saat menyimpan', 'error');
+                    });
+                },
+
+                getSocialStatus(url) {
+                    return url && url.trim() !== '' ? 'Active' : 'Inactive';
+                },
+
+                getSocialStatusClass(url) {
+                    return url && url.trim() !== '' ? 'text-success-600' : 'text-gray-600 dark:text-gray-400';
+                }
+            }));
+        }
+    };
+
+    // ================================================================
     // INITIALIZATION
     // ================================================================
     const registerAll = () => {
@@ -1724,6 +1833,7 @@
         registerPostEditor();
         registerAboutAdmin();
         registerContactAdmin();
+        registerPublicBrandingManager();
     };
 
     if (window.Alpine) {
