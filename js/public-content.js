@@ -175,6 +175,8 @@
                             if (res?.status === 'success') {
                                 this.editingItem.imageurl = res.url;
                                 showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
+                                // Beritahu Album Manager untuk refresh data
+                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
                             }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
@@ -312,7 +314,11 @@
                             blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
-                            if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : '')); }
+                            if (res?.status === 'success') {
+                                this.editingItem.imageurl = res.url;
+                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
+                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
+                            }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
                     };
@@ -486,6 +492,7 @@
                                 this.editingItem.imageurl = res.url;
                                 showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
                                 console.log('Product image uploaded, albumId:', res.albumId);
+                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
                             }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
@@ -520,6 +527,9 @@
                     console.log('Album Manager dbId:', this.dbId);
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
                     await this.fetchAlbums();
+
+                    // Dengarkan event dari manager lain jika ada album baru/update
+                    window.addEventListener('ezy:album-updated', () => this.fetchAlbums());
                 },
 
                 async fetchAlbums() {
