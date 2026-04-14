@@ -12,6 +12,9 @@
                 <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                 <span x-text="isSyncing ? 'Menyinkronkan...' : 'Sync Metadata'"></span>
             </button>
+            <button @click="testAutoAlbums()" class="btn btn-secondary inline-flex items-center gap-2">
+                <span class="w-4 h-4" x-icon="'search'"></span> Test Auto Albums
+            </button>
         </div>
     </div>
 
