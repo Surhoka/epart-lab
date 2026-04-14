@@ -167,12 +167,13 @@
                             fileName: `hero-${Date.now()}-${file.name}`,
                             fileData: e.target.result,
                             fileType: file.type,
-                            dbId: this.dbId
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
                             console.log('Test upload for hero:', res);
-                            if (res?.status === 'success') { 
-                                this.editingItem.imageurl = res.url; 
+                            if (res?.status === 'success') {
+                                this.editingItem.imageurl = res.url;
                                 showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
                             }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
@@ -307,7 +308,8 @@
                             fileName: `category-${Date.now()}-${file.name}`,
                             fileData: e.target.result,
                             fileType: file.type,
-                            dbId: this.dbId
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
                             if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : '')); }
@@ -475,12 +477,13 @@
                             fileName: `product-${Date.now()}-${file.name}`,
                             fileData: e.target.result,
                             fileType: file.type,
-                            dbId: this.dbId
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
                             console.log('Product upload result:', res);
-                            if (res?.status === 'success') { 
-                                this.editingItem.imageurl = res.url; 
+                            if (res?.status === 'success') {
+                                this.editingItem.imageurl = res.url;
                                 showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
                                 console.log('Product image uploaded, albumId:', res.albumId);
                             }
@@ -585,7 +588,8 @@
                     const payload = {
                         ...this.editingAlbum,
                         dbId: this.dbId,
-                        slug: this.editingAlbum.slug || this.editingAlbum.name
+                        blogId: getBlogId(), // Tambahkan blogId
+                        slug: this.editingAlbum.slug || this.editingAlbum.name || ''
                     };
                     const res = await new Promise((resolve, reject) => {
                         window.sendDataToGoogle('saveAlbum', payload, resolve, reject);
@@ -632,7 +636,8 @@
                             fileData: e.target.result,
                             fileType: file.type,
                             dbId: this.dbId,
-                            albumId: this.selectedAlbumId
+                            albumId: this.selectedAlbumId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
                             if (res?.status === 'success') {
@@ -666,7 +671,7 @@
                 async testAutoAlbums() {
                     showToast('Testing auto albums...');
                     console.log('Current albums:', this.albums);
-                    
+
                     // Test creating auto albums for different contexts
                     const contexts = ['hero', 'product', 'category'];
                     for (const context of contexts) {
@@ -694,7 +699,7 @@
                             console.error(`Test upload failed for ${context}:`, e);
                         }
                     }
-                    
+
                     // Refresh albums after test
                     await this.fetchAlbums();
                     showToast('Test completed, check console and refresh albums');
@@ -779,7 +784,8 @@
                             fileName: `logo-${Date.now()}-${file.name}`,
                             fileData: e.target.result,
                             fileType: file.type,
-                            dbId: this.dbId
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
                             if (res?.status === 'success') { this.formData.logourl = res.url; showToast('Logo berhasil diupload'); }
@@ -899,7 +905,8 @@
                             fileName: fileName,
                             fileData: base64Data,
                             fileType: file.type,
-                            dbId: this.dbId
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             this.isUploading = false;
                             if (res && res.status === 'success') {
@@ -1180,7 +1187,8 @@
                             fileName: file.name,
                             fileData: e.target.result.split(',')[1],
                             fileType: file.type,
-                            dbId: getDbId()
+                            dbId: getDbId(),
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             if (res.status === 'success') {
                                 this.insertImageAtCursor(res.url);
@@ -1566,7 +1574,8 @@
                             fileName: `about-${this.uploadType}-${Date.now()}-${file.name}`,
                             fileData: e.target.result,
                             fileType: file.type,
-                            dbId: this.dbId
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
                         }, (res) => {
                             if (isHero) this.isUploadingHero = false;
                             else this.isUploadingVision = false;
