@@ -117,7 +117,6 @@ async function discoverEzyApi() {
             if (config.status === 'success' && config.isSetup === true && config.statusNote === 'active') {
                 localStorage.setItem(cacheKey, JSON.stringify(config));
                 applyRoleUrl(config);
-                discoverBloggerPages(); // Jalankan validasi feed di background
             } else if (config.statusNote === 'setup_in_progress') {
                 // Keep UI state if setup is in progress
                 applyRoleUrl(config);
