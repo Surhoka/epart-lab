@@ -111,32 +111,9 @@
 
                     let items = [];
                     if (data.feed && data.feed.entry) {
-                        const parser = new DOMParser();
                         data.feed.entry.forEach(entry => {
                             const html = entry.content ? entry.content.$t : '';
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const metaNode = doc.querySelector('.ezy-meta');
-                            let meta = null;
-
-                            if (metaNode) {
-                                try {
-                                    const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
-                                    meta = JSON.parse(rawData);
-                                } catch(e) {}
-                            } else {
-                                // Regex Fallback for truncated content
-                                const divMatch = html.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=(['"])([\s\S]*?)\1/);
-                                const scriptMatch = html.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
-
-                                try {
-                                    if (divMatch && divMatch[2]) {
-                                        const decoded = divMatch[2].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-                                        meta = JSON.parse(decoded);
-                                    } else if (scriptMatch && scriptMatch[1]) {
-                                        meta = JSON.parse(scriptMatch[1]);
-                                    }
-                                } catch(e) {}
-                            }
+                            const meta = window.CDNFetcher.parseMetaNode(html, null);
 
                             if (meta) {
                                 // Pemulihan ID/Slug jika metadata tidak lengkap

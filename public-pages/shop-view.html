@@ -122,56 +122,12 @@
             async init() {
                 this.isLoading = true;
                 try {
-                    // 1. Fetch from Blogger Feed (Fast CDN)
-                    const res = await fetch('/feeds/posts/default/-/Product?alt=json&max-results=500');
-                    if (!res.ok) throw new Error('Feed error');
-                    const data = await res.json();
-
-                    let items = [];
-                    if (data.feed && data.feed.entry) {
-                        const parser = new DOMParser();
-                        data.feed.entry.forEach(entry => {
-                            const html = entry.content ? entry.content.$t : '';
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const metaNode = doc.querySelector('.ezy-meta');
-                            let meta = null;
-
-                            if (metaNode) {
-                                try {
-                                    const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
-                                    meta = JSON.parse(rawData);
-                                } catch (e) { }
-                            } else {
-                                // Regex Fallback
-                                const divMatch = html.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=(['"])([\s\S]*?)\1/);
-                                const scriptMatch = html.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
-
-                                try {
-                                    if (divMatch && divMatch[2]) {
-                                        const decoded = divMatch[2].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-                                        meta = JSON.parse(decoded);
-                                    } else if (scriptMatch && scriptMatch[1]) {
-                                        meta = JSON.parse(scriptMatch[1]);
-                                    }
-                                } catch (e) { }
-                            }
-
-                            if (meta && meta.price !== undefined) {
-                                // Map link for search optimization
-                                const altLink = entry.link.find(l => l.rel === 'alternate');
-                                if (altLink) meta.path = new URL(altLink.href).pathname;
-                                items.push(meta);
-                            }
-                        });
+                    const apiRes = await window.AdminAPI.getProducts();
+                    if (apiRes.status === 'success') {
+                        this.collection = apiRes.data || [];
+                    } else {
+                        throw new Error('Failed to load products');
                     }
-
-                    // 2. Fallback to AdminAPI if Feed is empty
-                    if (items.length === 0) {
-                        const apiRes = await window.AdminAPI.getProducts();
-                        if (apiRes.status === 'success') items = apiRes.data || [];
-                    }
-
-                    this.collection = items;
                     this.updateBreadcrumb();
                 } catch (e) {
                     console.error('Shop load failure:', e);
