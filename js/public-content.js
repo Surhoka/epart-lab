@@ -680,13 +680,23 @@
                                 }, resolve, reject);
                             });
                             console.log(`Test upload for ${context}:`, res);
+                            if (res?.status === 'success') {
+                                console.log('Upload response details:', {
+                                    albumId: res.albumId,
+                                    autoCreatedAlbum: res.autoCreatedAlbum,
+                                    albumContext: res.albumContext
+                                });
+                                if (res.albumId) {
+                                    await this.fetchAlbums();
+                                }
+                            }
                         } catch (e) {
                             console.error(`Test upload failed for ${context}:`, e);
                         }
                     }
                     
                     // Refresh albums after test
-                    setTimeout(() => this.fetchAlbums(), 2000);
+                    await this.fetchAlbums();
                     showToast('Test completed, check console and refresh albums');
                 },
 
