@@ -80,65 +80,8 @@ function initPostPage() {
             }
 
             try {
-                // 1. Cek Data Hand-off (Instant Load for Edge CDN)
-                if (window._lastResolvedMeta && (window._lastResolvedMeta.slug === slug || window._lastResolvedMeta.id === slug)) {
-                    this.content = window._lastResolvedMeta;
-                    window._lastResolvedMeta = null;
-                } else {
-                    let itemFound = null;
-                    
-                    // 2. Fetch via Blogger CDN dengan DOMParser
-                    try {
-                        const res = await fetch(`/feeds/posts/default/-/Article?q=${encodeURIComponent(slug)}&alt=json`);
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data.feed && data.feed.entry) {
-                                const parser = new DOMParser();
-                                for (const entry of data.feed.entry) {
-                                    const html = entry.content ? entry.content.$t : '';
-                                    const doc = parser.parseFromString(html, 'text/html');
-                                    const metaNode = doc.querySelector('.ezy-meta');
-                                    let meta = null;
-
-                                    if (metaNode) {
-                                        try {
-                                            const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
-                                            meta = JSON.parse(rawData);
-                                        } catch(e) {}
-                                    } else {
-                                        const divMatch = html.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=(['"])([\s\S]*?)\1/);
-                                        const scriptMatch = html.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
-                                        try {
-                                            if (divMatch && divMatch[2]) {
-                                                const decoded = divMatch[2].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-                                                meta = JSON.parse(decoded);
-                                            } else if (scriptMatch && scriptMatch[1]) {
-                                                meta = JSON.parse(scriptMatch[1]);
-                                            }
-                                        } catch(e) {}
-                                    }
-
-                                    if (meta && (meta.slug === slug || meta.id === slug)) {
-                                        itemFound = meta;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    } catch(e) {}
-
-                    if (itemFound) {
-                        this.content = itemFound;
-                    } else {
-                        // 3. Fetch via AdminAPI (Self-healing ultimate fallback)
-                        const res = await window.AdminAPI.get('get_post_by_slug', { slug: slug });
-                        if (res && res.status === 'success') {
-                            this.content = res.data;
-                        } else {
-                            throw new Error('Post not found');
-                        }
-                    }
-                }
+                const result = await window.CDNFetcher.fetchItemWithFallback(slug, 'post');
+                this.content = result.data;
                 this.updateBreadcrumb();
             } catch (e) {
                 console.error('Post load failure:', e);
