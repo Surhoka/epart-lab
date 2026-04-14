@@ -647,9 +647,18 @@
                     // FORCE target ke PUBLIC untuk album (tidak pernah ADMIN)
                     const target = 'PUBLIC';
 
+                    console.log('[albumManager.uploadAlbumImage] About to call sendDataToGoogle with:', {
+                        action: 'uploadImageAndGetUrl',
+                        fileName: `album-${Date.now()}-${file.name}`,
+                        albumId: this.selectedAlbumId,
+                        target: target,
+                        hasBlogId: !!blogId
+                    });
+
                     this.isUploading = true;
                     const reader = new FileReader();
                     reader.onload = (e) => {
+                        console.log('[albumManager.uploadAlbumImage] FileReader loaded, calling sendDataToGoogle');
                         window.sendDataToGoogle('uploadImageAndGetUrl', {
                             fileName: `album-${Date.now()}-${file.name}`,
                             originalFileName: file.name,
@@ -660,6 +669,7 @@
                             blogId: blogId || undefined,  // Send if available, else let backend resolve
                             target: target  // ALWAYS PUBLIC untuk album
                         }, (res) => {
+                            console.log('[albumManager.uploadAlbumImage] sendDataToGoogle success callback:', res);
                             this.isUploading = false;
                             if (res?.status === 'success') {
                                 if (res.domain?.includes('blogger')) {
@@ -673,10 +683,16 @@
                             } else {
                                 showToast(res?.message || 'Gagal upload gambar', 'error');
                             }
-                        }, () => {
+                        }, (err) => {
+                            console.error('[albumManager.uploadAlbumImage] sendDataToGoogle error callback:', err);
                             this.isUploading = false;
                             showToast('Gagal upload gambar - Network error', 'error');
                         });
+                    };
+                    reader.onerror = (err) => {
+                        console.error('[albumManager.uploadAlbumImage] FileReader error:', err);
+                        this.isUploading = false;
+                        showToast('Gagal membaca file', 'error');
                     };
                     reader.readAsDataURL(file);
                     event.target.value = '';

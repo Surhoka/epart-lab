@@ -265,17 +265,20 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
             targetUrl = CONFIG.WEBAPP_URL_DEV;
         }
 
+        console.log(`[sendDataToGoogle] POST ${action} to ${targetUrl}`, { payloadSize: JSON.stringify(payload).length });
+
         fetch(targetUrl, {
             method: 'POST',
             body: JSON.stringify(payload)
         })
             .then(res => {
+                console.log(`[sendDataToGoogle] Response status: ${res.status} for ${action}`);
                 if (!res.ok) throw new Error('Network response was not ok');
                 return res.json();
             })
             .then(callback)
             .catch(err => {
-                console.error('API POST Error:', err);
+                console.error(`[sendDataToGoogle] Error for ${action}:`, err);
                 if (errorHandler) errorHandler(err);
             });
     } else {
