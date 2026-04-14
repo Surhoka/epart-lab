@@ -65,37 +65,6 @@ async function discoverEzyApi() {
         } catch (e) { }
     }
 
-    // [NEW] Blogger Feed Discovery as secondary truth
-    const discoverBloggerPages = async () => {
-        try {
-            const response = await fetch('/feeds/pages/default?alt=json&max-results=50');
-            const json = await response.json();
-            const pages = json.feed.entry || [];
-
-            const validPages = [];
-            const slugTypeMap = JSON.parse(localStorage.getItem('ezy_slug_type') || '{}');
-
-            pages.forEach(entry => {
-                const link = entry.link.find(l => l.rel === 'alternate');
-                if (link) {
-                    const slug = link.href.split('/').pop().replace('.html', '');
-                    validPages.push(slug);
-                    // Jika konten mengandung shell produk, tandai tipenya di cache router
-                    if (entry.content.$t.includes('SSR_HYBRID_PRODUCT_SHELL')) {
-                        slugTypeMap[slug] = 'product';
-                    } else if (entry.content.$t.includes('SSR_HYBRID_HOME_DATA')) {
-                        slugTypeMap[slug] = 'home'; // Redirect ke home jika diakses via /p/home.html
-                    } else if (entry.content.$t.includes('SSR_HYBRID_SHELL')) {
-                        slugTypeMap[slug] = 'post';
-                    }
-                }
-            });
-
-            localStorage.setItem('ezy_valid_pages', JSON.stringify(validPages));
-            localStorage.setItem('ezy_slug_type', JSON.stringify(slugTypeMap));
-        } catch (e) { console.warn('Blogger Feed discovery failed'); }
-    };
-
     if (!CURRENT_URL) {
         console.warn('Ezyparts Discovery: No URL found. Forcing setup mode.');
         forceSetupMode();
@@ -276,7 +245,8 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'send_personal_message', 'receive_personal_message', 'mark_as_read', // Personal Messaging Actions
         'saveLandingProduct', 'deleteLandingProduct', // Landing Page Actions
         'saveAboutPage', 'saveContactPage', 'saveStaticPage', // Static Page Actions
-        'get_post_by_slug' // Post read via POST for reliable dbId passing
+        'get_post_by_slug', // Post read via POST for reliable dbId passing
+        'saveAlbum', 'deleteAlbum', 'saveAlbumImage', 'deleteAlbumImage', 'syncAlbumMetadataToBlogger' // Album Management Actions
     ];
 
     if (postActions.includes(action)) {
