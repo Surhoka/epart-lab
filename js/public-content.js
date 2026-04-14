@@ -637,10 +637,17 @@
                     if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
                     if (!this.selectedAlbumId) { showToast('Pilih album terlebih dahulu', 'warning'); return; }
 
-                    this.isUploading = true;
+                    // Album ALWAYS upload ke PUBLIC (Blogger) - ini adalah public content
+                    // blogId akan dicari dari localStorage atau Settings sheet di backend
                     const blogId = getBlogId();
-                    const target = blogId ? 'PUBLIC' : 'ADMIN'; // Auto-select target
                     
+                    // DEBUG: Check apakah blogId ada
+                    console.log('[albumManager.uploadAlbumImage] blogId:', blogId, 'isEmpty:', !blogId);
+                    
+                    // FORCE target ke PUBLIC untuk album (tidak pernah ADMIN)
+                    const target = 'PUBLIC';
+
+                    this.isUploading = true;
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         window.sendDataToGoogle('uploadImageAndGetUrl', {
@@ -650,20 +657,25 @@
                             fileType: file.type,
                             dbId: this.dbId,
                             albumId: this.selectedAlbumId,
-                            blogId: blogId,
-                            target: target  // Explicit target selection
+                            blogId: blogId || undefined,  // Send if available, else let backend resolve
+                            target: target  // ALWAYS PUBLIC untuk album
                         }, (res) => {
                             this.isUploading = false;
                             if (res?.status === 'success') {
-                                const domainLabel = res.domain?.includes('blogger') ? 'Blogger' : 'Drive';
-                                showToast(`Gambar berhasil diupload ke ${domainLabel}`);
+                                if (res.domain?.includes('blogger')) {
+                                    showToast('✅ Gambar berhasil diupload ke Blogger (blogger.googleusercontent.com)');
+                                } else if (res.domain?.includes('drive')) {
+                                    showToast('⚠️ Gambar diupload ke Drive (fallback)');
+                                } else {
+                                    showToast('Gambar berhasil diupload');
+                                }
                                 this.fetchAlbumFiles(this.selectedAlbumId);
                             } else {
                                 showToast(res?.message || 'Gagal upload gambar', 'error');
                             }
                         }, () => {
                             this.isUploading = false;
-                            showToast('Gagal upload gambar', 'error');
+                            showToast('Gagal upload gambar - Network error', 'error');
                         });
                     };
                     reader.readAsDataURL(file);
