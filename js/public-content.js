@@ -473,7 +473,12 @@
                             dbId: this.dbId
                         }, (res) => {
                             this.isUploading = false;
-                            if (res?.status === 'success') { this.editingItem.imageurl = res.url; showToast('Gambar berhasil diupload'); }
+                            console.log('Product upload result:', res);
+                            if (res?.status === 'success') { 
+                                this.editingItem.imageurl = res.url; 
+                                showToast('Gambar berhasil diupload');
+                                console.log('Product image uploaded, albumId:', res.albumId);
+                            }
                             else showToast('Gagal upload: ' + (res?.message || ''), 'error');
                         }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
                     };
@@ -648,6 +653,33 @@
                     } else {
                         showToast(res?.message || 'Gagal menghapus file', 'error');
                     }
+                },
+
+                async testAutoAlbums() {
+                    showToast('Testing auto albums...');
+                    console.log('Current albums:', this.albums);
+                    
+                    // Test creating auto albums for different contexts
+                    const contexts = ['hero', 'product', 'category'];
+                    for (const context of contexts) {
+                        try {
+                            const res = await new Promise((resolve, reject) => {
+                                window.sendDataToGoogle('uploadImageAndGetUrl', {
+                                    fileName: `${context}-${Date.now()}-test.jpg`,
+                                    fileData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+                                    fileType: 'image/jpeg',
+                                    dbId: this.dbId
+                                }, resolve, reject);
+                            });
+                            console.log(`Test upload for ${context}:`, res);
+                        } catch (e) {
+                            console.error(`Test upload failed for ${context}:`, e);
+                        }
+                    }
+                    
+                    // Refresh albums after test
+                    setTimeout(() => this.fetchAlbums(), 2000);
+                    showToast('Test completed, check console and refresh albums');
                 },
 
                 async syncMetadata() {
