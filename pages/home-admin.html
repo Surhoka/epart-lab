@@ -16,6 +16,9 @@
         <button @click="activeTab = 'categories'" :class="{ 'active': activeTab === 'categories' }" class="tab-nav-btn">
             <span class="w-4 h-4" x-icon="'layers'"></span> Categories
         </button>
+        <button @click="activeTab = 'branding'" :class="{ 'active': activeTab === 'branding' }" class="tab-nav-btn">
+            <span class="w-4 h-4" x-icon="'building'"></span> Public Branding
+        </button>
     </div>
 
     <!-- ============================================================ -->
@@ -411,6 +414,219 @@
                 </div>
             </div>
         </template>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: PUBLIC BRANDING -->
+    <!-- ============================================================ -->
+    <div x-show="activeTab === 'branding'" x-data="publicBrandingManager" x-init="init()">
+        <!-- Display Card -->
+        <div class="grid grid-cols-1 gap-4 mb-6">
+            <div class="rounded-lg border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900 p-6">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Public Company Information</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Information displayed on your website footer and header</p>
+                    </div>
+                    <button @click="openEditModal()" class="btn btn-primary btn-sm">
+                        <span class="w-4 h-4" x-icon="'pencil'"></span> Edit
+                    </button>
+                </div>
+
+                <!-- Display Information -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <!-- Public Contacts -->
+                    <div>
+                        <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Support Contacts</h5>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Company Name</p>
+                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.companyName || '—'"></p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Store Address</p>
+                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.storeAddress || '—'"></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <p class="text-gray-500 dark:text-gray-400">Email</p>
+                                    <p class="font-medium text-gray-900 dark:text-white truncate" x-text="displayData.supportEmail || '—'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 dark:text-gray-400">Phone</p>
+                                    <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.supportPhone || '—'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operating Hours -->
+                    <div>
+                        <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Operating Hours</h5>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Hours</p>
+                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.operatingHours || '—'"></p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Days</p>
+                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.operatingDays || '—'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Status -->
+                <div class="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4">
+                    <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Social Media</h5>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Facebook</p>
+                            <span :class="getSocialStatusClass(displayData.facebook)" 
+                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                                x-text="getSocialStatus(displayData.facebook)"></span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Twitter</p>
+                            <span :class="getSocialStatusClass(displayData.twitter)" 
+                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                                x-text="getSocialStatus(displayData.twitter)"></span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Instagram</p>
+                            <span :class="getSocialStatusClass(displayData.instagram)" 
+                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                                x-text="getSocialStatus(displayData.instagram)"></span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">LinkedIn</p>
+                            <span :class="getSocialStatusClass(displayData.linkedin)" 
+                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                                x-text="getSocialStatus(displayData.linkedin)"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BEGIN MODAL PUBLIC BRANDING EDIT -->
+        <div :class="{ 'show': showModal }"
+            class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
+            <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+                @click="showModal = false"></div>
+            <div class="modal-dialog rounded-2xl">
+                <!-- close btn -->
+                <button @click="showModal = false" class="modal-close-btn">
+                    <span class="w-6 h-6 block" x-icon="'close'"></span>
+                </button>
+
+                <div class="modal-content custom-scrollbar">
+                    <div class="modal-header-sticky">
+                        <h3 class="h3">
+                            Edit Public Information
+                        </h3>
+                        <p class="mt-2 text-sm text-theme-secondary">
+                            Informasi ini digunakan untuk tampilan Footer dan Header di website publik anda.
+                        </p>
+                    </div>
+                    <form class="flex flex-col">
+                        <div class="modal-body-content gap-8">
+                            <!-- Public Contacts -->
+                            <div>
+                                <h5 class="h5 mb-4">Public Support Contacts</h5>
+                                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                                    <div class="lg:col-span-2">
+                                        <label class="form-label">Company Name</label>
+                                        <input x-model="editingData.companyName" type="text" placeholder="Your Company Name"
+                                            class="form-input" />
+                                    </div>
+                                    <div class="lg:col-span-2">
+                                        <label class="form-label">Physical Store
+                                            Address (Full)</label>
+                                        <input x-model="editingData.storeAddress" type="text"
+                                            placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345" class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Support
+                                            Email</label>
+                                        <input x-model="editingData.supportEmail" type="email"
+                                            placeholder="support@company.com" class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Support
+                                            Phone</label>
+                                        <input x-model="editingData.supportPhone" type="text" placeholder="+62 21 1234 5678"
+                                            class="form-input" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Operating Hours -->
+                            <div>
+                                <h5 class="h5 mb-4">Operating Hours</h5>
+                                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                                    <div>
+                                        <label class="form-label">Operating
+                                            Hours</label>
+                                        <input x-model="editingData.operatingHours" type="text"
+                                            placeholder="8:00am - 8:00pm" class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Operating
+                                            Days</label>
+                                        <input x-model="editingData.operatingDays" type="text"
+                                            placeholder="Monday - Saturday" class="form-input" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Presence -->
+                            <div>
+                                <h5 class="h5 mb-4">Social Media Presence</h5>
+                                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                                    <div>
+                                        <label class="form-label">Facebook
+                                            URL</label>
+                                        <input x-model="editingData.facebook" type="text"
+                                            placeholder="https://facebook.com/..." class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Twitter
+                                            URL</label>
+                                        <input x-model="editingData.twitter" type="text"
+                                            placeholder="https://twitter.com/..." class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Instagram
+                                            URL</label>
+                                        <input x-model="editingData.instagram" type="text"
+                                            placeholder="https://instagram.com/..." class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">LinkedIn
+                                            URL</label>
+                                        <input x-model="editingData.linkedin" type="text"
+                                            placeholder="https://linkedin.com/..." class="form-input" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- Footer Buttons -->
+                        <div class="modal-footer-actions w-full">
+                            <button @click="showModal = false" type="button" class="btn btn-outline w-full sm:w-auto">
+                                Cancel
+                            </button>
+                            <button id="save-branding-btn" @click="savePublicInfo($el)" type="button"
+                                class="btn btn-primary w-full sm:w-auto px-8 py-3 ml-auto">
+                                Save Information
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- END MODAL PUBLIC BRANDING EDIT -->
     </div>
 
 </div>
