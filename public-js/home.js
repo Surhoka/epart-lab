@@ -60,37 +60,11 @@ window.initHomePage = function () {
                 const postRes = await fetch('/feeds/posts/default/-/Article?alt=json&max-results=10');
                 const postJson = await postRes.json();
 
-                const parser = new DOMParser();
-
                 // Helper to parse meta from entries
                 const extractMeta = (entries) => {
                     return (entries || []).map(entry => {
                         const htmlContent = entry.content ? entry.content.$t : '';
-                        const doc = parser.parseFromString(htmlContent, 'text/html');
-
-                        // Detect via Selector (New Div or Old Script)
-                        const metaNode = doc.querySelector('.ezy-meta');
-                        let meta = null;
-
-                        if (metaNode) {
-                            try {
-                                const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
-                                meta = JSON.parse(rawData);
-                            } catch (e) { }
-                        } else {
-                            // Regex Fallback for truncated content
-                            const divMatch = htmlContent.match(/<div[^>]*class=["']ezy-meta["'][^>]*data-meta=["'](.*?)["']/);
-                            const scriptMatch = htmlContent.match(/<script[^>]*class=["']ezy-meta["'][^>]*>([\s\S]*?)<\/script>/);
-
-                            try {
-                                if (divMatch && divMatch[1]) {
-                                    const decoded = divMatch[1].replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-                                    meta = JSON.parse(decoded);
-                                } else if (scriptMatch && scriptMatch[1]) {
-                                    meta = JSON.parse(scriptMatch[1]);
-                                }
-                            } catch (e) { }
-                        }
+                        const meta = window.CDNFetcher.parseMetaNode(htmlContent, null);
 
                         if (meta) {
                             meta._entry = entry;
