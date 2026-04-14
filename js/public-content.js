@@ -681,13 +681,14 @@
                                     fileName: `${context}-${Date.now()}-test.jpg`,
                                     fileData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
                                     fileType: 'image/jpeg',
-                                    dbId: this.dbId
+                                    dbId: this.dbId,
+                                    blogId: getBlogId()
                                 }, resolve, reject);
                             });
                             console.log(`Test upload for ${context}:`, res);
                             if (res?.status === 'success') {
                                 console.log('Upload response details:', {
-                                    albumId: res.albumId,
+                                    albumId: res.albumId || res.data?.albumId, // Defensif jika struktur data bersarang
                                     autoCreatedAlbum: res.autoCreatedAlbum,
                                     albumContext: res.albumContext
                                 });
