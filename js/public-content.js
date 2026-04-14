@@ -488,6 +488,204 @@
         }
     };
 
+    const registerAlbumManager = () => {
+        if (window.Alpine?.data && !window.Alpine.data('albumManager')) {
+            window.Alpine.data('albumManager', () => ({
+                dbId: null,
+                albums: [],
+                albumFiles: [],
+                selectedAlbumId: '',
+                isLoading: false,
+                isSyncing: false,
+                isUploading: false,
+                showAlbumModal: false,
+                isEditing: false,
+                editingAlbum: {},
+
+                async init() {
+                    this.dbId = getDbId();
+                    if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
+                    await this.fetchAlbums();
+                },
+
+                async fetchAlbums() {
+                    this.isLoading = true;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('getAlbums', { dbId: this.dbId }, resolve, reject);
+                        });
+                        if (res?.status === 'success') {
+                            this.albums = res.data || [];
+                            if (!this.selectedAlbumId && this.albums.length) {
+                                this.selectAlbum(this.albums[0].id);
+                            }
+                        } else {
+                            showToast(res?.message || 'Gagal memuat album', 'error');
+                        }
+                    } catch (e) {
+                        console.error('fetchAlbums:', e);
+                        showToast('Gagal memuat album', 'error');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                async selectAlbum(albumId) {
+                    this.selectedAlbumId = albumId;
+                    await this.fetchAlbumFiles(albumId);
+                },
+
+                async fetchAlbumFiles(albumId) {
+                    if (!albumId) return;
+                    this.isLoading = true;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('getAlbumImages', { dbId: this.dbId, albumId: albumId }, resolve, reject);
+                        });
+                        if (res?.status === 'success') {
+                            this.albumFiles = res.data || [];
+                        } else {
+                            showToast(res?.message || 'Gagal memuat file album', 'error');
+                        }
+                    } catch (e) {
+                        console.error('fetchAlbumFiles:', e);
+                        showToast('Gagal memuat file album', 'error');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                openAddAlbum() {
+                    this.isEditing = false;
+                    this.editingAlbum = { name: '', slug: '', description: '', active: true, sortOrder: 0 };
+                    this.showAlbumModal = true;
+                },
+
+                editAlbum(item) {
+                    this.isEditing = true;
+                    this.editingAlbum = { ...item };
+                    this.showAlbumModal = true;
+                },
+
+                async saveAlbum() {
+                    if (!this.editingAlbum.name) { showToast('Nama album harus diisi', 'warning'); return; }
+                    const payload = {
+                        ...this.editingAlbum,
+                        dbId: this.dbId,
+                        slug: this.editingAlbum.slug || this.editingAlbum.name
+                    };
+                    const res = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('saveAlbum', payload, resolve, reject);
+                    });
+                    if (res?.status === 'success') {
+                        showToast('Album berhasil disimpan');
+                        this.showAlbumModal = false;
+                        await this.fetchAlbums();
+                    } else {
+                        showToast(res?.message || 'Gagal menyimpan album', 'error');
+                    }
+                },
+
+                async deleteAlbum(id) {
+                    if (!confirm('Hapus album ini?')) return;
+                    const res = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('deleteAlbum', { id, dbId: this.dbId }, resolve, reject);
+                    });
+                    if (res?.status === 'success') {
+                        showToast('Album dihapus');
+                        if (this.selectedAlbumId === id) {
+                            this.selectedAlbumId = '';
+                            this.albumFiles = [];
+                        }
+                        await this.fetchAlbums();
+                    } else {
+                        showToast(res?.message || 'Gagal menghapus album', 'error');
+                    }
+                },
+
+                async uploadAlbumImage(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
+                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
+                    if (!this.selectedAlbumId) { showToast('Pilih album terlebih dahulu', 'warning'); return; }
+
+                    this.isUploading = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `album-${Date.now()}-${file.name}`,
+                            originalFileName: file.name,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            albumId: this.selectedAlbumId
+                        }, (res) => {
+                            this.isUploading = false;
+                            if (res?.status === 'success') {
+                                showToast('Gambar berhasil diupload');
+                                this.fetchAlbumFiles(this.selectedAlbumId);
+                            } else {
+                                showToast(res?.message || 'Gagal upload gambar', 'error');
+                            }
+                        }, () => {
+                            this.isUploading = false;
+                            showToast('Gagal upload gambar', 'error');
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                },
+
+                async deleteFile(id) {
+                    if (!confirm('Hapus file ini?')) return;
+                    const res = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('deleteAlbumImage', { id, dbId: this.dbId }, resolve, reject);
+                    });
+                    if (res?.status === 'success') {
+                        showToast('File album dihapus');
+                        this.fetchAlbumFiles(this.selectedAlbumId);
+                    } else {
+                        showToast(res?.message || 'Gagal menghapus file', 'error');
+                    }
+                },
+
+                async syncMetadata() {
+                    this.isSyncing = true;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('syncAlbumMetadataToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
+                        });
+                        if (res?.status === 'success') {
+                            showToast(res.message);
+                        } else {
+                            showToast(res?.message || 'Gagal sinkron metadata', 'error');
+                        }
+                    } catch (e) {
+                        console.error('syncMetadata:', e);
+                        showToast('Gagal sinkron metadata', 'error');
+                    } finally {
+                        this.isSyncing = false;
+                    }
+                },
+
+                get selectedAlbumName() {
+                    const album = this.albums.find(a => a.id === this.selectedAlbumId);
+                    return album ? album.name : 'Pilih album';
+                },
+
+                formatDate(value) {
+                    if (!value) return '-';
+                    try {
+                        return new Date(value).toLocaleString('id-ID');
+                    } catch (e) {
+                        return value;
+                    }
+                }
+            }));
+        }
+    };
+
     // ================================================================
     // LANDING CONFIG MANAGER (from home-admin.js)
     // ================================================================
@@ -1213,17 +1411,23 @@
                     return new Promise((resolve) => {
                         window.sendDataToGoogle('getAboutPage', { dbId: this.dbId }, (res) => {
                             if (res && res.status === 'success' && res.data) {
-                                // [FIX] Gunakan struktur payload yang konsisten
+                                // Gunakan struktur dari backend secara aman
                                 const raw = res.data;
-                                const payload = typeof raw.payload === 'object' ? raw.payload : {};
+                                const p = (typeof raw.payload === 'object' && raw.payload !== null) ? raw.payload : {};
 
                                 this.formData.id = raw.id || 'about';
                                 this.formData.title = raw.title || 'About Us';
                                 this.formData.payload = {
                                     ...this.formData.payload,
-                                    ...payload,
-                                    hero_image: payload.hero_image || raw.hero_image || '',
-                                    vision_image: payload.vision_image || raw.vision_image || ''
+                                    ...p,
+                                    content: p.content || raw.content || '',
+                                    hero_image: p.hero_image || raw.hero_image || '',
+                                    vision_image: p.vision_image || raw.vision_image || '',
+                                    subtitle: p.subtitle || raw.subtitle || '',
+                                    stats: Array.isArray(p.stats) ? p.stats : [],
+                                    values: Array.isArray(p.values) ? p.values : [],
+                                    cta_title: p.cta_title || raw.cta_title || '',
+                                    cta_desc: p.cta_desc || raw.cta_desc || ''
                                 };
                             }
                             this.loading = false;
@@ -1444,6 +1648,7 @@
         registerHeroManager();
         registerCategoryManager();
         registerFeaturedProductManager();
+        registerAlbumManager();
         registerLandingConfigManager();
         registerLandingPageAdmin();
         registerPostEditor();
