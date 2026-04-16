@@ -15,10 +15,10 @@
             class="pb-3 text-sm font-semibold border-b-2 transition-all">
             Theme
         </button>
-        <button @click="activeTab = 'blogger'" 
+        <button @click="activeTab = 'blogger'"
             :class="activeTab === 'blogger' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
             class="pb-3 text-sm font-semibold border-b-2 transition-all">
-           Public Blogger
+            Public Blogger
         </button>
         <button @click="activeTab = 'notifications'"
             :class="activeTab === 'notifications' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
@@ -308,40 +308,50 @@
         </div>
     </div>
 
-    <!-- PUBLIC BLOGGER TAB -->
+    <!-- Tab 3: Public Blogger Tab -->
     <div x-show="!isLoading && activeTab === 'blogger'" x-transition x-cloak>
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Blogger Integration</h4>
-    <p class="text-sm text-gray-500 dark:text-gray-400">Konfigurasi ID dan URL untuk sinkronisasi konten dengan Public Blogger.</p>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Blog ID</label>
-            <input x-model="settings.blogId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Blogspot">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Page ID</label>
-            <input x-model="settings.pageId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Halaman /p/">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Post ID</label>
-            <input x-model="settings.postId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Halaman /yyyy/mm/">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Web URL</label>
-            <input x-model="settings.webUrl" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="https://yourblog.blogspot.com">
-        </div>
-    </div>
+            <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Public Blogger Integration</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Konfigurasi ID dan URL untuk sinkronisasi konten dengan
+                Public Blogger.</p>
 
-    <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
-        <button @click="saveBloggerSettings($el)"
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Blog ID</label>
+                    <input x-model="settings.blogId" type="text"
+                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                        placeholder="ID Blogspot">
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Page ID</label>
+                    <input x-model="settings.pageId" type="text"
+                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                        placeholder="ID Halaman /p/">
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Post ID</label>
+                    <input x-model="settings.postId" type="text"
+                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                        placeholder="ID Halaman /yyyy/mm/">
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Web URL</label>
+                    <input x-model="settings.webUrl" type="text"
+                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                        placeholder="https://yourblog.blogspot.com">
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
+                <button @click="saveBloggerSettings($el)"
                     class="btn flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
                     Save Blogger Settings
                 </button>
+            </div>
         </div>
     </div>
 
-    <!--  Notifications -->
+    <!-- Tab 4: Notifications -->
     <div x-show="!isLoading && activeTab === 'notifications'" x-transition x-cloak>
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Email Notifications</h4>
@@ -351,7 +361,8 @@
                 <div class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
                     <div>
                         <p class="text-sm font-medium text-gray-800 dark:text-white">Order Updates</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Receive emails when a new order is placed.
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Receive emails when a new order is
+                            placed.
                         </p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -366,7 +377,8 @@
                 <div class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
                     <div>
                         <p class="text-sm font-medium text-gray-800 dark:text-white">Low Stock Alerts</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Get notified when product stock is running
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Get notified when product stock is
+                            running
                             low.</p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -381,7 +393,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-800 dark:text-white">Marketing & Updates</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Receive news about Ezyparts features.</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Receive news about Ezyparts features.
+                        </p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" x-model="settings.notifications.marketing" class="sr-only peer">
@@ -401,7 +414,7 @@
         </div>
     </div>
 
-    <!-- Tab 3: Security -->
+    <!-- Tab 5: Security -->
     <div x-show="!isLoading && activeTab === 'security'" x-transition x-cloak>
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Security Settings</h4>
@@ -459,5 +472,4 @@
             </div>
         </div>
     </div>
-
 </div>
