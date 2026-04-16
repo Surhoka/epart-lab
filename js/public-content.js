@@ -550,6 +550,21 @@
                     });
                 },
 
+                openBloggerEditor() {
+                    if (!this.config.blogId || !this.config.pageId) {
+                        showToast('Harap isi Blog ID dan Page ID di sidebar.', 'warning');
+                        return;
+                    }
+                    const url = `https://draft.blogger.com/blog/page/edit/${this.config.blogId}/${this.config.pageId}`;
+                    
+                    // Membuka jendela popup agar tidak mengganggu tab admin yang sedang aktif
+                    const width = 1100;
+                    const height = 800;
+                    const left = (window.innerWidth / 2) - (width / 2);
+                    const top = (window.innerHeight / 2) - (height / 2);
+                    window.open(url, 'BloggerEditor', `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`);
+                },
+
                 async fetchAlbums() {
                     this.isLoading = true;
                     try {
