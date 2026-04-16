@@ -17,7 +17,7 @@
             <span class="w-4 h-4" x-icon="'layers'"></span> Categories
         </button>
         <button @click="activeTab = 'branding'" :class="{ 'active': activeTab === 'branding' }" class="tab-nav-btn">
-            <span class="w-4 h-4" x-icon="'building'"></span> Public Branding
+            <span class="w-4 h-4" x-icon="'globe'"></span> Public Branding
         </button>
     </div>
 
@@ -426,7 +426,8 @@
                 <div class="flex items-start justify-between mb-6">
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white">Public Company Information</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Information displayed on your website footer and header</p>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Information displayed on your website
+                            footer and header</p>
                     </div>
                     <button @click="openEditModal()" class="btn btn-primary btn-sm">
                         <span class="w-4 h-4" x-icon="'pencil'"></span> Edit
@@ -441,20 +442,24 @@
                         <div class="space-y-2 text-sm">
                             <div>
                                 <p class="text-gray-500 dark:text-gray-400">Company Name</p>
-                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.companyName || '—'"></p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.companyName || '—'"></p>
                             </div>
                             <div>
                                 <p class="text-gray-500 dark:text-gray-400">Store Address</p>
-                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.storeAddress || '—'"></p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.storeAddress || '—'"></p>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <p class="text-gray-500 dark:text-gray-400">Email</p>
-                                    <p class="font-medium text-gray-900 dark:text-white truncate" x-text="displayData.supportEmail || '—'"></p>
+                                    <p class="font-medium text-gray-900 dark:text-white truncate"
+                                        x-text="displayData.supportEmail || '—'"></p>
                                 </div>
                                 <div>
                                     <p class="text-gray-500 dark:text-gray-400">Phone</p>
-                                    <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.supportPhone || '—'"></p>
+                                    <p class="font-medium text-gray-900 dark:text-white"
+                                        x-text="displayData.supportPhone || '—'"></p>
                                 </div>
                             </div>
                         </div>
@@ -466,11 +471,13 @@
                         <div class="space-y-2 text-sm">
                             <div>
                                 <p class="text-gray-500 dark:text-gray-400">Hours</p>
-                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.operatingHours || '—'"></p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.operatingHours || '—'"></p>
                             </div>
                             <div>
                                 <p class="text-gray-500 dark:text-gray-400">Days</p>
-                                <p class="font-medium text-gray-900 dark:text-white" x-text="displayData.operatingDays || '—'"></p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.operatingDays || '—'"></p>
                             </div>
                         </div>
                     </div>
@@ -482,26 +489,26 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div class="text-center">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Facebook</p>
-                            <span :class="getSocialStatusClass(displayData.facebook)" 
-                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                            <span :class="getSocialStatusClass(displayData.facebook)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
                                 x-text="getSocialStatus(displayData.facebook)"></span>
                         </div>
                         <div class="text-center">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Twitter</p>
-                            <span :class="getSocialStatusClass(displayData.twitter)" 
-                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                            <span :class="getSocialStatusClass(displayData.twitter)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
                                 x-text="getSocialStatus(displayData.twitter)"></span>
                         </div>
                         <div class="text-center">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Instagram</p>
-                            <span :class="getSocialStatusClass(displayData.instagram)" 
-                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                            <span :class="getSocialStatusClass(displayData.instagram)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
                                 x-text="getSocialStatus(displayData.instagram)"></span>
                         </div>
                         <div class="text-center">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">LinkedIn</p>
-                            <span :class="getSocialStatusClass(displayData.linkedin)" 
-                                class="inline-block text-xs font-bold px-2 py-1 rounded" 
+                            <span :class="getSocialStatusClass(displayData.linkedin)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
                                 x-text="getSocialStatus(displayData.linkedin)"></span>
                         </div>
                     </div>
@@ -537,14 +544,15 @@
                                 <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                                     <div class="lg:col-span-2">
                                         <label class="form-label">Company Name</label>
-                                        <input x-model="editingData.companyName" type="text" placeholder="Your Company Name"
-                                            class="form-input" />
+                                        <input x-model="editingData.companyName" type="text"
+                                            placeholder="Your Company Name" class="form-input" />
                                     </div>
                                     <div class="lg:col-span-2">
                                         <label class="form-label">Physical Store
                                             Address (Full)</label>
                                         <input x-model="editingData.storeAddress" type="text"
-                                            placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345" class="form-input" />
+                                            placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
+                                            class="form-input" />
                                     </div>
                                     <div>
                                         <label class="form-label">Support
@@ -555,8 +563,8 @@
                                     <div>
                                         <label class="form-label">Support
                                             Phone</label>
-                                        <input x-model="editingData.supportPhone" type="text" placeholder="+62 21 1234 5678"
-                                            class="form-input" />
+                                        <input x-model="editingData.supportPhone" type="text"
+                                            placeholder="+62 21 1234 5678" class="form-input" />
                                     </div>
                                 </div>
                             </div>
