@@ -20,6 +20,9 @@
                 footerColor: '#1e3a8a',
                 gatewayToken: '',
                 blogId: '',
+                pageId: '',
+                postId: '',
+                webUrl: '',
                 siteKey: '',
                 adminUrl: '',
                 dbName: ''
@@ -53,6 +56,15 @@
                     }
                     if (config.blogId) {
                         this.settings.blogId = config.blogId;
+                    }
+                    if (config.pageId) {
+                        this.settings.pageId = config.pageId;
+                    }
+                    if (config.postId) {
+                        this.settings.postId = config.postId;
+                    }
+                    if (config.webUrl) {
+                        this.settings.webUrl = config.webUrl;
                     }
                     if (config.siteKey) {
                         this.settings.siteKey = config.siteKey;
@@ -117,7 +129,6 @@
 
                         // 2. Simpan General & Security Settings ke backend (PropertiesService)
                         const settingsPayload = {
-                            blogId: this.settings.blogId,
                             gatewayToken: this.settings.gatewayToken,
                             dbName: this.settings.dbName
                         };
@@ -126,9 +137,12 @@
                             if (res && res.status === 'success') {
                                 window.showToast('Semua pengaturan berhasil disinkronkan ke Cloud!', 'success');
 
-                                // Update runtime config agar tidak perlu reload
+                                // Update runtime config & cache untuk konsistensi langsung tanpa reload
                                 if (window.EzyApi && window.EzyApi.config) {
                                     window.EzyApi.config.blogId = this.settings.blogId;
+                                    window.EzyApi.config.pageId = this.settings.pageId;
+                                    window.EzyApi.config.postId = this.settings.postId;
+                                    window.EzyApi.config.webUrl = this.settings.webUrl;
                                     window.EzyApi.config.gatewayToken = this.settings.gatewayToken;
                                     window.EzyApi.config.dbName = this.settings.dbName;
                                     window.EzyApi.config.adminUrl = this.settings.adminUrl;
