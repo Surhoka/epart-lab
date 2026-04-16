@@ -309,22 +309,23 @@
     </div>
 
     <!-- PUBLIC BLOGGER TAB -->
-    <div x-show="activeTab === 'blogger'" x-transition class="space-y-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Blogger Integration</h3>
-    <p class="text-sm text-gray-500 dark:text-gray-400">Konfigurasi ID dan URL untuk sinkronisasi konten dengan platform Blogger.</p>
+    <div x-show="activeTab === 'blogger'" x-transition x-cloak>
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Blogger Integration</h4>
+    <p class="text-sm text-gray-500 dark:text-gray-400">Konfigurasi ID dan URL untuk sinkronisasi konten dengan Public Blogger.</p>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Blog ID</label>
-            <input x-model="settings.blogId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 8472635291028374651">
+            <input x-model="settings.blogId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Blogspot">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Page ID</label>
-            <input x-model="settings.pageId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Halaman Statis (Opsional)">
+            <input x-model="settings.pageId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Halaman /p/">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Post ID</label>
-            <input x-model="settings.postId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Postingan Utama (Opsional)">
+            <input x-model="settings.postId" type="text" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="ID Halaman /yyyy/mm/">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Web URL</label>
@@ -332,11 +333,11 @@
         </div>
     </div>
 
-    <div class="pt-2">
-        <button @click="saveBloggerSettings(this)" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m4 3V4"></path></svg>
-            Save Blogger Settings
-        </button>
+    <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
+        <button @click="saveBloggerSettings($el)"
+                    class="btn flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
+                    Save Blogger Settings
+                </button>
         </div>
     </div>
 
