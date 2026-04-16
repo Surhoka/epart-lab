@@ -309,7 +309,7 @@
     </div>
 
     <!-- PUBLIC BLOGGER TAB -->
-    <div x-show="activeTab === 'blogger'" x-transition x-cloak>
+    <div x-show="!isLoading && activeTab === 'blogger'" x-transition x-cloak>
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
     <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Blogger Integration</h4>
     <p class="text-sm text-gray-500 dark:text-gray-400">Konfigurasi ID dan URL untuk sinkronisasi konten dengan Public Blogger.</p>
