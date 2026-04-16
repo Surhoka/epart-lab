@@ -521,15 +521,33 @@
                 showAlbumModal: false,
                 isEditing: false,
                 editingAlbum: {},
+                config: {
+                    blogId: '',
+                    pageId: ''
+                },
 
                 async init() {
                     this.dbId = getDbId();
+                    
+                    // Inisialisasi konfigurasi dari cache localStorage
+                    const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                    this.config.blogId = cache.blogId || getBlogId() || '';
+                    this.config.pageId = cache.pageId || '';
+
                     console.log('Album Manager dbId:', this.dbId);
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
                     await this.fetchAlbums();
 
                     // Dengarkan event dari manager lain jika ada album baru/update
                     window.addEventListener('ezy:album-updated', () => this.fetchAlbums());
+
+                    // Simpan otomatis ke localStorage saat nilai input di UI berubah
+                    this.$watch('config', (val) => {
+                        const current = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                        localStorage.setItem('Ezyparts_Config_Cache', JSON.stringify({
+                            ...current, ...val
+                        }));
+                    });
                 },
 
                 async fetchAlbums() {
