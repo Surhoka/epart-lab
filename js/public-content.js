@@ -140,33 +140,13 @@
 
                 async syncToBlogger() {
                     this.isSyncing = true;
-                    showToast('Menyiapkan halaman beranda...', 'info');
+                    showToast('Menyinkronkan data beranda...', 'info');
                     try {
-                        const blogId = getBlogId();
-                        if (!blogId) {
-                            showToast('Blog ID belum dikonfigurasi.', 'error');
-                            this.isSyncing = false; return;
-                        }
-
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('syncHomeFullToBlogger', {
-                                dbId: this.dbId,
-                                blogId: blogId,
-                                injectTemplate: true
-                            }, resolve, reject);
+                            window.sendDataToGoogle('syncHomeFullToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
                         });
-
-                        if (res.status === 'success') {
-                            showToast('Halaman siap. Membuka Editor Blogger...');
-                            if (res.pageId) {
-                                setTimeout(() => {
-                                    const editUrl = `https://draft.blogger.com/blog/page/edit/${res.blogId}/${res.pageId}`;
-                                    window.open(editUrl, '_blank');
-                                }, 800);
-                            }
-                        } else {
-                            showToast(res.message || 'Gagal sinkron', 'error');
-                        }
+                        if (res.status === 'success') showToast(res.message);
+                        else showToast(res.message, 'error');
                     } catch (e) {
                         showToast('Gagal sinkron: ' + e, 'error');
                     } finally {
@@ -304,24 +284,13 @@
 
                 async syncToBlogger() {
                     this.isSyncing = true;
-                    showToast('Menyiapkan halaman beranda...', 'info');
+                    showToast('Menyinkronkan kategori...', 'info');
                     try {
-                        const blogId = getBlogId();
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('syncHomeFullToBlogger', {
-                                dbId: this.dbId,
-                                blogId: blogId,
-                                injectTemplate: true
-                            }, resolve, reject);
+                            window.sendDataToGoogle('syncHomeFullToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
                         });
-                        if (res.status === 'success') {
-                            showToast('Halaman siap. Membuka Editor...');
-                            if (res.pageId) {
-                                window.open(`https://draft.blogger.com/blog/page/edit/${res.blogId}/${res.pageId}`, '_blank');
-                            }
-                        } else {
-                            showToast(res.message, 'error');
-                        }
+                        if (res.status === 'success') showToast(res.message);
+                        else showToast(res.message, 'error');
                     } catch (e) {
                         showToast('Gagal sinkron: ' + e, 'error');
                     } finally {
