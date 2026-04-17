@@ -25,6 +25,8 @@
     <!-- TAB: HERO SLIDER -->
     <!-- ============================================================ -->
     <div x-show="activeTab === 'hero'" x-data="heroManager" x-init="init()">
+        <input type="file" x-ref="heroImageInput" class="hidden" accept="image/*" @change="handleImageUpload($event)">
+
         <!-- Toolbar -->
         <div class="mb-4 flex items-center justify-between">
             <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -35,6 +37,9 @@
                     class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:text-blue-400 transition-colors disabled:opacity-50">
                     <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                     <span x-text="isSyncing ? 'Syncing...' : 'Sync & Open Editor'"></span>
+                </button>
+                <button @click="openAddModal()" class="btn btn-primary">
+                    <span class="w-4 h-4" x-icon="'plus'"></span> Add Slide
                 </button>
             </div>
         </div>
@@ -72,6 +77,14 @@
                             <h3 class="font-bold text-gray-900 dark:text-white truncate" x-text="slide.title"></h3>
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate"
                                 x-text="slide.subtitle || '—'"></p>
+                            <div class="mt-3 flex items-center gap-2">
+                                <button @click="editSlide(slide)" class="btn btn-outline btn-sm flex-1">
+                                    Edit
+                                </button>
+                                <button @click="deleteSlide(slide.id)" class="btn btn-danger btn-sm">
+                                    <span class="w-3.5 h-3.5" x-icon="'trash'"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -82,8 +95,107 @@
                         class="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-16 dark:border-gray-800">
                         <span class="w-12 h-12 text-gray-300" x-icon="'image'"></span>
                         <p class="mt-4 font-bold text-gray-500">No slides yet</p>
+                        <button @click="openAddModal()" class="btn btn-primary mt-4">Add First Slide</button>
                     </div>
                 </template>
+            </div>
+        </template>
+
+        <!-- Modal Add/Edit Hero Slide -->
+        <template x-teleport="body">
+            <div x-show="showModal" :class="{ 'show': showModal }" x-trap="showModal" x-transition
+                class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
+                <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+                    @click="showModal = false"></div>
+
+                <div class="modal-dialog">
+                    <!-- close btn -->
+                    <button @click="showModal = false" class="modal-close-btn">
+                        <span class="w-6 h-6 block" x-icon="'close'"></span>
+                    </button>
+
+                    <!-- Modal Content -->
+                    <div class="modal-content custom-scrollbar">
+                        <div class="modal-header-sticky">
+                            <h3 class="h3" x-text="isEditing ? 'Edit Slide' : 'Add Slide'"></h3>
+                            <p class="mt-2 text-sm text-theme-secondary">Visual configuration for the home
+                                hero banner.</p>
+                        </div>
+                        <div class="modal-body-content">
+                            <!-- Image Upload -->
+                            <div>
+                                <label class="form-label">Slide Image</label>
+                                <div class="relative group aspect-video w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                                    @click="$refs.heroImageInput.click()">
+                                    <template x-if="editingItem.imageurl">
+                                        <img :src="editingItem.imageurl" class="h-full w-full object-cover">
+                                    </template>
+                                    <template x-if="!editingItem.imageurl">
+                                        <div
+                                            class="flex h-full flex-col items-center justify-center text-gray-300 gap-2">
+                                            <span class="w-8 h-8" x-icon="'upload'"></span>
+                                            <span class="text-xs font-bold">Click to upload</span>
+                                        </div>
+                                    </template>
+                                    <div x-show="isUploading"
+                                        class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80">
+                                        <span
+                                            class="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
+                                    </div>
+                                </div>
+                                <input type="text" x-model="editingItem.imageurl" class="form-input mt-2"
+                                    placeholder="Or enter image URL">
+                            </div>
+                            <div>
+                                <label class="form-label">Title
+                                    *</label>
+                                <input type="text" x-model="editingItem.title" class="form-input"
+                                    placeholder="Slide title">
+                            </div>
+                            <div>
+                                <label class="form-label">Subtitle</label>
+                                <input type="text" x-model="editingItem.subtitle" class="form-input"
+                                    placeholder="Support text">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="form-label">Button
+                                        Text</label>
+                                    <input type="text" x-model="editingItem.buttontext" class="form-input"
+                                        placeholder="Shop Now">
+                                </div>
+                                <div>
+                                    <label class="form-label">Button
+                                        Link</label>
+                                    <input type="text" x-model="editingItem.buttonlink" class="form-input"
+                                        placeholder="#shop">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="form-label">Urutan</label>
+                                    <input type="number" x-model.number="editingItem.sortorder" class="form-input">
+                                </div>
+                                <div class="flex items-end pb-1">
+                                    <label class="flex cursor-pointer items-center gap-2">
+                                        <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
+                                        <div
+                                            class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700 relative">
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <footer class="modal-footer-actions">
+                            <button @click="showModal = false" class="btn btn-outline flex-1">Cancel</button>
+                            <button id="save-hero-btn" @click="saveSlide()" class="btn btn-primary flex-1">Save
+                                Slide</button>
+                        </footer>
+                    </div>
+                </div>
             </div>
         </template>
     </div>
@@ -92,6 +204,9 @@
     <!-- TAB: CATEGORIES -->
     <!-- ============================================================ -->
     <div x-show="activeTab === 'categories'" x-data="categoryManager" x-init="init()">
+        <input type="file" x-ref="categoryImageInput" class="hidden" accept="image/*"
+            @change="handleImageUpload($event)">
+
         <!-- Toolbar -->
         <div class="mb-4 flex items-center justify-between">
             <p class="text-sm text-gray-500 dark:text-gray-400"><span x-text="categories.length"></span> categories
@@ -101,6 +216,9 @@
                     class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:text-blue-400 transition-colors disabled:opacity-50">
                     <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                     <span x-text="isSyncing ? 'Syncing...' : 'Sync & Open Editor'"></span>
+                </button>
+                <button @click="openAddModal()" class="btn btn-primary">
+                    <span class="w-4 h-4" x-icon="'plus'"></span> Add Category
                 </button>
             </div>
         </div>
@@ -130,6 +248,8 @@
                             <th
                                 class="px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-gray-500">
                                 Status</th>
+                            <th class="px-4 py-3 text-right text-xs font-black uppercase tracking-widest text-gray-500">
+                                Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
@@ -168,6 +288,18 @@
                                         :class="(cat.active === true || cat.active === 'TRUE') ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800'"
                                         x-text="(cat.active === true || cat.active === 'TRUE') ? 'Active' : 'Inactive'"></span>
                                 </td>
+                                <td class="px-4 py-3 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button @click="editCategory(cat)"
+                                            class="rounded-lg p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                            <span class="w-4 h-4" x-icon="'pencil'"></span>
+                                        </button>
+                                        <button @click="deleteCategory(cat.id)"
+                                            class="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                            <span class="w-4 h-4" x-icon="'trash'"></span>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         </template>
                         <template x-if="categories.length === 0">
@@ -180,6 +312,106 @@
                         </template>
                     </tbody>
                 </table>
+            </div>
+        </template>
+
+        <!-- Modal Add/Edit Category -->
+        <template x-teleport="body">
+            <div x-show="showModal" :class="{ 'show': showModal }" x-trap="showModal" x-transition
+                class="fixed inset-0 flex justify-center items-center p-4 overflow-hidden z-[99999] modal" x-cloak>
+                <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+                    @click="showModal = false"></div>
+
+                <div class="modal-dialog">
+                    <!-- close btn -->
+                    <button @click="showModal = false" class="modal-close-btn">
+                        <span class="w-6 h-6 block" x-icon="'close'"></span>
+                    </button>
+
+                    <!-- Modal Content -->
+                    <div class="modal-content custom-scrollbar">
+                        <div class="modal-header-sticky">
+                            <h3 class="h3" x-text="isEditing ? 'Edit Category' : 'Add Category'"></h3>
+                            <p class="mt-2 text-sm text-theme-secondary">Organize your products into logical groups.</p>
+                        </div>
+                        <div class="modal-body-content">
+                            <!-- Image -->
+                            <div>
+                                <label class="form-label">Image</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex-shrink-0"
+                                        @click="$refs.categoryImageInput.click()">
+                                        <template x-if="editingItem.imageurl">
+                                            <img :src="editingItem.imageurl" class="h-full w-full object-cover">
+                                        </template>
+                                        <template x-if="!editingItem.imageurl">
+                                            <div class="flex h-full items-center justify-center text-gray-300">
+                                                <span class="w-6 h-6" x-icon="'upload'"></span>
+                                            </div>
+                                        </template>
+                                        <div x-show="isUploading"
+                                            class="absolute inset-0 flex items-center justify-center bg-white/80">
+                                            <span
+                                                class="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></span>
+                                        </div>
+                                    </div>
+                                    <input type="text" x-model="editingItem.imageurl" class="form-input flex-1"
+                                        placeholder="Image URL">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Name
+                                    *</label>
+                                <input type="text" x-model="editingItem.name" class="form-input"
+                                    placeholder="Category name">
+                            </div>
+                            <div>
+                                <label class="form-label">Slug</label>
+                                <input type="text" x-model="editingItem.slug" class="form-input font-mono"
+                                    placeholder="category-slug">
+                            </div>
+                            <div>
+                                <label class="form-label">Description</label>
+                                <textarea x-model="editingItem.description" rows="2" class="form-input"
+                                    placeholder="Short description"></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">Parent Category</label>
+                                <select x-model="editingItem.parentid" class="form-input">
+                                    <option value="">— None (Top Level) —</option>
+                                    <template
+                                        x-for="cat in categories.filter(c => !c.parentid && c.id !== editingItem.id)"
+                                        :key="cat.id">
+                                        <option :value="cat.id" x-text="cat.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="form-label">Sort
+                                        Order</label>
+                                    <input type="number" x-model.number="editingItem.sortorder" class="form-input">
+                                </div>
+                                <div class="flex items-end pb-1">
+                                    <label class="flex cursor-pointer items-center gap-2">
+                                        <input type="checkbox" x-model="editingItem.active" class="peer sr-only">
+                                        <div
+                                            class="relative h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-brand-600 peer-checked:after:translate-x-full dark:bg-gray-700">
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Active</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <footer class="modal-footer-actions">
+                            <button @click="showModal = false" class="btn btn-outline flex-1">Cancel</button>
+                            <button id="save-category-btn" @click="saveCategory()" class="btn btn-primary flex-1">Save
+                                Category</button>
+                        </footer>
+                    </div>
+                </div>
             </div>
         </template>
     </div>
@@ -196,102 +428,225 @@
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white">Public Company Information</h3>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Information displayed on your website
                             footer and header</p>
-                        </button>
                     </div>
+                    <button @click="openEditModal()" class="btn btn-primary btn-sm">
+                        <span class="w-4 h-4" x-icon="'pencil'"></span> Edit
+                    </button>
+                </div>
 
-                    <!-- Display Information -->
-                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <!-- Public Contacts -->
-                        <div>
-                            <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Support Contacts</h5>
-                            <div class="space-y-2 text-sm">
-                                <div>
-                                    <p class="text-gray-500 dark:text-gray-400">Company Name</p>
-                                    <p class="font-medium text-gray-900 dark:text-white"
-                                        x-text="displayData.companyName || '—'"></p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500 dark:text-gray-400">Store Address</p>
-                                    <p class="font-medium text-gray-900 dark:text-white"
-                                        x-text="displayData.storeAddress || '—'"></p>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <p class="text-gray-500 dark:text-gray-400">Email</p>
-                                        <p class="font-medium text-gray-900 dark:text-white truncate"
-                                            x-text="displayData.supportEmail || '—'"></p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 dark:text-gray-400">Phone</p>
-                                        <p class="font-medium text-gray-900 dark:text-white"
-                                            x-text="displayData.supportPhone || '—'"></p>
-                                    </div>
-                                </div>
+                <!-- Display Information -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <!-- Public Contacts -->
+                    <div>
+                        <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Support Contacts</h5>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Company Name</p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.companyName || '—'"></p>
                             </div>
-                        </div>
-
-                        <!-- Operating Hours -->
-                        <div>
-                            <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Operating Hours</h5>
-                            <div class="space-y-2 text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Store Address</p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.storeAddress || '—'"></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <p class="text-gray-500 dark:text-gray-400">Hours</p>
-                                    <p class="font-medium text-gray-900 dark:text-white"
-                                        x-text="displayData.operatingHours || '—'"></p>
+                                    <p class="text-gray-500 dark:text-gray-400">Email</p>
+                                    <p class="font-medium text-gray-900 dark:text-white truncate"
+                                        x-text="displayData.supportEmail || '—'"></p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-500 dark:text-gray-400">Days</p>
+                                    <p class="text-gray-500 dark:text-gray-400">Phone</p>
                                     <p class="font-medium text-gray-900 dark:text-white"
-                                        x-text="displayData.operatingDays || '—'"></p>
+                                        x-text="displayData.supportPhone || '—'"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Social Media Status -->
-                    <div class="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4">
-                        <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Social Media</h5>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div class="text-center">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Facebook</p>
-                                <span :class="getSocialStatusClass(displayData.facebook)"
-                                    class="inline-block text-xs font-bold px-2 py-1 rounded"
-                                    x-text="getSocialStatus(displayData.facebook)"></span>
+                    <!-- Operating Hours -->
+                    <div>
+                        <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Operating Hours</h5>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Hours</p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.operatingHours || '—'"></p>
                             </div>
-                            <div class="text-center">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Twitter</p>
-                                <span :class="getSocialStatusClass(displayData.twitter)"
-                                    class="inline-block text-xs font-bold px-2 py-1 rounded"
-                                    x-text="getSocialStatus(displayData.twitter)"></span>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Days</p>
+                                <p class="font-medium text-gray-900 dark:text-white"
+                                    x-text="displayData.operatingDays || '—'"></p>
                             </div>
-                            <div class="text-center">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Instagram</p>
-                                <span :class="getSocialStatusClass(displayData.instagram)"
-                                    class="inline-block text-xs font-bold px-2 py-1 rounded"
-                                    x-text="getSocialStatus(displayData.instagram)"></span>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">LinkedIn</p>
-                                <span :class="getSocialStatusClass(displayData.linkedin)"
-                                    class="inline-block text-xs font-bold px-2 py-1 rounded"
-                                    x-text="getSocialStatus(displayData.linkedin)"></span>
-                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Status -->
+                <div class="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4">
+                    <h5 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Social Media</h5>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Facebook</p>
+                            <span :class="getSocialStatusClass(displayData.facebook)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
+                                x-text="getSocialStatus(displayData.facebook)"></span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Twitter</p>
+                            <span :class="getSocialStatusClass(displayData.twitter)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
+                                x-text="getSocialStatus(displayData.twitter)"></span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Instagram</p>
+                            <span :class="getSocialStatusClass(displayData.instagram)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
+                                x-text="getSocialStatus(displayData.instagram)"></span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">LinkedIn</p>
+                            <span :class="getSocialStatusClass(displayData.linkedin)"
+                                class="inline-block text-xs font-bold px-2 py-1 rounded"
+                                x-text="getSocialStatus(displayData.linkedin)"></span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- BEGIN MODAL PUBLIC BRANDING EDIT -->
+        <div :class="{ 'show': showModal }"
+            class="fixed inset-0 flex justify-center items-center p-4 md:p-5 overflow-hidden z-[99999] modal" x-cloak>
+            <div class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"
+                @click="showModal = false"></div>
+            <div class="modal-dialog rounded-2xl">
+                <!-- close btn -->
+                <button @click="showModal = false" class="modal-close-btn">
+                    <span class="w-6 h-6 block" x-icon="'close'"></span>
+                </button>
+
+                <div class="modal-content custom-scrollbar">
+                    <div class="modal-header-sticky">
+                        <h3 class="h3">
+                            Edit Public Information
+                        </h3>
+                        <p class="mt-2 text-sm text-theme-secondary">
+                            Informasi ini digunakan untuk tampilan Footer dan Header di website publik anda.
+                        </p>
+                    </div>
+                    <form class="flex flex-col">
+                        <div class="modal-body-content gap-8">
+                            <!-- Public Contacts -->
+                            <div>
+                                <h5 class="h5 mb-4">Public Support Contacts</h5>
+                                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                                    <div class="lg:col-span-2">
+                                        <label class="form-label">Company Name</label>
+                                        <input x-model="editingData.companyName" type="text"
+                                            placeholder="Your Company Name" class="form-input" />
+                                    </div>
+                                    <div class="lg:col-span-2">
+                                        <label class="form-label">Physical Store
+                                            Address (Full)</label>
+                                        <input x-model="editingData.storeAddress" type="text"
+                                            placeholder="Jl. Raya Otomotif No. 88, Jakarta Selatan, 12345"
+                                            class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Support
+                                            Email</label>
+                                        <input x-model="editingData.supportEmail" type="email"
+                                            placeholder="support@company.com" class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Support
+                                            Phone</label>
+                                        <input x-model="editingData.supportPhone" type="text"
+                                            placeholder="+62 21 1234 5678" class="form-input" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Operating Hours -->
+                            <div>
+                                <h5 class="h5 mb-4">Operating Hours</h5>
+                                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                                    <div>
+                                        <label class="form-label">Operating
+                                            Hours</label>
+                                        <input x-model="editingData.operatingHours" type="text"
+                                            placeholder="8:00am - 8:00pm" class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Operating
+                                            Days</label>
+                                        <input x-model="editingData.operatingDays" type="text"
+                                            placeholder="Monday - Saturday" class="form-input" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Presence -->
+                            <div>
+                                <h5 class="h5 mb-4">Social Media Presence</h5>
+                                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                                    <div>
+                                        <label class="form-label">Facebook
+                                            URL</label>
+                                        <input x-model="editingData.facebook" type="text"
+                                            placeholder="https://facebook.com/..." class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Twitter
+                                            URL</label>
+                                        <input x-model="editingData.twitter" type="text"
+                                            placeholder="https://twitter.com/..." class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Instagram
+                                            URL</label>
+                                        <input x-model="editingData.instagram" type="text"
+                                            placeholder="https://instagram.com/..." class="form-input" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">LinkedIn
+                                            URL</label>
+                                        <input x-model="editingData.linkedin" type="text"
+                                            placeholder="https://linkedin.com/..." class="form-input" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- Footer Buttons -->
+                        <div class="modal-footer-actions w-full">
+                            <button @click="showModal = false" type="button" class="btn btn-outline w-full sm:w-auto">
+                                Cancel
+                            </button>
+                            <button id="save-branding-btn" @click="savePublicInfo($el)" type="button"
+                                class="btn btn-primary w-full sm:w-auto px-8 py-3 ml-auto">
+                                Save Information
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- END MODAL PUBLIC BRANDING EDIT -->
     </div>
 
-    <style>
-        @keyframes marquee-scroll {
-            0% {
-                transform: translateX(0);
-            }
+</div>
 
-            100% {
-                transform: translateX(-33.33%);
-            }
+<style>
+    @keyframes marquee-scroll {
+        0% {
+            transform: translateX(0);
         }
-    </style>
+
+        100% {
+            transform: translateX(-33.33%);
+        }
+    }
+</style>
