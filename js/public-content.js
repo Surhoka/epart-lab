@@ -140,13 +140,33 @@
 
                 async syncToBlogger() {
                     this.isSyncing = true;
-                    showToast('Menyinkronkan data beranda...', 'info');
+                    showToast('Menyiapkan halaman beranda...', 'info');
                     try {
+                        const blogId = getBlogId();
+                        if (!blogId) {
+                            showToast('Blog ID belum dikonfigurasi.', 'error');
+                            this.isSyncing = false; return;
+                        }
+
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('syncHomeFullToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
+                            window.sendDataToGoogle('syncHomeFullToBlogger', {
+                                dbId: this.dbId,
+                                blogId: blogId,
+                                injectTemplate: true
+                            }, resolve, reject);
                         });
-                        if (res.status === 'success') showToast(res.message);
-                        else showToast(res.message, 'error');
+
+                        if (res.status === 'success') {
+                            showToast('Halaman siap. Membuka Editor Blogger...');
+                            if (res.pageId) {
+                                setTimeout(() => {
+                                    const editUrl = `https://draft.blogger.com/blog/page/edit/${res.blogId}/${res.pageId}`;
+                                    window.open(editUrl, '_blank');
+                                }, 800);
+                            }
+                        } else {
+                            showToast(res.message || 'Gagal sinkron', 'error');
+                        }
                     } catch (e) {
                         showToast('Gagal sinkron: ' + e, 'error');
                     } finally {
@@ -284,13 +304,24 @@
 
                 async syncToBlogger() {
                     this.isSyncing = true;
-                    showToast('Menyinkronkan kategori...', 'info');
+                    showToast('Menyiapkan halaman beranda...', 'info');
                     try {
+                        const blogId = getBlogId();
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('syncHomeFullToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
+                            window.sendDataToGoogle('syncHomeFullToBlogger', {
+                                dbId: this.dbId,
+                                blogId: blogId,
+                                injectTemplate: true
+                            }, resolve, reject);
                         });
-                        if (res.status === 'success') showToast(res.message);
-                        else showToast(res.message, 'error');
+                        if (res.status === 'success') {
+                            showToast('Halaman siap. Membuka Editor...');
+                            if (res.pageId) {
+                                window.open(`https://draft.blogger.com/blog/page/edit/${res.blogId}/${res.pageId}`, '_blank');
+                            }
+                        } else {
+                            showToast(res.message, 'error');
+                        }
                     } catch (e) {
                         showToast('Gagal sinkron: ' + e, 'error');
                     } finally {
@@ -528,7 +559,7 @@
 
                 async init() {
                     this.dbId = getDbId();
-                    
+
                     // Inisialisasi konfigurasi dari cache localStorage
                     const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
                     this.config.blogId = cache.blogId || getBlogId() || '';
@@ -556,7 +587,7 @@
                         return;
                     }
                     const url = `https://draft.blogger.com/blog/page/edit/${this.config.blogId}/${this.config.pageId}`;
-                    
+
                     // Membuka jendela popup agar tidak mengganggu tab admin yang sedang aktif
                     const width = 1100;
                     const height = 800;
@@ -673,10 +704,10 @@
                     // Album ALWAYS upload ke PUBLIC (Blogger) - ini adalah public content
                     // blogId akan dicari dari localStorage atau Settings sheet di backend
                     const blogId = getBlogId();
-                    
+
                     // DEBUG: Check apakah blogId ada
                     console.log('[albumManager.uploadAlbumImage] blogId:', blogId, 'isEmpty:', !blogId);
-                    
+
                     // FORCE target ke PUBLIC untuk album (tidak pernah ADMIN)
                     const target = 'PUBLIC';
 
