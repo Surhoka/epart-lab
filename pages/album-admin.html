@@ -70,23 +70,6 @@
                 </div>
             </template>
 
-            <!-- Konfigurasi Integrasi Blogger -->
-            <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-                <h2 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Integrasi Blogger</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Public Blog ID</label>
-                        <input type="text" x-model="config.blogId" placeholder="Masukkan ID Blog Public"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-2.5 text-xs focus:border-brand-500 focus:ring-0 dark:border-gray-800 dark:bg-gray-800 dark:text-white transition-all">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Database Page ID</label>
-                        <input type="text" x-model="config.pageId" placeholder="Masukkan ID Halaman Database"
-                            class="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-2.5 text-xs focus:border-brand-500 focus:ring-0 dark:border-gray-800 dark:bg-gray-800 dark:text-white transition-all">
-                    </div>
-                    <p class="text-[10px] text-gray-400 italic">ID ini digunakan untuk membuka halaman editor Blogger saat mengupload gambar.</p>
-                </div>
-            </div>
         </section>
 
         <section
@@ -97,8 +80,7 @@
                             x-text="selectedAlbumName"></span></h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Upload dan kelola file gambar album.</p>
                 </div>
-                <button type="button"
-                    @click.prevent.stop="openBloggerEditor()"
+                <button type="button" @click.prevent.stop="openBloggerEditor()"
                     class="rounded-3xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 transition-all active:scale-95">
                     Upload Gambar
                 </button>
