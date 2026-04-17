@@ -521,41 +521,27 @@
                 showAlbumModal: false,
                 isEditing: false,
                 editingAlbum: {},
-                config: {
-                    blogId: '',
-                    pageId: ''
-                },
 
                 async init() {
                     this.dbId = getDbId();
-
-                    // Inisialisasi konfigurasi dari cache localStorage
-                    const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
-                    this.config.blogId = cache.blogId || getBlogId() || '';
-                    this.config.pageId = cache.pageId || '';
-
                     console.log('Album Manager dbId:', this.dbId);
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
                     await this.fetchAlbums();
 
                     // Dengarkan event dari manager lain jika ada album baru/update
                     window.addEventListener('ezy:album-updated', () => this.fetchAlbums());
-
-                    // Simpan otomatis ke localStorage saat nilai input di UI berubah
-                    this.$watch('config', (val) => {
-                        const current = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
-                        localStorage.setItem('Ezyparts_Config_Cache', JSON.stringify({
-                            ...current, ...val
-                        }));
-                    });
                 },
 
                 openBloggerEditor() {
-                    if (!this.config.blogId || !this.config.pageId) {
+                    const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                    const blogId = cache.blogId || getBlogId();
+                    const pageId = cache.pageId;
+
+                    if (!blogId || !pageId) {
                         showToast('Harap isi Blog ID dan Page ID di sidebar.', 'warning');
                         return;
                     }
-                    const url = `https://draft.blogger.com/blog/page/edit/${this.config.blogId}/${this.config.pageId}`;
+                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${pageId}`;
 
                     // Membuka jendela popup agar tidak mengganggu tab admin yang sedang aktif
                     const width = 1100;
