@@ -21,7 +21,7 @@
                 gatewayToken: '',
                 blogId: '',
                 pageId: '',
-                postId: '',
+                pageIdJsonLd: '',
                 webUrl: '',
                 siteKey: '',
                 adminUrl: '',
@@ -60,8 +60,8 @@
                     if (config.pageId) {
                         this.settings.pageId = config.pageId;
                     }
-                    if (config.postId) {
-                        this.settings.postId = config.postId;
+                    if (config.pageIdJsonLd || config.postId) {
+                        this.settings.pageIdJsonLd = config.pageIdJsonLd || config.postId;
                     }
                     if (config.webUrl) {
                         this.settings.webUrl = config.webUrl;
@@ -95,6 +95,40 @@
                 } else {
                     this.settings.sidebarColor = '#1e3a8a'; // Standard: Dark Nav Bar
                 }
+            },
+
+            saveBloggerSettings(btn) {
+                if (btn && window.setButtonLoading) window.setButtonLoading(btn, true);
+
+                const bloggerPayload = {
+                    blogId: this.settings.blogId,
+                    pageId: this.settings.pageId,
+                    pageIdJsonLd: this.settings.pageIdJsonLd,
+                    webUrl: this.settings.webUrl
+                };
+
+                window.sendDataToGoogle('save_settings', bloggerPayload, (res) => {
+                    if (res && res.status === 'success') {
+                        window.showToast('Pengaturan Blogger berhasil disimpan!', 'success');
+
+                        // Update runtime config
+                        if (window.EzyApi && window.EzyApi.config) {
+                            window.EzyApi.config.blogId = this.settings.blogId;
+                            window.EzyApi.config.pageId = this.settings.pageId;
+                            window.EzyApi.config.pageIdJsonLd = this.settings.pageIdJsonLd;
+                            window.EzyApi.config.webUrl = this.settings.webUrl;
+                        }
+
+                        // Update Local Cache
+                        const currentCache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                        localStorage.setItem('Ezyparts_Config_Cache', JSON.stringify({ ...currentCache, ...bloggerPayload }));
+
+                        if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
+                    } else {
+                        window.showToast('Gagal menyimpan: ' + (res?.message || 'Server Error'), 'error');
+                        if (btn && window.setButtonLoading) window.setButtonLoading(btn, false);
+                    }
+                });
             },
 
             saveSettings(btn) {
@@ -141,7 +175,7 @@
                                 if (window.EzyApi && window.EzyApi.config) {
                                     window.EzyApi.config.blogId = this.settings.blogId;
                                     window.EzyApi.config.pageId = this.settings.pageId;
-                                    window.EzyApi.config.postId = this.settings.postId;
+                                    window.EzyApi.config.pageIdJsonLd = this.settings.pageIdJsonLd;
                                     window.EzyApi.config.webUrl = this.settings.webUrl;
                                     window.EzyApi.config.gatewayToken = this.settings.gatewayToken;
                                     window.EzyApi.config.dbName = this.settings.dbName;
