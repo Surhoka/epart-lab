@@ -54,6 +54,10 @@
                 slides: [],
                 isLoading: false,
                 isSyncing: false,
+                isUploading: false,
+                showModal: false,
+                isEditing: false,
+                editingItem: {},
 
                 async init() {
                     this.dbId = getDbId();
@@ -74,6 +78,63 @@
                         showToast('Gagal memuat hero slides', 'error');
                     } finally {
                         this.isLoading = false;
+                    }
+                },
+
+                openAddModal() {
+                    this.isEditing = false;
+                    this.editingItem = { title: '', subtitle: '', imageurl: '', buttontext: '', buttonlink: '', active: true, sortorder: 0 };
+                    this.showModal = true;
+                },
+
+                editSlide(item) {
+                    this.isEditing = true;
+                    this.editingItem = { ...item };
+                    this.showModal = true;
+                },
+
+                async saveSlide() {
+                    if (!this.editingItem.title) { showToast('Judul slide harus diisi', 'warning'); return; }
+                    const btn = document.getElementById('save-hero-btn');
+                    window.setButtonLoading?.(btn, true);
+                    try {
+                        const payload = {
+                            ...this.editingItem,
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('saveHeroSlide', payload, resolve, reject);
+                        });
+                        if (res.status === 'success') {
+                            showToast('Slide berhasil disimpan');
+                            this.showModal = false;
+                            await this.fetchSlides();
+                        } else {
+                            showToast(res.message || 'Gagal menyimpan', 'error');
+                        }
+                    } catch (e) {
+                        showToast('Terjadi kesalahan: ' + e, 'error');
+                    } finally {
+                        window.setButtonLoading?.(btn, false);
+                    }
+                },
+
+                async deleteSlide(id) {
+                    if (!confirm('Hapus slide ini?')) return;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            const payload = {
+                                id,
+                                dbId: this.dbId,
+                                blogId: getBlogId()
+                            };
+                            window.sendDataToGoogle('deleteHeroSlide', payload, resolve, reject);
+                        });
+                        if (res.status === 'success') { showToast('Slide dihapus'); await this.fetchSlides(); }
+                        else showToast(res.message || 'Gagal menghapus', 'error');
+                    } catch (e) {
+                        showToast('Gagal menghapus: ' + e, 'error');
                     }
                 },
 
@@ -111,6 +172,37 @@
                     } finally {
                         this.isSyncing = false;
                     }
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
+                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
+                    this.isUploading = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        console.log('Test upload for hero:', { dbId: this.dbId, fileName: `hero-${Date.now()}-${file.name}` });
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `hero-${Date.now()}-${file.name}`,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
+                        }, (res) => {
+                            this.isUploading = false;
+                            console.log('Test upload for hero:', res);
+                            if (res?.status === 'success') {
+                                this.editingItem.imageurl = res.url;
+                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
+                                // Beritahu Album Manager untuk refresh data
+                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
+                            }
+                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
+                        }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
                 }
             }));
         }
@@ -126,6 +218,10 @@
                 categories: [],
                 isLoading: false,
                 isSyncing: false,
+                isUploading: false,
+                showModal: false,
+                isEditing: false,
+                editingItem: {},
 
                 async init() {
                     this.dbId = getDbId();
@@ -146,6 +242,63 @@
                         showToast('Gagal memuat kategori', 'error');
                     } finally {
                         this.isLoading = false;
+                    }
+                },
+
+                openAddModal() {
+                    this.isEditing = false;
+                    this.editingItem = { name: '', slug: '', description: '', imageurl: '', parentid: '', active: true, sortorder: 0 };
+                    this.showModal = true;
+                },
+
+                editCategory(item) {
+                    this.isEditing = true;
+                    this.editingItem = { ...item };
+                    this.showModal = true;
+                },
+
+                async saveCategory() {
+                    if (!this.editingItem.name) { showToast('Nama kategori harus diisi', 'warning'); return; }
+                    const btn = document.getElementById('save-category-btn');
+                    window.setButtonLoading?.(btn, true);
+                    try {
+                        const payload = {
+                            ...this.editingItem,
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('saveCategory', payload, resolve, reject);
+                        });
+                        if (res.status === 'success') {
+                            showToast('Kategori berhasil disimpan');
+                            this.showModal = false;
+                            await this.fetchCategories();
+                        } else {
+                            showToast(res.message || 'Gagal menyimpan', 'error');
+                        }
+                    } catch (e) {
+                        showToast('Terjadi kesalahan: ' + e, 'error');
+                    } finally {
+                        window.setButtonLoading?.(btn, false);
+                    }
+                },
+
+                async deleteCategory(id) {
+                    if (!confirm('Hapus kategori ini?')) return;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            const payload = {
+                                id,
+                                dbId: this.dbId,
+                                blogId: getBlogId()
+                            };
+                            window.sendDataToGoogle('deleteCategory', payload, resolve, reject);
+                        });
+                        if (res.status === 'success') { showToast('Kategori dihapus'); await this.fetchCategories(); }
+                        else showToast(res.message || 'Gagal menghapus', 'error');
+                    } catch (e) {
+                        showToast('Gagal menghapus: ' + e, 'error');
                     }
                 },
 
@@ -174,6 +327,34 @@
                     } finally {
                         this.isSyncing = false;
                     }
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
+                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
+                    this.isUploading = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `category-${Date.now()}-${file.name}`,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
+                        }, (res) => {
+                            this.isUploading = false;
+                            if (res?.status === 'success') {
+                                this.editingItem.imageurl = res.url;
+                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
+                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
+                            }
+                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
+                        }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
                 }
             }));
         }
@@ -190,6 +371,10 @@
                 categories: [],
                 isLoading: false,
                 isSyncing: false,
+                isUploading: false,
+                showModal: false,
+                isEditing: false,
+                editingItem: {},
 
                 async init() {
                     this.dbId = getDbId();
@@ -265,6 +450,88 @@
                     }
                 },
 
+                openAddModal() {
+                    this.isEditing = false;
+                    this.editingItem = { name: '', description: '', imageurl: '', price: 0, originalprice: 0, category: '', badge: '', link: '', active: true, sortorder: 0 };
+                    this.showModal = true;
+                },
+
+                editProduct(item) {
+                    this.isEditing = true;
+                    this.editingItem = { ...item };
+                    this.showModal = true;
+                },
+
+                async saveProduct() {
+                    if (!this.editingItem.name) { showToast('Nama produk harus diisi', 'warning'); return; }
+                    const btn = document.getElementById('save-product-btn');
+                    window.setButtonLoading?.(btn, true);
+                    try {
+                        const payload = {
+                            ...this.editingItem,
+                            dbId: this.dbId,
+                            blogId: getBlogId()
+                        };
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('saveFeaturedProduct', payload, resolve, reject);
+                        });
+                        if (res.status === 'success') {
+                            showToast('Produk berhasil disimpan');
+                            this.showModal = false;
+                            await this.fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal menyimpan', 'error');
+                        }
+                    } catch (e) {
+                        showToast('Terjadi kesalahan: ' + e, 'error');
+                    } finally {
+                        window.setButtonLoading?.(btn, false);
+                    }
+                },
+
+                async deleteProduct(id) {
+                    if (!confirm('Hapus produk ini?')) return;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('deleteFeaturedProduct', { id, dbId: this.dbId }, resolve, reject);
+                        });
+                        if (res.status === 'success') { showToast('Produk dihapus'); await this.fetchProducts(); }
+                        else showToast(res.message || 'Gagal menghapus', 'error');
+                    } catch (e) {
+                        showToast('Gagal menghapus: ' + e, 'error');
+                    }
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
+                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
+                    this.isUploading = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `product-${Date.now()}-${file.name}`,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
+                        }, (res) => {
+                            this.isUploading = false;
+                            console.log('Product upload result:', res);
+                            if (res?.status === 'success') {
+                                this.editingItem.imageurl = res.url;
+                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
+                                console.log('Product image uploaded, albumId:', res.albumId);
+                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
+                            }
+                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
+                        }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                },
+
                 formatPrice(price) {
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price || 0);
                 }
@@ -281,6 +548,10 @@
                 selectedAlbumId: '',
                 isLoading: false,
                 isSyncing: false,
+                isUploading: false,
+                showAlbumModal: false,
+                isEditing: false,
+                editingAlbum: {},
                 config: {
                     blogId: '',
                     pageId: ''
@@ -374,6 +645,136 @@
                     }
                 },
 
+                openAddAlbum() {
+                    this.isEditing = false;
+                    this.editingAlbum = { name: '', slug: '', description: '', active: true, sortOrder: 0 };
+                    this.showAlbumModal = true;
+                },
+
+                editAlbum(item) {
+                    this.isEditing = true;
+                    this.editingAlbum = { ...item };
+                    this.showAlbumModal = true;
+                },
+
+                async saveAlbum() {
+                    if (!this.editingAlbum.name) { showToast('Nama album harus diisi', 'warning'); return; }
+                    const payload = {
+                        ...this.editingAlbum,
+                        dbId: this.dbId,
+                        blogId: getBlogId(), // Tambahkan blogId
+                        slug: this.editingAlbum.slug || this.editingAlbum.name || ''
+                    };
+                    const res = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('saveAlbum', payload, resolve, reject);
+                    });
+                    if (res?.status === 'success') {
+                        showToast('Album berhasil disimpan');
+                        this.showAlbumModal = false;
+                        await this.fetchAlbums();
+                    } else {
+                        showToast(res?.message || 'Gagal menyimpan album', 'error');
+                    }
+                },
+
+                async deleteAlbum(id) {
+                    if (!confirm('Hapus album ini?')) return;
+                    const res = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('deleteAlbum', { id, dbId: this.dbId }, resolve, reject);
+                    });
+                    if (res?.status === 'success') {
+                        showToast('Album dihapus');
+                        if (this.selectedAlbumId === id) {
+                            this.selectedAlbumId = '';
+                            this.albumFiles = [];
+                        }
+                        await this.fetchAlbums();
+                    } else {
+                        showToast(res?.message || 'Gagal menghapus album', 'error');
+                    }
+                },
+
+                async uploadAlbumImage(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
+                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
+                    if (!this.selectedAlbumId) { showToast('Pilih album terlebih dahulu', 'warning'); return; }
+
+                    // Album ALWAYS upload ke PUBLIC (Blogger) - ini adalah public content
+                    // blogId akan dicari dari localStorage atau Settings sheet di backend
+                    const blogId = getBlogId();
+
+                    // DEBUG: Check apakah blogId ada
+                    console.log('[albumManager.uploadAlbumImage] blogId:', blogId, 'isEmpty:', !blogId);
+
+                    // FORCE target ke PUBLIC untuk album (tidak pernah ADMIN)
+                    const target = 'PUBLIC';
+
+                    console.log('[albumManager.uploadAlbumImage] About to call sendDataToGoogle with:', {
+                        action: 'uploadImageAndGetUrl',
+                        fileName: `album-${Date.now()}-${file.name}`,
+                        albumId: this.selectedAlbumId,
+                        target: target,
+                        hasBlogId: !!blogId
+                    });
+
+                    this.isUploading = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        console.log('[albumManager.uploadAlbumImage] FileReader loaded, calling sendDataToGoogle');
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `album-${Date.now()}-${file.name}`,
+                            originalFileName: file.name,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            albumId: this.selectedAlbumId,
+                            blogId: blogId || undefined,  // Send if available, else let backend resolve
+                            target: target  // ALWAYS PUBLIC untuk album
+                        }, (res) => {
+                            console.log('[albumManager.uploadAlbumImage] sendDataToGoogle success callback:', res);
+                            this.isUploading = false;
+                            if (res?.status === 'success') {
+                                if (res.domain?.includes('blogger')) {
+                                    showToast('✅ Gambar berhasil diupload ke Blogger (blogger.googleusercontent.com)');
+                                } else if (res.domain?.includes('drive')) {
+                                    showToast('⚠️ Gambar diupload ke Drive (fallback)');
+                                } else {
+                                    showToast('Gambar berhasil diupload');
+                                }
+                                this.fetchAlbumFiles(this.selectedAlbumId);
+                            } else {
+                                showToast(res?.message || 'Gagal upload gambar', 'error');
+                            }
+                        }, (err) => {
+                            console.error('[albumManager.uploadAlbumImage] sendDataToGoogle error callback:', err);
+                            this.isUploading = false;
+                            showToast('Gagal upload gambar - Network error', 'error');
+                        });
+                    };
+                    reader.onerror = (err) => {
+                        console.error('[albumManager.uploadAlbumImage] FileReader error:', err);
+                        this.isUploading = false;
+                        showToast('Gagal membaca file', 'error');
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                },
+
+                async deleteFile(id) {
+                    if (!confirm('Hapus file ini?')) return;
+                    const res = await new Promise((resolve, reject) => {
+                        window.sendDataToGoogle('deleteAlbumImage', { id, dbId: this.dbId }, resolve, reject);
+                    });
+                    if (res?.status === 'success') {
+                        showToast('File album dihapus');
+                        this.fetchAlbumFiles(this.selectedAlbumId);
+                    } else {
+                        showToast(res?.message || 'Gagal menghapus file', 'error');
+                    }
+                },
+
                 async testAutoAlbums() {
                     showToast('Testing auto albums...');
                     console.log('Current albums:', this.albums);
@@ -461,6 +862,7 @@
                     marqueetext: '', marqueeactive: true
                 },
                 isLoading: false,
+                isUploading: false,
                 submitting: false,
 
                 async init() {
@@ -477,6 +879,29 @@
 
                 async saveConfig() {
                     showToast('Konfigurasi ini sudah tidak digunakan. Gunakan menu Branding.', 'warning');
+                },
+
+                handleLogoUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
+                    this.isUploading = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `logo-${Date.now()}-${file.name}`,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
+                        }, (res) => {
+                            this.isUploading = false;
+                            if (res?.status === 'success') { this.formData.logourl = res.url; showToast('Logo berhasil diupload'); }
+                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
+                        }, () => { this.isUploading = false; showToast('Gagal upload logo', 'error'); });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
                 }
             }));
         }
@@ -505,6 +930,7 @@
                 },
                 loading: false,
                 submitting: false,
+                isUploading: false,
                 dbId: null,
 
                 async init() {
@@ -559,6 +985,57 @@
                             resolve();
                         });
                     });
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (!file.type.startsWith('image/')) {
+                        showToast('File harus berupa gambar', 'warning');
+                        return;
+                    }
+
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        showToast('Ukuran file maksimal 5MB', 'warning');
+                        return;
+                    }
+
+                    this.isUploading = true;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64Data = e.target.result;
+                        const fileName = `landing-${Date.now()}-${file.name}`;
+
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: fileName,
+                            fileData: base64Data,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
+                        }, (res) => {
+                            this.isUploading = false;
+                            if (res && res.status === 'success') {
+                                this.formData.imageUrl = res.url;
+                                showToast('Gambar berhasil diupload', 'success');
+                            } else {
+                                showToast('Gagal upload gambar: ' + (res ? res.message : 'Unknown error'), 'error');
+                            }
+                        }, (err) => {
+                            this.isUploading = false;
+                            console.error('Upload error:', err);
+                            showToast('Terjadi kesalahan saat upload gambar', 'error');
+                        });
+                    };
+
+                    reader.onerror = () => {
+                        this.isUploading = false;
+                        showToast('Gagal membaca file', 'error');
+                    };
+
+                    reader.readAsDataURL(file);
                 }
             }));
         }
@@ -1082,6 +1559,8 @@
                 loading: false,
                 submitting: false,
                 dbId: null,
+                isUploadingHero: false,
+                isUploadingVision: false,
                 isSyncing: false,
                 uploadType: '',
 
@@ -1171,6 +1650,64 @@
                     } finally {
                         this.isSyncing = false;
                     }
+                },
+
+                triggerImageUpload(type) {
+                    this.uploadType = type;
+                    this.$refs.imageInput.click();
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (!file.type.startsWith('image/')) {
+                        showToast('File harus berupa gambar', 'warning');
+                        return;
+                    }
+
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        showToast('Ukuran file maksimal 5MB', 'warning');
+                        return;
+                    }
+
+                    const isHero = this.uploadType === 'hero_image';
+                    if (isHero) this.isUploadingHero = true;
+                    else this.isUploadingVision = true;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        window.sendDataToGoogle('uploadImageAndGetUrl', {
+                            fileName: `about-${this.uploadType}-${Date.now()}-${file.name}`,
+                            fileData: e.target.result,
+                            fileType: file.type,
+                            dbId: this.dbId,
+                            blogId: getBlogId() // Tambahkan blogId
+                        }, (res) => {
+                            if (isHero) this.isUploadingHero = false;
+                            else this.isUploadingVision = false;
+
+                            if (res?.status === 'success') {
+                                this.formData.payload[this.uploadType] = res.url;
+                                showToast('Gambar berhasil diupload', 'success');
+                            } else {
+                                showToast('Gagal upload: ' + (res?.message || ''), 'error');
+                            }
+                        }, (err) => {
+                            if (isHero) this.isUploadingHero = false;
+                            else this.isUploadingVision = false;
+                            console.error('Upload error:', err);
+                            showToast('Terjadi kesalahan saat upload gambar', 'error');
+                        });
+                    };
+                    reader.onerror = () => {
+                        if (isHero) this.isUploadingHero = false;
+                        else this.isUploadingVision = false;
+                        showToast('Gagal membaca file', 'error');
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
                 },
 
                 addStat() {
