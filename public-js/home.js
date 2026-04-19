@@ -64,7 +64,24 @@ window.initHomePage = function () {
                 const extractMeta = (entries) => {
                     return (entries || []).map(entry => {
                         const htmlContent = entry.content ? entry.content.$t : '';
-                        const meta = window.CDNFetcher.parseMetaNode(htmlContent, null);
+                        let meta = null;
+                        
+                        // Use CDNFetcher if available, otherwise use inline fallback
+                        if (window.CDNFetcher && typeof window.CDNFetcher.parseMetaNode === 'function') {
+                            meta = window.CDNFetcher.parseMetaNode(htmlContent, null);
+                        } else {
+                            try {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(htmlContent, 'text/html');
+                                const metaNode = doc.querySelector('.ezy-meta');
+                                if (metaNode) {
+                                    const rawData = metaNode.getAttribute('data-meta') || metaNode.textContent;
+                                    meta = JSON.parse(rawData);
+                                }
+                            } catch(e) {
+                                console.warn('Inline meta parsing failed:', e);
+                            }
+                        }
 
                         if (meta) {
                             meta._entry = entry;
