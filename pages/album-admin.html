@@ -17,68 +17,13 @@
         </div>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
+    <div class="grid gap-6 grid-cols-1">
         <section
-            class="space-y-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div class="flex items-center justify-between gap-2">
+            class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 min-h-[500px]">
+            <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Daftar Album</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Pilih album untuk melihat file yang terkait.</p>
-                </div>
-                <span
-                    class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/20 dark:text-blue-300"
-                    x-text="albums.length + ' album'"></span>
-            </div>
-
-            <template x-if="isLoading">
-                <div
-                    class="rounded-3xl border border-dashed border-gray-200 p-6 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    Loading...</div>
-            </template>
-
-            <template x-if="!isLoading && albums.length === 0">
-                <div
-                    class="rounded-3xl border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    <p>Belum ada album.</p>
-                    <button @click="openAddAlbum()" class="btn btn-primary mt-4">Buat Album Baru</button>
-                </div>
-            </template>
-
-            <template x-if="!isLoading && albums.length > 0">
-                <div class="space-y-3">
-                    <template x-for="album in albums" :key="album.id">
-                        <div :class="selectedAlbumId === album.id ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20' : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950'"
-                            class="flex items-start justify-between gap-3 rounded-3xl border p-4 transition-colors">
-                            <button @click="selectAlbum(album.id)" type="button" class="flex-1 text-left">
-                                <h3 class="font-semibold text-gray-900 dark:text-white" x-text="album.name"></h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="album.slug"></p>
-                            </button>
-                            <div class="flex flex-shrink-0 gap-2">
-                                <button @click="editAlbum(album)" type="button"
-                                    class="inline-flex items-center gap-1 rounded-full border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors">
-                                    <span class="w-4 h-4" x-icon="'pencil'"></span>
-                                    <span class="hidden sm:inline">Edit</span>
-                                </button>
-                                <button @click="deleteAlbum(album.id)" type="button"
-                                    class="inline-flex items-center gap-1 rounded-full border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors">
-                                    <span class="w-4 h-4" x-icon="'trash'"></span>
-                                    <span class="hidden sm:inline">Hapus</span>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-        </section>
-
-        <section
-            class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div class="mb-4 flex items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Album: <span
-                            x-text="selectedAlbumName"></span></h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Upload dan kelola file gambar album.</p>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Daftar Gambar Album</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Sinkronisasi data dari halaman <span class="font-mono text-brand-500">/p/album.html</span></p>
                 </div>
                 <div class="flex gap-2">
                     <button type="button" @click.prevent.stop="openBloggerEditor()"
@@ -89,10 +34,22 @@
                 </div>
             </div>
 
-            <template x-if="selectedAlbumId && albumFiles.length === 0">
+            <template x-if="selectedAlbumId && albumFiles.length === 0 && !isLoading">
                 <div
-                    class="rounded-3xl border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    Belum ada gambar di album ini. Upload untuk menambahkan.</div>
+                    class="rounded-3xl border border-dashed border-gray-200 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                    <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                         <span class="w-8 h-8 text-gray-300" x-icon="'image'"></span>
+                    </div>
+                    <p class="font-medium text-gray-900 dark:text-white">Belum ada gambar yang terdeteksi.</p>
+                    <p class="text-sm mt-1">Gunakan tombol "Upload & Salin Template" untuk mulai menambahkan gambar di Blogger.</p>
+                </div>
+            </template>
+
+            <template x-if="isLoading">
+                <div class="py-20 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-500 border-t-transparent"></div>
+                    <p class="mt-4 text-gray-500">Memuat data album...</p>
+                </div>
             </template>
 
             <template x-if="selectedAlbumId && albumFiles.length > 0">
@@ -120,14 +77,14 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-2">
-                                            <code class="max-w-[150px] truncate rounded bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="file.fileurl"></code>
-                                            <button @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')" class="text-gray-400 hover:text-brand-500">
+                                            <code class="max-w-[250px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="file.fileurl"></code>
+                                            <button @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')" class="text-gray-400 hover:text-brand-500 p-1">
                                                 <span class="w-4 h-4" x-icon="'copy'"></span>
                                             </button>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <button @click="deleteFile(file.id)" class="text-red-500 hover:text-red-700 transition-colors">
+                                        <button @click="deleteFile(file.id)" class="text-red-500 hover:text-red-700 transition-colors p-2">
                                             <span class="w-5 h-5" x-icon="'trash'"></span>
                                         </button>
                                     </td>
@@ -136,12 +93,6 @@
                         </tbody>
                     </table>
                 </div>
-            </template>
-
-            <template x-if="!selectedAlbumId">
-                <div
-                    class="rounded-3xl border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    Pilih album terlebih dahulu untuk melihat konten filenya.</div>
             </template>
         </section>
     </div>
