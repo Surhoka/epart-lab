@@ -826,43 +826,15 @@
                         const webUrl = cache.webUrl || '';
 
                         if (!webUrl) {
-                            throw new Error('Web URL tidak ditemukan. Harap simpan konfigurasi di Sidebar.');
+                            throw new Error('Web URL tidak ditemukan. Harap simpan konfigurasi di menu Settings.');
                         }
 
-                        // 1. Fetch JSON-LD dari /p/albumdata.html
-                        const fetchUrl = `${webUrl.replace(/\/$/, '')}/p/albumdata.html?t=${Date.now()}`;
-                        const response = await fetch(fetchUrl);
-                        if (!response.ok) throw new Error('Gagal mengakses /p/albumdata.html. Pastikan halaman sudah dipublikasikan.');
-
-                        const html = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-
-                        let capturedItems = [];
-                        scripts.forEach(script => {
-                            try {
-                                const data = JSON.parse(script.textContent);
-                                if (data._schema === 'ezy-album-db-v1' || data['@type'] === 'ItemList') {
-                                    // Extract images from schema (support ItemList or custom schema)
-                                    const items = data.itemListElement || data.albums || [];
-                                    capturedItems = items;
-                                }
-                            } catch (e) {
-                                console.warn('Gagal parse blok JSON-LD:', e);
-                            }
-                        });
-
-                        if (capturedItems.length === 0) {
-                            throw new Error('Tidak ditemukan metadata JSON-LD yang valid di halaman tersebut.');
-                        }
-
-                        // 2. Kirim data ke backend untuk disimpan ke sheet AlbumImages
+                        // 1. Panggil backend untuk melakukan fetch (Bypass CORS) dan sinkronisasi sekaligus
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('syncCapturedAlbumData', {
+                            window.sendDataToGoogle('syncAlbumMetadataFromBloggerUrl', {
                                 dbId: this.dbId,
                                 albumId: this.selectedAlbumId,
-                                items: capturedItems
+                                webUrl: webUrl
                             }, resolve, reject);
                         });
 
@@ -874,7 +846,7 @@
                         }
                     } catch (e) {
                         console.error('syncMetadata:', e);
-                        showToast(e.message || 'Gagal sinkron metadata', 'error');
+                        showToast('Gagal sinkron metadata. Pastikan URL web benar dan halaman albumdata.html sudah dipublikasikan.', 'error');
                     } finally {
                         this.isSyncing = false;
                     }
