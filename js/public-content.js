@@ -544,23 +544,34 @@
 
                     // 1. Generate & Copy Template
                     const template = `
-<div class="ezy-album-entry" style="border: 2px dashed #3b82f6; padding: 20px; border-radius: 16px; margin-bottom: 20px; font-family: sans-serif; background: #fafafa;">
-  <h3 style="margin-top: 0; color: #1e40af;">📸 Item Album Baru</h3>
-  <div style="margin-bottom: 15px;">
-    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nama Item:</label>
-    <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; color: #111827;">[KETIK NAMA DISINI]</div>
+<div class="ezy-album-entry" style="border: 2px solid #e2e8f0; padding: 25px; border-radius: 20px; margin-bottom: 30px; font-family: 'Inter', sans-serif; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+  <h3 style="margin-top: 0; color: #0f172a; font-size: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">📦 Item Metadata Album</h3>
+  
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Nama Item / Judul:</label>
+    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; color: #1e293b; font-weight: 600;">[KETIK NAMA DI SINI]</div>
   </div>
-  <div style="margin-bottom: 15px;">
-    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Gambar:</label>
-    <p style="font-size: 12px; color: #6b7280;">(Gunakan icon 'Sisipkan Gambar' Blogger untuk mengganti placeholder di bawah)</p>
-    <img src="https://via.placeholder.com/400x225?text=Upload+Gambar+Blogger+Disini" style="width: 100%; max-width: 400px; border-radius: 12px; border: 1px solid #e5e7eb;" />
+
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">Area Gambar (Blogger Upload):</label>
+    <div class="ezy-image-dropzone" style="background-color: #f1f5f9; border: 2px dashed #3b82f6; border-radius: 12px; padding: 15px; text-align: center;">
+       <p style="color: #3b82f6; font-size: 12px; margin: 0 0 10px 0;">👇 KLIK DI BAWAH & GUNAKAN IKON 'SISIPKAN GAMBAR' 👇</p>
+       <div style="min-height: 100px; display: block;">
+         <img src="https://via.placeholder.com/400x200?text=PILIH+INI+DAN+UPLOAD+GAMBAR+BLOGGER" style="max-width: 100%; height: auto; border-radius: 8px;" />
+       </div>
+    </div>
   </div>
+
   <div>
-    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Keterangan:</label>
-    <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; color: #111827;">[KETIK DESKRIPSI DISINI]</div>
+    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">Keterangan Tambahan:</label>
+    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; color: #64748b; font-style: italic;">[KETIK DESKRIPSI SINGKAT DI SINI]</div>
   </div>
-  <p style="font-size: 10px; color: #9ca3af; margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 10px;">EzyStore Album Template v1</p>
-</div>`.trim();
+
+  <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 11px; color: #94a3b8;">EzyStore Metadata System v2.0</span>
+    <span style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;">SYNC READY</span>
+  </div>
+</div><br/>`.trim();
 
                     try {
                         await navigator.clipboard.writeText(template);
