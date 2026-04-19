@@ -532,7 +532,7 @@
                     window.addEventListener('ezy:album-updated', () => this.fetchAlbums());
                 },
 
-                openBloggerEditor() {
+                async openBloggerEditor() {
                     const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
                     const blogId = cache.blogId || getBlogId();
                     const pageId = cache.pageId;
@@ -541,9 +541,35 @@
                         showToast('Harap isi Blog ID dan Page ID di sidebar.', 'warning');
                         return;
                     }
-                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${pageId}`;
 
-                    // Membuka jendela popup agar tidak mengganggu tab admin yang sedang aktif
+                    // 1. Generate & Copy Template
+                    const template = `
+<div class="ezy-album-entry" style="border: 2px dashed #3b82f6; padding: 20px; border-radius: 16px; margin-bottom: 20px; font-family: sans-serif; background: #fafafa;">
+  <h3 style="margin-top: 0; color: #1e40af;">📸 Item Album Baru</h3>
+  <div style="margin-bottom: 15px;">
+    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nama Item:</label>
+    <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; color: #111827;">[KETIK NAMA DISINI]</div>
+  </div>
+  <div style="margin-bottom: 15px;">
+    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Gambar:</label>
+    <p style="font-size: 12px; color: #6b7280;">(Gunakan icon 'Sisipkan Gambar' Blogger untuk mengganti placeholder di bawah)</p>
+    <img src="https://via.placeholder.com/400x225?text=Upload+Gambar+Blogger+Disini" style="width: 100%; max-width: 400px; border-radius: 12px; border: 1px solid #e5e7eb;" />
+  </div>
+  <div>
+    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Keterangan:</label>
+    <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; color: #111827;">[KETIK DESKRIPSI DISINI]</div>
+  </div>
+  <p style="font-size: 10px; color: #9ca3af; margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 10px;">EzyStore Album Template v1</p>
+</div>`.trim();
+
+                    try {
+                        await navigator.clipboard.writeText(template);
+                        showToast('✅ Template disalin ke clipboard! Silakan paste di Editor Blogger.', 'success');
+                    } catch (err) {
+                        console.error('Gagal menyalin template:', err);
+                    }
+
+                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${pageId}`;
                     const width = 1100;
                     const height = 800;
                     const left = (window.innerWidth / 2) - (width / 2);
@@ -769,19 +795,68 @@
                 },
 
                 async syncMetadata() {
+                    if (!this.selectedAlbumId) {
+                        showToast('Pilih album terlebih dahulu!', 'warning');
+                        return;
+                    }
+
                     this.isSyncing = true;
+                    showToast('🚀 Menarik metadata dari Blogger...', 'info');
+
                     try {
-                        const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('syncAlbumMetadataToBlogger', { dbId: this.dbId, blogId: getBlogId() }, resolve, reject);
+                        const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                        const webUrl = cache.webUrl || '';
+
+                        if (!webUrl) {
+                            throw new Error('Web URL tidak ditemukan. Harap simpan konfigurasi di Sidebar.');
+                        }
+
+                        // 1. Fetch JSON-LD dari /p/albumdata.html
+                        const fetchUrl = `${webUrl.replace(/\/$/, '')}/p/albumdata.html?t=${Date.now()}`;
+                        const response = await fetch(fetchUrl);
+                        if (!response.ok) throw new Error('Gagal mengakses /p/albumdata.html. Pastikan halaman sudah dipublikasikan.');
+                        
+                        const html = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                        
+                        let capturedItems = [];
+                        scripts.forEach(script => {
+                            try {
+                                const data = JSON.parse(script.textContent);
+                                if (data._schema === 'ezy-album-db-v1' || data['@type'] === 'ItemList') {
+                                    // Extract images from schema (support ItemList or custom schema)
+                                    const items = data.itemListElement || data.albums || [];
+                                    capturedItems = items;
+                                }
+                            } catch (e) {
+                                console.warn('Gagal parse blok JSON-LD:', e);
+                            }
                         });
+
+                        if (capturedItems.length === 0) {
+                            throw new Error('Tidak ditemukan metadata JSON-LD yang valid di halaman tersebut.');
+                        }
+
+                        // 2. Kirim data ke backend untuk disimpan ke sheet AlbumImages
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('syncCapturedAlbumData', {
+                                dbId: this.dbId,
+                                albumId: this.selectedAlbumId,
+                                items: capturedItems
+                            }, resolve, reject);
+                        });
+
                         if (res?.status === 'success') {
-                            showToast(res.message);
+                            showToast(res.message, 'success');
+                            await this.fetchAlbumFiles(this.selectedAlbumId);
                         } else {
                             showToast(res?.message || 'Gagal sinkron metadata', 'error');
                         }
                     } catch (e) {
                         console.error('syncMetadata:', e);
-                        showToast('Gagal sinkron metadata', 'error');
+                        showToast(e.message || 'Gagal sinkron metadata', 'error');
                     } finally {
                         this.isSyncing = false;
                     }
