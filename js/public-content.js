@@ -772,45 +772,8 @@
                     } else {
                         showToast(res?.message || 'Gagal menghapus file', 'error');
                     }
-                },
-
-                async testAutoAlbums() {
-                    showToast('Testing auto albums...');
-                    console.log('Current albums:', this.albums);
-
-                    // Test creating auto albums for different contexts
-                    const contexts = ['hero', 'product', 'category'];
-                    for (const context of contexts) {
-                        try {
-                            const res = await new Promise((resolve, reject) => {
-                                window.sendDataToGoogle('uploadImageAndGetUrl', {
-                                    fileName: `${context}-${Date.now()}-test.jpg`,
-                                    fileData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-                                    fileType: 'image/jpeg',
-                                    dbId: this.dbId,
-                                    blogId: getBlogId()
-                                }, resolve, reject);
-                            });
-                            console.log(`Test upload for ${context}:`, res);
-                            if (res?.status === 'success') {
-                                console.log('Upload response details:', {
-                                    albumId: res.albumId || res.data?.albumId, // Defensif jika struktur data bersarang
-                                    autoCreatedAlbum: res.autoCreatedAlbum,
-                                    albumContext: res.albumContext
-                                });
-                                if (res.albumId) {
-                                    await this.fetchAlbums();
-                                }
-                            }
-                        } catch (e) {
-                            console.error(`Test upload failed for ${context}:`, e);
-                        }
-                    }
-
-                    // Refresh albums after test
-                    await this.fetchAlbums();
-                    showToast('Test completed, check console and refresh albums');
-                },
+   
+              },
 
                 async syncMetadata() {
                     if (!this.selectedAlbumId) {
