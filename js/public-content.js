@@ -1869,17 +1869,23 @@
 
                 async fetchBrandingData() {
                     this.isLoading = true;
-                    const userId = JSON.parse(localStorage.getItem('signedInUser') || '{}').id;
-                    if (!userId) {
-                        showToast('User ID tidak ditemukan', 'error');
+                    window.sendDataToGoogle('getBranding', { dbId: this.dbId }, (res) => {
                         this.isLoading = false;
-                        return;
-                    }
-
-                    window.sendDataToGoogle('getProfile', { userId: userId, dbId: this.dbId }, (res) => {
-                        this.isLoading = false;
-                        if (res.status === 'success' && res.data && res.data.publicDisplay) {
-                            this.displayData = { ...res.data.publicDisplay };
+                        if (res.status === 'success' && res.data) {
+                            // Map source keys to internal camelCase keys
+                            const d = res.data;
+                            this.displayData = {
+                                companyName: d.companyname || '',
+                                supportEmail: d.supportemail || '',
+                                supportPhone: d.supportphone || '',
+                                storeAddress: d.storeaddress || '',
+                                operatingHours: d.operatinghours || '',
+                                operatingDays: d.operatingdays || '',
+                                facebook: d.facebook || '',
+                                twitter: d.twitter || '',
+                                instagram: d.instagram || '',
+                                linkedin: d.linkedin || ''
+                            };
                             console.log('Loaded branding data:', this.displayData);
                         } else {
                             console.log('No branding data found, using defaults');
@@ -1899,23 +1905,14 @@
 
                 async savePublicInfo(button) {
                     window.setButtonLoading?.(button, true);
-                    const userId = JSON.parse(localStorage.getItem('signedInUser') || '{}').id;
-                    if (!userId) {
-                        window.showToast('User ID tidak ditemukan', 'error');
-                        window.setButtonLoading?.(button, false);
-                        return;
-                    }
 
                     const payload = {
-                        personalInfo: {},
-                        publicDisplay: this.editingData
+                        dbId: this.dbId,
+                        blogId: getBlogId(),
+                        ...this.editingData
                     };
 
-                    window.sendDataToGoogle('updatePublicProfile', {
-                        userId: userId,
-                        profileData: JSON.stringify(payload),
-                        dbId: this.dbId
-                    }, (res) => {
+                    window.sendDataToGoogle('saveBranding', payload, (res) => {
                         window.setButtonLoading?.(button, false);
                         if (res.status === 'success') {
                             showToast('Informasi publik berhasil diperbarui', 'success');
@@ -1926,7 +1923,7 @@
                         }
                     }, (err) => {
                         window.setButtonLoading?.(button, false);
-                        console.error('Update public profile error:', err);
+                        console.error('Save branding error:', err);
                         showToast('Terjadi kesalahan saat menyimpan', 'error');
                     });
                 },
