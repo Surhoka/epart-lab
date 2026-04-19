@@ -93,29 +93,45 @@
             </template>
 
             <template x-if="selectedAlbumId && albumFiles.length > 0">
-                <div class="space-y-4">
-                    <template x-for="file in albumFiles" :key="file.id">
-                        <div
-                            class="grid gap-3 rounded-3xl border border-gray-200 p-4 sm:grid-cols-[auto_1fr_auto] dark:border-gray-800">
-                            <div class="h-20 w-20 overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-950">
-                                <img :src="file.fileurl" alt="" class="h-full w-full object-cover">
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between gap-2">
-                                    <div>
-                                        <h3 class="font-semibold text-gray-900 dark:text-white"
-                                            x-text="file.originalfilename || file.filename"></h3>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400"
-                                            x-text="file.mimeType + ' • ' + (file.size || '-') + ' bytes'"></p>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Uploaded: <span
-                                        x-text="formatDate(file.uploadedat)"></span></p>
-                            </div>
-                            <button @click="deleteFile(file.id)"
-                                class="btn btn-danger h-11 w-full sm:w-auto">Delete</button>
-                        </div>
-                    </template>
+                <div class="overflow-x-auto rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/50">
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Preview</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Nama File</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">URL Gambar</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <template x-for="file in albumFiles" :key="file.id">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="h-12 w-12 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                                            <img :src="file.fileurl" alt="" class="h-full w-full object-cover clickable" @click="window.open(file.fileurl, '_blank')">
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="font-medium text-gray-900 dark:text-white" x-text="file.originalfilename || file.filename"></div>
+                                        <div class="text-xs text-gray-500" x-text="file.mimeType + ' • ' + (file.size || '-') + ' bytes'"></div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-2">
+                                            <code class="max-w-[150px] truncate rounded bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="file.fileurl"></code>
+                                            <button @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')" class="text-gray-400 hover:text-brand-500">
+                                                <span class="w-4 h-4" x-icon="'copy'"></span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button @click="deleteFile(file.id)" class="text-red-500 hover:text-red-700 transition-colors">
+                                            <span class="w-5 h-5" x-icon="'trash'"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
                 </div>
             </template>
 
