@@ -132,7 +132,7 @@ async function discoverEzyApi() {
         } catch (e) {
             console.warn('Primary Discovery URL failed. Trying Hardcoded Fallback...');
             // Jika gagal dan URL saat ini bukan Hardcoded, coba Hardcoded
-            if (CURRENT_URL !== HARDCODED_URL && HARDCODED_URL) {
+            if (typeof HARDCODED_URL !== 'undefined' && CURRENT_URL !== HARDCODED_URL && HARDCODED_URL) {
                 config = await fetchConfig(HARDCODED_URL);
             } else {
                 throw e; // Berhenti jika Hardcoded pun gagal
