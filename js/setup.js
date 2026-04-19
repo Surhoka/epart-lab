@@ -26,13 +26,7 @@ window.setupData = function () {
         statusInterval: null,
         setupTimeout: null,
 
-        get downloadUrl() {
-            // Gunakan gatewayUrl dari CONFIG jika tersedia (Unified Gateway)
-            const gatewayUrl = (typeof CONFIG !== 'undefined' && CONFIG.WEBAPP_URL_DEV)
-                ? CONFIG.WEBAPP_URL_DEV
-                : 'https://script.google.com/macros/s/AKfycbxjGefXAeRo2pr-pgLCMohxV4l9GOKrUwfjFmTJdJBaBQijvHdJxgroPIl7dubFLt1T/exec';
-            return `${gatewayUrl}?action=download_public_template&adminUrl=${encodeURIComponent(this.webappUrl)}&siteKey=${this.siteKey}&dbName=${encodeURIComponent(this.dbName)}`;
-        },
+
 
         init() {
             console.log('Setup initialized with role:', this.role);
