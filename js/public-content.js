@@ -523,13 +523,20 @@
                 editingAlbum: {},
 
                 async init() {
-                    this.dbId = getDbId();
-                    console.log('Album Manager dbId:', this.dbId);
-                    if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
-                    await this.fetchAlbums();
+                    const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                    this.dbId = cache.dbId || getDbId();
 
-                    // Dengarkan event dari manager lain jika ada album baru/update
-                    window.addEventListener('ezy:album-updated', () => this.fetchAlbums());
+                    // Gunakan ID Halaman dari Property sebagai ID Album utama
+                    this.selectedAlbumId = cache.pageId || '';
+                    this.selectedAlbumName = 'Main Store Album';
+
+                    console.log('Album Manager initialized with ID:', this.selectedAlbumId);
+
+                    if (this.selectedAlbumId) {
+                        await this.fetchAlbumFiles(this.selectedAlbumId);
+                    } else {
+                        showToast('Page ID belum dikonfigurasi. Harap isi di menu Settings', 'warning');
+                    }
                 },
 
                 async openBloggerEditor() {
@@ -537,7 +544,7 @@
                     const blogId = cache.blogId || getBlogId();
                     const pageId = cache.pageId;
 
-                    if (!blogId || !pageId) {
+                    if (!blogId || !this.selectedAlbumId) {
                         showToast('Harap isi Blog ID dan Page ID di sidebar.', 'warning');
                         return;
                     }
@@ -552,12 +559,12 @@
     <div style="background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; color: #1e293b; font-weight: 600;">[KETIK NAMA DI SINI]</div>
   </div>
 
-  <div style="margin-bottom: 20px;">
-    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">Area Gambar (Blogger Upload):</label>
-    <div class="ezy-image-dropzone" style="background-color: #f1f5f9; border: 2px dashed #3b82f6; border-radius: 12px; padding: 15px; text-align: center;">
-       <p style="color: #3b82f6; font-size: 12px; margin: 0 0 10px 0;">👇 KLIK DI BAWAH & GUNAKAN IKON 'SISIPKAN GAMBAR' 👇</p>
-       <div style="min-height: 100px; display: block;">
-         <img src="https://via.placeholder.com/400x200?text=PILIH+INI+DAN+UPLOAD+GAMBAR+BLOGGER" style="max-width: 100%; height: auto; border-radius: 8px;" />
+  <div style="margin-bottom: 20px; text-align: center;">
+    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; text-align: left;">Area Gambar (Blogger Upload):</label>
+    <div class="ezy-image-dropzone" style="display: inline-block; background-color: #f1f5f9; border: 2px dashed #3b82f6; border-radius: 12px; padding: 10px; max-width: 100%; min-width: 200px;">
+       <p style="color: #3b82f6; font-size: 11px; margin: 0 0 8px 0;">👇 KLIK DI BAWAH & GUNAKAN IKON 'SISIPKAN GAMBAR' 👇</p>
+       <div style="display: block; min-height: 50px;">
+         <img src="https://via.placeholder.com/320x180?text=PILIH+INI+DAN+UPLOAD+GAMBAR+BLOGGER" style="max-width: 100%; height: auto; border-radius: 8px; vertical-align: middle;" />
        </div>
     </div>
   </div>
@@ -580,7 +587,7 @@
                         console.error('Gagal menyalin template:', err);
                     }
 
-                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${pageId}`;
+                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${this.selectedAlbumId}`;
                     const width = 1100;
                     const height = 800;
                     const left = (window.innerWidth / 2) - (width / 2);
@@ -826,12 +833,12 @@
                         const fetchUrl = `${webUrl.replace(/\/$/, '')}/p/albumdata.html?t=${Date.now()}`;
                         const response = await fetch(fetchUrl);
                         if (!response.ok) throw new Error('Gagal mengakses /p/albumdata.html. Pastikan halaman sudah dipublikasikan.');
-                        
+
                         const html = await response.text();
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                        
+
                         let capturedItems = [];
                         scripts.forEach(script => {
                             try {
