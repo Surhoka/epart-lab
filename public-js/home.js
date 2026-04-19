@@ -89,6 +89,14 @@ window.initHomePage = function () {
                     // Gunakan data kategori yang sudah diproses oleh backend (syncHomeDataToBlogger_)
                     this.categories = homeMeta.categories || [];
                     this.subcategories = homeMeta.subcategories || {};
+
+                    // Broadcast branding data (JSON-LD First)
+                    if (homeMeta.branding) {
+                        console.log('Central Branding Loaded from Home Meta:', homeMeta.branding);
+                        window.dispatchEvent(new CustomEvent('ezy-branding-loaded', { detail: homeMeta.branding }));
+                        // Also store for immediate access
+                        window._homeBranding = homeMeta.branding;
+                    }
                 }
 
                 // Filter Products (Standardized)
