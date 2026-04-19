@@ -150,10 +150,7 @@ window.setupData = function () {
                     alert('WebApp URL is required');
                     return;
                 }
-                if (!this.dbName) {
-                    alert('Nama Database wajib diisi untuk instalasi baru');
-                    return;
-                }
+
                 if (!this.email || !this.email.includes('@')) {
                     alert('Admin Email wajib diisi dengan format yang benar');
                     return;
@@ -201,7 +198,6 @@ window.setupData = function () {
                             userWebAppUrl: this.webappUrl,
                             email: this.email,
                             dbSetup: this.setupMode === 'new' ? 'force_new' : this.dbSetup,
-                            dbName: this.dbName,
                             sheetId: this.sheetId,
                             gatewayUrl: gatewayUrl
                         });
