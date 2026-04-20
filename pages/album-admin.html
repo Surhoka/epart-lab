@@ -89,8 +89,18 @@
             class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 min-h-[500px]">
             <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Album: <span class="text-brand-500"
-                            x-text="selectedAlbumName"></span></h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                        <span>Album:</span>
+                        <template x-for="(step, index) in selectedAlbumPath" :key="step.id">
+                            <div class="flex items-center gap-1">
+                                <span x-show="index > 0" class="text-gray-300 dark:text-gray-600">/</span>
+                                <button type="button" @click="selectAlbum(step.id)"
+                                    :class="index === selectedAlbumPath.length - 1 ? 'text-brand-500' : 'text-gray-400 hover:text-brand-400 transition-colors'"
+                                    x-text="step.name"></button>
+                            </div>
+                        </template>
+                        <span x-show="!selectedAlbumId" class="text-brand-500">Pilih album</span>
+                    </h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Sinkronisasi data dari halaman <span
                             class="font-mono text-brand-500">/p/album.html</span></p>
                 </div>
