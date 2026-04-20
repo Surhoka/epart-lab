@@ -55,8 +55,6 @@
                                                     <span x-show="alb.parentid"
                                                         class="rounded-md bg-orange-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-orange-600 dark:bg-orange-500/10">Sub-Folder</span>
                                                 </div>
-                                                <p class="text-[10px] text-gray-400 font-mono mt-0.5" x-text="alb.slug">
-                                                </p>
                                             </div>
                                         </div>
 
@@ -217,11 +215,6 @@
                         <div>
                             <label class="label">Nama Album</label>
                             <input type="text" x-model="editingAlbum.name" placeholder="Contoh: Summer Product"
-                                class="input" />
-                        </div>
-                        <div>
-                            <label class="label">Slug Album</label>
-                            <input type="text" x-model="editingAlbum.slug" placeholder="Contoh: summer-product"
                                 class="input" />
                         </div>
                         <div x-show="albums.length > 0">
