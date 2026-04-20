@@ -488,7 +488,7 @@
                         console.error('Gagal menyalin template:', err);
                     }
 
-                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${this.selectedAlbumId}`;
+                    const url = `https://draft.blogger.com/blog/page/edit/${blogId}/${pageId}`;
                     const width = 1100;
                     const height = 800;
                     const left = (window.innerWidth / 2) - (width / 2);
