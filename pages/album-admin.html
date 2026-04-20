@@ -147,6 +147,18 @@
                                 class="input" />
                         </div>
                         <div>
+                            <label class="label">Induk Album (Folder)</label>
+                            <select x-model="editingAlbum.parent_id" class="input">
+                                <option value="">— Tanpa Induk (Folder Utama) —</option>
+                                <!-- Menampilkan daftar album yang sudah ada sebagai pilihan induk -->
+                                <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id)" :key="alb.id">
+                                    <option :value="alb.id" x-text="(alb.parent_id ? '　└ ' : '') + alb.name"></option>
+                                </template>
+                            </select>
+                            <p class="mt-1 text-[10px] text-gray-500">Pilih induk jika Anda ingin menjadikan ini sebagai
+                                sub-folder.</p>
+                        </div>
+                        <div>
                             <label class="label">Deskripsi</label>
                             <textarea x-model="editingAlbum.description" rows="4" class="input"></textarea>
                         </div>
@@ -156,7 +168,11 @@
                                     class="h-4 w-4 rounded border-gray-300 text-brand-500" />
                                 Aktifkan Album
                             </label>
-                            <button @click="saveAlbum()" class="btn btn-primary">Simpan Album</button>
+                            <button id="save-album-btn" @click="saveAlbum()"
+                                class="btn btn-primary inline-flex items-center gap-2">
+                                <span class="block w-4 h-4" x-icon="'save'"></span>
+                                Simpan Album
+                            </button>
                         </div>
                     </div>
                 </div>
