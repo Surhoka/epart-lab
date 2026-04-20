@@ -7,7 +7,7 @@
         </div>
         <div class="flex flex-wrap gap-2">
             <button @click="openAddAlbum()" class="btn btn-primary inline-flex items-center gap-2">
-                <span class="w-4 h-4" x-icon="'plus'"></span> Tambah Album
+                <span class="block w-4 h-4" x-icon="'plus'"></span> Tambah Album
             </button>
             <button @click="syncMetadata()" :disabled="isSyncing"
                 class="btn btn-outline inline-flex items-center gap-2">
@@ -23,12 +23,13 @@
             <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">Daftar Gambar Album</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Sinkronisasi data dari halaman <span class="font-mono text-brand-500">/p/album.html</span></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Sinkronisasi data dari halaman <span
+                            class="font-mono text-brand-500">/p/album.html</span></p>
                 </div>
                 <div class="flex gap-2">
                     <button type="button" @click.prevent.stop="openBloggerEditor()"
                         class="btn btn-primary h-10 inline-flex items-center gap-2">
-                        <span class="w-4 h-4" x-icon="'plus'"></span>
+                        <span class="block w-4 h-4" x-icon="'plus'"></span>
                         Upload & Salin Template
                     </button>
                 </div>
@@ -37,30 +38,40 @@
             <template x-if="selectedAlbumId && albumFiles.length === 0 && !isLoading">
                 <div
                     class="rounded-3xl border border-dashed border-gray-200 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                         <span class="w-8 h-8 text-gray-300" x-icon="'image'"></span>
+                    <div
+                        class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="block w-8 h-8 text-gray-300" x-icon="'image'"></span>
                     </div>
                     <p class="font-medium text-gray-900 dark:text-white">Belum ada gambar yang terdeteksi.</p>
-                    <p class="text-sm mt-1">Gunakan tombol "Upload & Salin Template" untuk mulai menambahkan gambar di Blogger.</p>
+                    <p class="text-sm mt-1">Gunakan tombol "Upload & Salin Template" untuk mulai menambahkan gambar di
+                        Blogger.</p>
                 </div>
             </template>
 
             <template x-if="isLoading">
                 <div class="py-20 text-center">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-500 border-t-transparent"></div>
+                    <div
+                        class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-500 border-t-transparent">
+                    </div>
                     <p class="mt-4 text-gray-500">Memuat data album...</p>
                 </div>
             </template>
 
             <template x-if="selectedAlbumId && albumFiles.length > 0">
-                <div class="overflow-x-auto rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
+                <div
+                    class="overflow-x-auto rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/50">
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Preview</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Nama File</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">URL Gambar</th>
-                                <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">Aksi</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Preview
+                                </th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Nama File
+                                </th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">URL
+                                    Gambar</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">
+                                    Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -68,25 +79,41 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
                                     <td class="px-6 py-4">
                                         <div class="h-12 w-12 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
-                                            <img :src="file.fileurl" alt="" class="h-full w-full object-cover clickable" @click="window.open(file.fileurl, '_blank')">
+                                            <img :src="file.fileurl" alt="" class="h-full w-full object-cover clickable"
+                                                @click="window.open(file.fileurl, '_blank')">
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-900 dark:text-white" x-text="file.filename || 'Tanpa Judul'"></div>
+                                        <div class="font-medium text-gray-900 dark:text-white"
+                                            x-text="file.filename || 'Tanpa Judul'"></div>
                                         <div class="text-xs text-gray-500" x-text="file.originalfilename"></div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-2">
-                                            <code class="max-w-[250px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="file.fileurl"></code>
-                                            <button @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')" class="text-gray-400 hover:text-brand-500 p-1">
-                                                <span class="w-4 h-4" x-icon="'copy'"></span>
+                                            <code
+                                                class="max-w-[250px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                                x-text="file.fileurl"></code>
+                                            <button
+                                                @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
+                                                class="text-gray-400 hover:text-brand-500 p-1">
+                                                <span class="block w-4 h-4" x-icon="'copy'"></span>
                                             </button>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <button @click="deleteFile(file.id)" class="text-red-500 hover:text-red-700 transition-colors p-2">
-                                            <span class="w-5 h-5" x-icon="'trash'"></span>
-                                        </button>
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button
+                                                @click="navigator.clipboard.writeText(file.fileurl); showToast('URL Gambar disalin!')"
+                                                class="text-gray-400 hover:text-brand-500 transition-colors p-2"
+                                                title="Copy URL">
+                                                <span class="block w-5 h-5" x-icon="'copy'"></span>
+                                            </button>
+                                            <button @click="deleteFile(file.id)"
+                                                class="text-red-500 hover:text-red-700 transition-colors p-2"
+                                                title="Hapus Gambar">
+                                                <span class="block w-5 h-5" x-icon="'trash'"></span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             </template>
@@ -105,7 +132,7 @@
                 <div class="modal-content">
                     <div class="modal-header-sticky">
                         <h3 class="h3" x-text="isEditing ? 'Edit Album' : 'Buat Album Baru'"></h3>
-                        <button @click="showAlbumModal = false" class="modal-close-btn"><span class="w-6 h-6"
+                        <button @click="showAlbumModal = false" class="modal-close-btn"><span class="block w-6 h-6"
                                 x-icon="'close'"></span></button>
                     </div>
                     <div class="space-y-4 p-6">
