@@ -38,6 +38,7 @@
                     <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
                         <template x-for="alb in albums" :key="alb.id">
                             <tr class="group hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-all cursor-pointer"
+                                x-show="isRowVisible(alb)" x-transition.opacity
                                 :class="selectedAlbumId === alb.id ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''"
                                 @click="selectAlbum(alb.id)">
                                 <td class="px-4 py-3">
@@ -69,10 +70,14 @@
                                                     class="rounded-lg p-1.5 text-gray-400 hover:bg-white hover:text-red-500 dark:hover:bg-gray-800 shadow-sm transition-all"><span
                                                         class="w-4 h-4" x-icon="'trash'"></span></button>
                                             </div>
-                                            <!-- Icon Dropdown Indikator -->
-                                            <span class="w-5 h-5 text-gray-300 transition-all duration-300"
-                                                :class="selectedAlbumId === alb.id ? 'rotate-180 text-brand-500' : 'group-hover:text-gray-400'"
-                                                x-icon="'chevron-down'"></span>
+                                            <!-- Tombol Dropdown Indikator -->
+                                            <button type="button" x-show="hasChildren(alb.id)"
+                                                @click.stop="toggleExpand(alb.id)"
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                                                <span class="w-5 h-5 text-gray-400 transition-transform duration-300"
+                                                    :class="expandedIds.includes(alb.id) ? 'rotate-180 text-brand-500' : ''"
+                                                    x-icon="'chevron-down'"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </td>
