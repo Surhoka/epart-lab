@@ -553,7 +553,10 @@
 
                 editAlbum(item) {
                     this.isEditing = true;
-                    this.editingAlbum = { ...item };
+                    this.editingAlbum = {
+                        ...item,
+                        parent_id: item.parentid || '' // Map backend 'parentid' to frontend 'parent_id'
+                    };
                     this.showAlbumModal = true;
                 },
 
