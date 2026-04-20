@@ -18,13 +18,13 @@
     </div>
 
     <div class="grid gap-6 grid-cols-1">
-        <!-- Bagian Penjelajah Album (Folder Virtual) -->
+        <!-- Bagian Album Explorer (Folder Virtual) -->
         <section
             class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="mb-4 flex items-center justify-between px-2">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <span class="w-5 h-5 text-brand-500" x-icon="'folder'"></span> Penjelajah Album
+                        <span class="w-5 h-5 text-brand-500" x-icon="'folder'"></span> Album Explorer
                     </h2>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Pilih album untuk mengelola file gambar di
                         dalamnya.</p>
@@ -51,8 +51,8 @@
                                             <div>
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-sm font-black text-gray-900 dark:text-white"
-                                                        x-text="alb.name"></span>
-                                                    <span x-show="alb.parent_id"
+                                                        x-text="(alb.parentid ? '　└ ' : '') + alb.name"></span>
+                                                    <span x-show="alb.parentid"
                                                         class="rounded-md bg-orange-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-orange-600 dark:bg-orange-500/10">Sub-Folder</span>
                                                 </div>
                                                 <p class="text-[10px] text-gray-400 font-mono mt-0.5" x-text="alb.slug">
@@ -89,7 +89,7 @@
             class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 min-h-[500px]">
             <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Isi Album: <span class="text-brand-500"
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Album: <span class="text-brand-500"
                             x-text="selectedAlbumName"></span></h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Sinkronisasi data dari halaman <span
                             class="font-mono text-brand-500">/p/album.html</span></p>
