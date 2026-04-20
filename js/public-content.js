@@ -449,6 +449,8 @@
 
                     console.log('Album Manager initialized with ID:', this.selectedAlbumId);
 
+                    await this.fetchAlbums(); // Pastikan daftar album di-fetch saat mulai
+
                     if (this.selectedAlbumId) {
                         await this.fetchAlbumFiles(this.selectedAlbumId);
                     } else {
