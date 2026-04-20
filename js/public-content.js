@@ -54,7 +54,6 @@
                 slides: [],
                 isLoading: false,
                 isSyncing: false,
-                isUploading: false,
                 showModal: false,
                 isEditing: false,
                 editingItem: {},
@@ -152,37 +151,6 @@
                     } finally {
                         this.isSyncing = false;
                     }
-                },
-
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
-                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
-                    this.isUploading = true;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        console.log('Test upload for hero:', { dbId: this.dbId, fileName: `hero-${Date.now()}-${file.name}` });
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: `hero-${Date.now()}-${file.name}`,
-                            fileData: e.target.result,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            this.isUploading = false;
-                            console.log('Test upload for hero:', res);
-                            if (res?.status === 'success') {
-                                this.editingItem.imageurl = res.url;
-                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
-                                // Beritahu Album Manager untuk refresh data
-                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
-                            }
-                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
-                        }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
                 }
             }));
         }
@@ -198,7 +166,6 @@
                 categories: [],
                 isLoading: false,
                 isSyncing: false,
-                isUploading: false,
                 showModal: false,
                 isEditing: false,
                 editingItem: {},
@@ -296,34 +263,6 @@
                     } finally {
                         this.isSyncing = false;
                     }
-                },
-
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
-                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
-                    this.isUploading = true;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: `category-${Date.now()}-${file.name}`,
-                            fileData: e.target.result,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            this.isUploading = false;
-                            if (res?.status === 'success') {
-                                this.editingItem.imageurl = res.url;
-                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
-                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
-                            }
-                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
-                        }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
                 }
             }));
         }
@@ -340,7 +279,6 @@
                 categories: [],
                 isLoading: false,
                 isSyncing: false,
-                isUploading: false,
                 showModal: false,
                 isEditing: false,
                 editingItem: {},
@@ -471,36 +409,6 @@
                     }
                 },
 
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
-                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
-                    this.isUploading = true;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: `product-${Date.now()}-${file.name}`,
-                            fileData: e.target.result,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            this.isUploading = false;
-                            console.log('Product upload result:', res);
-                            if (res?.status === 'success') {
-                                this.editingItem.imageurl = res.url;
-                                showToast('Gambar berhasil diupload' + (res.autoCreatedAlbum ? ` (Album ${res.albumContext} dibuat otomatis)` : ''));
-                                console.log('Product image uploaded, albumId:', res.albumId);
-                                window.dispatchEvent(new CustomEvent('ezy:album-updated'));
-                            }
-                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
-                        }, () => { this.isUploading = false; showToast('Gagal upload gambar', 'error'); });
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
-                },
-
                 formatPrice(price) {
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price || 0);
                 }
@@ -517,7 +425,6 @@
                 selectedAlbumId: '',
                 isLoading: false,
                 isSyncing: false,
-                isUploading: false,
                 showAlbumModal: false,
                 isEditing: false,
                 editingAlbum: {},
@@ -551,32 +458,14 @@
 
                     // 1. Generate & Copy Template
                     const template = `
-<div class="ezy-album-entry" style="border: 2px solid #e2e8f0; padding: 25px; border-radius: 20px; margin-bottom: 30px; font-family: 'Inter', sans-serif; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-  <h3 style="margin-top: 0; color: #0f172a; font-size: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">📦 Item Metadata Album</h3>
-  
-  <div style="margin-bottom: 20px;">
-    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Nama Item / Judul:</label>
-    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; color: #1e293b; font-weight: 600;">[KETIK NAMA DI SINI]</div>
+<div class="ezy-album-entry" style="background-color: white; border-radius: 20px; border: 2px solid rgb(226, 232, 240); box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px; font-family: Inter, sans-serif; margin-bottom: 30px; padding: 25px;">
+  <h3 style="border-bottom: 1px solid rgb(241, 245, 249); color: #0f172a; font-size: 18px; margin-top: 0px; padding-bottom: 10px;"><span style="color: #475569; font-size: 13px; text-transform: uppercase;">Area Gambar :<div class="separator" style="clear: both; text-align: center;"><br /></div><br /></span></h3><div style="margin-bottom: 20px; text-align: center;"><div class="separator" style="clear: both; text-align: left;"><span style="color: #475569; font-size: 13px; font-weight: 700; text-align: left; text-transform: uppercase;">Keterangan Tambahan:</span></div></div><div>
+    <div style="background: rgb(248, 250, 252); border-radius: 10px; border: 1px solid rgb(203, 213, 225); color: #64748b; font-style: italic; padding: 12px;">[Ketik Deskripsi]</div>
   </div>
 
-  <div style="margin-bottom: 20px; text-align: center;">
-    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; text-align: left;">Area Gambar (Blogger Upload):</label>
-    <div class="ezy-image-dropzone" style="display: inline-block; background-color: #f1f5f9; border: 2px dashed #3b82f6; border-radius: 12px; padding: 10px; max-width: 100%; min-width: 200px;">
-       <p style="color: #3b82f6; font-size: 11px; margin: 0 0 8px 0;">👇 KLIK DI BAWAH & GUNAKAN IKON 'SISIPKAN GAMBAR' 👇</p>
-       <div style="display: block; min-height: 50px;">
-         <img src="https://via.placeholder.com/320x180?text=PILIH+INI+DAN+UPLOAD+GAMBAR+BLOGGER" style="max-width: 100%; height: auto; border-radius: 8px; vertical-align: middle;" />
-       </div>
-    </div>
-  </div>
-
-  <div>
-    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">Keterangan Tambahan:</label>
-    <div style="background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; color: #64748b; font-style: italic;">[KETIK DESKRIPSI SINGKAT DI SINI]</div>
-  </div>
-
-  <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 11px; color: #94a3b8;">EzyStore Metadata System v2.0</span>
-    <span style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;">SYNC READY</span>
+  <div style="align-items: center; border-top: 1px solid rgb(241, 245, 249); display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px;">
+    <span style="color: #94a3b8; font-size: 11px;">EzyStore Metadata System v2.0</span>
+    <span style="background: rgb(59, 130, 246); border-radius: 4px; color: white; font-size: 10px; font-weight: bold; padding: 2px 8px;">SYNC READY</span>
   </div>
 </div><br/>`.trim();
 
@@ -693,74 +582,6 @@
                     }
                 },
 
-                async uploadAlbumImage(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
-                    if (file.size > 5 * 1024 * 1024) { showToast('Ukuran file maksimal 5MB', 'warning'); return; }
-                    if (!this.selectedAlbumId) { showToast('Pilih album terlebih dahulu', 'warning'); return; }
-
-                    // Album ALWAYS upload ke PUBLIC (Blogger) - ini adalah public content
-                    // blogId akan dicari dari localStorage atau Settings sheet di backend
-                    const blogId = getBlogId();
-
-                    // DEBUG: Check apakah blogId ada
-                    console.log('[albumManager.uploadAlbumImage] blogId:', blogId, 'isEmpty:', !blogId);
-
-                    // FORCE target ke PUBLIC untuk album (tidak pernah ADMIN)
-                    const target = 'PUBLIC';
-
-                    console.log('[albumManager.uploadAlbumImage] About to call sendDataToGoogle with:', {
-                        action: 'uploadImageAndGetUrl',
-                        fileName: `album-${Date.now()}-${file.name}`,
-                        albumId: this.selectedAlbumId,
-                        target: target,
-                        hasBlogId: !!blogId
-                    });
-
-                    this.isUploading = true;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        console.log('[albumManager.uploadAlbumImage] FileReader loaded, calling sendDataToGoogle');
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: `album-${Date.now()}-${file.name}`,
-                            originalFileName: file.name,
-                            fileData: e.target.result,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            albumId: this.selectedAlbumId,
-                            blogId: blogId || undefined,  // Send if available, else let backend resolve
-                            target: target  // ALWAYS PUBLIC untuk album
-                        }, (res) => {
-                            console.log('[albumManager.uploadAlbumImage] sendDataToGoogle success callback:', res);
-                            this.isUploading = false;
-                            if (res?.status === 'success') {
-                                if (res.domain?.includes('blogger')) {
-                                    showToast('✅ Gambar berhasil diupload ke Blogger (blogger.googleusercontent.com)');
-                                } else if (res.domain?.includes('drive')) {
-                                    showToast('⚠️ Gambar diupload ke Drive (fallback)');
-                                } else {
-                                    showToast('Gambar berhasil diupload');
-                                }
-                                this.fetchAlbumFiles(this.selectedAlbumId);
-                            } else {
-                                showToast(res?.message || 'Gagal upload gambar', 'error');
-                            }
-                        }, (err) => {
-                            console.error('[albumManager.uploadAlbumImage] sendDataToGoogle error callback:', err);
-                            this.isUploading = false;
-                            showToast('Gagal upload gambar - Network error', 'error');
-                        });
-                    };
-                    reader.onerror = (err) => {
-                        console.error('[albumManager.uploadAlbumImage] FileReader error:', err);
-                        this.isUploading = false;
-                        showToast('Gagal membaca file', 'error');
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
-                },
-
                 async deleteFile(id) {
                     if (!confirm('Hapus file ini?')) return;
                     const res = await new Promise((resolve, reject) => {
@@ -772,8 +593,8 @@
                     } else {
                         showToast(res?.message || 'Gagal menghapus file', 'error');
                     }
-   
-              },
+
+                },
 
                 async syncMetadata() {
                     if (!this.selectedAlbumId) {
