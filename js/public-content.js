@@ -547,7 +547,7 @@
 
                 openAddAlbum() {
                     this.isEditing = false;
-                    this.editingAlbum = { name: '', slug: '', description: '', active: true, sortOrder: 0 };
+                    this.editingAlbum = { name: '', slug: '', description: '', parent_id: '', active: true, sortOrder: 0 };
                     this.showAlbumModal = true;
                 },
 
@@ -566,6 +566,7 @@
                             ...this.editingAlbum,
                             dbId: this.dbId,
                             blogId: getBlogId(), // Tambahkan blogId
+                            parent_id: this.editingAlbum.parent_id || '', // Tambahkan parent_id di sini
                             slug: this.editingAlbum.slug || this.editingAlbum.name || ''
                         };
                         const res = await new Promise((resolve, reject) => {
