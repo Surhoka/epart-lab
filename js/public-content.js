@@ -434,6 +434,7 @@
                 albumFiles: [],
                 selectedAlbumId: '',
                 isLoading: false,
+                expandedIds: [], // Menyimpan ID album yang sedang dibuka (expanded)
                 isSyncing: false,
                 showAlbumModal: false,
                 isEditing: false,
@@ -663,6 +664,34 @@
                 get selectedAlbumName() {
                     const album = this.albums.find(a => a.id === this.selectedAlbumId);
                     return album ? album.name : 'Pilih album';
+                },
+
+                // Mengecek apakah album memiliki anak (sub-folder)
+                hasChildren(id) {
+                    return this.albums.some(a => a.parentid === id);
+                },
+
+                // Toggle buka/tutup folder
+                toggleExpand(id) {
+                    if (this.expandedIds.includes(id)) {
+                        this.expandedIds = this.expandedIds.filter(i => i !== id);
+                    } else {
+                        this.expandedIds.push(id);
+                    }
+                },
+
+                // Menentukan apakah baris album harus ditampilkan
+                isRowVisible(alb) {
+                    if (!alb.parentid) return true; // Folder utama selalu tampil
+
+                    // Cek apakah semua leluhur (parents) folder ini sedang terbuka
+                    let currentParentId = alb.parentid;
+                    while (currentParentId) {
+                        if (!this.expandedIds.includes(currentParentId)) return false;
+                        const parent = this.albums.find(a => a.id === currentParentId);
+                        currentParentId = parent ? parent.parentid : null;
+                    }
+                    return true;
                 },
 
                 get selectedAlbumPath() {
