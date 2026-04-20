@@ -214,13 +214,15 @@
                             <input type="text" x-model="editingAlbum.slug" placeholder="Contoh: summer-product"
                                 class="input" />
                         </div>
-                        <div>
+                        <div x-show="albums.length > 0">
+                            <!-- Hanya tampilkan jika ada album lain untuk dipilih sebagai induk -->
                             <label class="label">Induk Album (Folder)</label>
                             <select x-model="editingAlbum.parent_id" class="input">
                                 <option value="">— Tanpa Induk (Folder Utama) —</option>
                                 <!-- Menampilkan daftar album yang sudah ada sebagai pilihan induk -->
-                                <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id)" :key="alb.id">
-                                    <option :value="alb.id" x-text="(alb.parent_id ? '　└ ' : '') + alb.name"></option>
+                                <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id && a.active)"
+                                    :key="alb.id">
+                                    <option :value="alb.id" x-text="(alb.parentid ? '　└ ' : '') + alb.name"></option>
                                 </template>
                             </select>
                             <p class="mt-1 text-[10px] text-gray-500">Pilih induk jika Anda ingin menjadikan ini sebagai
