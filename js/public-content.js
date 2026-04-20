@@ -4,6 +4,16 @@
  * Combines Hero Slides, Categories, Featured Products, Landing Config, and Sales Page logic.
  */
 (function () {
+    // Ensure Toast is always above Modals
+    if (!document.getElementById('ezy-toast-zindex-fix')) {
+        const style = document.createElement('style');
+        style.id = 'ezy-toast-zindex-fix';
+        style.textContent = `
+            #toast-container, .toast-container, [id^="toast-"] { z-index: 100 !important; }
+        `;
+        document.head.appendChild(style);
+    }
+
     // Shared Toast Utility
     function showToast(msg, type = 'success') {
         if (typeof window.showToast === 'function') {
