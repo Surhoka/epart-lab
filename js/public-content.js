@@ -665,6 +665,24 @@
                     return album ? album.name : 'Pilih album';
                 },
 
+                get selectedAlbumPath() {
+                    if (!this.selectedAlbumId) return [];
+                    const path = [];
+                    let currentId = this.selectedAlbumId;
+                    let safety = 0; // Mencegah infinite loop
+                    while (currentId && safety < 10) {
+                        const album = this.albums.find(a => a.id === currentId);
+                        if (album) {
+                            path.unshift(album);
+                            currentId = album.parentid;
+                        } else {
+                            break;
+                        }
+                        safety++;
+                    }
+                    return path;
+                },
+
                 formatDate(value) {
                     if (!value) return '-';
                     try {
