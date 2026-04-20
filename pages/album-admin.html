@@ -47,10 +47,10 @@
                                             <!-- Icon Folder -->
                                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 transition-transform group-hover:scale-110"
                                                 :class="alb.parentid ? 'ml-4' : ''">
-                                                <span class="block w-4 h-4" x-icon="'layers'"></span>
                                             </div>
                                             <div>
                                                 <div class="flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
                                                     <span class="text-sm font-black text-gray-900 dark:text-white"
                                                         x-text="(alb.parentid ? '　└ ' : '') + alb.name"></span>
                                                     <span x-show="alb.parentid"
@@ -224,9 +224,9 @@
                         </div>
                         <div x-show="albums.length > 0">
                             <!-- Hanya tampilkan jika ada album lain untuk dipilih sebagai induk -->
-                            <label class="label">Induk Album (Folder)</label>
+                            <label class="label">Induk Album</label>
                             <select x-model="editingAlbum.parent_id" class="input">
-                                <option value="">— Tanpa Induk (Folder Utama) —</option>
+                                <option value="">Tanpa Induk</option>
                                 <!-- Menampilkan daftar album yang sudah ada sebagai pilihan induk -->
                                 <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id && a.active)"
                                     :key="alb.id">
