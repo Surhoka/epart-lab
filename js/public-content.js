@@ -607,6 +607,34 @@
                     }
                 },
 
+                async editFileCaption(file) {
+                    const newName = prompt('Ubah Nama/Caption Gambar:', file.filename || '');
+                    if (newName !== null && newName !== file.filename) {
+                        const originalName = file.filename;
+                        file.filename = newName;
+
+                        try {
+                            const res = await new Promise((resolve, reject) => {
+                                window.sendDataToGoogle('saveAlbumImage', {
+                                    ...file,
+                                    dbId: this.dbId,
+                                    blogId: getBlogId()
+                                }, resolve, reject);
+                            });
+
+                            if (res?.status === 'success') {
+                                showToast('Caption diperbarui');
+                            } else {
+                                file.filename = originalName;
+                                showToast(res?.message || 'Gagal menyimpan caption', 'error');
+                            }
+                        } catch (e) {
+                            file.filename = originalName;
+                            showToast('Gagal menyimpan: ' + e, 'error');
+                        }
+                    }
+                },
+
                 async deleteFile(id) {
                     if (!confirm('Hapus file ini?')) return;
                     const res = await new Promise((resolve, reject) => {
