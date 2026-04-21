@@ -5,12 +5,13 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola album virtual dan metadata file gambar untuk
                 /p/album.html.</p>
         </div>
-        <div class="flex flex-wrap gap-2">
-            <button @click="openAddAlbum()" class="btn btn-primary inline-flex items-center gap-2">
+        <div class="flex flex-wrap gap-2 sm:shrink-0">
+            <button @click="openAddAlbum()"
+                class="btn btn-primary grow sm:grow-0 inline-flex items-center justify-center gap-2">
                 <span class="block w-4 h-4" x-icon="'plus'"></span> Tambah Album
             </button>
             <button @click="syncMetadata()" :disabled="isSyncing"
-                class="btn btn-outline inline-flex items-center gap-2">
+                class="btn btn-outline grow sm:grow-0 inline-flex items-center justify-center gap-2">
                 <span class="w-4 h-4" :class="isSyncing ? 'animate-spin' : ''" x-icon="'refresh'"></span>
                 <span x-text="isSyncing ? 'Menyinkronkan...' : 'Sync Metadata'"></span>
             </button>
@@ -54,7 +55,7 @@
                                                     <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
                                                 </template>
                                             </div>
-                                            <div>
+                                            <div class="min-w-0">
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-sm font-black text-gray-900 dark:text-white"
                                                         x-text="(alb.parentid ? '　└ ' : '') + alb.name"></span>
@@ -94,10 +95,10 @@
         </section>
 
         <section
-            class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 min-h-[500px]">
+            class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 min-h-[400px]">
             <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white flex flex-wrap items-center gap-1">
                         <span>Album:</span>
                         <template x-for="(step, index) in selectedAlbumPath" :key="step.id">
                             <div class="flex items-center gap-1">
@@ -114,7 +115,7 @@
                 </div>
                 <div class="flex gap-2">
                     <button type="button" @click.prevent.stop="openBloggerEditor()"
-                        class="btn btn-primary h-10 inline-flex items-center gap-2">
+                        class="btn btn-primary w-full sm:w-auto h-10 inline-flex items-center justify-center gap-2">
                         <span class="block w-4 h-4" x-icon="'plus'"></span>
                         Upload & Salin Template
                     </button>
@@ -144,40 +145,97 @@
             </template>
 
             <template x-if="selectedAlbumId && albumFiles.length > 0">
-                <div
-                    class="overflow-x-auto rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/50">
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Preview
-                                </th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Nama File
-                                </th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">URL
-                                    Gambar</th>
-                                <th
-                                    class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">
-                                    Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                            <template x-for="file in albumFiles" :key="file.id">
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="h-12 w-12 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
-                                            <img :src="file.fileurl" alt="" class="h-full w-full object-cover clickable"
-                                                @click="window.open(file.fileurl, '_blank')">
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-900 dark:text-white"
+                <div>
+                    <!-- Desktop Table View -->
+                    <div
+                        class="hidden md:block overflow-x-auto rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr
+                                    class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/50">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Preview
+                                    </th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Nama
+                                        File
+                                    </th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">URL
+                                        Gambar</th>
+                                    <th
+                                        class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <template x-for="file in albumFiles" :key="file.id">
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div
+                                                class="h-12 w-12 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                                                <img :src="file.fileurl" alt=""
+                                                    class="h-full w-full object-cover clickable"
+                                                    @click="window.open(file.fileurl, '_blank')">
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="font-medium text-gray-900 dark:text-white"
+                                                x-text="file.filename || 'Tanpa Judul'"></div>
+                                            <div class="text-xs text-gray-500" x-text="file.originalfilename"></div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <code
+                                                    class="max-w-[250px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                                    x-text="file.fileurl"></code>
+                                                <button
+                                                    @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
+                                                    class="text-gray-400 hover:text-brand-500 p-1">
+                                                    <span class="block w-4 h-4" x-icon="'copy'"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-1">
+                                                <button @click="editFileCaption(file)"
+                                                    class="text-gray-400 hover:text-brand-500 transition-colors p-2"
+                                                    title="Edit Caption">
+                                                    <span class="block w-4 h-4" x-icon="'pencil'"></span></button>
+                                                <button @click="deleteFile(file.id)"
+                                                    class="text-red-500 hover:text-red-700 transition-colors p-2"
+                                                    title="Hapus Gambar">
+                                                    <span class="block w-4 h-4" x-icon="'trash'"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="md:hidden space-y-4">
+                        <template x-for="file in albumFiles" :key="file.id">
+                            <div
+                                class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
+                                <div class="flex gap-4">
+                                    <!-- Image Preview -->
+                                    <div
+                                        class="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-50 dark:border-gray-700">
+                                        <img :src="file.fileurl" alt="" class="h-full w-full object-cover"
+                                            @click="window.open(file.fileurl, '_blank')">
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-bold text-gray-900 dark:text-white truncate"
                                             x-text="file.filename || 'Tanpa Judul'"></div>
-                                        <div class="text-xs text-gray-500" x-text="file.originalfilename"></div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-2">
+                                        <div class="text-xs text-gray-500 truncate" x-text="file.originalfilename">
+                                        </div>
+
+                                        <!-- URL Copy -->
+                                        <div class="mt-2 flex items-center gap-2">
                                             <code
-                                                class="max-w-[250px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                                class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                                                 x-text="file.fileurl"></code>
                                             <button
                                                 @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
@@ -185,24 +243,24 @@
                                                 <span class="block w-4 h-4" x-icon="'copy'"></span>
                                             </button>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <button @click="editFileCaption(file)"
-                                                class="text-gray-400 hover:text-brand-500 transition-colors p-2"
-                                                title="Edit Caption">
-                                                <span class="block w-4 h-4" x-icon="'pencil'"></span></button>
-                                            <button @click="deleteFile(file.id)"
-                                                class="text-red-500 hover:text-red-700 transition-colors p-2"
-                                                title="Hapus Gambar">
-                                                <span class="block w-4 h-4" x-icon="'trash'"></span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+
+                                <!-- Card Actions -->
+                                <div
+                                    class="mt-4 flex items-center justify-end gap-2 border-t border-gray-50 dark:border-gray-800 pt-3">
+                                    <button @click="editFileCaption(file)"
+                                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
+                                        <span class="w-4 h-4" x-icon="'pencil'"></span> Edit Caption
+                                    </button>
+                                    <button @click="deleteFile(file.id)"
+                                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                                        <span class="w-4 h-4" x-icon="'trash'"></span> Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </template>
         </section>
