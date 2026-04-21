@@ -24,7 +24,7 @@
             <div class="mb-4 flex items-center justify-between px-2">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <span class="w-5 h-5 text-brand-500" x-icon="'layers'"></span> Album Explorer
+                        <span class="w-5 h-5 text-brand-500" x-icon="'folder'"></span> Album Explorer
                     </h2>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Pilih album untuk mengelola file gambar di
                         dalamnya.</p>
@@ -45,12 +45,17 @@
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-4">
                                             <!-- Icon Folder -->
-                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 transition-transform group-hover:scale-110"
-                                                :class="alb.parentid ? 'ml-4' : ''">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center"
+                                                :class="alb.parentid ? 'ml-4' : 'rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 transition-transform group-hover:scale-110'">
+                                                <template x-if="!alb.parentid">
+                                                    <span class="w-5 h-5" x-icon="'folder'"></span>
+                                                </template>
+                                                <template x-if="alb.parentid">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                                                </template>
                                             </div>
                                             <div>
                                                 <div class="flex items-center gap-1">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
                                                     <span class="text-sm font-black text-gray-900 dark:text-white"
                                                         x-text="(alb.parentid ? '　└ ' : '') + alb.name"></span>
                                                     <span x-show="alb.parentid"
@@ -183,12 +188,10 @@
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-1">
-                                            <button
-                                                @click="navigator.clipboard.writeText(file.fileurl); showToast('URL Gambar disalin!')"
+                                            <button @click="editFileCaption(file)"
                                                 class="text-gray-400 hover:text-brand-500 transition-colors p-2"
-                                                title="Copy URL">
-                                                <span class="block w-5 h-5" x-icon="'copy'"></span>
-                                            </button>
+                                                title="Edit Caption">
+                                                <span class="block w-5 h-5" x-icon="'pencil'"></span></button>
                                             <button @click="deleteFile(file.id)"
                                                 class="text-red-500 hover:text-red-700 transition-colors p-2"
                                                 title="Hapus Gambar">
