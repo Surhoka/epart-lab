@@ -617,6 +617,7 @@
                             const res = await new Promise((resolve, reject) => {
                                 window.sendDataToGoogle('saveAlbumImage', {
                                     ...file,
+                                    albumId: this.selectedAlbumId,
                                     dbId: this.dbId,
                                     blogId: getBlogId()
                                 }, resolve, reject);
