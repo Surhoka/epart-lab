@@ -472,15 +472,13 @@
                     // 1. Generate & Copy Template
                     const template = `
 <div class="ezy-album-entry" data-album-id="${this.selectedAlbumId}" style="background-color: white; border-radius: 20px; border: 2px solid rgb(226, 232, 240); box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px; font-family: Inter, sans-serif; margin-bottom: 30px; padding: 25px;">
-  <h3 style="border-bottom: 1px solid rgb(241, 245, 249); color: #0f172a; font-size: 18px; margin-top: 0px; padding-bottom: 10px;"><span style="color: #475569; font-size: 13px; text-transform: uppercase;">Area Gambar :<div class="separator" style="clear: both; text-align: center;"><br /></div><br /></span></h3><div style="margin-bottom: 20px; text-align: center;"><div class="separator" style="clear: both; text-align: left;"><span style="color: #475569; font-size: 13px; font-weight: 700; text-align: left; text-transform: uppercase;">Keterangan Tambahan:</span></div></div><div>
-    <div style="background: rgb(248, 250, 252); border-radius: 10px; border: 1px solid rgb(203, 213, 225); color: #64748b; font-style: italic; padding: 12px;">[Ketik Deskripsi]</div>
-  </div>
-
+  <h3 style="border-bottom: 1px solid rgb(241, 245, 249); color: #0f172a; font-size: 18px; margin-top: 0px; padding-bottom: 10px;"><span style="color: #475569; font-size: 13px;">Area Gambar :</span></h3><div style="text-align: center;"><br /></div>
+  
   <div style="align-items: center; border-top: 1px solid rgb(241, 245, 249); display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px;">
     <span style="color: #94a3b8; font-size: 11px;">EzyStore Metadata System v2.0</span>
     <span style="background: rgb(59, 130, 246); border-radius: 4px; color: white; font-size: 10px; font-weight: bold; padding: 2px 8px;">SYNC READY</span>
   </div>
-</div><br/>`.trim();
+</div><br />`.trim();
 
                     try {
                         await navigator.clipboard.writeText(template);
