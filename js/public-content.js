@@ -426,6 +426,20 @@
         }
     };
 
+    // ================================================================
+    // YOUTUBE HELPERS (shared utility)
+    // ================================================================
+    function extractYoutubeId(url) {
+        if (!url) return null;
+        const regex = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+        const match = String(url).match(regex);
+        return match ? match[1] : null;
+    }
+
+    function isYoutubeUrl(url) {
+        return !!extractYoutubeId(url);
+    }
+
     const registerAlbumManager = () => {
         if (window.Alpine?.data && !window.Alpine.data('albumManager')) {
             window.Alpine.data('albumManager', () => ({
@@ -437,8 +451,10 @@
                 expandedIds: [], // Menyimpan ID album yang sedang dibuka (expanded)
                 isSyncing: false,
                 showAlbumModal: false,
+                showYoutubeModal: false,
                 isEditing: false,
                 editingAlbum: {},
+                youtubeInput: { url: '', title: '', isSaving: false },
 
                 async init() {
                     const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
@@ -606,7 +622,7 @@
                 },
 
                 async editFileCaption(file) {
-                    const newName = prompt('Ubah Nama/Caption Gambar:', file.filename || '');
+                    const newName = prompt('Ubah Nama/Caption:', file.filename || '');
                     if (newName !== null && newName !== file.filename) {
                         const originalName = file.filename;
                         file.filename = newName;
@@ -615,6 +631,11 @@
                             const res = await new Promise((resolve, reject) => {
                                 window.sendDataToGoogle('saveAlbumImage', {
                                     ...file,
+                                    fileName: file.filename,
+                                    originalFileName: file.originalfilename,
+                                    fileUrl: file.fileurl,
+                                    contentType: file.contenttype || 'image',
+                                    thumbnailUrl: file.thumbnailurl || '',
                                     albumId: this.selectedAlbumId,
                                     dbId: this.dbId,
                                     blogId: getBlogId()
@@ -737,6 +758,76 @@
                         safety++;
                     }
                     return path;
+                },
+
+                // ----------------------------------------------------------------
+                // YOUTUBE VIDEO
+                // ----------------------------------------------------------------
+                openYoutubeModal() {
+                    if (!this.selectedAlbumId) {
+                        showToast('Pilih album terlebih dahulu!', 'warning');
+                        return;
+                    }
+                    this.youtubeInput = { url: '', title: '', isSaving: false };
+                    this.showYoutubeModal = true;
+                },
+
+                async addYoutubeVideo() {
+                    const url = (this.youtubeInput.url || '').trim();
+                    if (!url) { showToast('URL YouTube harus diisi', 'warning'); return; }
+
+                    const videoId = extractYoutubeId(url);
+                    if (!videoId) { showToast('URL YouTube tidak valid. Pastikan format URL benar.', 'error'); return; }
+
+                    this.youtubeInput.isSaving = true;
+                    const embedUrl    = `https://www.youtube.com/embed/${videoId}`;
+                    const thumbUrl    = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    const title       = (this.youtubeInput.title || '').trim() || `Video ${videoId}`;
+
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('saveAlbumImage', {
+                                albumId: this.selectedAlbumId,
+                                dbId: this.dbId,
+                                blogId: getBlogId(),
+                                fileName: title,
+                                originalFileName: url,  // simpan URL asli sebagai originalfilename
+                                fileUrl: embedUrl,       // simpan embed URL sebagai fileurl
+                                thumbnailUrl: thumbUrl,
+                                contentType: 'youtube',
+                                mimeType: 'video/youtube',
+                                size: 0
+                            }, resolve, reject);
+                        });
+
+                        if (res?.status === 'success') {
+                            showToast('✅ Video YouTube berhasil ditambahkan!', 'success');
+                            this.showYoutubeModal = false;
+                            await this.fetchAlbumFiles(this.selectedAlbumId);
+                        } else {
+                            showToast(res?.message || 'Gagal menyimpan video', 'error');
+                        }
+                    } catch (e) {
+                        showToast('Terjadi kesalahan: ' + e, 'error');
+                    } finally {
+                        this.youtubeInput.isSaving = false;
+                    }
+                },
+
+                // Helper: ambil URL thumbnail yang tepat
+                getThumbUrl(file) {
+                    if (file.thumbnailurl) return file.thumbnailurl;
+                    if (file.contenttype === 'youtube') {
+                        // Coba ekstrak dari fileurl (embed URL)
+                        const embedMatch = String(file.fileurl || '').match(/embed\/([a-zA-Z0-9_-]{11})/);
+                        if (embedMatch) return `https://img.youtube.com/vi/${embedMatch[1]}/hqdefault.jpg`;
+                    }
+                    return file.fileurl || '';
+                },
+
+                // Helper: apakah item ini adalah YouTube video
+                isYoutube(file) {
+                    return file.contenttype === 'youtube' || file.mimetype === 'video/youtube';
                 },
 
                 formatDate(value) {
