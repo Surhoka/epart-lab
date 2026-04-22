@@ -30,8 +30,17 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400">Pilih album untuk mengelola file gambar di
                         dalamnya.</p>
                 </div>
-                <span class="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-bold dark:bg-gray-800"
-                    x-text="albums.length + ' Album'"></span>
+                <div class="flex items-center gap-3">
+                    <!-- Bilah Pencarian File -->
+                    <div class="relative hidden sm:block">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                            x-icon="'search'"></span>
+                        <input type="text" x-model="fileSearchQuery" placeholder="Cari nama file..."
+                            class="h-9 w-48 lg:w-64 rounded-xl border border-gray-100 bg-gray-50 pl-10 pr-4 text-xs focus:border-brand-500 focus:ring-0 dark:border-gray-700 dark:bg-gray-800 dark:text-white transition-all" />
+                    </div>
+                    <span class="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-bold dark:bg-gray-800"
+                        x-text="albums.length + ' Album'"></span>
+                </div>
             </div>
 
             <div class="overflow-hidden rounded-2xl border border-gray-50 dark:border-gray-800">
@@ -130,16 +139,18 @@
                 </div>
             </div>
 
-            <template x-if="selectedAlbumId && albumFiles.length === 0 && !isLoading">
+            <template x-if="selectedAlbumId && filteredAlbumFiles.length === 0 && !isLoading">
                 <div
                     class="rounded-3xl border border-dashed border-gray-200 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
                     <div
                         class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="block w-8 h-8 text-gray-300" x-icon="'image'"></span>
                     </div>
-                    <p class="font-medium text-gray-900 dark:text-white">Belum ada gambar yang terdeteksi.</p>
-                    <p class="text-sm mt-1">Gunakan tombol "Upload & Salin Template" untuk mulai menambahkan gambar di
-                        Blogger.</p>
+                    <p class="font-medium text-gray-900 dark:text-white"
+                        x-text="fileSearchQuery ? 'Tidak ada file yang cocok dengan pencarian.' : 'Belum ada gambar yang terdeteksi.'">
+                    </p>
+                    <p class="text-sm mt-1" x-show="!fileSearchQuery">Gunakan tombol "Upload & Salin Template" untuk
+                        mulai menambahkan gambar di Blogger.</p>
                 </div>
             </template>
 
@@ -152,7 +163,7 @@
                 </div>
             </template>
 
-            <template x-if="selectedAlbumId && albumFiles.length > 0">
+            <template x-if="selectedAlbumId && filteredAlbumFiles.length > 0">
                 <div>
                     <!-- Desktop Table View -->
                     <div
@@ -175,7 +186,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                                <template x-for="file in albumFiles" :key="file.id">
+                                <template x-for="file in filteredAlbumFiles" :key="file.id">
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
                                         <!-- Preview Cell -->
                                         <td class="px-6 py-4">
@@ -196,275 +207,254 @@
                                             </div>
                                         </td>
                                         <!-- Nama File -->
-                                        <td class="px-6 py-4                                             <div class="
-                                            flex items-center gap-2">
-                                            <div class="font-medium text-gray-900 dark:text-white"
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="font-medium text-gray-900 dark:text-white"
+                                                    x-text="file.filename || 'Tanpa Judul'"></div>
+                                                <!-- Badge tipe konten -->
+                                                <template x-if="isYoutube(file)">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 rounded-md bg-red-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                                                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24"
+                                                            fill="currentColor">
+                                                            <path
+                                                                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                                                        </svg>
+                                                        YouTube
+                                                    </span>
+                                                </template>
+                                            </div>
+                                            <div class="text-xs text-gray-500 truncate max-w-[180px]"
+                                                x-text="file.originalfilename"></div>
+                                        </td>
+                                        <!-- URL / Embed -->
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <code
+                                                    class="max-w-[220px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                                    x-text="file.fileurl"></code>
+                                                <button
+                                                    @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
+                                                    class="text-gray-400 hover:text-brand-500 p-1 shrink-0">
+                                                    <span class="block w-4 h-4" x-icon="'copy'"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <!-- Aksi -->
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex items-center justify-end gap-1">
+                                                <button @click="editFileCaption(file)"
+                                                    class="text-gray-400 hover:text-brand-500 transition-colors p-2"
+                                                    title="Edit Caption">
+                                                    <span class="block w-4 h-4" x-icon="'pencil'"></span></button>
+                                                <button @click="deleteFile(file.id)"
+                                                    class="text-red-500 hover:text-red-700 transition-colors p-2"
+                                                    :title="isYoutube(file) ? 'Hapus Video' : 'Hapus Gambar'">
+                                                    <span class="block w-4 h-4" x-icon="'trash'"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="md:hidden space-y-4">
+                        <template x-for="file in filteredAlbumFiles" :key="file.id">
+                            <div
+                                class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
+                                <div class="flex gap-4">
+                                    <!-- Preview (Image / YouTube Thumbnail) -->
+                                    <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-50 dark:border-gray-700 relative cursor-pointer group"
+                                        @click="isYoutube(file) ? window.open(file.originalfilename || file.fileurl, '_blank') : window.open(file.fileurl, '_blank')">
+                                        <img :src="getThumbUrl(file)" alt=""
+                                            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110">
+                                        <template x-if="isYoutube(file)">
+                                            <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M8 5v14l11-7z" />
+                                                </svg>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <div class="font-bold text-gray-900 dark:text-white truncate"
                                                 x-text="file.filename || 'Tanpa Judul'"></div>
-                                            <!-- Badge tipe konten: YouTube -->
                                             <template x-if="isYoutube(file)">
                                                 <span
-                                                    class="inline-flex items-center gap-1 rounded-md bg-red-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-600 dark:bg-red-500/10 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-500/20">
-                                                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
-                                                        <path
-                                                            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                                                    </svg>
-                                                    YouTube
-                                                </span>
+                                                    class="rounded-md bg-red-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-red-600 dark:bg-red-500/10 dark:text-red-400">YouTube</span>
                                             </template>
-                                            <!-- Badge tipe konten: Blogger -->
-                                            <template x-if="!isBlogger(file)">
-                                                <span
-                                                    class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 ring-1 ring-blue-200 dark:ring-blue-500/20">
-                                                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
-                                                        <path
-                                                            d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                                    </svg>
-                                                    Blogger
-                                                </span>
-                                            </template>
-                    </div>
-                    <div class="text-xs text-gray-500 truncate max-w-[180px]" x-text="file.originalfilename"></div>
-                    </td>
-                    <!-- URL / Embed -->
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
-                            <code
-                                class="max-w-[220px] truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                                x-text="file.fileurl"></code>
-                            <button @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
-                                class="text-gray-400 hover:text-brand-500 p-1 shrink-0">
-                                <span class="block w-4 h-4" x-icon="'copy'"></span>
-                            </button>
-                        </div>
-                    </td>
-                    <!-- Aksi -->
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button @click="editFileCaption(file)"
-                                class="text-gray-400 hover:text-brand-500 transition-colors p-2" title="Edit Caption">
-                                <span class="block w-4 h-4" x-icon="'pencil'"></span></button>
-                            <button @click="deleteFile(file.id)"
-                                class="text-red-500 hover:text-red-700 transition-colors p-2"
-                                :title="isYoutube(file) ? 'Hapus Video' : 'Hapus Gambar'">
-                                <span class="block w-4 h-4" x-icon="'trash'"></span>
-                            </button>
-                        </div>
-                    </td>
-                    </tr>
-            </template>
-            </tbody>
-            </table>
-    </div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 truncate" x-text="file.originalfilename">
+                                        </div>
 
-    <!-- Mobile Card View -->
-    <div class="md:hidden space-y-4">
-        <template x-for="file in albumFiles" :key="file.id">
-            <div
-                class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
-                <div class="flex gap-4">
-                    <!-- Preview (Image / YouTube Thumbnail) -->
-                    <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-50 dark:border-gray-700 relative cursor-pointer group"
-                        @click="isYoutube(file) ? window.open(file.originalfilename || file.fileurl, '_blank') : window.open(file.fileurl, '_blank')">
-                        <img :src="getThumbUrl(file)" alt=""
-                            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110">
-                        <template x-if="isYoutube(file)">
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
+                                        <!-- URL Copy -->
+                                        <div class="mt-2 flex items-center gap-2">
+                                            <code
+                                                class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                                x-text="file.fileurl"></code>
+                                            <button
+                                                @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
+                                                class="text-gray-400 hover:text-brand-500 p-1">
+                                                <span class="block w-4 h-4" x-icon="'copy'"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Actions -->
+                                <div
+                                    class="mt-4 flex items-center justify-end gap-2 border-t border-gray-50 dark:border-gray-800 pt-3">
+                                    <button @click="editFileCaption(file)"
+                                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
+                                        <span class="block w-4 h-4" x-icon="'pencil'"></span> Edit Caption
+                                    </button>
+                                    <button @click="deleteFile(file.id)"
+                                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                                        <span class="block w-4 h-4" x-icon="'trash'"></span> Hapus
+                                    </button>
+                                </div>
                             </div>
                         </template>
                     </div>
+                </div>
+            </template>
+        </section>
+    </div>
 
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <div class="font-bold text-gray-900 dark:text-white truncate"
-                                x-text="file.filename || 'Tanpa Judul'"></div>
-                            <!-- Badge tipe konten: YouTube (Mobile) -->
-                            <template x-if="isYoutube(file)">
-                                <span
-                                    class="inline-flex items-center gap-1 rounded-md bg-red-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-red-600 dark:bg-red-500/10 dark:text-red-400 ring-1 ring-red-200 dark:ring-red-500/20">
-                                    <svg class="w-2 h-2" viewBox="0 0 24 24" fill="currentColor">
+    <template x-teleport="body">
+        <!-- ===== Modal: Tambah Video YouTube ===== -->
+        <div x-show="showYoutubeModal" x-trap="showYoutubeModal" x-transition
+            class="fixed inset-0 flex items-center justify-center p-4 z-40" x-cloak>
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="showYoutubeModal = false"></div>
+            <div class="modal-dialog max-w-lg w-full relative">
+                <div class="modal-content">
+                    <div class="modal-header-sticky">
+                        <div class="flex items-center gap-3">
+                            <!-- YouTube Icon -->
+                            <div
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                                </svg>
+                            </div>
+                            <h3 class="h3">Tambah Video YouTube</h3>
+                        </div>
+                        <button @click="showYoutubeModal = false" class="modal-close-btn">
+                            <span class="block w-6 h-6" x-icon="'close'"></span>
+                        </button>
+                    </div>
+                    <div class="space-y-4 p-6">
+                        <!-- Preview dinamis -->
+                        <template
+                            x-if="youtubeInput.url && extractYoutubeId ? extractYoutubeId(youtubeInput.url) : false">
+                            <div class="relative overflow-hidden rounded-2xl bg-black aspect-video">
+                                <img :src="`https://img.youtube.com/vi/${youtubeInput.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}/hqdefault.jpg`"
+                                    class="w-full h-full object-cover opacity-80" alt="thumbnail">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div
+                                        class="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg">
+                                        <svg class="w-7 h-7 text-white ml-1" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <div>
+                            <label class="label">URL Video YouTube <span class="text-red-500">*</span></label>
+                            <input type="url" x-model="youtubeInput.url"
+                                placeholder="https://www.youtube.com/watch?v=..." class="input font-mono text-sm" />
+                            <p class="mt-1 text-[11px] text-gray-500">Mendukung format: youtube.com/watch?v=, youtu.be/,
+                                youtube.com/shorts/</p>
+                        </div>
+                        <div>
+                            <label class="label">Judul / Caption</label>
+                            <input type="text" x-model="youtubeInput.title" placeholder="Contoh: Demo Produk - EzyStore"
+                                class="input" />
+                            <p class="mt-1 text-[11px] text-gray-500">Opsional. Jika kosong, akan menggunakan Video ID
+                                sebagai judul.</p>
+                        </div>
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button type="button" @click="showYoutubeModal = false" class="btn btn-outline">
+                                Batal
+                            </button>
+                            <button id="save-youtube-btn" type="button" @click="addYoutubeVideo()"
+                                :disabled="youtubeInput.isSaving"
+                                class="btn btn-primary inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 border-red-600">
+                                <template x-if="!youtubeInput.isSaving">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                         <path
                                             d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                     </svg>
-                                    YouTube
-                                </span>
-                            </template>
-                            <!-- Badge tipe konten: Image (Mobile) -->
-                            <template x-if="!isYoutube(file)">
-                                <span
-                                    class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 ring-1 ring-blue-200 dark:ring-blue-500/20">
-                                    <svg class="w-2 h-2" viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                    </svg>
-                                    Image
-                                </span>
-                            </template>
-                        </div>
-                        <div class="text-xs text-gray-500 truncate" x-text="file.originalfilename"></div>
-
-                        <!-- URL Copy -->
-                        <div class="mt-2 flex items-center gap-2">
-                            <code
-                                class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-[10px] text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                                x-text="file.fileurl"></code>
-                            <button @click="navigator.clipboard.writeText(file.fileurl); showToast('URL disalin!')"
-                                class="text-gray-400 hover:text-brand-500 p-1">
-                                <span class="block w-4 h-4" x-icon="'copy'"></span>
+                                </template>
+                                <template x-if="youtubeInput.isSaving">
+                                    <span
+                                        class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                </template>
+                                <span x-text="youtubeInput.isSaving ? 'Menyimpan...' : 'Simpan Video'"></span>
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Card Actions -->
-                <div class="mt-4 flex items-center justify-end gap-2 border-t border-gray-50 dark:border-gray-800 pt-3">
-                    <button @click="editFileCaption(file)"
-                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
-                        <span class="block w-4 h-4" x-icon="'pencil'"></span> Edit Caption
-                    </button>
-                    <button @click="deleteFile(file.id)"
-                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                        <span class="block w-4 h-4" x-icon="'trash'"></span> Hapus
-                    </button>
-                </div>
             </div>
-        </template>
-    </div>
-</div>
-</template>
-</section>
-</div>
+        </div>
 
-<template x-teleport="body">
-    <!-- ===== Modal: Tambah Video YouTube ===== -->
-    <div x-show="showYoutubeModal" x-trap="showYoutubeModal" x-transition
-        class="fixed inset-0 flex items-center justify-center p-4 z-40" x-cloak>
-        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="showYoutubeModal = false"></div>
-        <div class="modal-dialog max-w-lg w-full relative">
-            <div class="modal-content">
-                <div class="modal-header-sticky">
-                    <div class="flex items-center gap-3">
-                        <!-- YouTube Icon -->
-                        <div
-                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                            </svg>
+        <!-- ===== Modal: Album Form ===== -->
+        <div x-show="showAlbumModal" x-trap="showAlbumModal" x-transition
+            class="fixed inset-0 flex items-center justify-center p-4 z-40" x-cloak>
+            <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="showAlbumModal = false"></div>
+            <div class="modal-dialog max-w-2xl">
+                <div class="modal-content">
+                    <div class="modal-header-sticky">
+                        <h3 class="h3" x-text="isEditing ? 'Edit Album' : 'Buat Album Baru'"></h3>
+                        <button @click="showAlbumModal = false" class="modal-close-btn"><span class="block w-6 h-6"
+                                x-icon="'close'"></span></button>
+                    </div>
+                    <div class="space-y-4 p-6">
+                        <div>
+                            <label class="label">Nama Album</label>
+                            <input type="text" x-model="editingAlbum.name" placeholder="Contoh: Summer Product"
+                                class="input" />
                         </div>
-                        <h3 class="h3">Tambah Video YouTube</h3>
-                    </div>
-                    <button @click="showYoutubeModal = false" class="modal-close-btn">
-                        <span class="block w-6 h-6" x-icon="'close'"></span>
-                    </button>
-                </div>
-                <div class="space-y-4 p-6">
-                    <!-- Preview dinamis -->
-                    <template x-if="youtubeInput.url && extractYoutubeId ? extractYoutubeId(youtubeInput.url) : false">
-                        <div class="relative overflow-hidden rounded-2xl bg-black aspect-video">
-                            <img :src="`https://img.youtube.com/vi/${youtubeInput.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}/hqdefault.jpg`"
-                                class="w-full h-full object-cover opacity-80" alt="thumbnail">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div
-                                    class="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg">
-                                    <svg class="w-7 h-7 text-white ml-1" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M8 5v14l11-7z" />
-                                    </svg>
-                                </div>
-                            </div>
+                        <div x-show="albums.length > 0">
+                            <!-- Hanya tampilkan jika ada album lain untuk dipilih sebagai induk -->
+                            <label class="label">Induk Album</label>
+                            <select x-model="editingAlbum.parent_id" class="input">
+                                <option value="">Tanpa Induk</option>
+                                <!-- Menampilkan daftar album yang sudah ada sebagai pilihan induk -->
+                                <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id && a.active)"
+                                    :key="alb.id">
+                                    <option :value="alb.id" x-text="(alb.parentid ? '　└ ' : '') + alb.name"></option>
+                                </template>
+                            </select>
+                            <p class="mt-1 text-[10px] text-gray-500">Pilih induk jika Anda ingin menjadikan ini sebagai
+                                sub-folder.</p>
                         </div>
-                    </template>
-                    <div>
-                        <label class="label">URL Video YouTube <span class="text-red-500">*</span></label>
-                        <input type="url" x-model="youtubeInput.url" placeholder="https://www.youtube.com/watch?v=..."
-                            class="input font-mono text-sm" />
-                        <p class="mt-1 text-[11px] text-gray-500">Mendukung format: youtube.com/watch?v=, youtu.be/,
-                            youtube.com/shorts/</p>
-                    </div>
-                    <div>
-                        <label class="label">Judul / Caption</label>
-                        <input type="text" x-model="youtubeInput.title" placeholder="Contoh: Demo Produk - EzyStore"
-                            class="input" />
-                        <p class="mt-1 text-[11px] text-gray-500">Opsional. Jika kosong, akan menggunakan Video ID
-                            sebagai judul.</p>
-                    </div>
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" @click="showYoutubeModal = false" class="btn btn-outline">
-                            Batal
-                        </button>
-                        <button id="save-youtube-btn" type="button" @click="addYoutubeVideo()"
-                            :disabled="youtubeInput.isSaving"
-                            class="btn btn-primary inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 border-red-600">
-                            <template x-if="!youtubeInput.isSaving">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                                </svg>
-                            </template>
-                            <template x-if="youtubeInput.isSaving">
-                                <span
-                                    class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                            </template>
-                            <span x-text="youtubeInput.isSaving ? 'Menyimpan...' : 'Simpan Video'"></span>
-                        </button>
+                        <div>
+                            <label class="label">Deskripsi</label>
+                            <textarea x-model="editingAlbum.description" rows="4" class="input"></textarea>
+                        </div>
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                                <input type="checkbox" x-model="editingAlbum.active"
+                                    class="h-4 w-4 rounded border-gray-300 text-brand-500" />
+                                Aktifkan Album
+                            </label>
+                            <button id="save-album-btn" @click="saveAlbum()"
+                                class="btn btn-primary inline-flex items-center gap-2">
+                                <span class="block w-4 h-4" x-icon="'save'"></span>
+                                Simpan Album
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- ===== Modal: Album Form ===== -->
-    <div x-show="showAlbumModal" x-trap="showAlbumModal" x-transition
-        class="fixed inset-0 flex items-center justify-center p-4 z-40" x-cloak>
-        <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="showAlbumModal = false"></div>
-        <div class="modal-dialog max-w-2xl">
-            <div class="modal-content">
-                <div class="modal-header-sticky">
-                    <h3 class="h3" x-text="isEditing ? 'Edit Album' : 'Buat Album Baru'"></h3>
-                    <button @click="showAlbumModal = false" class="modal-close-btn"><span class="block w-6 h-6"
-                            x-icon="'close'"></span></button>
-                </div>
-                <div class="space-y-4 p-6">
-                    <div>
-                        <label class="label">Nama Album</label>
-                        <input type="text" x-model="editingAlbum.name" placeholder="Contoh: Summer Product"
-                            class="input" />
-                    </div>
-                    <div x-show="albums.length > 0">
-                        <!-- Hanya tampilkan jika ada album lain untuk dipilih sebagai induk -->
-                        <label class="label">Induk Album</label>
-                        <select x-model="editingAlbum.parent_id" class="input">
-                            <option value="">Tanpa Induk</option>
-                            <!-- Menampilkan daftar album yang sudah ada sebagai pilihan induk -->
-                            <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id && a.active)"
-                                :key="alb.id">
-                                <option :value="alb.id" x-text="(alb.parentid ? '　└ ' : '') + alb.name"></option>
-                            </template>
-                        </select>
-                        <p class="mt-1 text-[10px] text-gray-500">Pilih induk jika Anda ingin menjadikan ini sebagai
-                            sub-folder.</p>
-                    </div>
-                    <div>
-                        <label class="label">Deskripsi</label>
-                        <textarea x-model="editingAlbum.description" rows="4" class="input"></textarea>
-                    </div>
-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                            <input type="checkbox" x-model="editingAlbum.active"
-                                class="h-4 w-4 rounded border-gray-300 text-brand-500" />
-                            Aktifkan Album
-                        </label>
-                        <button id="save-album-btn" @click="saveAlbum()"
-                            class="btn btn-primary inline-flex items-center gap-2">
-                            <span class="block w-4 h-4" x-icon="'save'"></span>
-                            Simpan Album
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
+    </template>
 </div>
