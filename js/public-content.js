@@ -446,6 +446,7 @@
                 dbId: null,
                 albums: [],
                 albumFiles: [],
+                fileSearchQuery: '',
                 selectedAlbumId: '',
                 isLoading: false,
                 expandedIds: [], // Menyimpan ID album yang sedang dibuka (expanded)
@@ -538,6 +539,16 @@
                 async selectAlbum(albumId) {
                     this.selectedAlbumId = albumId;
                     await this.fetchAlbumFiles(albumId);
+                },
+
+                // Getter untuk memfilter file berdasarkan query pencarian
+                get filteredAlbumFiles() {
+                    if (!this.fileSearchQuery.trim()) return this.albumFiles;
+                    const query = this.fileSearchQuery.toLowerCase();
+                    return this.albumFiles.filter(f =>
+                        (f.filename && f.filename.toLowerCase().includes(query)) ||
+                        (f.originalfilename && f.originalfilename.toLowerCase().includes(query))
+                    );
                 },
 
                 async fetchAlbumFiles(albumId) {
@@ -780,9 +791,9 @@
                     if (!videoId) { showToast('URL YouTube tidak valid. Pastikan format URL benar.', 'error'); return; }
 
                     this.youtubeInput.isSaving = true;
-                    const embedUrl    = `https://www.youtube.com/embed/${videoId}`;
-                    const thumbUrl    = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                    const title       = (this.youtubeInput.title || '').trim() || `Video ${videoId}`;
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    const title = (this.youtubeInput.title || '').trim() || `Video ${videoId}`;
 
                     try {
                         const res = await new Promise((resolve, reject) => {
