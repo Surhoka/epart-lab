@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmydocs=self.webpackChunkmydocs||[]).push([["8840"],{9430(a){a.exports=JSON.parse('{"metadata":{"permalink":"/gh/Surhoka/epart-lab@main/mydocs/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":4,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

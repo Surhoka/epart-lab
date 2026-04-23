@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmydocs=self.webpackChunkmydocs||[]).push([["3220"],{1912(a){a.exports=JSON.parse('{"blogBasePath":"/gh/Surhoka/epart-lab@main/mydocs/blog","blogTitle":"Blog","authorsListPath":"/gh/Surhoka/epart-lab@main/mydocs/blog/authors"}')}}]);
