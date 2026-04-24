@@ -1,15 +1,15 @@
-<div class="w-full max-w-4xl mx-auto px-4 py-8 min-h-screen flex items-center justify-center" x-data="setupData()">
+<div class="w-full max-w-4xl mx-auto px-4 py-4 sm:py-8 flex items-center justify-center" x-data="setupData()">
   <div
-    class="w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300 max-h-[95vh] overflow-y-auto">
+    class="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300 max-h-[98vh] overflow-y-auto">
     <div class="flex flex-col md:flex-row">
 
       <!-- Left Branding Side -->
       <div
-        class="md:w-1/3 bg-slate-50 dark:bg-slate-800/50 p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
+        class="md:w-1/3 bg-slate-50 dark:bg-slate-800/50 p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
         <div>
           <div
-            class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
@@ -32,17 +32,17 @@
       </div>
 
       <!-- Right Form Side (Reduced padding) -->
-      <div class="md:w-2/3 p-6 lg:p-8">
-        <div class="mb-6 text-center md:text-left">
-          <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Setup Connection</h1>
-          <p class="text-slate-500 dark:text-slate-400 mt-2">Initialize your administrative gateway</p>
+      <div class="md:w-2/3 p-5 lg:p-6">
+        <div class="mb-4 text-center md:text-left">
+          <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Setup Connection</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Initialize your administrative gateway</p>
         </div>
 
-        <form @submit.prevent="submitForm()" class="space-y-4">
+        <form @submit.prevent="submitForm()" class="space-y-3">
 
           <!-- Role Indicator (read from template) -->
           <div
-            class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+            class="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
             <span class="w-3 h-3 rounded-full" :class="role === 'Admin' ? 'bg-green-500' : 'bg-purple-500'"></span>
             <span class="text-sm font-semibold"
               :class="role === 'Admin' ? 'text-green-700 dark:text-green-400' : 'text-purple-700 dark:text-purple-400'">
@@ -51,7 +51,7 @@
           </div>
 
           <!-- Form Fields (Hidden on Success) -->
-          <fieldset :disabled="isDetecting" x-show="setupStatus !== 'COMPLETED'" class="space-y-4 group">
+          <fieldset :disabled="isDetecting" x-show="setupStatus !== 'COMPLETED'" class="space-y-3 group">
 
             <!-- ADMIN: Own WebApp URL -->
             <template x-if="role === 'Admin'">
@@ -61,11 +61,11 @@
                   placeholder="https://script.google.com/macros/s/.../exec"
                   x-effect="if(webappUrl && webappUrl.includes('script.google.com')) detectConfig()"
                   :disabled="statusNote === 'active' || statusNote === 'legacy'"
-                  class="w-full pl-4 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white group-disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-slate-800/50 dark:disabled:text-slate-500 disabled:cursor-not-allowed">
+                  class="w-full pl-4 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-sm text-slate-900 dark:text-white group-disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-slate-800/50 dark:disabled:text-slate-500 disabled:cursor-not-allowed">
               </div>
               <!-- Notifikasi jika URL terdeteksi otomatis -->
               <div x-show="window.BLOGGER_WEBAPP_URL"
-                class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
                 <p class="text-xs text-blue-700 dark:text-blue-400">
                   <span class="font-bold uppercase mr-1 text-blue-800 dark:text-blue-300">Konfigurasi Otomatis:</span>
                   WebApp URL terdeteksi dari Tata Letak Blogger.
@@ -75,10 +75,10 @@
 
             <!-- ADMIN: Additional Details -->
             <template x-if="role === 'Admin'">
-              <div class="space-y-4">
+              <div class="space-y-3">
                 <!-- Database Area (Existing) -->
                 <div
-                  class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                  class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                   <label class="text-sm font-bold text-slate-900 dark:text-white">Database Registry</label>
 
                   <!-- [Existing status notes logic...] -->
@@ -113,14 +113,14 @@
                   <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Admin Email <span
                       class="text-red-500">*</span></label>
                   <input type="email" x-model="email" required
-                    class="w-full px-3 py-2 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all">
+                    class="w-full px-3 py-2 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all">
                 </div>
               </div>
             </template>
 
             <!-- Submit Button (Visible only when not completed) -->
             <button type="submit" :disabled="isDetecting"
-              class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-6">
+              class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-2">
               <span x-show="!isDetecting" class="w-5 h-5 -ml-2">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
@@ -146,7 +146,7 @@
 
             <!-- SUCCESS STATE CARD -->
             <div x-show="setupStatus === 'COMPLETED'"
-              class="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-3xl space-y-4 animate-in fade-in zoom-in duration-500">
+              class="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl space-y-4 animate-in fade-in zoom-in duration-500">
               <div class="flex items-center gap-4">
                 <div
                   class="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/20">
