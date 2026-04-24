@@ -176,6 +176,15 @@
                                         x-icon="'chevron-down'"></span>
                                 </button>
 
+                                <!-- Provisioning Button -->
+                                <template x-if="plugin.actions.includes('setupPluginDatabase')">
+                                    <button @click="provisionPluginDatabase(plugin)"
+                                        class="p-1.5 sm:p-2 text-gray-400 hover:text-green-500 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800"
+                                        title="Provision Database">
+                                        <span class="w-4 h-4 block" x-icon="'database'"></span>
+                                    </button>
+                                </template>
+
                                 <button @click="pingPlugin(plugin)"
                                     class="p-1.5 sm:p-2 text-gray-400 hover:text-orange-500 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800"
                                     title="Ping Test">
