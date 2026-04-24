@@ -29,10 +29,11 @@
     }
 
     // Shared DB ID Utility
-    function getDbId() {
+    async function getDbId() {
         try {
             const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
-            return config.sheetId || config.dbId || null;
+            // Cek apakah ada override database khusus plugin di cache
+            return config.pluginContentDbId || config.sheetId || config.dbId || null;
         } catch (e) {
             console.error('Failed to parse Ezyparts_Config_Cache:', e);
             return null;
@@ -457,9 +458,32 @@
                 editingAlbum: {},
                 youtubeInput: { url: '', title: '', isSaving: false },
 
+                async provisionDatabase() {
+                    if (!confirm('Buat Spreadsheet terpisah untuk Album? Ini akan memisahkan data Album dari Database utama.')) return;
+                    this.isLoading = true;
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('setupPluginDatabase', { fileName: 'EzyStore_Album_DB' }, resolve, reject);
+                        });
+                        if (res.status === 'success') {
+                            // Simpan ID baru ke Meta agar permanen
+                            await new Promise((resolve) => {
+                                window.sendDataToGoogle('saveAiConfigToSpreadsheet', {
+                                    key: 'PLUGIN_CONTENT_DB_ID',
+                                    value: res.dbId
+                                }, resolve);
+                            });
+                            showToast('Database khusus plugin berhasil dibuat. Memuat ulang...');
+                            setTimeout(() => location.reload(), 2000);
+                        }
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
                 async init() {
                     const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
-                    this.dbId = cache.dbId || getDbId();
+                    this.dbId = await getDbId();
 
                     // Gunakan ID Halaman dari Property sebagai ID Album utama
                     this.selectedAlbumId = cache.pageId || '';
