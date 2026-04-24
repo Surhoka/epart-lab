@@ -245,7 +245,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'saveLandingProduct', 'deleteLandingProduct', // Landing Page Actions
         'saveAboutPage', 'saveContactPage', 'saveStaticPage', // Static Page Actions
         'get_post_by_slug', // Post read via POST for reliable dbId passing
-        'saveAlbum', 'deleteAlbum', 'saveAlbumImage', 'deleteAlbumImage', 'syncAlbumMetadataToBlogger' // Album Management Actions
+        'saveAlbum', 'deleteAlbum', 'saveAlbumImage', 'deleteAlbumImage', 'syncAlbumMetadataToBlogger', 'setupPluginDatabase' // Album Management Actions
     ];
 
     if (postActions.includes(action)) {
