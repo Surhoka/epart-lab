@@ -252,8 +252,18 @@
                         this.submitting = false;
                         if (res.status === 'success') {
                             window.showToast(res.message, "success");
+
+                            const savedPlugin = this.formData;
                             this.closeModal();
                             await this.fetchPlugins();
+
+                            // [NEW] Jika ini plugin baru dan mendukung setup database, tawarkan inisialisasi
+                            if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode) {
+                                if (confirm(`Plugin "${savedPlugin.name}" mendukung database mandiri. Jalankan inisialisasi sekarang?`)) {
+                                    this.provisionPluginDatabase(savedPlugin);
+                                }
+                            }
+
                             // Sync Sidebar Menu
                             window.dispatchEvent(new CustomEvent('ezy:menu-update'));
                         } else {
@@ -262,6 +272,23 @@
                     } catch (e) {
                         this.submitting = false;
                         window.showToast("Error saving plugin", "error");
+                    }
+                },
+
+                async provisionPluginDatabase(plugin) {
+                    window.showToast(`Memulai inisialisasi database untuk ${plugin.name}...`, 'info');
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('setupPluginDatabase', { fileName: `DB_${plugin.name}` }, resolve, reject);
+                        });
+                        if (res.status === 'success') {
+                            window.showToast(`Database mandiri berhasil dibuat!`, 'success');
+                            console.log('Provisioning result:', res);
+                        } else {
+                            window.showToast(res.message || 'Gagal inisialisasi', 'error');
+                        }
+                    } catch (e) {
+                        window.showToast('Gagal memicu setup plugin', 'error');
                     }
                 },
 
