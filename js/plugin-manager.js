@@ -4,6 +4,16 @@
  */
 
 (function () {
+    // Ensure Toast is always above Modals
+    if (!document.getElementById('ezy-toast-zindex-fix')) {
+        const style = document.createElement('style');
+        style.id = 'ezy-toast-zindex-fix';
+        style.textContent = `
+            #toast-container, .toast-container, [id^="toast-"] { z-index: 1000 !important; }
+        `;
+        document.head.appendChild(style);
+    }
+
     window.initPluginManagerPage = function () {
         console.log("Plugin Manager Page Initialized");
 
