@@ -253,7 +253,7 @@
                         if (res.status === 'success') {
                             window.showToast(res.message, "success");
 
-                            const savedPlugin = this.formData;
+                            const savedPlugin = res.plugin || this.formData;
                             this.closeModal();
                             await this.fetchPlugins();
 
@@ -282,8 +282,17 @@
                             window.sendDataToGoogle('setupPluginDatabase', { fileName: `DB_${plugin.name}` }, resolve, reject);
                         });
                         if (res.status === 'success') {
-                            window.showToast(`Database mandiri berhasil dibuat!`, 'success');
-                            console.log('Provisioning result:', res);
+                            // [NEW] Simpan ID Database baru ke tabel Meta Utama secara permanen
+                            await new Promise((resolve) => {
+                                window.sendDataToGoogle('saveAiConfigToSpreadsheet', {
+                                    key: 'PLUGIN_CONTENT_DB_ID',
+                                    value: res.dbId
+                                }, resolve);
+                            });
+
+                            window.showToast(`Database mandiri berhasil dibuat dan didaftarkan!`, 'success');
+                            // Force refresh untuk memperbarui cache config di browser
+                            setTimeout(() => location.reload(), 1500);
                         } else {
                             window.showToast(res.message || 'Gagal inisialisasi', 'error');
                         }
