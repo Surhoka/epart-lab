@@ -487,7 +487,6 @@
 
                     // Gunakan ID Halaman dari Property sebagai ID Album utama
                     this.selectedAlbumId = cache.pageId || '';
-                    this.selectedAlbumName = 'Main Store Album';
 
                     console.log('Album Manager initialized with ID:', this.selectedAlbumId);
 
