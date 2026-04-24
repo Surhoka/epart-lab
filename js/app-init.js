@@ -100,7 +100,9 @@ window.appInitMixin = function () {
                         email: data.email || '',
                         role: 'Admin',
                         dbName: data.dbName || '',
-                        sheetId: data.dbId || ''
+                        sheetId: data.dbId || '',
+                        siteKey: data.siteKey || '',
+                        pluginContentDbId: data.pluginContentDbId || ''
                     }));
                     console.log('Browser synchronized with server configuration.');
                 } else {
