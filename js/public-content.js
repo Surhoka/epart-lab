@@ -29,7 +29,7 @@
     }
 
     // Shared DB ID Utility
-    async function getDbId() {
+    function getDbId() {
         try {
             const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
             // Cek apakah ada override database khusus plugin di cache
@@ -483,7 +483,7 @@
 
                 async init() {
                     const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
-                    this.dbId = await getDbId();
+                    this.dbId = getDbId();
 
                     // Gunakan ID Halaman dari Property sebagai ID Album utama
                     this.selectedAlbumId = cache.pageId || '';
