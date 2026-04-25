@@ -279,15 +279,22 @@
                     window.showToast(`Memulai inisialisasi database untuk ${plugin.name}...`, 'info');
                     try {
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('setupPluginDatabase', { fileName: `DB_${plugin.name}` }, resolve, reject);
+                            window.sendDataToGoogle('setupPluginDatabase', { fileName: `DB_${plugin.name}`, pluginId: plugin.id }, resolve, reject);
                         });
                         if (res.status === 'success') {
-                            // [NEW] Simpan ID Database baru ke tabel Meta Utama secara permanen
+                            // [REVISI] Simpan ID Database menggunakan ID Plugin agar unik dan tidak conflict
                             await new Promise((resolve) => {
                                 window.sendDataToGoogle('saveAiConfigToSpreadsheet', {
-                                    key: 'PLUGIN_CONTENT_DB_ID',
+                                    key: `PLUGIN_DB_${plugin.id}`,
                                     value: res.dbId
                                 }, resolve);
+                            });
+
+                            // [REVISI] Simpan ID dan Nama Database ke Properti Plugin secara mandiri
+                            plugin.databaseId = res.dbId;
+                            plugin.databaseName = res.dbName || `DB_${plugin.name}`;
+                            await new Promise((resolve) => {
+                                window.sendDataToGoogle('save_plugin', { data: plugin }, resolve);
                             });
 
                             window.showToast(`Database mandiri berhasil dibuat dan didaftarkan!`, 'success');
