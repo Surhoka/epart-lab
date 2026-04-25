@@ -257,8 +257,9 @@
                             this.closeModal();
                             await this.fetchPlugins();
 
-                            // [REVISI] Jalankan inisialisasi database secara otomatis tanpa popup
-                            if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode) {
+                            // [OPTIMASI] Jalankan inisialisasi HANYA jika plugin baru tersebut belum memiliki databaseId
+                            // Ini mencegah inisialisasi ulang jika data sudah tersinkronisasi sebelumnya
+                            if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode && !savedPlugin.databaseId) {
                                 await this.provisionPluginDatabase(savedPlugin);
                             }
 
@@ -274,6 +275,12 @@
                 },
 
                 async provisionPluginDatabase(plugin) {
+                    // Guard: Jika plugin objek sudah memiliki databaseId, jangan teruskan ke backend
+                    if (plugin.databaseId) {
+                        console.log(`[PluginManager] Database untuk ${plugin.name} sudah terdaftar: ${plugin.databaseId}`);
+                        return;
+                    }
+
                     window.showToast(`Memulai inisialisasi database untuk ${plugin.name}...`, 'info');
                     try {
                         const res = await new Promise((resolve, reject) => {
@@ -295,7 +302,7 @@
                                 window.sendDataToGoogle('save_plugin', { data: plugin }, resolve);
                             });
 
-                            window.showToast(`Database mandiri untuk ${plugin.name} siap digunakan!`, 'success');
+                            window.showToast(`Database ${plugin.name} berhasil diinisialisasi!`, 'success');
 
                             // [REVISI] Sinkronisasi Cache Config tanpa reload halaman
                             const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
