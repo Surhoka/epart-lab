@@ -35,7 +35,7 @@
             // Cek apakah ada override database khusus plugin di cache
             return config.pluginContentDbId || config.sheetId || config.dbId || null;
         } catch (e) {
-            console.error('Failed to parse Ezyparts_Config_Cache:', e);
+            console.error('Failed to parse EzypartsConfig:', e);
             return null;
         }
     }
@@ -459,23 +459,45 @@
                 youtubeInput: { url: '', title: '', isSaving: false },
 
                 async provisionDatabase() {
-                    if (!confirm('Buat Spreadsheet terpisah untuk Album? Ini akan memisahkan data Album dari Database utama.')) return;
+                    if (!confirm('Buat Spreadsheet terpisah untuk Public Content? Seluruh data Hero, Kategori, dan Album akan dipindahkan ke file baru.')) return;
                     this.isLoading = true;
                     try {
                         const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('setupPluginDatabase', { fileName: 'EzyStore_Album_DB' }, resolve, reject);
+                            // [REVISI] Gunakan pluginId agar diintersep oleh Bridge (Admin-Code.gs)
+                            // dan diproses menggunakan skema tabel yang dideklarasikan di Gateway.
+                            window.sendDataToGoogle('setupPluginDatabase', {
+                                pluginId: 'plug_public_content_v1'
+                            }, resolve, reject);
                         });
-                        if (res.status === 'success') {
-                            // Simpan ID baru ke Meta agar permanen
-                            await new Promise((resolve) => {
-                                window.sendDataToGoogle('saveAiConfigToSpreadsheet', {
-                                    key: 'PLUGIN_CONTENT_DB_ID',
-                                    value: res.dbId
-                                }, resolve);
+
+                        if (res && res.status === 'success') {
+                            showToast('Database mandiri berhasil dibuat!', 'success');
+
+                            // Sinkronisasi ke Cache Lokal agar getDbId() langsung mendeteksi ID baru
+                            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                            config.pluginContentDbId = res.dbId;
+                            localStorage.setItem('EzypartsConfig', JSON.stringify(config));
+
+                            // [REVISI] Update data plugin di Script Properties (LOCAL_PLUGINS)
+                            // Ini memastikan performa discovery tetap cepat tanpa harus membuka Spreadsheet
+                            window.sendDataToGoogle('get_all_plugins', {}, (allPlugins) => {
+                                if (allPlugins.status === 'success') {
+                                    const pc = allPlugins.plugins.find(p => p.id === 'plug_public_content_v1');
+                                    if (pc) {
+                                        pc.databaseId = res.dbId;
+                                        pc.databaseName = res.dbName;
+                                        window.sendDataToGoogle('save_plugin', { data: pc });
+                                    }
+                                }
                             });
-                            showToast('Database khusus plugin berhasil dibuat. Memuat ulang...');
-                            setTimeout(() => location.reload(), 2000);
+
+                            showToast('Memuat ulang sistem...', 'info');
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            showToast(res?.message || 'Gagal inisialisasi database', 'error');
                         }
+                    } catch (e) {
+                        showToast('Gagal memicu setup database plugin', 'error');
                     } finally {
                         this.isLoading = false;
                     }
