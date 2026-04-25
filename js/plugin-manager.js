@@ -83,6 +83,7 @@
                 onPluginSelect() {
                     const template = this.availablePlugins.find(p => p.name === this.formData.name);
                     if (template) {
+                        this.formData.id = template.id;
                         this.formData.description = template.description;
                         this.formData.url = template.url || '';
                         this.formData.actions = template.actions || '';
