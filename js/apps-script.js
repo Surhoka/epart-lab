@@ -254,6 +254,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         const payload = {
             action,
             dbId: data.dbId || (window.EzyApi.config ? window.EzyApi.config.dbId : ''),
+            pluginContentDbId: data.pluginContentDbId || (window.EzyApi.config ? window.EzyApi.config.pluginContentDbId : ''),
             siteKey: data.siteKey || (window.EzyApi.config ? window.EzyApi.config.siteKey : ''),
             ...data,
             gatewayUrl: window.EzyApi.gatewayUrl
@@ -293,6 +294,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         const query = new URLSearchParams({
             action,
             dbId: data.dbId || (window.EzyApi.config ? window.EzyApi.config.dbId : ''),
+            pluginContentDbId: data.pluginContentDbId || (window.EzyApi.config ? window.EzyApi.config.pluginContentDbId : ''),
             siteKey: data.siteKey || (window.EzyApi.config ? window.EzyApi.config.siteKey : ''),
             callback: cbName,
             gatewayUrl: window.EzyApi.gatewayUrl || '',
