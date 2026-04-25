@@ -257,11 +257,9 @@
                             this.closeModal();
                             await this.fetchPlugins();
 
-                            // [NEW] Jika ini plugin baru dan mendukung setup database, tawarkan inisialisasi
+                            // [REVISI] Jalankan inisialisasi database secara otomatis tanpa popup
                             if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode) {
-                                if (confirm(`Plugin "${savedPlugin.name}" mendukung database mandiri. Jalankan inisialisasi sekarang?`)) {
-                                    this.provisionPluginDatabase(savedPlugin);
-                                }
+                                await this.provisionPluginDatabase(savedPlugin);
                             }
 
                             // Sync Sidebar Menu
@@ -297,9 +295,20 @@
                                 window.sendDataToGoogle('save_plugin', { data: plugin }, resolve);
                             });
 
-                            window.showToast(`Database mandiri berhasil dibuat dan didaftarkan!`, 'success');
-                            // Force refresh untuk memperbarui cache config di browser
-                            setTimeout(() => location.reload(), 1500);
+                            window.showToast(`Database mandiri untuk ${plugin.name} siap digunakan!`, 'success');
+
+                            // [REVISI] Sinkronisasi Cache Config tanpa reload halaman
+                            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                            config[`PLUGIN_DB_${plugin.id}`] = res.dbId;
+
+                            // Jika ini plugin public content, update key khusus agar modul lain langsung mengenali
+                            if (plugin.id === 'plug_public_content_v1') {
+                                config.pluginContentDbId = res.dbId;
+                            }
+                            localStorage.setItem('EzypartsConfig', JSON.stringify(config));
+
+                            // Perbarui daftar plugin di UI secara reaktif
+                            await this.fetchPlugins();
                         } else {
                             window.showToast(res.message || 'Gagal inisialisasi', 'error');
                         }
