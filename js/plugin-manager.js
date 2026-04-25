@@ -93,6 +93,8 @@
                         this.formData.showInMenu = template.showInMenu !== false;
                         this.formData.scripts = template.scripts || '';
                         this.formData.children = template.children || null;
+                        this.formData.databaseSchema = template.databaseSchema || null;
+                        this.formData.databaseName = template.databaseName || '';
                         this.formData.publicConfig = {
                             enabled: (template.publicConfig && template.publicConfig.enabled) || false,
                             publicPage: (template.publicConfig && template.publicConfig.publicPage) || '',
