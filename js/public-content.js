@@ -31,7 +31,7 @@
     // Shared DB ID Utility
     function getDbId() {
         try {
-            const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
             // Cek apakah ada override database khusus plugin di cache
             return config.pluginContentDbId || config.sheetId || config.dbId || null;
         } catch (e) {
@@ -43,7 +43,7 @@
     // Shared Blog ID Utility
     function getBlogId() {
         try {
-            const config = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
             const blogId = config.blogId;
             // Pastikan tidak mengirim string "null" ke backend
             if (blogId === null || blogId === 'null' || blogId === undefined || blogId === '') {
@@ -482,7 +482,7 @@
                 },
 
                 async init() {
-                    const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                    const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
                     this.dbId = getDbId();
 
                     // Gunakan ID Halaman dari Property sebagai ID Album utama
@@ -500,7 +500,7 @@
                 },
 
                 async openBloggerEditor() {
-                    const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                    const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
                     const blogId = cache.blogId || getBlogId();
                     const pageId = cache.pageId;
 
@@ -713,7 +713,7 @@
                     showToast('🚀 Menarik metadata dari Blogger...', 'info');
 
                     try {
-                        const cache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
+                        const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
                         const webUrl = cache.webUrl || '';
 
                         if (!webUrl) {
