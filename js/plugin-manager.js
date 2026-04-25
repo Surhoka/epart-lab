@@ -257,10 +257,23 @@
                             this.closeModal();
                             await this.fetchPlugins();
 
-                            // [OPTIMASI] Jalankan inisialisasi HANYA jika plugin baru tersebut belum memiliki databaseId
-                            // Ini mencegah inisialisasi ulang jika data sudah tersinkronisasi sebelumnya
-                            if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode && !savedPlugin.databaseId) {
-                                await this.provisionPluginDatabase(savedPlugin);
+                            // [CERDAS] Cek apakah plugin ini sebenarnya sudah punya DB di cache sistem (Discovery)
+                            const config = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                            const cachedDbId = config[`PLUGIN_DB_${savedPlugin.id}`] ||
+                                (savedPlugin.id === 'plug_public_content_v1' ? config.pluginContentDbId : null);
+
+                            // Jalankan inisialisasi HANYA jika benar-benar tidak ada jejak databaseId
+                            if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode) {
+                                if (savedPlugin.databaseId || cachedDbId) {
+                                    console.log(`[PluginManager] DB detected for ${savedPlugin.id}, skipping provision.`);
+                                    // Jika ID ada di cache tapi belum di plugin object, sinkronkan ke Script Properties
+                                    if (!savedPlugin.databaseId && cachedDbId) {
+                                        savedPlugin.databaseId = cachedDbId;
+                                        window.sendDataToGoogle('save_plugin', { data: savedPlugin });
+                                    }
+                                } else {
+                                    await this.provisionPluginDatabase(savedPlugin);
+                                }
                             }
 
                             // Sync Sidebar Menu
