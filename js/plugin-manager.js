@@ -300,14 +300,6 @@
                             window.sendDataToGoogle('setupPluginDatabase', { fileName: `DB_${plugin.name}`, pluginId: plugin.id }, resolve, reject);
                         });
                         if (res.status === 'success') {
-                            // [REVISI] Simpan ID Database menggunakan ID Plugin agar unik dan tidak conflict
-                            await new Promise((resolve) => {
-                                window.sendDataToGoogle('saveAiConfigToSpreadsheet', {
-                                    key: `PLUGIN_DB_${plugin.id}`,
-                                    value: res.dbId
-                                }, resolve);
-                            });
-
                             // [REVISI] Simpan ID dan Nama Database ke Properti Plugin secara mandiri
                             plugin.databaseId = res.dbId;
                             plugin.databaseName = res.dbName || `DB_${plugin.name}`;
