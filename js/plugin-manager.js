@@ -265,15 +265,19 @@
                             const cachedDbId = config[`PLUGIN_DB_${savedPlugin.id}`] ||
                                 (savedPlugin.id === 'plug_public_content_v1' ? config.pluginContentDbId : null);
 
-                            // Jalankan inisialisasi HANYA jika benar-benar tidak ada jejak databaseId
-                            if (savedPlugin.actions.includes('setupPluginDatabase') && !this.editMode) {
-                                if (savedPlugin.databaseId || cachedDbId) {
-                                    console.log(`[PluginManager] DB detected for ${savedPlugin.id}, skipping provision.`);
-                                    // Jika ID ada di cache tapi belum di plugin object, sinkronkan ke Script Properties
-                                    if (!savedPlugin.databaseId && cachedDbId) {
-                                        savedPlugin.databaseId = cachedDbId;
-                                        window.sendDataToGoogle('save_plugin', { data: savedPlugin });
-                                    }
+                            // Sinkronkan ID dari backend (mungkin sudah dihapus jika file fisik hilang)
+                            if (!savedPlugin.databaseId && (this.formData.databaseId || cachedDbId)) {
+                                console.log(`[PluginManager] Backend reports missing DB for ${savedPlugin.id}. Syncing UI...`);
+                                this.formData.databaseId = null;
+                                if (config[`PLUGIN_DB_${savedPlugin.id}`]) delete config[`PLUGIN_DB_${savedPlugin.id}`];
+                                if (savedPlugin.id === 'plug_public_content_v1') delete config.pluginContentDbId;
+                                localStorage.setItem('EzypartsConfig', JSON.stringify(config));
+                            }
+
+                            // Jalankan inisialisasi jika tidak ada databaseId (baik baru maupun karena self-healing)
+                            if (savedPlugin.actions.includes('setupPluginDatabase')) {
+                                if (savedPlugin.databaseId) {
+                                    console.log(`[PluginManager] DB verified for ${savedPlugin.id}, skipping provision.`);
                                 } else {
                                     await this.provisionPluginDatabase(savedPlugin);
                                 }
