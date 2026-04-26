@@ -75,7 +75,7 @@ const registerCalendar = () => {
 
       fetchEvents(fetchInfo, successCallback, failureCallback) {
         this.isLoading = true;
-        window.sendDataToGoogle('getEvents', {}, (response) => {
+        window.sendDataToGoogle('getEvents', { pluginId: 'plug_calendar_v1' }, (response) => {
           this.isLoading = false;
           if (response.status === 'success') {
             successCallback(response.data);
@@ -162,7 +162,7 @@ const registerCalendar = () => {
 
         const action = this.modalMode === 'add' ? 'createEvent' : 'updateEvent';
 
-        window.sendDataToGoogle(action, payload, (res) => {
+        window.sendDataToGoogle(action, { ...payload, pluginId: 'plug_calendar_v1' }, (res) => {
           window.setButtonLoading(button, false);
           if (res.status === 'success') {
             window.showToast(`Event ${this.modalMode === 'add' ? 'created' : 'updated'}!`, 'success');
@@ -181,7 +181,7 @@ const registerCalendar = () => {
         if (!confirm('Are you sure you want to delete this event?')) return;
         window.setButtonLoading(button, true);
 
-        window.sendDataToGoogle('deleteEvent', { id: this.editingEvent.id }, (res) => {
+        window.sendDataToGoogle('deleteEvent', { id: this.editingEvent.id, pluginId: 'plug_calendar_v1' }, (res) => {
           window.setButtonLoading(button, false);
           if (res.status === 'success') {
             window.showToast('Event deleted!', 'success');
