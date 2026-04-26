@@ -14,18 +14,15 @@
     class="fixed inset-0 z-[99999] p-4 md:p-5 overflow-hidden flex justify-center items-center">
     <div @click="closeModal()"
       class="fixed inset-0 h-full w-full bg-gray-900/40 backdrop-blur-xl transition-opacity duration-300"></div>
-    <div
-      class="modal-dialog">
+    <div class="modal-dialog">
       <!-- close btn -->
-      <button @click="closeModal()"
-        class="modal-close-btn">
+      <button @click="closeModal()" class="modal-close-btn">
         <span class="w-6 h-6 block" x-icon="'close'"></span>
       </button>
 
       <div class="modal-content custom-scrollbar">
         <div class="modal-header-sticky">
-          <h3 class="h3"
-            x-text="modalMode === 'add' ? 'Add Event' : 'Edit Event'">
+          <h3 class="h3" x-text="modalMode === 'add' ? 'Add Event' : 'Edit Event'">
           </h3>
           <p class="mt-2 text-sm text-theme-secondary">
             Manage your schedule with precision and elegance.
@@ -34,13 +31,12 @@
         <div class="modal-body-content">
           <div>
             <label class="form-label">Event Title</label>
-            <input x-model="editingEvent.title" type="text"
-              class="form-input" placeholder="Enter event title" />
+            <input x-model="editingEvent.title" type="text" class="form-input" placeholder="Enter event title" />
           </div>
           <div>
             <label class="form-label">Description</label>
-            <textarea x-model="editingEvent.description" rows="3"
-              class="form-input" placeholder="Enter event description"></textarea>
+            <textarea x-model="editingEvent.description" rows="3" class="form-input"
+              placeholder="Enter event description"></textarea>
           </div>
           <div>
             <label class="form-label">Event Color</label>
@@ -58,20 +54,18 @@
             <label class="flex items-center">
               <input type="checkbox" x-model="editingEvent.allDay" @change="toggleAllDay()"
                 class="form-checkbox h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/50">
-              <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400">All-day event</span>
+              <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400">All Day Event</span>
             </label>
           </div>
           <div>
             <label class="form-label">Start Date</label>
             <input x-model="editingEvent.start" :type="editingEvent.allDay ? 'date' : 'datetime-local'"
-              @click="$el.showPicker()"
-              class="form-input" />
+              @click="$el.showPicker()" class="form-input" />
           </div>
           <div>
             <label class="form-label">End Date</label>
             <input x-model="editingEvent.end" :type="editingEvent.allDay ? 'date' : 'datetime-local'"
-              @click="$el.showPicker()"
-              class="form-input" />
+              @click="$el.showPicker()" class="form-input" />
           </div>
         </div>
         <div class="modal-footer-actions">
@@ -81,8 +75,7 @@
             Delete Event
           </button>
           <div class="flex w-full sm:w-auto gap-3 ml-auto">
-            <button type="button" @click="closeModal()"
-              class="btn btn-outline w-full sm:w-auto">
+            <button type="button" @click="closeModal()" class="btn btn-outline w-full sm:w-auto">
               Cancel
             </button>
             <button type="button" @click="saveEvent($el)" x-show="modalMode === 'edit'"
