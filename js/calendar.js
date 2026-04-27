@@ -18,6 +18,15 @@ const registerCalendar = () => {
       async init() {
         console.log("Calendar Initialized");
 
+        // [PENTING] Tunggu sampai API Discovery selesai sebelum memuat data
+        if (!window.EzyApi || !window.EzyApi.isReady) {
+          console.log("Calendar: API not ready, waiting...");
+          await new Promise(resolve => {
+            window.addEventListener('ezy-api-ready', resolve, { once: true });
+          });
+        }
+        console.log("Calendar: API Ready, rendering...");
+
         const calendarEl = this.$refs.calendar;
         if (!calendarEl) {
           return;
@@ -75,7 +84,14 @@ const registerCalendar = () => {
 
       fetchEvents(fetchInfo, successCallback, failureCallback) {
         this.isLoading = true;
-        window.sendDataToGoogle('getEvents', { pluginId: 'plug_calendar_v1' }, (response) => {
+        // [OPTIMASI] Kirim rentang tanggal agar Backend bisa memfilter (Hemat Bandwidth)
+        const params = { 
+          pluginId: 'plug_calendar_v1',
+          start: fetchInfo.startStr,
+          end: fetchInfo.endStr
+        };
+
+        window.sendDataToGoogle('getEvents', params, (response) => {
           this.isLoading = false;
           if (response.status === 'success') {
             successCallback(response.data);
