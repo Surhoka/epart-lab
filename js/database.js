@@ -55,7 +55,7 @@ window.database = function () {
             if (this.hierarchy && this.hierarchy.length > 0 && this.hierarchy[0].url) {
                 this.openInDrive(this.hierarchy[0].url);
             } else {
-                window.open('https://drive.google.com/drive/, 'reg.parentFolderId');
+                window.open('https://drive.google.com/drive/my-drive', '_blank');
             }
         }
     }
