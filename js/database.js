@@ -49,6 +49,14 @@ window.database = function () {
                 if (window.showAlert) window.showAlert('error', 'URL tidak tersedia untuk item ini.');
                 else alert('URL tidak tersedia untuk item ini.');
             }
+        },
+
+        openRootInDrive() {
+            if (this.hierarchy && this.hierarchy.length > 0 && this.hierarchy[0].url) {
+                this.openInDrive(this.hierarchy[0].url);
+            } else {
+                window.open('https://drive.google.com/drive/my-drive', '_blank');
+            }
         }
     }
 }
