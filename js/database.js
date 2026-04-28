@@ -52,8 +52,11 @@ window.database = function () {
         },
 
         openRootInDrive() {
-            if (this.hierarchy && this.hierarchy.length > 0 && this.hierarchy[0].url) {
-                this.openInDrive(this.hierarchy[0].url);
+            const root = (this.hierarchy && this.hierarchy.length > 0) ? this.hierarchy[0] : null;
+            if (root) {
+                // BACKUP: Jika server belum di-deploy ulang, susun URL sendiri dari ID
+                const targetUrl = root.url || ("https://drive.google.com/drive/folders/" + root.id);
+                window.open(targetUrl, '_blank');
             } else {
                 window.open('https://drive.google.com/drive/my-drive', '_blank');
             }
