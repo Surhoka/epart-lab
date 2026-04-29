@@ -183,8 +183,12 @@ const registerProfilePage = () => {
                     window.showToast('User ID not found. Cannot upload photo.', 'error');
                     return;
                 }
-                // Menggabungkan userId, timestamp, dan nama file asli
-                const customFileName = `${userId}_${Date.now()}_${fileName}`;
+                // Memisahkan nama file dan ekstensinya
+                const dotIndex = fileName.lastIndexOf('.');
+                const nameOnly = fileName.substring(0, dotIndex);
+                const extension = fileName.substring(dotIndex);
+                // Hasilnya: NamaAsli_UserID_Timestamp.jpg
+                const customFileName = `${nameOnly}_${userId}_${Date.now()}${extension}`;
 
                 window.sendDataToGoogle('uploadImageAndGetUrl', {
                     fileName: customFileName,
