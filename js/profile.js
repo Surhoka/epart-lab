@@ -211,7 +211,26 @@ const registerProfilePage = () => {
                 }, (res) => {
                     if (res.status === 'success') {
                         window.showToast('Profile photo updated!', 'success');
-                        this.fetchProfileData(userId); // Refetch to update everything
+
+                        // 1. Update foto di UI profile secara instan
+                        this.profile.personalInfo.profilePhoto = photoUrl;
+
+                        // 2. Update data di localStorage agar saat refresh tetap ada
+                        const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+                        const cachedData = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+                        if (cachedData.personalInfo) {
+                            cachedData.personalInfo.profilePhoto = photoUrl;
+                            localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+                        }
+
+                        // 3. Update session user (untuk foto di header/navbar)
+                        const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                        if (sessionUser) {
+                            sessionUser.pictureUrl = photoUrl;
+                            localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                            // Jika ada objek app global, sinkronkan juga
+                            if (window.app) window.app.currentUser = { ...sessionUser };
+                        }
                     } else {
                         window.showToast(`Failed to save photo URL: ${res.message}`, 'error');
                     }
