@@ -39,7 +39,7 @@ window.database = function () {
         },
 
         toggleNode(id) {
-            this.expandedNodes[id] = !this.expandedNodes[id];
+            this.expandedNodes = { ...this.expandedNodes, [id]: !this.expandedNodes[id] };
         },
 
         openInDrive(url) {
