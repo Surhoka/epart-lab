@@ -135,9 +135,42 @@ const registerProfilePage = () => {
                 }, (res) => {
                     if (res.status === 'success') {
                         window.showToast('Profile updated successfully!', 'success');
+
+                        // 1. Update UI Profile secara instan
+                        if (profileData.personalInfo) {
+                            this.profile.personalInfo = {
+                                ...this.profile.personalInfo,
+                                ...profileData.personalInfo,
+                                fullName: `${profileData.personalInfo.firstName || this.profile.personalInfo.firstName || ''} ${profileData.personalInfo.lastName || this.profile.personalInfo.lastName || ''}`.trim()
+                            };
+
+                            // Update session user (agar nama di header/navbar sinkron secara global)
+                            const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                            if (sessionUser) {
+                                sessionUser.firstName = profileData.personalInfo.firstName || sessionUser.firstName;
+                                sessionUser.lastName = profileData.personalInfo.lastName || sessionUser.lastName;
+                                localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                                if (window.app) window.app.currentUser = { ...sessionUser };
+                            }
+                        }
+
+                        if (profileData.address) {
+                            this.profile.address = { ...this.profile.address, ...profileData.address };
+                        }
+
+                        if (profileData.socialLinks) {
+                            this.profile.socialLinks = { ...this.profile.socialLinks, ...profileData.socialLinks };
+                        }
+
+                        // Pastikan ID tersimpan jika ini adalah profil baru yang baru saja dibuat
+                        if (res.id && !this.profile.id) this.profile.id = res.id;
+
+                        // 2. Update localStorage cache agar data tetap persisten saat refresh halaman
+                        const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+                        localStorage.setItem(cacheKey, JSON.stringify(this.profile));
+
                         if (onSuccess) onSuccess();
-                        // Refetch data to update UI
-                        this.fetchProfileData(userId);
+                        // fetchProfileData(userId) dihapus agar pembaruan terasa instan
                     } else {
                         window.showToast(`Error: ${res.message}`, 'error');
                     }
