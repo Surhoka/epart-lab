@@ -1,13 +1,13 @@
 <div x-data="database()" x-init="init()" class="w-full">
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Drive Hierarchy Explorer</h2>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Drive Explorer</h2>
             <p class="text-gray-500 dark:text-gray-400">Visualisasi struktur folder dan basis data EzyStore Anda.</p>
         </div>
         <div class="flex gap-2">
             <button @click="init()"
                 class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
-                <span class="w-4 h-4" x-icon="'refresh'"></span>
+                <span class="block w-4 h-4" x-icon="'refresh'"></span>
                 Muat Ulang
             </button>
         </div>
@@ -25,31 +25,24 @@
                 <div class="space-y-1">
                     <!-- Root Folder -->
                     <div @click="toggleNode(node.id)"
-    class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer group">
-    
-    <div class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
-        <span class="w-5 h-5" x-icon="'folder'"></span>
-    </div>
-    
-    <span class="font-bold text-gray-800 dark:text-white" x-text="node.name"></span>
-    
-    <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">System Folder</span>
+                        class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer group">
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                            <span class="w-5 h-5" x-icon="'folder'"></span>
+                        </div>
+                        <span class="font-bold text-gray-800 dark:text-white" x-text="node.name"></span>
+                        <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">System Folder</span>
+                        <span class="block w-5 h-5 text-gray-400 transition-transform duration-200 ml-2"
+                            :class="expandedNodes[node.id] ? 'rotate-90' : ''" 
+                            x-icon="'chevron-right'">
+                            </span>
+                        <div class="flex-grow"></div>
 
-    <span class="w-5 h-5 text-gray-400 transition-transform"
-        :class="expandedNodes[node.id] ? 'rotate-90' : ''" 
-        x-icon="'chevron-right'">
-    </span>
-
-    <div class="flex-grow"></div>
-
-    <div>
-        <button @click.stop="openInDrive(node.url)"
-            class="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 text-xs font-bold px-2 py-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded">
-            Buka
-        </button>
-    </div>
-</div>
-
+                        <div class="ml-auto">
+                        <button @click.stop="openInDrive(node.url)"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 text-xs font-bold px-2 py-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded">
+                            Buka
+                        </button>
+                    </div>
                     <!-- Level 2: Spreadsheets & Images Folder -->
                     <div x-show="expandedNodes[node.id]"
                         class="ml-9 border-l-2 border-gray-100 dark:border-gray-700 pl-4 space-y-2 py-2">
@@ -57,7 +50,7 @@
                             <div class="space-y-2">
                                 <div @click="toggleNode(child.id || child.name)"
                                     class="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer group">
-                                    <span class="w-4 h-4 text-gray-300"
+                                    <span class="block w-4 h-4 text-gray-300"
                                         :class="expandedNodes[child.id || child.name] ? 'rotate-90' : ''"
                                         x-icon="'chevron-right'"></span>
 
@@ -98,7 +91,7 @@
                                             <span x-show="grandChild.rowCount !== undefined"
                                                 class="text-[10px] text-gray-400"
                                                 x-text="grandChild.rowCount + ' rows'"></span>
-                                            
+
                                             <button x-show="grandChild.url" @click.stop="openInDrive(grandChild.url)"
                                                 class="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 text-xs font-bold">Buka</button>
                                         </div>
