@@ -1,341 +1,350 @@
-const registerProfilePage = () => {
-    if (window.Alpine && !window.Alpine.data('profilePage')) {
-        window.Alpine.data('profilePage', () => ({
-            // --- STATE ---
-            isLoading: true,
-            activeTab: 'general',
-            isProfileInfoModal: false,
-            isProfileAddressModal: false,
+/**
+ * Profile Page Logic - Wrapped in IIFE to prevent Identifier Re-declaration Errors
+ */
+(function () {
+    if (window.profileScriptLoaded) return;
 
-            // Data for display
-            profile: {
-                id: null,
-                personalInfo: { fullName: 'Loading...', bio: '-', profilePhoto: 'https://dummyimage.com/100', status: 'Active' },
-                address: { cityState: '-' }
-            },
+    const registerProfilePage = () => {
+        if (window.Alpine && !window.Alpine.data('profilePage')) {
+            window.Alpine.data('profilePage', () => ({
+                // --- STATE ---
+                isLoading: true,
+                activeTab: 'general',
+                isProfileInfoModal: false,
+                isProfileAddressModal: false,
 
-            // Separate data for editing in modals to avoid instant UI changes
-            editableProfile: {
-                personalInfo: {},
-                address: {},
-                socialLinks: {}
-            },
+                // Data for display
+                profile: {
+                    id: null,
+                    personalInfo: { fullName: 'Loading...', bio: '-', profilePhoto: 'https://dummyimage.com/100', status: 'Active' },
+                    address: { cityState: '-' }
+                },
 
-            // --- LIFECYCLE & ACTIONS ---
-            async init() {
-                console.log("Profile Page Initialized with Alpine Component.");
-                const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-                const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
-                await this.fetchProfileData(sessionUserId);
-                this.isLoading = false;
-            },
+                // Separate data for editing in modals to avoid instant UI changes
+                editableProfile: {
+                    personalInfo: {},
+                    address: {},
+                    socialLinks: {}
+                },
 
-            async fetchProfileData(userId) {
-                this.isLoading = true;
-                const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
-                const cachedData = localStorage.getItem(cacheKey);
-
-                if (cachedData) {
-                    try {
-                        this.populateProfileData(JSON.parse(cachedData));
-                    } catch (e) {
-                        console.error('Error parsing cached profile data', e);
-                        localStorage.removeItem(cacheKey);
-                    }
-                }
-
-                if (typeof window.sendDataToGoogle !== 'function') {
-                    console.error('sendDataToGoogle is not available.');
+                // --- LIFECYCLE & ACTIONS ---
+                async init() {
+                    console.log("Profile Page Initialized with Alpine Component.");
+                    const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                    const sessionUserId = sessionUser ? (sessionUser.id || sessionUser.uid) : null;
+                    await this.fetchProfileData(sessionUserId);
                     this.isLoading = false;
-                    return;
-                }
+                },
 
-                window.sendDataToGoogle('getProfile', { userId: userId || '' }, (response) => {
-                    if (response.status === 'success' && response.data) {
-                        this.populateProfileData(response.data);
-                        localStorage.setItem(cacheKey, JSON.stringify(response.data));
+                async fetchProfileData(userId) {
+                    this.isLoading = true;
+                    const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+                    const cachedData = localStorage.getItem(cacheKey);
 
-                        // Sync header photo
-                        const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-                        if (sessionUser && response.data.personalInfo?.profilePhoto) {
-                            sessionUser.pictureUrl = response.data.personalInfo.profilePhoto;
-                            localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
-                            if (window.app) window.app.currentUser = { ...sessionUser };
+                    if (cachedData) {
+                        try {
+                            this.populateProfileData(JSON.parse(cachedData));
+                        } catch (e) {
+                            console.error('Error parsing cached profile data', e);
+                            localStorage.removeItem(cacheKey);
                         }
-                    } else if (!cachedData) {
-                        window.showToast('Welcome! Please create your profile.', 'info');
-                        this.openInfoModal();
                     }
-                    this.isLoading = false;
-                }, (err) => {
-                    console.error("API Error fetching profile:", err);
-                    window.showToast('Failed to load profile data.', 'error');
-                    this.isLoading = false;
-                });
-            },
 
-            populateProfileData(data) {
-                this.profile.id = data.id || null;
-                this.profile.personalInfo = {
-                    ...data.personalInfo,
-                    fullName: `${data.personalInfo?.firstName || ''} ${data.personalInfo?.lastName || ''}`.trim()
-                };
-                this.profile.address = data.address || {};
-                this.profile.socialLinks = data.socialLinks || {};
-            },
+                    if (typeof window.sendDataToGoogle !== 'function') {
+                        console.error('sendDataToGoogle is not available.');
+                        this.isLoading = false;
+                        return;
+                    }
 
-            // --- MODAL CONTROLS ---
-            openInfoModal() {
-                // Deep copy current profile to editable profile to prevent reference issues
-                this.editableProfile.personalInfo = JSON.parse(JSON.stringify(this.profile.personalInfo || {}));
-                this.editableProfile.socialLinks = JSON.parse(JSON.stringify(this.profile.socialLinks || {}));
-                this.isProfileInfoModal = true;
-            },
+                    window.sendDataToGoogle('getProfile', { userId: userId || '' }, (response) => {
+                        if (response.status === 'success' && response.data) {
+                            this.populateProfileData(response.data);
+                            localStorage.setItem(cacheKey, JSON.stringify(response.data));
 
-            openAddressModal() {
-                this.editableProfile.address = JSON.parse(JSON.stringify(this.profile.address || {}));
-                this.isProfileAddressModal = true;
-            },
-
-            // --- SAVE ACTIONS ---
-            async savePersonalInfo(button) {
-                window.setButtonLoading(button, true);
-                const payload = {
-                    personalInfo: this.editableProfile.personalInfo,
-                    socialLinks: this.editableProfile.socialLinks
-                };
-                await this.updateProfile(payload, button, () => {
-                    this.isProfileInfoModal = false;
-                });
-            },
-
-            async saveAddress(button) {
-                window.setButtonLoading(button, true);
-                const payload = {
-                    address: this.editableProfile.address
-                };
-                await this.updateProfile(payload, button, () => {
-                    this.isProfileAddressModal = false;
-                });
-            },
-
-            async updateProfile(profileData, button, onSuccess) {
-                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
-                if (!userId) {
-                    window.showToast('User ID not found. Cannot save.', 'error');
-                    if (button) window.setButtonLoading(button, false);
-                    return;
-                }
-
-                const action = this.profile.id ? 'updateCoreProfile' : 'createProfile';
-
-                window.sendDataToGoogle(action, {
-                    userId: userId,
-                    profileData: JSON.stringify(profileData)
-                }, (res) => {
-                    if (res.status === 'success') {
-                        window.showToast('Profile updated successfully!', 'success');
-
-                        // 1. Update UI Profile secara instan
-                        if (profileData.personalInfo) {
-                            this.profile.personalInfo = {
-                                ...this.profile.personalInfo,
-                                ...profileData.personalInfo,
-                                fullName: `${profileData.personalInfo.firstName || this.profile.personalInfo.firstName || ''} ${profileData.personalInfo.lastName || this.profile.personalInfo.lastName || ''}`.trim()
-                            };
-
-                            // Update session user (agar nama di header/navbar sinkron secara global)
+                            // Sync header photo
                             const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-                            if (sessionUser) {
-                                sessionUser.firstName = profileData.personalInfo.firstName || sessionUser.firstName;
-                                sessionUser.lastName = profileData.personalInfo.lastName || sessionUser.lastName;
+                            if (sessionUser && response.data.personalInfo?.profilePhoto) {
+                                sessionUser.pictureUrl = response.data.personalInfo.profilePhoto;
                                 localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
                                 if (window.app) window.app.currentUser = { ...sessionUser };
                             }
+                        } else if (!cachedData) {
+                            window.showToast('Welcome! Please create your profile.', 'info');
+                            this.openInfoModal();
                         }
+                        this.isLoading = false;
+                    }, (err) => {
+                        console.error("API Error fetching profile:", err);
+                        window.showToast('Failed to load profile data.', 'error');
+                        this.isLoading = false;
+                    });
+                },
 
-                        if (profileData.address) {
-                            this.profile.address = { ...this.profile.address, ...profileData.address };
-                        }
+                populateProfileData(data) {
+                    this.profile.id = data.id || null;
+                    this.profile.personalInfo = {
+                        ...data.personalInfo,
+                        fullName: `${data.personalInfo?.firstName || ''} ${data.personalInfo?.lastName || ''}`.trim()
+                    };
+                    this.profile.address = data.address || {};
+                    this.profile.socialLinks = data.socialLinks || {};
+                },
 
-                        if (profileData.socialLinks) {
-                            this.profile.socialLinks = { ...this.profile.socialLinks, ...profileData.socialLinks };
-                        }
+                // --- MODAL CONTROLS ---
+                openInfoModal() {
+                    // Deep copy current profile to editable profile to prevent reference issues
+                    this.editableProfile.personalInfo = JSON.parse(JSON.stringify(this.profile.personalInfo || {}));
+                    this.editableProfile.socialLinks = JSON.parse(JSON.stringify(this.profile.socialLinks || {}));
+                    this.isProfileInfoModal = true;
+                },
 
-                        // Pastikan ID tersimpan jika ini adalah profil baru yang baru saja dibuat
-                        if (res.id && !this.profile.id) this.profile.id = res.id;
+                openAddressModal() {
+                    this.editableProfile.address = JSON.parse(JSON.stringify(this.profile.address || {}));
+                    this.isProfileAddressModal = true;
+                },
 
-                        // 2. Update localStorage cache agar data tetap persisten saat refresh halaman
-                        const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
-                        localStorage.setItem(cacheKey, JSON.stringify(this.profile));
+                // --- SAVE ACTIONS ---
+                async savePersonalInfo(button) {
+                    window.setButtonLoading(button, true);
+                    const payload = {
+                        personalInfo: this.editableProfile.personalInfo,
+                        socialLinks: this.editableProfile.socialLinks
+                    };
+                    await this.updateProfile(payload, button, () => {
+                        this.isProfileInfoModal = false;
+                    });
+                },
 
-                        if (onSuccess) onSuccess();
-                        // fetchProfileData(userId) dihapus agar pembaruan terasa instan
-                    } else {
-                        window.showToast(`Error: ${res.message}`, 'error');
+                async saveAddress(button) {
+                    window.setButtonLoading(button, true);
+                    const payload = {
+                        address: this.editableProfile.address
+                    };
+                    await this.updateProfile(payload, button, () => {
+                        this.isProfileAddressModal = false;
+                    });
+                },
+
+                async updateProfile(profileData, button, onSuccess) {
+                    const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                    if (!userId) {
+                        window.showToast('User ID not found. Cannot save.', 'error');
+                        if (button) window.setButtonLoading(button, false);
+                        return;
                     }
-                    if (button) window.setButtonLoading(button, false);
-                }, (err) => {
-                    console.error('Update profile error:', err);
-                    window.showToast('API error while saving.', 'error');
-                    if (button) window.setButtonLoading(button, false);
-                });
-            },
 
-            // --- PHOTO UPLOAD ---
-            triggerPhotoUpload() {
-                this.$refs.photoInput.click();
-            },
+                    const action = this.profile.id ? 'updateCoreProfile' : 'createProfile';
 
-            handlePhotoFileChange(event) {
-                const file = event.target.files[0];
-                if (!file) return;
+                    window.sendDataToGoogle(action, {
+                        userId: userId,
+                        profileData: JSON.stringify(profileData)
+                    }, (res) => {
+                        if (res.status === 'success') {
+                            window.showToast('Profile updated successfully!', 'success');
 
-                if (!file.type.startsWith('image/')) {
-                    window.showToast('Please select an image file.', 'error');
-                    return;
-                }
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    window.showToast('Image size must be less than 5MB.', 'error');
-                    return;
-                }
+                            // 1. Update UI Profile secara instan
+                            if (profileData.personalInfo) {
+                                this.profile.personalInfo = {
+                                    ...this.profile.personalInfo,
+                                    ...profileData.personalInfo,
+                                    fullName: `${profileData.personalInfo.firstName || this.profile.personalInfo.firstName || ''} ${profileData.personalInfo.lastName || this.profile.personalInfo.lastName || ''}`.trim()
+                                };
 
-                window.showToast('Uploading profile photo...', 'info');
+                                // Update session user (agar nama di header/navbar sinkron secara global)
+                                const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                                if (sessionUser) {
+                                    sessionUser.firstName = profileData.personalInfo.firstName || sessionUser.firstName;
+                                    sessionUser.lastName = profileData.personalInfo.lastName || sessionUser.lastName;
+                                    localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                                    if (window.app) window.app.currentUser = { ...sessionUser };
+                                }
+                            }
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const base64data = e.target.result.split(',')[1];
-                    this.uploadProfilePhoto(file.name, base64data, file.type);
-                };
-                reader.readAsDataURL(file);
-            },
+                            if (profileData.address) {
+                                this.profile.address = { ...this.profile.address, ...profileData.address };
+                            }
 
-            uploadProfilePhoto(fileName, base64data, mimeType) {
-                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
-                if (!userId) {
-                    window.showToast('User ID not found. Cannot upload photo.', 'error');
-                    return;
-                }
-                // Memisahkan nama file dan ekstensinya
-                const dotIndex = fileName.lastIndexOf('.');
-                const nameOnly = fileName.substring(0, dotIndex);
-                const extension = fileName.substring(dotIndex);
-                // Hasilnya: NamaAsli_UserID_Timestamp.jpg
-                const customFileName = `${nameOnly}_${userId}_${Date.now()}${extension}`;
+                            if (profileData.socialLinks) {
+                                this.profile.socialLinks = { ...this.profile.socialLinks, ...profileData.socialLinks };
+                            }
 
-                window.sendDataToGoogle('uploadImageAndGetUrl', {
-                    fileName: customFileName,
-                    fileData: base64data,
-                    mimeType: mimeType
-                }, (res) => {
-                    if (res.status === 'success' && res.url) {
-                        this.saveProfilePhotoUrl(res.url);
-                    } else {
-                        window.showToast(`Upload failed: ${res.message}`, 'error');
-                    }
-                });
-            },
+                            // Pastikan ID tersimpan jika ini adalah profil baru yang baru saja dibuat
+                            if (res.id && !this.profile.id) this.profile.id = res.id;
 
-            saveProfilePhotoUrl(photoUrl) {
-                const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
-                window.sendDataToGoogle('updateProfilePhoto', {
-                    userId: userId,
-                    photoUrl: photoUrl
-                }, (res) => {
-                    if (res.status === 'success') {
-                        window.showToast('Profile photo updated!', 'success');
+                            // 2. Update localStorage cache agar data tetap persisten saat refresh halaman
+                            const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+                            localStorage.setItem(cacheKey, JSON.stringify(this.profile));
 
-                        // 1. Update foto di UI profile secara instan
-                        this.profile.personalInfo.profilePhoto = photoUrl;
-
-                        // 2. Update data di localStorage agar saat refresh tetap ada
-                        const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
-                        const cachedData = JSON.parse(localStorage.getItem(cacheKey) || '{}');
-                        if (cachedData.personalInfo) {
-                            cachedData.personalInfo.profilePhoto = photoUrl;
-                            localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+                            if (onSuccess) onSuccess();
+                            // fetchProfileData(userId) dihapus agar pembaruan terasa instan
+                        } else {
+                            window.showToast(`Error: ${res.message}`, 'error');
                         }
+                        if (button) window.setButtonLoading(button, false);
+                    }, (err) => {
+                        console.error('Update profile error:', err);
+                        window.showToast('API error while saving.', 'error');
+                        if (button) window.setButtonLoading(button, false);
+                    });
+                },
 
-                        // 3. Update session user (untuk foto di header/navbar)
-                        const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
-                        if (sessionUser) {
-                            sessionUser.pictureUrl = photoUrl;
-                            localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
-                            // Jika ada objek app global, sinkronkan juga
-                            if (window.app) window.app.currentUser = { ...sessionUser };
-                        }
-                    } else {
-                        window.showToast(`Failed to save photo URL: ${res.message}`, 'error');
+                // --- PHOTO UPLOAD ---
+                triggerPhotoUpload() {
+                    this.$refs.photoInput.click();
+                },
+
+                handlePhotoFileChange(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (!file.type.startsWith('image/')) {
+                        window.showToast('Please select an image file.', 'error');
+                        return;
                     }
-                });
-            },
+                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        window.showToast('Image size must be less than 5MB.', 'error');
+                        return;
+                    }
 
-            // --- DELETE ACTIONS ---
-            async deleteAccount(button) {
-                if (!confirm('Are you sure you want to delete this account? This action cannot be undone.')) return;
-                // This is a placeholder. A real delete would need a dedicated, secure backend function.
-                window.showToast('Delete functionality not implemented in this example.', 'warning');
-            },
+                    window.showToast('Uploading profile photo...', 'info');
 
-            async clearAddress(button) {
-                if (!confirm('Are you sure you want to clear address information?')) return;
-                window.setButtonLoading(button, true);
-                const payload = { address: { country: '', cityState: '', postalCode: '', taxId: '' } };
-                await this.updateProfile(payload, button, () => {
-                    this.isProfileAddressModal = false;
-                });
-            },
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64data = e.target.result.split(',')[1];
+                        this.uploadProfilePhoto(file.name, base64data, file.type);
+                    };
+                    reader.readAsDataURL(file);
+                },
 
-            // --- HELPERS ---
-            getSocialStatus(url) {
-                return url && url.trim() !== '' ? 'Active' : 'Inactive';
-            },
+                uploadProfilePhoto(fileName, base64data, mimeType) {
+                    const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                    if (!userId) {
+                        window.showToast('User ID not found. Cannot upload photo.', 'error');
+                        return;
+                    }
+                    // Memisahkan nama file dan ekstensinya
+                    const dotIndex = fileName.lastIndexOf('.');
+                    const nameOnly = fileName.substring(0, dotIndex);
+                    const extension = fileName.substring(dotIndex);
+                    // Hasilnya: NamaAsli_UserID_Timestamp.jpg
+                    const customFileName = `${nameOnly}_${userId}_${Date.now()}${extension}`;
 
-            getSocialStatusClass(url) {
-                return url && url.trim() !== '' ? 'text-success-600' : 'text-gray-600 dark:text-gray-400';
-            }
-        }));
-    }
-};
+                    window.sendDataToGoogle('uploadImageAndGetUrl', {
+                        fileName: customFileName,
+                        fileData: base64data,
+                        mimeType: mimeType
+                    }, (res) => {
+                        if (res.status === 'success' && res.url) {
+                            this.saveProfilePhotoUrl(res.url);
+                        } else {
+                            window.showToast(`Upload failed: ${res.message}`, 'error');
+                        }
+                    });
+                },
 
-// Immediate registration or wait for Alpine
-if (window.Alpine) {
-    registerProfilePage();
-} else {
-    document.addEventListener('alpine:init', registerProfilePage);
-}
+                saveProfilePhotoUrl(photoUrl) {
+                    const userId = this.profile.id || JSON.parse(localStorage.getItem('signedInUser'))?.id;
+                    window.sendDataToGoogle('updateProfilePhoto', {
+                        userId: userId,
+                        photoUrl: photoUrl
+                    }, (res) => {
+                        if (res.status === 'success') {
+                            window.showToast('Profile photo updated!', 'success');
 
-/**
- * Uploads an image to Google Drive via Google Apps Script and returns its public URL.
- * @param {string} fileName - The desired file name for the uploaded image.
- * @param {string} base64Data - The base64 encoded image data (without the data:image/...;base64, prefix).
- * @param {string} mimeType - The MIME type of the image (e.g., 'image/png', 'image/jpeg').
- * @returns {Promise<Object>} A promise that resolves with an object containing `status` and `url` if successful,
- *                            or `status` and `message` if there's an error.
- */
-window.uploadImageAndGetUrl = function (fileName, base64Data, mimeType) {
-    return new Promise((resolve, reject) => {
-        if (typeof window.sendDataToGoogle !== 'function') {
-            const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
-            console.error(errorMessage);
-            return reject({ status: 'error', message: errorMessage });
+                            // 1. Update foto di UI profile secara instan
+                            this.profile.personalInfo.profilePhoto = photoUrl;
+
+                            // 2. Update data di localStorage agar saat refresh tetap ada
+                            const cacheKey = userId ? `cached_profile_data_${userId}` : 'cached_profile_data_default';
+                            const cachedData = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+                            if (cachedData.personalInfo) {
+                                cachedData.personalInfo.profilePhoto = photoUrl;
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+                            }
+
+                            // 3. Update session user (untuk foto di header/navbar)
+                            const sessionUser = JSON.parse(localStorage.getItem('signedInUser'));
+                            if (sessionUser) {
+                                sessionUser.pictureUrl = photoUrl;
+                                localStorage.setItem('signedInUser', JSON.stringify(sessionUser));
+                                // Jika ada objek app global, sinkronkan juga
+                                if (window.app) window.app.currentUser = { ...sessionUser };
+                            }
+                        } else {
+                            window.showToast(`Failed to save photo URL: ${res.message}`, 'error');
+                        }
+                    });
+                },
+
+                // --- DELETE ACTIONS ---
+                async deleteAccount(button) {
+                    if (!confirm('Are you sure you want to delete this account? This action cannot be undone.')) return;
+                    // This is a placeholder. A real delete would need a dedicated, secure backend function.
+                    window.showToast('Delete functionality not implemented in this example.', 'warning');
+                },
+
+                async clearAddress(button) {
+                    if (!confirm('Are you sure you want to clear address information?')) return;
+                    window.setButtonLoading(button, true);
+                    const payload = { address: { country: '', cityState: '', postalCode: '', taxId: '' } };
+                    await this.updateProfile(payload, button, () => {
+                        this.isProfileAddressModal = false;
+                    });
+                },
+
+                // --- HELPERS ---
+                getSocialStatus(url) {
+                    return url && url.trim() !== '' ? 'Active' : 'Inactive';
+                },
+
+                getSocialStatusClass(url) {
+                    return url && url.trim() !== '' ? 'text-success-600' : 'text-gray-600 dark:text-gray-400';
+                }
+            }));
         }
+    };
 
-        const data = {
-            fileName: fileName,
-            fileData: base64Data,
-            fileType: mimeType
-        };
+    // Immediate registration or wait for Alpine
+    if (window.Alpine) {
+        registerProfilePage();
+    } else {
+        document.addEventListener('alpine:init', registerProfilePage);
+    }
 
-        window.sendDataToGoogle('uploadImageAndGetUrl', data, (response) => {
-            if (response.status === 'success' && response.url) {
-                resolve({ status: 'success', url: response.url });
-            } else {
-                reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
+    /**
+     * Uploads an image to Google Drive via Google Apps Script and returns its public URL.
+     * @param {string} fileName - The desired file name for the uploaded image.
+     * @param {string} base64Data - The base64 encoded image data (without the data:image/...;base64, prefix).
+     * @param {string} mimeType - The MIME type of the image (e.g., 'image/png', 'image/jpeg').
+     * @returns {Promise<Object>} A promise that resolves with an object containing `status` and `url` if successful,
+     *                            or `status` and `message` if there's an error.
+     */
+    window.uploadImageAndGetUrl = function (fileName, base64Data, mimeType) {
+        return new Promise((resolve, reject) => {
+            if (typeof window.sendDataToGoogle !== 'function') {
+                const errorMessage = 'sendDataToGoogle function not found. Make sure apps-script.js is loaded.';
+                console.error(errorMessage);
+                return reject({ status: 'error', message: errorMessage });
             }
-        }, (error) => {
-            console.error('Error in uploadImageAndGetUrl:', error);
-            reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
+
+            const data = {
+                fileName: fileName,
+                fileData: base64Data,
+                fileType: mimeType
+            };
+
+            window.sendDataToGoogle('uploadImageAndGetUrl', data, (response) => {
+                if (response.status === 'success' && response.url) {
+                    resolve({ status: 'success', url: response.url });
+                } else {
+                    reject({ status: 'error', message: response.message || 'Unknown error during upload.' });
+                }
+            }, (error) => {
+                console.error('Error in uploadImageAndGetUrl:', error);
+                reject({ status: 'error', message: error.message || 'Network error or script execution failed.' });
+            });
         });
-    });
-};
+    };
+
+    window.profileScriptLoaded = true;
+})();
