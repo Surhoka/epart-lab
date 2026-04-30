@@ -86,6 +86,14 @@
           });
 
           this.calendar.render();
+
+          // [FIX] Mengatasi tampilan berantakan saat perpindahan halaman
+          // Menunggu transisi Alpine.js selesai sebelum menghitung ulang dimensi kalender
+          this.$nextTick(() => {
+            setTimeout(() => {
+              if (this.calendar) this.calendar.updateSize();
+            }, 350); // Jeda yang cukup untuk animasi fade-in selesai
+          });
         },
 
         fetchEvents(fetchInfo, successCallback, failureCallback) {
