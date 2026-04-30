@@ -26,7 +26,9 @@
       <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent">
       </div>
     </div>
-    <div x-ref="calendar" class="min-h-[600px] md:min-h-[750px]"></div>
+    <!-- Tambahkan transition untuk penghalusan saat kalender muncul -->
+    <div x-ref="calendar" class="min-h-[600px] md:min-h-[750px] transition-opacity duration-500"
+      :class="isLoading ? 'opacity-0' : 'opacity-100'"></div>
   </div>
 
   <!-- BEGIN MODAL -->
