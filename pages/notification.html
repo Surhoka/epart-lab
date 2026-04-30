@@ -64,8 +64,14 @@
                 <div class="flex items-center justify-between">
                   <span class="text-sm font-medium text-gray-900 dark:text-white"
                     x-text="notif.type ? notif.type.toUpperCase() : 'INFO'"></span>
-                  <span class="text-xs text-gray-400 dark:text-gray-500"
-                    x-text="new Date(notif.createdAt).toLocaleString()"></span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400 dark:text-gray-500"
+                      x-text="new Date(notif.createdAt).toLocaleString()"></span>
+                    <button @click.stop="deleteNotification(notif.id || notif.createdAt)"
+                      class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full -mr-2">
+                      <span class="w-4 h-4 block" x-icon="'trash'"></span>
+                    </button>
+                  </div>
                 </div>
                 <div class="mt-1 text-sm text-gray-600 dark:text-gray-300 prose prose-sm max-w-none dark:prose-invert"
                   x-html="notif.message"></div>
