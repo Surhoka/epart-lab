@@ -26,21 +26,13 @@
 
           // [PENTING] Tunggu sampai API Discovery selesai sebelum memuat data
           if (!window.EzyApi || !window.EzyApi.isReady) {
-            console.log("Calendar: API not ready, waiting...");
             await new Promise(resolve => {
               window.addEventListener('ezy-api-ready', resolve, { once: true });
             });
           }
-          console.log("Calendar: API Ready, rendering...");
-
-          const calendarEl = this.$refs.calendar;
-          if (!calendarEl) {
-            return;
-          }
 
           if (typeof FullCalendar === 'undefined') {
             try {
-              // Perlu load script utama dari FullCalendar
               await window.app.loadScript('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js');
             } catch (e) {
               console.error("Gagal memuat FullCalendar", e);
@@ -49,6 +41,22 @@
             }
           }
 
+          // Tunggu DOM benar-benar stabil sesuai permintaan user
+          this.$nextTick(async () => {
+            const calendarEl = this.$refs.calendar;
+            if (!calendarEl) return;
+
+            // Pastikan FullCalendar terisi ulang (Clean up instance lama)
+            if (this.calendar) {
+              this.calendar.destroy(); // Bersihkan instance lama jika ada
+            }
+
+            // Inisialisasi ulang melalui helper method
+            this.renderCalendar(calendarEl);
+          });
+        },
+
+        renderCalendar(calendarEl) {
           this.calendar = new FullCalendar.Calendar(calendarEl, {
             selectable: true,
             initialView: 'dayGridMonth',
@@ -87,13 +95,10 @@
 
           this.calendar.render();
 
-          // [FIX] Mengatasi tampilan berantakan saat perpindahan halaman
-          // Menunggu transisi Alpine.js selesai sebelum menghitung ulang dimensi kalender
-          this.$nextTick(() => {
-            setTimeout(() => {
-              if (this.calendar) this.calendar.updateSize();
-            }, 350); // Jeda yang cukup untuk animasi fade-in selesai
-          });
+          // Mengatasi tampilan berantakan saat perpindahan halaman
+          setTimeout(() => {
+            if (this.calendar) this.calendar.updateSize();
+          }, 350);
         },
 
         fetchEvents(fetchInfo, successCallback, failureCallback) {
