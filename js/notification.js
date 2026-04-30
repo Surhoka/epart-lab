@@ -18,6 +18,15 @@
           await this.loadDependenciesAndFetch();
         },
 
+        broadcastUpdate() {
+          // Hitung jumlah yang belum dibaca (isread: false/0/null)
+          const unreadCount = this.notifications.filter(n => !n.isread || n.isread === 'false' || n.isread === 0).length;
+          // Kirim event global agar didengar oleh komponen Navigasi/Header
+          window.dispatchEvent(new CustomEvent('ezy:notifications-updated', {
+            detail: { count: unreadCount, notifications: this.notifications }
+          }));
+        },
+
         async loadScript(url) {
           return new Promise((resolve, reject) => {
             if (document.querySelector(`script[src="${url}"]`)) {
@@ -52,6 +61,7 @@
 
           if (cachedData.date === today && Array.isArray(cachedData.notifications)) {
             this.notifications = this.processMarkdown(cachedData.notifications);
+            this.broadcastUpdate();
           }
 
           window.sendDataToGoogle('getExistingNotifications', { email: userEmail }, (data) => {
@@ -59,6 +69,7 @@
               this.notifications = this.processMarkdown(data.data);
               const cacheData = { date: today, notifications: data.data };
               localStorage.setItem('notificationsCache', JSON.stringify(cacheData));
+              this.broadcastUpdate();
             } else {
               this.notificationError = data.message || "Tidak ada notifikasi tersedia.";
             }
@@ -81,9 +92,7 @@
             }
             return notif;
           });
-        }
-
-        ,
+        },
 
         async deleteNotification(id) {
           if (!confirm('Are you sure you want to delete this notification?')) return;
@@ -95,19 +104,21 @@
 
           if (indexToDelete !== -1) {
             deletedNotification = this.notifications.splice(indexToDelete, 1)[0];
-            window.showToast('Notification deleted (optimistic update)!', 'info');
+            window.showToast('Notification deleted!', 'info');
           }
 
           window.sendDataToGoogle('deleteNotification', { id: id }, (res) => {
             if (res.status === 'success') {
               // UI sudah terupdate secara optimis, tidak perlu fetch ulang
               window.showToast('Notification deleted!', 'success');
+              this.broadcastUpdate();
             } else {
               window.showToast(`Error: ${res.message}`, 'error');
               // --- ROLLBACK JIKA GAGAL ---
               if (deletedNotification) {
                 this.notifications.splice(indexToDelete, 0, deletedNotification); // Reinsert
                 window.showToast('Failed to delete notification, rolling back.', 'error');
+                this.broadcastUpdate();
               }
             }
           }, (err) => {
@@ -116,6 +127,7 @@
             if (deletedNotification) {
               this.notifications.splice(indexToDelete, 0, deletedNotification); // Reinsert
               window.showToast('Failed to delete notification, rolling back.', 'error');
+              this.broadcastUpdate();
             }
           });
         }
