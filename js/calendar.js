@@ -127,11 +127,23 @@
 
         handleDateSelect(info) {
           this.modalMode = 'add';
+
+          // FullCalendar menggunakan exclusive end date untuk seleksi All Day.
+          // Kita sesuaikan agar UI menampilkan tanggal inclusive (misal: klik tgl 1, End Date muncul tgl 1, bukan tgl 2).
+          let displayEnd = info.endStr;
+          if (info.allDay && info.end) {
+            const d = new Date(info.end);
+            d.setDate(d.getDate() - 1); // Kurangi 1 hari untuk tampilan UI
+            displayEnd = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          } else if (!info.allDay) {
+            displayEnd = info.endStr.slice(0, 16);
+          }
+
           this.editingEvent = {
             id: null,
             title: '',
             start: info.allDay ? info.startStr : info.startStr.slice(0, 16),
-            end: info.allDay ? info.endStr : info.endStr.slice(0, 16),
+            end: displayEnd,
             allDay: info.allDay,
             description: '',
             className: 'Primary'
@@ -143,17 +155,26 @@
           this.modalMode = 'edit';
           const event = info.event;
 
-          // Helper: Konversi Date object ke string ISO lokal (agar jam tidak bergeser ke UTC)
+          // Helper: Konversi Date object ke string ISO lokal (YYYY-MM-DDTHH:mm)
           const toLocalISO = (date) => {
             const offset = date.getTimezoneOffset() * 60000;
             return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+          };
+
+          // Untuk All Day, sistem menyimpan exclusive end. Kita konversi ke inclusive untuk editor.
+          const getInclusiveEndDate = (ev) => {
+            if (!ev.end) return ev.startStr;
+            const d = new Date(ev.end);
+            d.setDate(d.getDate() - 1);
+            const offset = d.getTimezoneOffset() * 60000;
+            return new Date(d.getTime() - offset).toISOString().slice(0, 10);
           };
 
           this.editingEvent = {
             id: event.id,
             title: event.title,
             start: event.allDay ? event.startStr : (event.start ? toLocalISO(event.start) : ''),
-            end: event.allDay ? (event.end ? new Date(event.end.valueOf() - 86400000).toISOString().slice(0, 10) : event.startStr) : (event.end ? toLocalISO(event.end) : ''),
+            end: event.allDay ? getInclusiveEndDate(event) : (event.end ? toLocalISO(event.end) : ''),
             allDay: event.allDay,
             description: event.extendedProps.description || '',
             className: event.extendedProps.calendar || 'Primary'
@@ -181,11 +202,22 @@
             return;
           }
 
+          // Kembalikan tanggal inclusive dari UI ke exclusive untuk disimpan di sistem/API
+          let finalEnd = this.editingEvent.end;
+          if (this.editingEvent.allDay && finalEnd) {
+            const endDate = new Date(finalEnd + 'T00:00'); // Gunakan jam lokal agar tidak melompat hari
+            endDate.setDate(endDate.getDate() + 1);
+            const y = endDate.getFullYear();
+            const m = String(endDate.getMonth() + 1).padStart(2, '0');
+            const d = String(endDate.getDate()).padStart(2, '0');
+            finalEnd = `${y}-${m}-${d}`;
+          }
+
           const payload = {
             id: this.editingEvent.id,
             title: this.editingEvent.title,
             start: this.editingEvent.start,
-            end: this.editingEvent.end,
+            end: finalEnd,
             allDay: this.editingEvent.allDay,
             extendedProps: {
               calendar: this.editingEvent.className,
