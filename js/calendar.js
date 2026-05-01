@@ -9,7 +9,6 @@
       window.Alpine.data('calendar', () => ({
         calendar: null,
         isLoading: false,
-        initialLoadDone: false, // Flag untuk mengontrol pemuatan cache
         isModalOpen: false,
         modalMode: 'add', // 'add' or 'edit'
         editingEvent: {
@@ -104,14 +103,6 @@
 
         fetchEvents(fetchInfo, successCallback, failureCallback) {
           this.isLoading = true;
-
-          // --- LOAD DARI CACHE LOKAL (Agar instan dan tidak berkedip) ---
-          const cacheKey = 'calendar_events_cache';
-          const cached = localStorage.getItem(cacheKey);
-          if (cached && !this.initialLoadDone) {
-            successCallback(JSON.parse(cached));
-          }
-
           // [OPTIMASI] Kirim rentang tanggal agar Backend bisa memfilter (Hemat Bandwidth)
           const params = {
             pluginId: 'plug_calendar_v1',
@@ -122,9 +113,6 @@
           window.sendDataToGoogle('getEvents', params, (response) => {
             this.isLoading = false;
             if (response.status === 'success') {
-              // --- SIMPAN KE CACHE UNTUK PENGGUNAAN BERIKUTNYA ---
-              localStorage.setItem(cacheKey, JSON.stringify(response.data));
-              this.initialLoadDone = true;
               successCallback(response.data);
             } else {
               failureCallback(new Error(response.message));
@@ -236,26 +224,12 @@
           window.sendDataToGoogle(action, { ...payload, pluginId: 'plug_calendar_v1' }, (res) => {
             window.setButtonLoading(button, false);
             if (res.status === 'success') {
-              window.showToast(`Event ${this.modalMode === 'add' ? 'Created' : 'Updated'}!`, 'success');
-
-              // [FIX] Update Local Cache segera agar refetchEvents punya data terbaru
-              const cacheKey = 'calendar_events_cache';
-              let currentCache = JSON.parse(localStorage.getItem(cacheKey) || '[]');
-              const newEvent = { ...payload, id: res.id || payload.id };
-
-              if (this.modalMode === 'add') {
-                currentCache.push(newEvent);
-              } else {
-                currentCache = currentCache.map(e => (e.id == payload.id || e.id == res.id) ? newEvent : e);
+              window.showToast(`Event ${this.modalMode === 'add' ? 'created' : 'updated'}!`, 'success');
+              // Sinkronisasi ulang untuk memastikan ID dari server benar
+              if (this.modalMode === 'add' && optimisticEvent) {
+                optimisticEvent.setProp('id', res.id);
               }
-              localStorage.setItem(cacheKey, JSON.stringify(currentCache));
-
-              // [PENTING] Hapus event statis Optimistik agar digantikan oleh data dari Server/Cache
-              if (optimisticEvent) {
-                optimisticEvent.remove();
-              }
-
-              this.initialLoadDone = false; // Reset flag agar fetchEvents mau baca dari cache yang baru kita update
+              // Tetap refetch di background untuk memastikan konsistensi data
               this.calendar.refetchEvents();
             } else {
               window.showToast(`Error: ${res.message}`, 'error');
