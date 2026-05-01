@@ -9,6 +9,7 @@
       window.Alpine.data('calendar', () => ({
         calendar: null,
         isLoading: false,
+        initialLoadDone: false,
         isModalOpen: false,
         modalMode: 'add', // 'add' or 'edit'
         editingEvent: {
