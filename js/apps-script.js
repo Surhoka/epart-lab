@@ -235,7 +235,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'uploadImageAndGetUrl', 'generateAiImage', 'setupUserDatabase',
         'save_plugin', 'remove_plugin', 'ping_plugin',
         'dbCreate', 'dbUpdate', 'dbDelete', 'createTable', // Add generic DB actions for POST
-        'getEvents', 'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
+        'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
         'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule', // AI Assistant Actions
         'saveThemeSettings', 'save_settings', // Settings Actions
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
