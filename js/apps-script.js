@@ -235,7 +235,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'uploadImageAndGetUrl', 'generateAiImage', 'setupUserDatabase',
         'save_plugin', 'remove_plugin', 'ping_plugin',
         'dbCreate', 'dbUpdate', 'dbDelete', 'createTable', // Add generic DB actions for POST
-        'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
+        'getEvents', 'createEvent', 'updateEvent', 'deleteEvent', // Add Calendar specific actions
         'saveAiConfig', 'askAi', 'createAiRule', 'updateAiRule', 'deleteAiRule', // AI Assistant Actions
         'saveThemeSettings', 'save_settings', // Settings Actions
         'getHotspotProjects', 'saveHotspotProject', 'deleteHotspotProject', // Hotspot Studio Actions
@@ -245,7 +245,7 @@ window.sendDataToGoogle = function (action, data, callback, errorHandler, custom
         'saveLandingProduct', 'deleteLandingProduct', // Landing Page Actions
         'saveAboutPage', 'saveContactPage', 'saveStaticPage', // Static Page Actions
         'get_post_by_slug', // Post read via POST for reliable dbId passing
-        'saveAlbum', 'deleteAlbum', 'saveAlbumImage', 'deleteAlbumImage', 'syncAlbumMetadataToBlogger', 'setupPluginDatabase' // Album Management
+        'saveAlbum', 'deleteAlbum', 'saveAlbumImage', 'deleteAlbumImage', 'syncAlbumMetadataToBlogger', 'setupPluginDatabase', 'savePublicContentSettings' // Album Management
     ];
 
     if (postActions.includes(action)) {
