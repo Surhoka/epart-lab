@@ -1006,8 +1006,6 @@
                     marqueeActive: true
                 },
                 loading: false,
-                submitting: false,
-                isUploading: false,
                 dbId: null,
 
                 async init() {
@@ -1063,57 +1061,6 @@
                         });
                     });
                 },
-
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    if (!file.type.startsWith('image/')) {
-                        showToast('File harus berupa gambar', 'warning');
-                        return;
-                    }
-
-                    const maxSize = 5 * 1024 * 1024;
-                    if (file.size > maxSize) {
-                        showToast('Ukuran file maksimal 5MB', 'warning');
-                        return;
-                    }
-
-                    this.isUploading = true;
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const base64Data = e.target.result;
-                        const fileName = `landing-${Date.now()}-${file.name}`;
-
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: fileName,
-                            fileData: base64Data,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            this.isUploading = false;
-                            if (res && res.status === 'success') {
-                                this.formData.imageUrl = res.url;
-                                showToast('Gambar berhasil diupload', 'success');
-                            } else {
-                                showToast('Gagal upload gambar: ' + (res ? res.message : 'Unknown error'), 'error');
-                            }
-                        }, (err) => {
-                            this.isUploading = false;
-                            console.error('Upload error:', err);
-                            showToast('Terjadi kesalahan saat upload gambar', 'error');
-                        });
-                    };
-
-                    reader.onerror = () => {
-                        this.isUploading = false;
-                        showToast('Gagal membaca file', 'error');
-                    };
-
-                    reader.readAsDataURL(file);
-                }
             }));
         }
     };
@@ -1334,14 +1281,6 @@
                         document.execCommand('createLink', false, url);
                     }
                 },
-
-                triggerImageUpload() {
-                    this.saveSelection();
-                    // Need to find the ref in the actual DOM if using this component
-                    const input = document.querySelector('input[x-ref="imageInput"]');
-                    if (input) input.click();
-                },
-
                 saveSelection() {
                     const sel = window.getSelection();
                     if (sel.getRangeAt && sel.rangeCount) {
@@ -1360,37 +1299,6 @@
                         }
                     }
                 },
-
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    if (file.size > 5 * 1024 * 1024) { showToast("Image too large (max 5MB)", "error"); return; }
-                    showToast("Uploading image...", "info");
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: file.name,
-                            fileData: e.target.result.split(',')[1],
-                            fileType: file.type,
-                            dbId: getDbId(),
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            if (res.status === 'success') {
-                                this.insertImageAtCursor(res.url);
-                                // Set gambar utama otomatis jika masih kosong
-                                if (!this.post.image) {
-                                    this.post.image = res.url;
-                                }
-                                showToast("Image uploaded!", "success");
-                            } else {
-                                showToast("Upload failed: " + res.message, "error");
-                            }
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
-                },
-
                 insertImageAtCursor(url) {
                     this.restoreSelection();
                     // Menambahkan atribut draggable dan cursor pointer agar user tahu ini bisa berinteraksi
@@ -1636,10 +1544,7 @@
                 loading: false,
                 submitting: false,
                 dbId: null,
-                isUploadingHero: false,
-                isUploadingVision: false,
-                isSyncing: false,
-                uploadType: '',
+                isSyncing: false, // Keep this for syncToBlogger
 
                 async init() {
                     this.dbId = getDbId();
@@ -1727,64 +1632,6 @@
                     } finally {
                         this.isSyncing = false;
                     }
-                },
-
-                triggerImageUpload(type) {
-                    this.uploadType = type;
-                    this.$refs.imageInput.click();
-                },
-
-                handleImageUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    if (!file.type.startsWith('image/')) {
-                        showToast('File harus berupa gambar', 'warning');
-                        return;
-                    }
-
-                    const maxSize = 5 * 1024 * 1024;
-                    if (file.size > maxSize) {
-                        showToast('Ukuran file maksimal 5MB', 'warning');
-                        return;
-                    }
-
-                    const isHero = this.uploadType === 'hero_image';
-                    if (isHero) this.isUploadingHero = true;
-                    else this.isUploadingVision = true;
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: `about-${this.uploadType}-${Date.now()}-${file.name}`,
-                            fileData: e.target.result,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            if (isHero) this.isUploadingHero = false;
-                            else this.isUploadingVision = false;
-
-                            if (res?.status === 'success') {
-                                this.formData.payload[this.uploadType] = res.url;
-                                showToast('Gambar berhasil diupload', 'success');
-                            } else {
-                                showToast('Gagal upload: ' + (res?.message || ''), 'error');
-                            }
-                        }, (err) => {
-                            if (isHero) this.isUploadingHero = false;
-                            else this.isUploadingVision = false;
-                            console.error('Upload error:', err);
-                            showToast('Terjadi kesalahan saat upload gambar', 'error');
-                        });
-                    };
-                    reader.onerror = () => {
-                        if (isHero) this.isUploadingHero = false;
-                        else this.isUploadingVision = false;
-                        showToast('Gagal membaca file', 'error');
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
                 },
 
                 addStat() {
