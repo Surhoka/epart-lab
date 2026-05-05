@@ -19,10 +19,6 @@
                 sidebarColor: '#ffffff',
                 footerColor: '#1e3a8a',
                 gatewayToken: '',
-                blogId: '',
-                pageId: '',
-                pageIdJsonLd: '',
-                webUrl: '',
                 siteKey: '',
                 adminUrl: '',
                 dbName: ''
@@ -54,18 +50,6 @@
                     if (config.gatewayToken) {
                         this.settings.gatewayToken = config.gatewayToken;
                     }
-                    if (config.blogId) {
-                        this.settings.blogId = config.blogId;
-                    }
-                    if (config.pageId) {
-                        this.settings.pageId = config.pageId;
-                    }
-                    if (config.pageIdJsonLd || config.postId) {
-                        this.settings.pageIdJsonLd = config.pageIdJsonLd || config.postId;
-                    }
-                    if (config.webUrl) {
-                        this.settings.webUrl = config.webUrl;
-                    }
                     if (config.siteKey) {
                         this.settings.siteKey = config.siteKey;
                     }
@@ -77,10 +61,6 @@
                     }
                 }
 
-                // Fallback: Ambil langsung dari config global EzyApi jika tersedia
-                if (window.EzyApi && window.EzyApi.config && window.EzyApi.config.blogId) {
-                    this.settings.blogId = window.EzyApi.config.blogId;
-                }
             },
 
             applyDefaultTheme() {
@@ -95,40 +75,6 @@
                 } else {
                     this.settings.sidebarColor = '#1e3a8a'; // Standard: Dark Nav Bar
                 }
-            },
-
-            saveBloggerSettings(btn) {
-                if (btn && window.setButtonLoading) window.setButtonLoading(btn, true);
-
-                const bloggerPayload = {
-                    blogId: this.settings.blogId,
-                    pageId: this.settings.pageId,
-                    pageIdJsonLd: this.settings.pageIdJsonLd,
-                    webUrl: this.settings.webUrl
-                };
-
-                window.sendDataToGoogle('save_settings', bloggerPayload, (res) => {
-                    if (res && res.status === 'success') {
-                        window.showToast('Pengaturan Blogger berhasil disimpan!', 'success');
-
-                        // Update runtime config
-                        if (window.EzyApi && window.EzyApi.config) {
-                            window.EzyApi.config.blogId = this.settings.blogId;
-                            window.EzyApi.config.pageId = this.settings.pageId;
-                            window.EzyApi.config.pageIdJsonLd = this.settings.pageIdJsonLd;
-                            window.EzyApi.config.webUrl = this.settings.webUrl;
-                        }
-
-                        // Update Local Cache
-                        const currentCache = JSON.parse(localStorage.getItem('Ezyparts_Config_Cache') || '{}');
-                        localStorage.setItem('Ezyparts_Config_Cache', JSON.stringify({ ...currentCache, ...bloggerPayload }));
-
-                        if (btn && window.setButtonSuccess) window.setButtonSuccess(btn, { closeModal: false });
-                    } else {
-                        window.showToast('Gagal menyimpan: ' + (res?.message || 'Server Error'), 'error');
-                        if (btn && window.setButtonLoading) window.setButtonLoading(btn, false);
-                    }
-                });
             },
 
             saveSettings(btn) {
