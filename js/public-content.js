@@ -1959,6 +1959,77 @@
     };
 
     // ================================================================
+    // BLOGGER SETTINGS MANAGER
+    // ================================================================
+    const registerBloggerSettingsManager = () => {
+        if (window.Alpine?.data && !window.Alpine.data('bloggerSettingsManager')) {
+            window.Alpine.data('bloggerSettingsManager', () => ({
+                dbId: null,
+                loading: false,
+                config: {
+                    blogId: '',
+                    pageId: '',
+                    pageIdJsonLd: '',
+                    webUrl: ''
+                },
+
+                async init() {
+                    this.dbId = getDbId();
+                    if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
+                    await this.loadSettings();
+                },
+
+                async loadSettings() {
+                    if (!this.dbId) return;
+
+                    // Try to get settings from window (passed from server)
+                    if (window.bloggerSettings) {
+                        this.config = {
+                            blogId: window.bloggerSettings.blogId || '',
+                            pageId: window.bloggerSettings.pageId || '',
+                            pageIdJsonLd: window.bloggerSettings.pageIdJsonLd || '',
+                            webUrl: window.bloggerSettings.webUrl || ''
+                        };
+                        return;
+                    }
+
+                    // Fallback: Get from Apps Script
+                    this.loading = true;
+                    window.sendDataToGoogle('getPublicContentSettings', { dbId: this.dbId }, (res) => {
+                        this.loading = false;
+                        if (res.status === 'success' && res.data && res.data.blogger) {
+                            this.config = res.data.blogger;
+                        }
+                    }, () => {
+                        this.loading = false;
+                    });
+                },
+
+                async saveSettings(button) {
+                    window.setButtonLoading?.(button, true);
+                    const payload = {
+                        dbId: this.dbId,
+                        blogger: this.config
+                    };
+                    window.sendDataToGoogle('savePublicContentSettings', payload, (res) => {
+                        window.setButtonLoading?.(button, false);
+                        if (res.status === 'success') {
+                            showToast('Pengaturan Blogger berhasil disimpan');
+                            // Update window variable
+                            window.bloggerSettings = this.config;
+                        } else {
+                            showToast('Gagal menyimpan: ' + res.message, 'error');
+                        }
+                    }, () => {
+                        window.setButtonLoading?.(button, false);
+                        showToast('Error saat menyimpan', 'error');
+                    });
+                }
+            }));
+        }
+    };
+
+    // ================================================================
     // INITIALIZATION
     // ================================================================
     const registerAll = () => {
