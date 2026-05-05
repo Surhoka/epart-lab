@@ -1995,10 +1995,15 @@
 
                     // Fallback: Get from Apps Script
                     this.loading = true;
-                    window.sendDataToGoogle('getPublicContentSettings', { dbId: this.dbId }, (res) => {
+                    window.sendDataToGoogle('get_settings', { dbId: this.dbId }, (res) => {
                         this.loading = false;
-                        if (res.status === 'success' && res.data && res.data.blogger) {
-                            this.config = res.data.blogger;
+                        if (res.status === 'success') {
+                            this.config = {
+                                blogId: res.blogId || '',
+                                pageId: res.pageId || '',
+                                pageIdJsonLd: res.pageIdJsonLd || '',
+                                webUrl: res.webUrl || ''
+                            };
                         }
                     }, () => {
                         this.loading = false;
@@ -2043,6 +2048,7 @@
         registerAboutAdmin();
         registerContactAdmin();
         registerPublicBrandingManager();
+        registerBloggerSettingsManager();
     };
 
     if (window.Alpine) {
