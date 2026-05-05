@@ -41,16 +41,7 @@
                 dragOverId: null,
                 formData: {
                     showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '', scripts: '',
-                    children: null,
-                    publicConfig: {
-                        enabled: false,
-                        publicPage: '',
-                        publicLabel: '',
-                        publicIcon: 'zap',
-                        publicTemplate: '',
-                        publicScript: '',
-                        dataSource: ''
-                    }
+                    children: null
                 },
 
                 async init() {
@@ -96,15 +87,6 @@
                         this.formData.children = template.children || null;
                         this.formData.databaseSchema = template.databaseSchema || null;
                         this.formData.databaseName = template.databaseName || '';
-                        this.formData.publicConfig = {
-                            enabled: (template.publicConfig && template.publicConfig.enabled) || false,
-                            publicPage: (template.publicConfig && template.publicConfig.publicPage) || '',
-                            publicLabel: (template.publicConfig && template.publicConfig.publicLabel) || '',
-                            publicIcon: (template.publicConfig && template.publicConfig.publicIcon) || 'zap',
-                            publicTemplate: (template.publicConfig && template.publicConfig.publicTemplate) || '',
-                            publicScript: (template.publicConfig && template.publicConfig.publicScript) || '',
-                            dataSource: (template.publicConfig && template.publicConfig.dataSource) || ''
-                        };
                     }
                 },
 
@@ -214,16 +196,7 @@
                     this.formData = {
                         id: '', name: '', url: '', actions: '', description: '', active: true,
                         showInMenu: false, menuLabel: '', menuIcon: 'zap', menuGroup: 'TOOLS', template: '',
-                        children: null,
-                        publicConfig: {
-                            enabled: false,
-                            publicPage: '',
-                            publicLabel: '',
-                            publicIcon: 'zap',
-                            publicTemplate: '',
-                            publicScript: '',
-                            dataSource: ''
-                        }
+                        children: null
                     };
                     this.modalOpen = true;
                 },
@@ -232,12 +205,6 @@
                     this.editMode = true;
                     // Deep clone or ensure publicConfig exists
                     this.formData = JSON.parse(JSON.stringify(plugin));
-                    if (!this.formData.publicConfig) {
-                        this.formData.publicConfig = {
-                            enabled: false, publicPage: '', publicLabel: '', publicIcon: 'zap',
-                            publicTemplate: '', publicScript: '', dataSource: ''
-                        };
-                    }
                     this.modalOpen = true;
                 },
 
