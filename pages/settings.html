@@ -15,11 +15,6 @@
             class="pb-3 text-sm font-semibold border-b-2 transition-all">
             Theme
         </button>
-        <button @click="activeTab = 'blogger'"
-            :class="activeTab === 'blogger' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
-            class="pb-3 text-sm font-semibold border-b-2 transition-all">
-            Public Blogger
-        </button>
         <button @click="activeTab = 'notifications'"
             :class="activeTab === 'notifications' ? 'border-brand-500 text-brand-500' : 'border-transparent text-gray-500 hover:text-gray-700'"
             class="pb-3 text-sm font-semibold border-b-2 transition-all">
@@ -282,6 +277,7 @@
                     </div>
                 </div>
 
+                <!-- Download Public Template -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h6 class="text-sm font-bold text-gray-800 dark:text-white">Download Public Template</h6>
@@ -308,53 +304,7 @@
         </div>
     </div>
 
-    <!-- Tab 3: Public Blogger Tab -->
-    <div x-show="!isLoading && activeTab === 'blogger'" x-transition x-cloak>
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-            <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Public Blogger Integration</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Konfigurasi ID dan URL untuk sinkronisasi konten dengan
-                Public Blogger.</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Blogger Blog
-                        ID</label>
-                    <input x-model="settings.blogId" type="text"
-                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                        placeholder="ID Blogspot">
-                </div>
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Main Database Page
-                        ID</label>
-                    <input x-model="settings.pageId" type="text"
-                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                        placeholder="ID Halaman /p/">
-                </div>
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">JSON-LD Schema Page
-                        ID</label>
-                    <input x-model="settings.pageIdJsonLd" type="text"
-                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                        placeholder="ID Halaman untuk Metadata JSON-LD">
-                </div>
-                <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Web URL</label>
-                    <input x-model="settings.webUrl" type="text"
-                        class="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                        placeholder="https://yourblog.blogspot.com">
-                </div>
-            </div>
-
-            <div class="mt-8 flex justify-end border-t border-gray-100 dark:border-gray-800 pt-6">
-                <button @click="saveBloggerSettings($el)"
-                    class="btn flex justify-center items-center rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 hover:scale-105">
-                    Save Blogger Settings
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab 4: Notifications -->
+    <!-- Tab 3: Notifications -->
     <div x-show="!isLoading && activeTab === 'notifications'" x-transition x-cloak>
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
             <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">Email Notifications</h4>
