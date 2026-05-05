@@ -102,7 +102,9 @@ window.appInitMixin = function () {
                         dbName: data.dbName || '',
                         sheetId: data.dbId || '',
                         siteKey: data.siteKey || '',
-                        pluginContentDbId: data.pluginContentDbId || ''
+                        pluginContentDbId: data.pluginContentDbId || '',
+                        blogId: data.blogId || '',
+                        pageId: data.pageId || ''
                     }));
                     console.log('Browser synchronized with server configuration.');
                 } else {

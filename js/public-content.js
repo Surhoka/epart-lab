@@ -566,6 +566,19 @@
                         console.log('Current albums:', res);
                         if (res?.status === 'success') {
                             this.albums = res.data || [];
+
+                            // Tambahkan Halaman Blogger sebagai root virtual album jika ada
+                            const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                            if (cache.pageId && !this.albums.find(a => a.id === cache.pageId)) {
+                                this.albums.unshift({
+                                    id: cache.pageId,
+                                    name: 'Blogger Database',
+                                    description: 'Main album from Blogger Page',
+                                    active: true,
+                                    parentid: ''
+                                });
+                            }
+
                             console.log('Loaded albums:', this.albums.length, 'albums');
                             if (!this.selectedAlbumId && this.albums.length) {
                                 this.selectAlbum(this.albums[0].id);
@@ -2020,6 +2033,12 @@
                         window.setButtonLoading?.(button, false);
                         if (res.status === 'success') {
                             showToast('Pengaturan Blogger berhasil disimpan');
+
+                            // Perbarui cache lokal agar komponen lain (Album Manager) langsung sinkron
+                            const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                            Object.assign(cache, this.config);
+                            localStorage.setItem('EzypartsConfig', JSON.stringify(cache));
+
                             // Update window variable
                             window.bloggerSettings = this.config;
                         } else {
