@@ -514,6 +514,21 @@
 
                     await this.fetchAlbums(); // Pastikan daftar album di-fetch saat mulai
 
+                    // [FIX] Pastikan webUrl tersedia di cache untuk Sync Metadata
+                    if (!cache.webUrl) {
+                        window.sendDataToGoogle('get_settings', { dbId: this.dbId }, (res) => {
+                            if (res.status === 'success') {
+                                const settings = {
+                                    blogId: res.blogId || '',
+                                    pageId: res.pageId || '',
+                                    webUrl: res.webUrl || ''
+                                };
+                                Object.assign(cache, settings);
+                                localStorage.setItem('EzypartsConfig', JSON.stringify(cache));
+                            }
+                        });
+                    }
+
                     if (this.selectedAlbumId) {
                         await this.fetchAlbumFiles(this.selectedAlbumId);
                     } else {
@@ -2017,6 +2032,11 @@
                                 pageIdJsonLd: res.pageIdJsonLd || '',
                                 webUrl: res.webUrl || ''
                             };
+
+                            // [FIX] Perbarui cache lokal agar komponen lain (Album Manager) langsung sinkron
+                            const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
+                            Object.assign(cache, this.config);
+                            localStorage.setItem('EzypartsConfig', JSON.stringify(cache));
                         }
                     }, () => {
                         this.loading = false;
