@@ -376,6 +376,31 @@
                 <div
                     class="bg-white dark:bg-slate-900/50 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
 
+                    <!-- Post Mode (Artikel vs Comic) -->
+                    <div x-data="{ open: true }" class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span>Mode Konten</span>
+                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <div class="flex p-1 bg-gray-100 dark:bg-black/40 rounded-xl">
+                                <button @click="post.postMode = 'article'"
+                                    :class="post.postMode === 'article' ? 'bg-white dark:bg-gray-700 shadow-sm text-brand-600' : 'text-gray-500'"
+                                    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all">
+                                    Artikel
+                                </button>
+                                <button @click="post.postMode = 'comic'"
+                                    :class="post.postMode === 'comic' ? 'bg-white dark:bg-gray-700 shadow-sm text-brand-600' : 'text-gray-500'"
+                                    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all">
+                                    Comic
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Featured Image -->
                     <div x-data="{ open: true }" class="group">
                         <button @click="open = !open"
