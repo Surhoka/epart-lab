@@ -939,7 +939,6 @@
                     marqueetext: '', marqueeactive: true
                 },
                 isLoading: false,
-                isUploading: false,
                 submitting: false,
 
                 async init() {
@@ -956,29 +955,6 @@
 
                 async saveConfig() {
                     showToast('Konfigurasi ini sudah tidak digunakan. Gunakan menu Branding.', 'warning');
-                },
-
-                handleLogoUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    if (!file.type.startsWith('image/')) { showToast('File harus berupa gambar', 'warning'); return; }
-                    this.isUploading = true;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        window.sendDataToGoogle('uploadImageAndGetUrl', {
-                            fileName: `logo-${Date.now()}-${file.name}`,
-                            fileData: e.target.result,
-                            fileType: file.type,
-                            dbId: this.dbId,
-                            blogId: getBlogId() // Tambahkan blogId
-                        }, (res) => {
-                            this.isUploading = false;
-                            if (res?.status === 'success') { this.formData.logourl = res.url; showToast('Logo berhasil diupload'); }
-                            else showToast('Gagal upload: ' + (res?.message || ''), 'error');
-                        }, () => { this.isUploading = false; showToast('Gagal upload logo', 'error'); });
-                    };
-                    reader.readAsDataURL(file);
-                    event.target.value = '';
                 }
             }));
         }
