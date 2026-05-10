@@ -1087,7 +1087,8 @@
                     commentOption: 'allow',
                     dateMode: 'auto',
                     publishDate: '',
-                    permalinkMode: 'auto'
+                    permalinkMode: 'auto',
+                    postMode: 'article'
                 },
                 post: {},
                 posts: [],
@@ -1204,6 +1205,7 @@
                                     location: p.location,
                                     publishDate: p.publishdate,
                                     commentOption: p.commentoption,
+                                    postMode: p.postmode || 'article',
                                     permalinkMode: p.permalinkmode,
                                     date: this.formatDate(p.datecreated),
                                     lastModified: p.lastmodified,
@@ -1304,6 +1306,24 @@
                     // Menambahkan atribut draggable dan cursor pointer agar user tahu ini bisa berinteraksi
                     const imgHtml = `<img src="${url}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Image" />`;
                     document.execCommand('insertHTML', false, imgHtml);
+                },
+
+                insertBulkImages(urlText) {
+                    if (!urlText || !urlText.trim()) {
+                        showToast('Silakan masukkan daftar URL gambar', 'warning');
+                        return;
+                    }
+                    const urls = urlText.split('\n').map(u => u.trim()).filter(Boolean);
+                    if (urls.length === 0) return;
+
+                    this.restoreSelection();
+                    let html = '';
+                    urls.forEach(url => {
+                        html += `<img src="${url}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Comic Page" />`;
+                    });
+
+                    document.execCommand('insertHTML', false, html);
+                    showToast(`${urls.length} gambar ditambahkan`, 'success');
                 },
 
                 editImageInContent(imgElement) {
@@ -1437,7 +1457,8 @@
                         commentOption: item.commentOption || item.CommentOption || 'allow',
                         dateMode: (item.publishDate || item.PublishDate) ? 'custom' : 'auto',
                         publishDate: item.publishDate || item.PublishDate || '',
-                        permalinkMode: item.permalinkMode || item.PermalinkMode || 'auto'
+                        permalinkMode: item.permalinkMode || item.PermalinkMode || 'auto',
+                        postMode: item.postMode || item.PostMode || 'article'
                     };
                     this._switchToEditor(normalizedPost);
                 },
