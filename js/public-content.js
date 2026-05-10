@@ -1395,7 +1395,7 @@
                             const images = Array.from(doc.querySelectorAll('img')).map(img => img.src).filter(src => src && !src.startsWith('data:'));
 
                             if (images.length > 0) {
-                                contentHtml += `\n<script type="application/ld+json">\n${JSON.stringify(this._generateComicJsonLd(images), null, 2)}\n</script>`;
+                                contentHtml += `\n<script type="application/ld+json">${JSON.stringify(this._generateComicJsonLd(images))}</script>`;
                             }
                         }
                         this.post.content = contentHtml;
