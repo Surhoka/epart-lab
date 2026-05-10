@@ -1063,6 +1063,7 @@
                     commentOption: 'allow',
                     dateMode: 'auto',
                     publishDate: '',
+                    dateCreated: '',
                     permalinkMode: 'auto',
                     postMode: 'article'
                 },
@@ -1181,6 +1182,7 @@
                                     image: p.image,
                                     location: p.location,
                                     publishDate: p.publishdate,
+                                    dateCreated: p.datecreated,
                                     commentOption: p.commentoption,
                                     postMode: p.postmode || 'article',
                                     permalinkMode: p.permalinkmode,
@@ -1428,6 +1430,24 @@
                     if (!html) return [];
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
+
+                    // Prioritas 1: Ambil dari JSON-LD (Data paling akurat & terstruktur)
+                    const jsonLdScript = doc.querySelector('script[type="application/ld+json"]');
+                    if (jsonLdScript) {
+                        try {
+                            const data = JSON.parse(jsonLdScript.textContent);
+                            const images = data.image || data.Image;
+                            if (Array.isArray(images)) {
+                                return images.filter(src => src && !src.startsWith('data:'));
+                            } else if (typeof images === 'string') {
+                                return [images];
+                            }
+                        } catch (e) {
+                            console.warn("Gagal memproses JSON-LD untuk halaman komik:", e);
+                        }
+                    }
+
+                    // Prioritas 2: Fallback ke tag <img> standar (Jika JSON-LD tidak ditemukan)
                     return Array.from(doc.querySelectorAll('img'))
                         .map(img => img.src)
                         .filter(src => src && !src.startsWith('data:'));
