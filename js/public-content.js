@@ -1096,6 +1096,7 @@
                 isSyncing: false,
                 currentPage: 1,
                 itemsPerPage: 10,
+                comicPageUrls: [''],
 
                 get totalPages() {
                     return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
@@ -1306,6 +1307,29 @@
                     // Menambahkan atribut draggable dan cursor pointer agar user tahu ini bisa berinteraksi
                     const imgHtml = `<img src="${url}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Image" />`;
                     document.execCommand('insertHTML', false, imgHtml);
+                },
+
+                addComicPageField() {
+                    this.comicPageUrls.push('');
+                },
+                removeComicPageField(index) {
+                    this.comicPageUrls.splice(index, 1);
+                    if (this.comicPageUrls.length === 0) this.comicPageUrls.push('');
+                },
+                insertComicPages() {
+                    const validUrls = this.comicPageUrls.filter(u => u && u.trim() !== '');
+                    if (validUrls.length === 0) {
+                        showToast('Silakan masukkan minimal satu URL gambar', 'warning');
+                        return;
+                    }
+                    this.restoreSelection();
+                    let html = '';
+                    validUrls.forEach(url => {
+                        html += `<img src="${url.trim()}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Comic Page" />`;
+                    });
+                    document.execCommand('insertHTML', false, html);
+                    showToast(`${validUrls.length} halaman ditambahkan`, 'success');
+                    this.comicPageUrls = [''];
                 },
 
                 insertBulkImages(urlText) {
