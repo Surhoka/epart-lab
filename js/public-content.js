@@ -1424,6 +1424,15 @@
                     this.fetchPosts();
                 },
 
+                extractImageUrls(html) {
+                    if (!html) return [];
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    return Array.from(doc.querySelectorAll('img'))
+                        .map(img => img.src)
+                        .filter(src => src && !src.startsWith('data:'));
+                },
+
                 _switchToEditor(postData) {
                     this.post = postData;
                     this.activeTab = 'editor';
@@ -1460,12 +1469,22 @@
                         permalinkMode: item.permalinkMode || item.PermalinkMode || 'auto',
                         postMode: item.postMode || item.PostMode || 'article'
                     };
+
+                    // Kembalikan URL gambar ke sidebar jika dalam mode komik
+                    if (normalizedPost.postMode === 'comic') {
+                        const extractedUrls = this.extractImageUrls(normalizedPost.content);
+                        this.comicPageUrls = extractedUrls.length > 0 ? extractedUrls : [''];
+                    } else {
+                        this.comicPageUrls = [''];
+                    }
+
                     this._switchToEditor(normalizedPost);
                 },
 
                 cancelEditor() {
                     this.activeTab = 'list';
                     this.post = JSON.parse(JSON.stringify(this.defaultPost));
+                    this.comicPageUrls = [''];
                     setTimeout(() => {
                         const editorBody = document.getElementById('classic-editor-body');
                         if (editorBody) editorBody.innerHTML = '';
@@ -1473,6 +1492,7 @@
                 },
 
                 newPost() {
+                    this.comicPageUrls = [''];
                     this._switchToEditor(JSON.parse(JSON.stringify(this.defaultPost)));
                 },
 
