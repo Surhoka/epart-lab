@@ -87,7 +87,8 @@
                         <th class="px-6 py-4">Title</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Labels</th>
-                        <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4">Created</th>
+                        <th class="px-6 py-4">Modified</th>
                         <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -140,7 +141,8 @@
                                         x-text="'+' + (p.category.length - 2)"></span>
                                 </div>
                             </td>
-                            <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="p.date"></td>
+                            <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="formatDate(p.dateCreated)"></td>
+                            <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="formatDate(p.lastModified)"></td>
                             <td class="px-6 py-5 text-right space-x-2">
                                 <div class="flex items-center justify-end gap-2">
                                     <button type="button" @click.prevent="editPost(p)"
