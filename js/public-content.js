@@ -1381,7 +1381,26 @@
                     if (btn) window.setButtonLoading?.(btn, true);
 
                     const editorBody = document.getElementById('classic-editor-body');
-                    if (editorBody) this.post.content = editorBody.innerHTML;
+                    if (editorBody) {
+                        let contentHtml = editorBody.innerHTML;
+
+                        // Jika Mode Comic, bersihkan JSON-LD lama dan buat yang baru secara otomatis
+                        if (this.post.postMode === 'comic') {
+                            // Hapus script JSON-LD lama agar tidak terjadi duplikasi data di konten
+                            contentHtml = contentHtml.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '').trim();
+
+                            // Ekstrak URL gambar terbaru dari apa yang ada di dalam editor saat ini
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(contentHtml, 'text/html');
+                            const images = Array.from(doc.querySelectorAll('img')).map(img => img.src).filter(src => src && !src.startsWith('data:'));
+
+                            if (images.length > 0) {
+                                contentHtml += `\n<script type="application/ld+json">\n${JSON.stringify(this._generateComicJsonLd(images), null, 2)}\n</script>`;
+                            }
+                        }
+                        this.post.content = contentHtml;
+                    }
+
                     if (!this.post.id) this.post.dateCreated = new Date().toISOString();
 
                     const payload = { ...this.post, dbId: getDbId(), blogId: getBlogId() };
@@ -1402,6 +1421,22 @@
                             resolve();
                         }, () => { if (btn) window.setButtonLoading?.(btn, false); resolve(); });
                     });
+                },
+
+                // Helper untuk membuat struktur JSON-LD yang valid untuk SEO & Parser Blogger
+                _generateComicJsonLd(imageUrls) {
+                    return {
+                        "@context": "https://schema.org",
+                        "@type": "BlogPosting",
+                        "headline": this.post.title,
+                        "image": imageUrls,
+                        "description": `Baca komik ${this.post.title} terbaru secara online dengan kualitas HD.`,
+                        "datePublished": this.post.publishDate || new Date().toISOString(),
+                        "author": {
+                            "@type": "Person",
+                            "name": "Admin"
+                        }
+                    };
                 },
 
                 async deletePost(id) {
