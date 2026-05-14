@@ -1184,12 +1184,10 @@
                     const topPos = Math.max(100, scrollTop + 100);
                     
                     const html = `
-                        <div class="speech-bubble" data-id="${id}" style="position: absolute; top: ${topPos}px; left: 50%; transform: translateX(-50%); z-index: 100; min-width: 120px; width: auto;" contenteditable="false">
-                            <div class="bubble-content" contenteditable="true" style="background: white; border: 3px solid black; border-radius: 50% / 30%; padding: 15px 20px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 14px; line-height: 1.2; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); cursor: text;">
+                        <div class="speech-bubble" data-id="${id}" style="position: absolute; top: ${topPos}px; left: 50%; transform: translateX(-50%); z-index: 100; min-width: 80px; width: auto;" contenteditable="false">
+                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: 5px 10px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 16px; line-height: 1.2; text-align: center; min-height: 30px; cursor: text;">
                                 Teks...
                             </div>
-                            <div class="bubble-tail" style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid black; margin: -2px 0 0 30px; pointer-events: none;"></div>
-                            <div class="bubble-tail-inner" style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 14px solid white; margin: -18px 0 0 34px; pointer-events: none;"></div>
                         </div>
                     `;
                     editor.insertAdjacentHTML('beforeend', html);
