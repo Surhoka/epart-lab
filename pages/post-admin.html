@@ -15,8 +15,8 @@
         }
 
         .speech-bubble {
-            cursor: move;
-            user-select: none;
+            cursor: default;
+            user-select: text;
             transition: transform 0.1s;
         }
 
@@ -27,6 +27,11 @@
         .speech-bubble.dragging {
             opacity: 0.8;
             z-index: 1000;
+        }
+
+        .drag-handle {
+            cursor: move !important;
+            user-select: none !important;
         }
 
         .comic-text-box {
@@ -45,6 +50,7 @@
             background-color: rgba(255, 255, 255, 0.95);
             border: 1px dashed #3b82f6;
             outline: none;
+            user-select: text;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
