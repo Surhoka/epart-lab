@@ -67,11 +67,11 @@
     <div class="tab-nav-container tab-nav-borderless mb-6">
         <button type="button" @click="activeTab = 'list'" :class="{ 'active': activeTab === 'list' }"
             class="tab-nav-btn">
-            <span class="w-4 h-4" x-icon="'table'"></span> Posts
+            <span class="block w-4 h-4" x-icon="'table'"></span> Posts
         </button>
         <button type="button" @click="activeTab = 'editor'" :class="{ 'active': activeTab === 'editor' }"
             class="tab-nav-btn">
-            <span class="w-4 h-4" x-icon="'pencil'"></span> Editor
+            <span class="block w-4 h-4" x-icon="'pencil'"></span> Editor
         </button>
     </div>
 
@@ -83,7 +83,7 @@
                 <!-- Bulk Sync Button -->
                 <button type="button" @click.prevent="syncAllToBlogger()" :disabled="isSyncing"
                     class="btn border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span x-show="!isSyncing" class="w-4 h-4 mr-1" x-icon="'refresh'"></span>
+                    <span x-show="!isSyncing" class="block w-4 h-4 mr-1" x-icon="'refresh'"></span>
                     <div x-show="isSyncing"
                         class="w-4 h-4 mr-1 animate-spin rounded-full border-2 border-gray-300 border-t-brand-500">
                     </div>
@@ -91,7 +91,7 @@
                 </button>
 
                 <button type="button" @click.prevent="newPost()" class="btn btn-primary">
-                    <span class="w-4 h-4" x-icon="'plus'"></span>
+                    <span class="block w-4 h-4" x-icon="'plus'"></span>
                     Create New Post
                 </button>
             </div>
@@ -105,116 +105,176 @@
                 <span class="text-sm font-bold"><span x-text="selectedPostIds.length"></span> item(s) selected</span>
                 <div class="h-6 w-px bg-slate-700"></div>
                 <button @click="bulkDelete()" class="flex items-center gap-2 text-sm text-gray-300 hover:text-white">
-                    <span class="h-4 w-4" x-icon="'trash'"></span> Delete
+                    <span class="block h-4 w-4" x-icon="'trash'"></span> Delete
                 </button>
             </div>
         </div>
 
-        <!-- Dashboard Table -->
-        <div
-            class="rounded-lg border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr
-                        class="bg-gray-50/50 dark:bg-black/20 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                        <th class="w-4 px-6 py-4">
-                            <input @change="selectAll($event)"
-                                class="rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800"
-                                type="checkbox" />
-                        </th>
-                        <th class="px-6 py-4">Title</th>
-                        <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4">Labels</th>
-                        <th class="px-6 py-4">Created</th>
-                        <th class="px-6 py-4">Modified</th>
-                        <th class="px-6 py-4 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <template x-if="isLoading">
-                        <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-gray-400">Loading posts...</td>
-                        </tr>
-                    </template>
-                    <template x-if="!isLoading && posts.length === 0">
-                        <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-gray-400">No posts found. Create your
-                                first post!</td>
-                        </tr>
-                    </template>
-                    <template x-for="p in paginatedPosts" :key="p.id">
-                        <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
-                            :class="{'bg-brand-50/50 dark:bg-brand-900/10': p.selected}">
-                            <td class="w-4 px-6 py-5">
-                                <input x-model="p.selected"
+        <!-- Dashboard Content -->
+        <div class="space-y-4">
+            <!-- Desktop Table View -->
+            <div
+                class="hidden md:block rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr
+                            class="bg-gray-50/50 dark:bg-black/20 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                            <th class="w-4 px-6 py-4">
+                                <input @change="selectAll($event)"
                                     class="rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800"
                                     type="checkbox" />
-                            </td>
-                            <td class="px-6 py-5">
-                                <div class="font-bold text-gray-900 dark:text-white" x-text="p.title || '[No Title]'">
-                                </div>
-                                <div class="text-[10px] text-gray-400 mt-0.5"
-                                    x-text="publicBlogUrl ? (publicBlogUrl + '/posts/' + siteKey + '/' + p.slug) : p.slug">
-                                </div>
-                            </td>
-                            <td class="px-6 py-5">
-                                <span
-                                    :class="p.status === 'Published' ? 'bg-success-50 text-success-600 dark:bg-success-900/20' : 'bg-gray-50 text-gray-600 dark:bg-white/5'"
-                                    class="rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
-                                    <span x-text="p.status"></span>
-                                </span>
-                            </td>
-                            <td class="px-6 py-5">
-                                <div class="flex flex-wrap gap-1 max-w-[200px]">
-                                    <template x-if="p.category && p.category.length > 0">
-                                        <template x-for="cat in p.category.slice(0, 2)">
-                                            <span
-                                                class="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-400"
-                                                x-text="cat"></span>
-                                        </template>
-                                    </template>
-                                    <span x-show="!(p.category && p.category.length > 0)"
-                                        class="text-gray-400 text-xs">-</span>
-                                    <span x-show="p.category && p.category.length > 2" class="text-gray-400 text-xs"
-                                        x-text="'+' + (p.category.length - 2)"></span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="formatDate(p.dateCreated)">
-                            </td>
-                            <td class="px-6 py-5 text-sm font-medium text-gray-500" x-text="formatDate(p.lastModified)">
-                            </td>
-                            <td class="px-6 py-5 text-right space-x-2">
-                                <div class="flex items-center justify-end gap-2">
-                                    <button type="button" @click.prevent="editPost(p)"
-                                        class="rounded-lg p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
-                                        <span class="block w-4 h-4" x-icon="'pencil'"></span>
-                                    </button>
-                                    <button type="button" @click.prevent="deletePost(p.id)"
-                                        class="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                        <span class="block w-4 h-4" x-icon="'trash'"></span>
-                                    </button>
-                                </div>
-                            </td>
+                            </th>
+                            <th class="px-6 py-4">Title</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Labels</th>
+                            <th class="px-6 py-4">Created</th>
+                            <th class="px-6 py-4">Modified</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        <template x-if="isLoading">
+                            <tr>
+                                <td colspan="7" class="px-6 py-10 text-center text-gray-400">Loading posts...</td>
+                            </tr>
+                        </template>
+                        <template x-if="!isLoading && posts.length === 0">
+                            <tr>
+                                <td colspan="7" class="px-6 py-10 text-center text-gray-400">No posts found. Create your
+                                    first post!</td>
+                            </tr>
+                        </template>
+                        <template x-for="p in paginatedPosts" :key="p.id">
+                            <tr class="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
+                                :class="{'bg-brand-50/50 dark:bg-brand-900/10': p.selected}">
+                                <td class="w-4 px-6 py-5">
+                                    <input x-model="p.selected"
+                                        class="rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800"
+                                        type="checkbox" />
+                                </td>
+                                <td class="px-6 py-5">
+                                    <div class="font-bold text-gray-900 dark:text-white"
+                                        x-text="p.title || '[No Title]'">
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5"
+                                        x-text="publicBlogUrl ? (publicBlogUrl + '/posts/' + siteKey + '/' + p.slug) : p.slug">
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5">
+                                    <span
+                                        :class="p.status === 'Published' ? 'bg-success-50 text-success-600 dark:bg-success-900/20' : 'bg-gray-50 text-gray-600 dark:bg-white/5'"
+                                        class="rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
+                                        <span x-text="p.status"></span>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-5">
+                                    <div class="flex flex-wrap gap-1 max-w-[200px]">
+                                        <template x-if="p.category && p.category.length > 0">
+                                            <template x-for="cat in p.category.slice(0, 2)">
+                                                <span
+                                                    class="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-400"
+                                                    x-text="cat"></span>
+                                            </template>
+                                        </template>
+                                        <span x-show="!(p.category && p.category.length > 0)"
+                                            class="text-gray-400 text-xs">-</span>
+                                        <span x-show="p.category && p.category.length > 2" class="text-gray-400 text-xs"
+                                            x-text="'+' + (p.category.length - 2)"></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 text-sm font-medium text-gray-500"
+                                    x-text="formatDate(p.dateCreated)">
+                                </td>
+                                <td class="px-6 py-5 text-sm font-medium text-gray-500"
+                                    x-text="formatDate(p.lastModified)">
+                                </td>
+                                <td class="px-6 py-5 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button type="button" @click.prevent="editPost(p)"
+                                            class="rounded-lg p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                                            <span class="block w-4 h-4" x-icon="'pencil'"></span>
+                                        </button>
+                                        <button type="button" @click.prevent="deletePost(p.id)"
+                                            class="rounded-lg p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                            <span class="block w-4 h-4" x-icon="'trash'"></span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="md:hidden space-y-3">
+                <template x-if="isLoading">
+                    <div class="py-10 text-center text-gray-400">Loading posts...</div>
+                </template>
+                <template x-if="!isLoading && posts.length === 0">
+                    <div class="py-10 text-center text-gray-400">No posts found.</div>
+                </template>
+                <template x-for="p in paginatedPosts" :key="p.id">
+                    <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                        :class="{'ring-2 ring-brand-500/20 bg-brand-50/10': p.selected}">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start gap-3 min-w-0">
+                                <input x-model="p.selected" type="checkbox"
+                                    class="mt-1 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-slate-800" />
+                                <div class="min-w-0">
+                                    <div class="font-bold text-gray-900 dark:text-white truncate"
+                                        x-text="p.title || '[No Title]'"></div>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 truncate" x-text="p.slug"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button @click="editPost(p)" class="p-1.5 text-gray-400 hover:text-brand-500"><span
+                                        class="w-4 h-4 block" x-icon="'pencil'"></span></button>
+                                <button @click="deletePost(p.id)" class="p-1.5 text-gray-400 hover:text-red-500"><span
+                                        class="w-4 h-4 block" x-icon="'trash'"></span></button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+                            <span
+                                :class="p.status === 'Published' ? 'bg-success-50 text-success-600 dark:bg-success-900/20' : 'bg-gray-50 text-gray-600 dark:bg-white/5'"
+                                class="rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                                x-text="p.status"></span>
+                            <div class="text-[10px] text-gray-500 text-right">
+                                <div class="font-medium">Mod: <span x-text="formatDate(p.lastModified)"></span></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 flex flex-wrap gap-1" x-show="p.category && p.category.length > 0">
+                            <template x-for="cat in p.category">
+                                <span
+                                    class="rounded-md bg-gray-100 px-2 py-0.5 text-[9px] font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-400"
+                                    x-text="cat"></span>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
 
             <!-- Pagination -->
-            <div class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-gray-800"
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 px-6 py-4 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl shadow-sm"
                 x-show="posts.length > 0">
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Showing <span x-text="(currentPage - 1) * itemsPerPage + 1"></span> to <span
-                        x-text="Math.min(currentPage * itemsPerPage, posts.length)"></span> of <span
-                        x-text="posts.length"></span> results
+                    Showing <span class="font-bold text-gray-900 dark:text-white"
+                        x-text="(currentPage - 1) * itemsPerPage + 1"></span>
+                    to <span class="font-bold text-gray-900 dark:text-white"
+                        x-text="Math.min(currentPage * itemsPerPage, posts.length)"></span>
+                    of <span class="font-bold text-gray-900 dark:text-white" x-text="posts.length"></span> results
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="button" @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1"
-                        class="btn btn-outline btn-sm">
+                    <button type="button"
+                        @click="currentPage > 1 ? (currentPage--, window.scrollTo({top:0, behavior:'smooth'})) : null"
+                        :disabled="currentPage === 1" class="btn btn-outline btn-sm px-4">
                         Previous
                     </button>
-                    <button type="button" @click="currentPage < totalPages ? currentPage++ : null"
-                        :disabled="currentPage === totalPages" class="btn btn-outline btn-sm">
+                    <button type="button"
+                        @click="currentPage < totalPages ? (currentPage++, window.scrollTo({top:0, behavior:'smooth'})) : null"
+                        :disabled="currentPage === totalPages" class="btn btn-outline btn-sm px-4">
                         Next
                     </button>
                 </div>
@@ -236,25 +296,25 @@
                     x-data="{ open: false }">
                     <button type="button" @click="saveDraft()" id="btn-save-draft"
                         class="group flex items-center gap-2 rounded-l-2xl px-4 py-3 text-sm font-bold text-gray-600 transition-all hover:bg-gray-50 active:scale-95 dark:text-gray-400 dark:hover:bg-white/10">
-                        <span class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
+                        <span class="block w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
                             x-icon="'refresh'"></span>
                         Save Draft
                     </button>
                     <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
                     <button type="button" @click="open = !open" @click.outside="open = false"
                         class="flex h-full items-center justify-center rounded-r-2xl px-3 text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/10">
-                        <span class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
+                        <span class="block w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
                             x-icon="'chevron-down'"></span>
                     </button>
                     <div x-show="open" x-transition
                         class="absolute top-full right-0 mt-2 w-40 rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl dark:border-gray-800 dark:bg-gray-900 z-50">
                         <button type="button" @click="cancelEditor(); open = false"
                             class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"><span
-                                class="w-4 h-4" x-icon="'close'"></span>Cancel</button>
+                                class="block w-4 h-4" x-icon="'close'"></span>Cancel</button>
                     </div>
                 </div>
                 <button type="button" @click="publishPost()" id="btn-publish-post" class="btn btn-primary px-8">
-                    <span class="w-4 h-4" x-icon="'zap'"></span>
+                    <span class="block w-4 h-4" x-icon="'zap'"></span>
                     Publish
                 </button>
             </div>
@@ -276,12 +336,12 @@
                         <div class="flex items-center gap-1 mr-1">
                             <button @click="execCommand('undo')"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'undo'"></span>
+                                    class="block w-4 h-4" x-icon="'undo'"></span>
                                 <div class="tooltip">Undo</div>
                             </button>
                             <button @click="execCommand('redo')"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'redo'"></span>
+                                    class="block w-4 h-4" x-icon="'redo'"></span>
                                 <div class="tooltip">Redo</div>
                             </button>
                         </div>
@@ -327,7 +387,7 @@
                         <div class="flex items-center gap-0.5 px-1" x-show="post.postMode === 'comic'">
                             <button @click="insertComicText()"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'type'"></span>
+                                    class="block w-4 h-4" x-icon="'type'"></span>
                                 <div class="tooltip">Insert Text</div>
                             </button>
                         </div>
@@ -360,7 +420,7 @@
                         <div class="flex items-center gap-0.5">
                             <button @click="insertLink()"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'link'"></span>
+                                    class="block w-4 h-4" x-icon="'link'"></span>
                                 <div class="tooltip">Insert Link</div>
                             </button>
                         </div>
@@ -372,7 +432,7 @@
                             <template x-for="tool in formattingTools">
                                 <button @click="execCommand(tool.cmd)"
                                     class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white">
-                                    <span class="w-4 h-4" x-icon="tool.icon"></span>
+                                    <span class="block w-4 h-4" x-icon="tool.icon"></span>
                                     <div class="tooltip" x-text="tool.label"></div>
                                 </button>
                             </template>
@@ -384,17 +444,17 @@
                         <div class="flex items-center gap-0.5">
                             <button @click="execCommand('justifyLeft')"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'align-left'"></span>
+                                    class="block w-4 h-4" x-icon="'align-left'"></span>
                                 <div class="tooltip">Align Left</div>
                             </button>
                             <button @click="execCommand('justifyCenter')"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'align-center'"></span>
+                                    class="block w-4 h-4" x-icon="'align-center'"></span>
                                 <div class="tooltip">Align Center</div>
                             </button>
                             <button @click="execCommand('justifyRight')"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"><span
-                                    class="w-4 h-4" x-icon="'align-right'"></span>
+                                    class="block w-4 h-4" x-icon="'align-right'"></span>
                                 <div class="tooltip">Align Right</div>
                             </button>
                         </div>
@@ -404,8 +464,7 @@
                     <div class="p-10">
                         <div id="classic-editor-body" x-ref="editor" contenteditable="true"
                             class="prose prose-lg prose-slate dark:prose-invert max-w-none h-[500px] overflow-y-auto custom-scrollbar focus:outline-none [&_p]:mb-4 [&_h1]:text-4xl [&_h2]:text-3xl [&_h3]:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
-                            style="container-type: inline-size;"
-                            placeholder="Start telling your story...">
+                            style="container-type: inline-size;" placeholder="Start telling your story...">
                         </div>
 
                         <!-- Info Overlay -->
@@ -434,7 +493,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Mode Konten</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -459,7 +518,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Gambar Utama</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -471,14 +530,14 @@
                                         <img :src="post.image" class="w-full h-full object-cover">
                                         <button @click="post.image = ''"
                                             class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity">
-                                            <span class="w-3 h-3" x-icon="'trash'"></span>
+                                            <span class="block w-3 h-3" x-icon="'trash'"></span>
                                         </button>
                                     </div>
                                 </template>
                                 <template x-if="!post.image">
                                     <div
                                         class="w-full flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-black/30">
-                                        <span class="w-8 h-8 text-gray-400 mb-2" x-icon="'image'"></span>
+                                        <span class="block w-8 h-8 text-gray-400 mb-2" x-icon="'image'"></span>
                                         <span
                                             class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center px-4">Belum
                                             ada gambar utama.<br>Gunakan salinan URL Album.</span>
@@ -502,10 +561,10 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span class="flex items-center gap-2">
-                                <span class="w-4 h-4 text-brand-500" x-icon="'image'"></span>
+                                <span class="block w-4 h-4 text-brand-500" x-icon="'image'"></span>
                                 <span>Susun Halaman Komik</span>
                             </span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -526,19 +585,19 @@
                                             </div>
                                             <button type="button" @click="removeComicPageField(index)"
                                                 class="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                                                <span class="w-3.5 h-3.5" x-icon="'trash'"></span>
+                                                <span class="block w-3.5 h-3.5" x-icon="'trash'"></span>
                                             </button>
                                         </div>
                                     </template>
                                 </div>
                                 <button type="button" @click="addComicPageField()"
                                     class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-2 text-[10px] font-bold text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5 transition-all">
-                                    <span class="w-3 h-3" x-icon="'plus'"></span>
+                                    <span class="block w-3 h-3" x-icon="'plus'"></span>
                                     Tambah Baris Halaman
                                 </button>
                                 <button type="button" @click="insertComicPages()"
                                     class="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 py-2 text-xs font-bold text-white hover:bg-brand-600 transition-all active:scale-95 shadow-lg shadow-brand-500/20">
-                                    <span class="w-4 h-4" x-icon="'plus'"></span>
+                                    <span class="block w-4 h-4" x-icon="'plus'"></span>
                                     Masukkan ke Editor
                                 </button>
                             </div>
@@ -550,7 +609,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Label</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -563,7 +622,7 @@
                                     <button type="button"
                                         @click="if(newLabel.trim()){ addCategory(newLabel); newLabel=''; }"
                                         class="flex items-center justify-center rounded-lg bg-brand-500 px-3 text-white hover:bg-brand-600 transition-colors">
-                                        <span class="w-4 h-4" x-icon="'plus'"></span>
+                                        <span class="block w-4 h-4" x-icon="'plus'"></span>
                                     </button>
                                 </div>
                                 <div class="max-h-[150px] overflow-y-auto custom-scrollbar space-y-1">
@@ -586,7 +645,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Genre</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -606,7 +665,7 @@
                                 <span class="text-[10px] text-gray-400 font-normal mt-0.5"
                                     x-text="post.dateMode === 'auto' ? 'Otomatis' : (post.publishDate ? new Date(post.publishDate).toLocaleString('id-ID') : 'Belum disetel')"></span>
                             </div>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="accordion.date ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="accordion.date" x-transition
@@ -652,14 +711,14 @@
                                             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                                             <button type="button" @click="prevMonth()"
                                                 class="flatpickr-compact-nav-btn p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded transition-colors">
-                                                <span class="w-5 h-5 text-gray-600 dark:text-gray-400"
+                                                <span class="block w-5 h-5 text-gray-600 dark:text-gray-400"
                                                     x-icon="'chevron-left'"></span>
                                             </button>
                                             <div class="flatpickr-compact-month-label text-sm font-semibold text-gray-900 dark:text-white"
                                                 x-ref="compactMonthLabel">Januari 2026</div>
                                             <button type="button" @click="nextMonth()"
                                                 class="flatpickr-compact-nav-btn p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded transition-colors">
-                                                <span class="w-5 h-5 text-gray-600 dark:text-gray-400"
+                                                <span class="block w-5 h-5 text-gray-600 dark:text-gray-400"
                                                     x-icon="'chevron-right'"></span>
                                             </button>
                                         </div>
@@ -679,7 +738,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Permalink</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -708,7 +767,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Lokasi</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -723,7 +782,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span>Opsi</span>
-                            <span class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
                         </button>
                         <div x-show="open" x-transition
@@ -776,7 +835,7 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Pengaturan Gambar</h3>
                 <button type="button" @click="closeImageSettings()"
                     class="text-gray-400 hover:text-gray-500 transition-colors">
-                    <span class="w-5 h-5 block" x-icon="'close'"></span>
+                    <span class="block w-5 h-5 block" x-icon="'close'"></span>
                 </button>
             </div>
             <div class="p-6 space-y-4">
@@ -796,7 +855,7 @@
                 <button type="button" @click="removeSelectedImage()"
                     class="rounded-lg border border-red-200 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 hover:border-red-300 transition-colors dark:border-red-900/30 dark:hover:bg-red-900/20">
                     <div class="flex items-center gap-1.5">
-                        <span class="w-4 h-4 block" x-icon="'trash'"></span>
+                        <span class="block w-4 h-4" x-icon="'trash'"></span>
                         Hapus
                     </div>
                 </button>
