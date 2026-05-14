@@ -1175,31 +1175,37 @@
                     }
                 },
 
-                insertSpeechBubble() {
+                insertComicText() {
                     const editor = document.getElementById('classic-editor-body');
                     if (!editor) return;
                     
-                    const id = 'bubble-' + Date.now();
+                    const id = 'comic-text-' + Date.now();
                     const scrollTop = editor.scrollTop || 0;
                     const topPos = Math.max(100, scrollTop + 100);
                     
                     const html = `
-                        <div class="speech-bubble" data-id="${id}" style="position: absolute; top: ${topPos}px; left: 50%; transform: translateX(-50%); z-index: 100; min-width: 80px; width: auto;" contenteditable="false">
-                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: 5px 10px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 16px; line-height: 1.2; text-align: center; min-height: 30px; cursor: text;">
-                                Teks...
+                        <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topPos}px; left: 100px; z-index: 100; min-width: 80px; width: 150px;" contenteditable="false">
+                            <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
+                                ✥ Drag
+                            </div>
+                            <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
+                                &times;
+                            </button>
+                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: 5px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 16px; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: 100%; height: 100%; box-sizing: border-box;">
+                                Ketik teks...
                             </div>
                         </div>
                     `;
                     editor.insertAdjacentHTML('beforeend', html);
-                    showToast('Balon dialog ditambahkan. Drag untuk memindah posisi.', 'info');
+                    showToast('Teks ditambahkan. Gunakan label "Drag" di atas untuk memindah, dan sudut kanan bawah untuk resize.', 'info');
                 },
 
                 handleBubbleMouseDown(e) {
-                    const bubble = e.target.closest('.speech-bubble');
-                    if (!bubble) return;
+                    const dragHandle = e.target.closest('.drag-handle');
+                    if (!dragHandle) return; // Hanya bisa di-drag lewat handle
 
-                    // Jangan drag jika sedang klik area teks untuk mengetik
-                    if (e.target.classList.contains('bubble-content')) return;
+                    const bubble = dragHandle.closest('.speech-bubble');
+                    if (!bubble) return;
 
                     e.preventDefault();
                     this.isDraggingBubble = true;
