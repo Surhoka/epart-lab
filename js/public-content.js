@@ -1131,14 +1131,6 @@
                                 }
                             });
 
-                            // Focus text box when clicking speech bubble area
-                            editor.addEventListener('click', (e) => {
-                                const bubble = e.target.closest('.speech-bubble');
-                                if (bubble && !e.target.closest('.drag-handle') && !e.target.closest('button')) {
-                                    bubble.querySelector('.comic-text-box')?.focus();
-                                }
-                            });
-
                             // Global Drag Handlers for Bubbles
                             editor.addEventListener('mousedown', (e) => this.handleBubbleMouseDown(e));
                             document.addEventListener('mousemove', (e) => this.handleBubbleMouseMove(e));
@@ -1556,24 +1548,7 @@
 
                     const editorBody = document.getElementById('classic-editor-body');
                     if (editorBody) {
-                        // Clone isi editor untuk dibersihkan tanpa mengubah tampilan di UI editor
-                        const clone = editorBody.cloneNode(true);
-
-                        // Bersihkan elemen drag-handle dan tombol hapus dari speech-bubble
-                        clone.querySelectorAll('.drag-handle').forEach(el => el.remove());
-                        clone.querySelectorAll('.speech-bubble button').forEach(el => el.remove());
-
-                        // Buang atribut contenteditable agar pembaca di frontend tidak bisa mengedit teks
-                        clone.querySelectorAll('[contenteditable="true"]').forEach(el => {
-                            el.removeAttribute('contenteditable');
-                        });
-
-                        // Kembalikan status style dragging ke normal jika ada yang nyangkut
-                        clone.querySelectorAll('.speech-bubble.dragging').forEach(el => {
-                            el.classList.remove('dragging');
-                        });
-
-                        let contentHtml = clone.innerHTML;
+                        let contentHtml = editorBody.innerHTML;
 
                         // Jika Mode Comic, bersihkan JSON-LD lama dan buat yang baru secara otomatis
                         if (this.post.postMode === 'comic') {
