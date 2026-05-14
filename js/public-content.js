@@ -1072,6 +1072,9 @@
                 isLoading: false,
                 isSyncing: false,
                 currentPage: 1,
+                isDraggingBubble: false,
+                draggedBubble: null,
+                dragOffset: { x: 0, y: 0 },
                 itemsPerPage: 10,
                 comicPageUrls: [''],
 
@@ -1123,6 +1126,11 @@
                                     this.editImageInContent(e.target);
                                 }
                             });
+
+                            // Global Drag Handlers for Bubbles
+                            editor.addEventListener('mousedown', (e) => this.handleBubbleMouseDown(e));
+                            document.addEventListener('mousemove', (e) => this.handleBubbleMouseMove(e));
+                            document.addEventListener('mouseup', () => this.handleBubbleMouseUp());
                         }
                     });
                     this.$watch('post.dateMode', (val) => {
@@ -1161,6 +1169,66 @@
                             this.post.category.push(name);
                         }
                     }
+                },
+
+                insertSpeechBubble() {
+                    this.restoreSelection();
+                    const id = 'bubble-' + Date.now();
+                    const html = `
+                        <div class="speech-bubble" data-id="${id}" style="position: absolute; top: 100px; left: 100px; z-index: 100; min-width: 120px; width: auto;" contenteditable="false">
+                            <div class="bubble-content" contenteditable="true" style="background: white; border: 3px solid black; border-radius: 50% / 30%; padding: 15px 20px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 14px; line-height: 1.2; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 0 rgba(0,0,0,0.1);">
+                                Teks...
+                            </div>
+                            <div class="bubble-tail" style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid black; margin: -2px 0 0 30px; pointer-events: none;"></div>
+                            <div class="bubble-tail-inner" style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 14px solid white; margin: -18px 0 0 34px; pointer-events: none;"></div>
+                        </div>
+                    `;
+                    document.execCommand('insertHTML', false, html);
+                    showToast('Balon dialog ditambahkan. Drag untuk memindah posisi.', 'info');
+                },
+
+                handleBubbleMouseDown(e) {
+                    const bubble = e.target.closest('.speech-bubble');
+                    if (!bubble) return;
+
+                    // Jangan drag jika sedang klik area teks untuk mengetik
+                    if (e.target.classList.contains('bubble-content')) return;
+
+                    e.preventDefault();
+                    this.isDraggingBubble = true;
+                    this.draggedBubble = bubble;
+                    bubble.classList.add('dragging');
+
+                    const rect = bubble.getBoundingClientRect();
+                    this.dragOffset = {
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    };
+                },
+
+                handleBubbleMouseMove(e) {
+                    if (!this.isDraggingBubble || !this.draggedBubble) return;
+
+                    const editor = document.getElementById('classic-editor-body');
+                    const editorRect = editor.getBoundingClientRect();
+
+                    // Hitung koordinat relatif terhadap editor
+                    let newLeft = e.clientX - editorRect.left - this.dragOffset.x;
+                    let newTop = e.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
+
+                    // Batasan agar tidak keluar editor (optional)
+                    newLeft = Math.max(0, Math.min(newLeft, editorRect.width - this.draggedBubble.offsetWidth));
+
+                    this.draggedBubble.style.left = newLeft + 'px';
+                    this.draggedBubble.style.top = newTop + 'px';
+                },
+
+                handleBubbleMouseUp() {
+                    if (this.draggedBubble) {
+                        this.draggedBubble.classList.remove('dragging');
+                    }
+                    this.isDraggingBubble = false;
+                    this.draggedBubble = null;
                 },
 
                 async fetchPosts() {
