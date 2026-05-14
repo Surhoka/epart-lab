@@ -1077,6 +1077,10 @@
                 dragOffset: { x: 0, y: 0 },
                 itemsPerPage: 10,
                 comicPageUrls: [''],
+                imageSettingsModal: false,
+                selectedImageElement: null,
+                selectedImageWidth: '',
+                selectedImageUrl: '',
 
                 get totalPages() {
                     return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
@@ -1172,18 +1176,23 @@
                 },
 
                 insertSpeechBubble() {
-                    this.restoreSelection();
+                    const editor = document.getElementById('classic-editor-body');
+                    if (!editor) return;
+                    
                     const id = 'bubble-' + Date.now();
+                    const scrollTop = editor.scrollTop || 0;
+                    const topPos = Math.max(100, scrollTop + 100);
+                    
                     const html = `
-                        <div class="speech-bubble" data-id="${id}" style="position: absolute; top: 100px; left: 100px; z-index: 100; min-width: 120px; width: auto;" contenteditable="false">
-                            <div class="bubble-content" contenteditable="true" style="background: white; border: 3px solid black; border-radius: 50% / 30%; padding: 15px 20px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 14px; line-height: 1.2; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 0 rgba(0,0,0,0.1);">
+                        <div class="speech-bubble" data-id="${id}" style="position: absolute; top: ${topPos}px; left: 50%; transform: translateX(-50%); z-index: 100; min-width: 120px; width: auto;" contenteditable="false">
+                            <div class="bubble-content" contenteditable="true" style="background: white; border: 3px solid black; border-radius: 50% / 30%; padding: 15px 20px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 14px; line-height: 1.2; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); cursor: text;">
                                 Teks...
                             </div>
                             <div class="bubble-tail" style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid black; margin: -2px 0 0 30px; pointer-events: none;"></div>
                             <div class="bubble-tail-inner" style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 14px solid white; margin: -18px 0 0 34px; pointer-events: none;"></div>
                         </div>
                     `;
-                    document.execCommand('insertHTML', false, html);
+                    editor.insertAdjacentHTML('beforeend', html);
                     showToast('Balon dialog ditambahkan. Drag untuk memindah posisi.', 'info');
                 },
 
@@ -1400,37 +1409,39 @@
                     // Memberi tanda visual gambar sedang dipilih
                     imgElement.classList.add('selected-img');
 
-                    const action = prompt(
-                        "PENGATURAN GAMBAR\n" +
-                        "--------------------------\n" +
-                        "1. Ganti URL / Sumber Gambar\n" +
-                        "2. Atur Lebar (contoh: 50% atau 300px)\n" +
-                        "3. Hapus Gambar dari Konten\n\n" +
-                        "Ketik nomor pilihan (1/2/3):", "1"
-                    );
-
-                    if (action === "1") {
-                        const newUrl = prompt("Masukkan URL Gambar baru:", imgElement.src);
-                        if (newUrl && newUrl.trim()) {
-                            imgElement.src = newUrl;
-                            showToast("URL gambar diperbarui", "success");
+                    this.selectedImageElement = imgElement;
+                    this.selectedImageUrl = imgElement.src;
+                    this.selectedImageWidth = imgElement.style.width || "auto";
+                    this.imageSettingsModal = true;
+                },
+                closeImageSettings() {
+                    if (this.selectedImageElement) {
+                        this.selectedImageElement.classList.remove('selected-img');
+                    }
+                    this.imageSettingsModal = false;
+                    setTimeout(() => {
+                        this.selectedImageElement = null;
+                    }, 300);
+                },
+                applyImageSettings() {
+                    if (this.selectedImageElement) {
+                        if (this.selectedImageUrl && this.selectedImageUrl.trim()) {
+                            this.selectedImageElement.src = this.selectedImageUrl.trim();
                         }
-                    } else if (action === "2") {
-                        const currentWidth = imgElement.style.width || "Auto";
-                        const newWidth = prompt("Masukkan lebar baru (contoh: 50%, 100%, atau pixel):", currentWidth);
-                        if (newWidth) {
-                            imgElement.style.width = newWidth;
-                            imgElement.style.height = "auto"; // Menjaga aspek rasio
-                            showToast("Ukuran diperbarui", "success");
-                        }
-                    } else if (action === "3") {
+                        this.selectedImageElement.style.width = this.selectedImageWidth || "auto";
+                        this.selectedImageElement.style.height = "auto";
+                        showToast("Pengaturan gambar diperbarui", "success");
+                    }
+                    this.closeImageSettings();
+                },
+                removeSelectedImage() {
+                    if (this.selectedImageElement) {
                         if (confirm("Hapus gambar ini dari artikel?")) {
-                            imgElement.remove();
+                            this.selectedImageElement.remove();
                             showToast("Gambar dihapus", "info");
+                            this.closeImageSettings();
                         }
                     }
-
-                    setTimeout(() => imgElement.classList.remove('selected-img'), 500);
                 },
 
                 async saveDraft() {
