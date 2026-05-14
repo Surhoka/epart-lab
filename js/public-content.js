@@ -1136,11 +1136,6 @@
                             document.addEventListener('mousemove', (e) => this.handleBubbleMouseMove(e));
                             document.addEventListener('mouseup', () => this.handleBubbleMouseUp());
 
-                            // Touch Support for Mobile
-                            editor.addEventListener('touchstart', (e) => this.handleBubbleMouseDown(e), { passive: false });
-                            document.addEventListener('touchmove', (e) => this.handleBubbleMouseMove(e), { passive: false });
-                            document.addEventListener('touchend', () => this.handleBubbleMouseUp());
-
                             // Auto-scale font and padding based on width for comic text boxes
                             this.comicTextObserver = new ResizeObserver(entries => {
                                 const editor = document.getElementById('classic-editor-body');
@@ -1254,36 +1249,32 @@
                 },
 
                 handleBubbleMouseDown(e) {
-                    // Support both mouse and touch
-                    const touch = e.touches ? e.touches[0] : e;
-                    const dragHandle = touch.target.closest('.drag-handle');
+                    const dragHandle = e.target.closest('.drag-handle');
                     if (!dragHandle) return; // Hanya bisa di-drag lewat handle
 
                     const bubble = dragHandle.closest('.speech-bubble');
                     if (!bubble) return;
 
+                    e.preventDefault();
                     this.isDraggingBubble = true;
                     this.draggedBubble = bubble;
                     bubble.classList.add('dragging');
 
                     const rect = bubble.getBoundingClientRect();
                     this.dragOffset = {
-                        x: touch.clientX - rect.left,
-                        y: touch.clientY - rect.top
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
                     };
                 },
 
                 handleBubbleMouseMove(e) {
                     if (!this.isDraggingBubble || !this.draggedBubble) return;
 
-                    const touch = e.touches ? e.touches[0] : e;
-                    if (e.cancelable) e.preventDefault(); // Prevent scrolling while dragging on mobile
-
                     const editor = document.getElementById('classic-editor-body');
                     const editorRect = editor.getBoundingClientRect();
 
                     // Calculate absolute screen position for the left edge of the bubble
-                    let bubbleLeftScreen = touch.clientX - this.dragOffset.x;
+                    let bubbleLeftScreen = e.clientX - this.dragOffset.x;
 
                     // Calculate the center of the editor on screen
                     const editorCenterScreen = editorRect.left + editorRect.width / 2;
@@ -1295,7 +1286,7 @@
                     const centerOffset = bubbleLeftScreen - editorCenterScreen;
 
                     // Calculate top position normally (fixed px from top of editor content)
-                    let newTop = touch.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
+                    let newTop = e.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
 
                     // Apply the position using calc(50% + offset cqi) so it stays centered and responsive when editor width changes
                     const centerOffsetCqi = (centerOffset / editorRect.width * 100).toFixed(2);
@@ -1557,7 +1548,24 @@
 
                     const editorBody = document.getElementById('classic-editor-body');
                     if (editorBody) {
-                        let contentHtml = editorBody.innerHTML;
+                        // Clone isi editor untuk dibersihkan tanpa mengubah tampilan di UI editor
+                        const clone = editorBody.cloneNode(true);
+                        
+                        // Bersihkan elemen drag-handle dan tombol hapus dari speech-bubble
+                        clone.querySelectorAll('.drag-handle').forEach(el => el.remove());
+                        clone.querySelectorAll('.speech-bubble button').forEach(el => el.remove());
+                        
+                        // Buang atribut contenteditable agar pembaca di frontend tidak bisa mengedit teks
+                        clone.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                            el.removeAttribute('contenteditable');
+                        });
+                        
+                        // Kembalikan status style dragging ke normal jika ada yang nyangkut
+                        clone.querySelectorAll('.speech-bubble.dragging').forEach(el => {
+                            el.classList.remove('dragging');
+                        });
+
+                        let contentHtml = clone.innerHTML;
 
                         // Jika Mode Comic, bersihkan JSON-LD lama dan buat yang baru secara otomatis
                         if (this.post.postMode === 'comic') {
