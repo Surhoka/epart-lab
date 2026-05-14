@@ -750,4 +750,41 @@
             </div>
         </div>
     </div>
+
+    <!-- Image Settings Modal -->
+    <div x-show="imageSettingsModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
+        <div x-show="imageSettingsModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="closeImageSettings()"></div>
+        
+        <div x-show="imageSettingsModal" x-transition.scale.origin.bottom class="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Pengaturan Gambar</h3>
+                <button type="button" @click="closeImageSettings()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <span class="w-5 h-5 block" x-icon="'close'"></span>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">URL Gambar</label>
+                    <input type="text" x-model="selectedImageUrl" class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Lebar Gambar</label>
+                    <input type="text" x-model="selectedImageWidth" placeholder="contoh: 100%, 300px, auto" class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                    <p class="text-[10px] text-gray-500 mt-1">Kosongkan atau ketik "auto" untuk ukuran asli.</p>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex items-center justify-between">
+                <button type="button" @click="removeSelectedImage()" class="rounded-lg border border-red-200 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 hover:border-red-300 transition-colors dark:border-red-900/30 dark:hover:bg-red-900/20">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 h-4 block" x-icon="'trash'"></span>
+                        Hapus
+                    </div>
+                </button>
+                <div class="flex gap-2">
+                    <button type="button" @click="closeImageSettings()" class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-700 dark:bg-black/50 dark:text-gray-300 dark:hover:bg-white/5">Batal</button>
+                    <button type="button" @click="applyImageSettings()" class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
