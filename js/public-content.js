@@ -1136,6 +1136,11 @@
                             document.addEventListener('mousemove', (e) => this.handleBubbleMouseMove(e));
                             document.addEventListener('mouseup', () => this.handleBubbleMouseUp());
 
+                            // Touch Support for Mobile
+                            editor.addEventListener('touchstart', (e) => this.handleBubbleMouseDown(e), { passive: false });
+                            document.addEventListener('touchmove', (e) => this.handleBubbleMouseMove(e), { passive: false });
+                            document.addEventListener('touchend', () => this.handleBubbleMouseUp());
+
                             // Auto-scale font and padding based on width for comic text boxes
                             this.comicTextObserver = new ResizeObserver(entries => {
                                 const editor = document.getElementById('classic-editor-body');
@@ -1220,17 +1225,17 @@
                 insertComicText() {
                     const editor = document.getElementById('classic-editor-body');
                     if (!editor) return;
-                    
+
                     const editorWidth = editor.getBoundingClientRect().width || 800;
                     const id = 'comic-text-' + Date.now();
                     const scrollTop = editor.scrollTop || 0;
                     const topPos = Math.max(100, scrollTop + 100);
-                    
+
                     const topCqi = (topPos / editorWidth * 100).toFixed(2);
                     const widthCqi = (150 / editorWidth * 100).toFixed(2);
                     const fontCqi = (16 / editorWidth * 100).toFixed(2);
                     const padCqi = (5 / editorWidth * 100).toFixed(2);
-                    
+
                     const html = `
                         <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
@@ -1249,49 +1254,53 @@
                 },
 
                 handleBubbleMouseDown(e) {
-                    const dragHandle = e.target.closest('.drag-handle');
+                    // Support both mouse and touch
+                    const touch = e.touches ? e.touches[0] : e;
+                    const dragHandle = touch.target.closest('.drag-handle');
                     if (!dragHandle) return; // Hanya bisa di-drag lewat handle
 
                     const bubble = dragHandle.closest('.speech-bubble');
                     if (!bubble) return;
 
-                    e.preventDefault();
                     this.isDraggingBubble = true;
                     this.draggedBubble = bubble;
                     bubble.classList.add('dragging');
 
                     const rect = bubble.getBoundingClientRect();
                     this.dragOffset = {
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top
+                        x: touch.clientX - rect.left,
+                        y: touch.clientY - rect.top
                     };
                 },
 
                 handleBubbleMouseMove(e) {
                     if (!this.isDraggingBubble || !this.draggedBubble) return;
 
+                    const touch = e.touches ? e.touches[0] : e;
+                    if (e.cancelable) e.preventDefault(); // Prevent scrolling while dragging on mobile
+
                     const editor = document.getElementById('classic-editor-body');
                     const editorRect = editor.getBoundingClientRect();
 
                     // Calculate absolute screen position for the left edge of the bubble
-                    let bubbleLeftScreen = e.clientX - this.dragOffset.x;
-                    
+                    let bubbleLeftScreen = touch.clientX - this.dragOffset.x;
+
                     // Calculate the center of the editor on screen
                     const editorCenterScreen = editorRect.left + editorRect.width / 2;
-                    
+
                     // Bound the bubble within the editor horizontally
                     bubbleLeftScreen = Math.max(editorRect.left, Math.min(bubbleLeftScreen, editorRect.right - this.draggedBubble.offsetWidth));
-                    
+
                     // Calculate how far the bubble is from the center of the editor
                     const centerOffset = bubbleLeftScreen - editorCenterScreen;
 
                     // Calculate top position normally (fixed px from top of editor content)
-                    let newTop = e.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
+                    let newTop = touch.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
 
                     // Apply the position using calc(50% + offset cqi) so it stays centered and responsive when editor width changes
                     const centerOffsetCqi = (centerOffset / editorRect.width * 100).toFixed(2);
                     const topCqi = (newTop / editorRect.width * 100).toFixed(2);
-                    
+
                     this.draggedBubble.style.left = `calc(50% + ${centerOffsetCqi}cqi)`;
                     this.draggedBubble.style.top = `${topCqi}cqi`;
                 },
