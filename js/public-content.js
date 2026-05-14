@@ -1138,14 +1138,19 @@
 
                             // Auto-scale font and padding based on width for comic text boxes
                             this.comicTextObserver = new ResizeObserver(entries => {
+                                const editor = document.getElementById('classic-editor-body');
+                                if (!editor) return;
+                                const editorWidth = editor.getBoundingClientRect().width;
+                                if (editorWidth === 0) return;
+
                                 for (let entry of entries) {
                                     if (entry.target.classList.contains('comic-text-box')) {
                                         const width = entry.contentRect.width;
                                         if (width > 0) {
-                                            const fontSize = Math.max(8, (width / 150) * 16);
-                                            const padding = (width / 150) * 5;
-                                            entry.target.style.fontSize = fontSize + 'px';
-                                            entry.target.style.padding = padding + 'px';
+                                            const fontSizePx = Math.max(8, (width / 150) * 16);
+                                            const paddingPx = (width / 150) * 5;
+                                            entry.target.style.fontSize = (fontSizePx / editorWidth * 100).toFixed(2) + 'cqi';
+                                            entry.target.style.padding = (paddingPx / editorWidth * 100).toFixed(2) + 'cqi';
                                         }
                                     }
                                 }
@@ -1216,19 +1221,25 @@
                     const editor = document.getElementById('classic-editor-body');
                     if (!editor) return;
                     
+                    const editorWidth = editor.getBoundingClientRect().width || 800;
                     const id = 'comic-text-' + Date.now();
                     const scrollTop = editor.scrollTop || 0;
                     const topPos = Math.max(100, scrollTop + 100);
                     
+                    const topCqi = (topPos / editorWidth * 100).toFixed(2);
+                    const widthCqi = (150 / editorWidth * 100).toFixed(2);
+                    const fontCqi = (16 / editorWidth * 100).toFixed(2);
+                    const padCqi = (5 / editorWidth * 100).toFixed(2);
+                    
                     const html = `
-                        <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topPos}px; left: calc(50% - 75px); z-index: 100; min-width: 80px; width: 150px;" contenteditable="false">
+                        <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
                                 ✥ Drag
                             </div>
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: 5px; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: 16px; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: 100%; height: 100%; box-sizing: border-box;">
+                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: ${padCqi}cqi; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: ${fontCqi}cqi; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: max-content; box-sizing: border-box;">
                                 Ketik teks...
                             </div>
                         </div>
@@ -1277,9 +1288,12 @@
                     // Calculate top position normally (fixed px from top of editor content)
                     let newTop = e.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
 
-                    // Apply the position using calc(50% + offset) so it stays centered when editor width changes
-                    this.draggedBubble.style.left = `calc(50% + ${centerOffset}px)`;
-                    this.draggedBubble.style.top = newTop + 'px';
+                    // Apply the position using calc(50% + offset cqi) so it stays centered and responsive when editor width changes
+                    const centerOffsetCqi = (centerOffset / editorRect.width * 100).toFixed(2);
+                    const topCqi = (newTop / editorRect.width * 100).toFixed(2);
+                    
+                    this.draggedBubble.style.left = `calc(50% + ${centerOffsetCqi}cqi)`;
+                    this.draggedBubble.style.top = `${topCqi}cqi`;
                 },
 
                 handleBubbleMouseUp() {
@@ -1288,6 +1302,29 @@
                     }
                     this.isDraggingBubble = false;
                     this.draggedBubble = null;
+                    this.normalizeComicTextSizes();
+                },
+
+                normalizeComicTextSizes() {
+                    const editor = document.getElementById('classic-editor-body');
+                    if (!editor) return;
+                    const editorWidth = editor.getBoundingClientRect().width;
+                    if (editorWidth === 0) return;
+
+                    // Convert any pixel width/height (from native resize) to cqi so it remains responsive
+                    editor.querySelectorAll('.speech-bubble').forEach(bubble => {
+                        const box = bubble.querySelector('.comic-text-box');
+                        if (box) {
+                            if (box.style.width && box.style.width.endsWith('px')) {
+                                const px = parseFloat(box.style.width);
+                                box.style.width = (px / editorWidth * 100).toFixed(2) + 'cqi';
+                            }
+                            if (box.style.height && box.style.height.endsWith('px')) {
+                                const px = parseFloat(box.style.height);
+                                box.style.height = (px / editorWidth * 100).toFixed(2) + 'cqi';
+                            }
+                        }
+                    });
                 },
 
                 async fetchPosts() {
