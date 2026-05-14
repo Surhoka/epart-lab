@@ -1135,6 +1135,43 @@
                             editor.addEventListener('mousedown', (e) => this.handleBubbleMouseDown(e));
                             document.addEventListener('mousemove', (e) => this.handleBubbleMouseMove(e));
                             document.addEventListener('mouseup', () => this.handleBubbleMouseUp());
+
+                            // Auto-scale font and padding based on width for comic text boxes
+                            this.comicTextObserver = new ResizeObserver(entries => {
+                                for (let entry of entries) {
+                                    if (entry.target.classList.contains('comic-text-box')) {
+                                        const width = entry.contentRect.width;
+                                        if (width > 0) {
+                                            const fontSize = Math.max(8, (width / 150) * 16);
+                                            const padding = (width / 150) * 5;
+                                            entry.target.style.fontSize = fontSize + 'px';
+                                            entry.target.style.padding = padding + 'px';
+                                        }
+                                    }
+                                }
+                            });
+
+                            // Watch for newly added comic text boxes
+                            const mutationObserver = new MutationObserver(mutations => {
+                                mutations.forEach(mutation => {
+                                    mutation.addedNodes.forEach(node => {
+                                        if (node.nodeType === 1) {
+                                            if (node.classList.contains('comic-text-box')) {
+                                                this.comicTextObserver.observe(node);
+                                            }
+                                            if (node.querySelectorAll) {
+                                                node.querySelectorAll('.comic-text-box').forEach(box => this.comicTextObserver.observe(box));
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+                            mutationObserver.observe(editor, { childList: true, subtree: true });
+
+                            // Observe existing ones
+                            editor.querySelectorAll('.comic-text-box').forEach(box => {
+                                this.comicTextObserver.observe(box);
+                            });
                         }
                     });
                     this.$watch('post.dateMode', (val) => {
@@ -1191,7 +1228,7 @@
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: 5px; color: black; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 16px; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: 100%; height: 100%; box-sizing: border-box;">
+                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: 5px; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: 16px; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: 100%; height: 100%; box-sizing: border-box;">
                                 Ketik teks...
                             </div>
                         </div>
