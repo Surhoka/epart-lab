@@ -324,10 +324,10 @@
 
                         <!-- Group: Comic Tools -->
                         <div class="flex items-center gap-0.5 px-1" x-show="post.postMode === 'comic'">
-                            <button @click="insertSpeechBubble()"
+                            <button @click="insertComicText()"
                                 class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-brand-600 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400">
-                                <span class="w-5 h-5" x-icon="'message-square'"></span>
-                                <div class="tooltip">Balon Dialog</div>
+                                <span class="w-5 h-5" x-icon="'type'"></span>
+                                <div class="tooltip">Insert Text</div>
                             </button>
                         </div>
 
