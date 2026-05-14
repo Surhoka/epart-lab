@@ -1221,7 +1221,7 @@
                     const topPos = Math.max(100, scrollTop + 100);
                     
                     const html = `
-                        <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topPos}px; left: 100px; z-index: 100; min-width: 80px; width: 150px;" contenteditable="false">
+                        <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topPos}px; left: calc(50% - 75px); z-index: 100; min-width: 80px; width: 150px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
                                 ✥ Drag
                             </div>
@@ -1262,14 +1262,23 @@
                     const editor = document.getElementById('classic-editor-body');
                     const editorRect = editor.getBoundingClientRect();
 
-                    // Hitung koordinat relatif terhadap editor
-                    let newLeft = e.clientX - editorRect.left - this.dragOffset.x;
+                    // Calculate absolute screen position for the left edge of the bubble
+                    let bubbleLeftScreen = e.clientX - this.dragOffset.x;
+                    
+                    // Calculate the center of the editor on screen
+                    const editorCenterScreen = editorRect.left + editorRect.width / 2;
+                    
+                    // Bound the bubble within the editor horizontally
+                    bubbleLeftScreen = Math.max(editorRect.left, Math.min(bubbleLeftScreen, editorRect.right - this.draggedBubble.offsetWidth));
+                    
+                    // Calculate how far the bubble is from the center of the editor
+                    const centerOffset = bubbleLeftScreen - editorCenterScreen;
+
+                    // Calculate top position normally (fixed px from top of editor content)
                     let newTop = e.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
 
-                    // Batasan agar tidak keluar editor (optional)
-                    newLeft = Math.max(0, Math.min(newLeft, editorRect.width - this.draggedBubble.offsetWidth));
-
-                    this.draggedBubble.style.left = newLeft + 'px';
+                    // Apply the position using calc(50% + offset) so it stays centered when editor width changes
+                    this.draggedBubble.style.left = `calc(50% + ${centerOffset}px)`;
                     this.draggedBubble.style.top = newTop + 'px';
                 },
 
