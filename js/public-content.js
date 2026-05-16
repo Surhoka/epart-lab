@@ -1081,6 +1081,7 @@
                 selectedImageElement: null,
                 selectedImageWidth: '',
                 selectedImageUrl: '',
+                dialogScripts: {}, // Master mapping untuk auto-populate
 
                 get totalPages() {
                     return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
@@ -1091,6 +1092,30 @@
                     const end = start + this.itemsPerPage;
                     return this.posts.slice(start, end);
                 },
+
+                // Fungsi untuk memuat naskah dialog (JSON format)
+                loadDialogScript() {
+                    const input = prompt("Tempel JSON Mapping Dialog di sini (dari file Mapping_Dialog_MultiBahasa):");
+                    if (input) {
+                        try {
+                            this.dialogScripts = JSON.parse(input);
+                            showToast('Naskah dialog berhasil dimuat!', 'success');
+                        } catch (e) {
+                            showToast('Format JSON tidak valid.', 'error');
+                        }
+                    }
+                },
+
+                // Fungsi untuk ganti tampilan bahasa di editor (Preview Only)
+                toggleEditorLanguage(lang) {
+                    const editor = document.getElementById('classic-editor-body');
+                    if (!editor) return;
+                    
+                    editor.querySelectorAll('.lang-id').forEach(el => el.style.display = lang === 'id' ? 'block' : 'none');
+                    editor.querySelectorAll('.lang-en').forEach(el => el.style.display = lang === 'en' ? 'block' : 'none');
+                    showToast(`Preview Bahasa: ${lang.toUpperCase()}`, 'info');
+                },
+
                 publicBlogUrl: window.app?.publicBlogUrl || '',
                 siteKey: window.app?.siteKey || '',
                 categories: [],
@@ -1221,6 +1246,16 @@
                     const editor = document.getElementById('classic-editor-body');
                     if (!editor) return;
 
+                    // Tanya Panel ID untuk auto-populate
+                    const panelId = prompt("Masukkan Panel ID (misal: H1-P4) atau kosongkan untuk teks manual:");
+                    let textId = "Ketik teks Indonesia...";
+                    let textEn = "Type English text...";
+
+                    if (panelId && this.dialogScripts[panelId]) {
+                        textId = this.dialogScripts[panelId].id || textId;
+                        textEn = this.dialogScripts[panelId].en || textEn;
+                    }
+
                     const editorWidth = editor.getBoundingClientRect().width || 800;
                     const id = 'comic-text-' + Date.now();
                     const scrollTop = editor.scrollTop || 0;
@@ -1232,20 +1267,21 @@
                     const padCqi = (5 / editorWidth * 100).toFixed(2);
 
                     const html = `
-                        <div class="speech-bubble group/text" data-id="${id}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
+                        <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId || ''}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
-                                ✥ Drag
+                                ✥ Drag ${panelId ? '('+panelId+')' : ''}
                             </div>
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" contenteditable="true" style="padding: ${padCqi}cqi; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: ${fontCqi}cqi; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: max-content; box-sizing: border-box;">
-                                Ketik teks...
+                            <div class="bubble-content comic-text-box" style="padding: ${padCqi}cqi; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: ${fontCqi}cqi; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: max-content; box-sizing: border-box;">
+                                <div class="lang-id" contenteditable="true" style="display: block;">${textId}</div>
+                                <div class="lang-en" contenteditable="true" style="display: none;">${textEn}</div>
                             </div>
                         </div>
                     `;
                     editor.insertAdjacentHTML('beforeend', html);
-                    showToast('Teks ditambahkan. Gunakan label "Drag" di atas untuk memindah, dan sudut kanan bawah untuk resize.', 'info');
+                    showToast(panelId ? `Teks ${panelId} berhasil dimuat!` : 'Teks manual ditambahkan.', 'info');
                 },
 
                 handleBubbleMouseDown(e) {
