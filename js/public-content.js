@@ -1078,6 +1078,8 @@
                 itemsPerPage: 10,
                 comicPageUrls: [''],
                 imageSettingsModal: false,
+                masterScriptModal: false, // UI Toggle untuk Modal Master Script
+                masterScriptInput: '',    // Input area untuk JSON Master Script
                 selectedImageElement: null,
                 selectedImageWidth: '',
                 selectedImageUrl: '',
@@ -1093,16 +1095,28 @@
                     return this.posts.slice(start, end);
                 },
 
-                // Fungsi untuk memuat naskah dialog (JSON format)
+                // Fungsi untuk membuka modal naskah dialog
                 loadDialogScript() {
-                    const input = prompt("Tempel JSON Mapping Dialog di sini (dari file Mapping_Dialog_MultiBahasa):");
-                    if (input) {
-                        try {
-                            this.dialogScripts = JSON.parse(input);
-                            showToast('Naskah dialog berhasil dimuat!', 'success');
-                        } catch (e) {
-                            showToast('Format JSON tidak valid.', 'error');
-                        }
+                    // Pre-fill dengan data yang sudah ada jika tersedia
+                    this.masterScriptInput = Object.keys(this.dialogScripts).length > 0 
+                        ? JSON.stringify(this.dialogScripts, null, 2) 
+                        : '';
+                    this.masterScriptModal = true;
+                },
+
+                // Fungsi untuk memproses JSON dari modal
+                applyMasterScript() {
+                    if (!this.masterScriptInput.trim()) {
+                        showToast('Input naskah kosong.', 'warning');
+                        return;
+                    }
+                    try {
+                        this.dialogScripts = JSON.parse(this.masterScriptInput);
+                        showToast('Naskah dialog berhasil dimuat!', 'success');
+                        this.masterScriptModal = false;
+                    } catch (e) {
+                        showToast('Format JSON tidak valid. Pastikan formatnya benar.', 'error');
+                        console.error('Master Script JSON Error:', e);
                     }
                 },
 
