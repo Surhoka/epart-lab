@@ -881,4 +881,41 @@
             </div>
         </div>
     </div>
+
+    <!-- Master Script Modal (Auto-Populate Dialog) -->
+    <div x-show="masterScriptModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
+        <div x-show="masterScriptModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+            @click="masterScriptModal = false"></div>
+
+        <div x-show="masterScriptModal" x-transition.scale.origin.bottom
+            class="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Load Master Script</h3>
+                <button type="button" @click="masterScriptModal = false"
+                    class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <span class="block w-5 h-5" x-icon="'close'"></span>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Tempelkan JSON Mapping Dialog Anda di bawah ini untuk mengaktifkan fitur Auto-Populate pada balon teks komik.</p>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-widest">JSON Mapping</label>
+                    <textarea x-model="masterScriptInput" rows="12"
+                        class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 text-[11px] font-mono focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-brand-300 custom-scrollbar"
+                        placeholder='{ "H1-P1": { "id": "Teks Indonesia", "en": "English Text" } }'></textarea>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex items-center justify-end gap-2">
+                <button type="button" @click="masterScriptModal = false"
+                    class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-700 dark:bg-black/50 dark:text-gray-300 dark:hover:bg-white/5">Batal</button>
+                <button type="button" @click="applyMasterScript()"
+                    class="rounded-lg bg-brand-500 px-6 py-2 text-sm font-bold text-white hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20">
+                    <div class="flex items-center gap-2">
+                        <span class="block w-4 h-4" x-icon="'refresh'"></span>
+                        Muat Naskah
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
