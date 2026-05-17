@@ -50,6 +50,15 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
+        /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
+        .speech-bubble .comic-text-box .lang-id,
+        .speech-bubble .comic-text-box .lang-en {
+            font-size: 11cqi !important; /* Mengikuti lebar container balon dialog */
+            line-height: 1.2 !important;
+            width: 100% !important;
+            word-wrap: break-word !important;
+        }
+
         /* Mode Balon Dialog Premium (Hanya jika parent memiliki class .has-balloon) */
         .speech-bubble.has-balloon .comic-text-box {
             position: relative !important;
@@ -66,6 +75,7 @@
             min-height: 40px !important;
             transition: all 0.2s;
             overflow: hidden !important; /* Diaktifkan kembali agar fungsi resize: both browser berjalan */
+            container-type: inline-size !important;
         }
 
         /* Ekor Balon Dialog (Default / Pointing Down) */
