@@ -65,12 +65,12 @@
             padding: 8px 16px !important;
             min-height: 40px !important;
             transition: all 0.2s;
-            overflow: visible !important; /* Mencegah pemotongan ekor penunjuk */
+            overflow: hidden !important; /* Diaktifkan kembali agar fungsi resize: both browser berjalan */
         }
 
         /* Ekor Balon Dialog (Default / Pointing Down) */
-        .speech-bubble.has-balloon.tail-down .comic-text-box::after,
-        .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none) .comic-text-box::after {
+        .speech-bubble.has-balloon.tail-down::after,
+        .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none)::after {
             content: '' !important;
             position: absolute !important;
             bottom: -12px !important;
@@ -81,9 +81,10 @@
             border-width: 12px 10px 0 10px !important;
             border-style: solid !important;
             border-color: #000000 transparent transparent transparent !important;
+            z-index: 99 !important;
         }
-        .speech-bubble.has-balloon.tail-down .comic-text-box::before,
-        .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none) .comic-text-box::before {
+        .speech-bubble.has-balloon.tail-down::before,
+        .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none)::before {
             content: '' !important;
             position: absolute !important;
             bottom: -9px !important;
@@ -98,7 +99,7 @@
         }
 
         /* Ekor Balon Dialog (Pointing Left) */
-        .speech-bubble.has-balloon.tail-left .comic-text-box::after {
+        .speech-bubble.has-balloon.tail-left::after {
             content: '' !important;
             position: absolute !important;
             left: -12px !important;
@@ -109,8 +110,9 @@
             border-width: 10px 12px 10px 0 !important;
             border-style: solid !important;
             border-color: transparent #000000 transparent transparent !important;
+            z-index: 99 !important;
         }
-        .speech-bubble.has-balloon.tail-left .comic-text-box::before {
+        .speech-bubble.has-balloon.tail-left::before {
             content: '' !important;
             position: absolute !important;
             left: -9px !important;
@@ -125,7 +127,7 @@
         }
 
         /* Ekor Balon Dialog (Pointing Right) */
-        .speech-bubble.has-balloon.tail-right .comic-text-box::after {
+        .speech-bubble.has-balloon.tail-right::after {
             content: '' !important;
             position: absolute !important;
             right: -12px !important;
@@ -136,8 +138,9 @@
             border-width: 10px 0 10px 12px !important;
             border-style: solid !important;
             border-color: transparent transparent transparent #000000 !important;
+            z-index: 99 !important;
         }
-        .speech-bubble.has-balloon.tail-right .comic-text-box::before {
+        .speech-bubble.has-balloon.tail-right::before {
             content: '' !important;
             position: absolute !important;
             right: -9px !important;
@@ -152,7 +155,7 @@
         }
 
         /* Ekor Balon Dialog (Pointing Up) */
-        .speech-bubble.has-balloon.tail-up .comic-text-box::after {
+        .speech-bubble.has-balloon.tail-up::after {
             content: '' !important;
             position: absolute !important;
             top: -12px !important;
@@ -163,8 +166,9 @@
             border-width: 0 10px 12px 10px !important;
             border-style: solid !important;
             border-color: transparent transparent #000000 transparent !important;
+            z-index: 99 !important;
         }
-        .speech-bubble.has-balloon.tail-up .comic-text-box::before {
+        .speech-bubble.has-balloon.tail-up::before {
             content: '' !important;
             position: absolute !important;
             top: -9px !important;
@@ -179,8 +183,8 @@
         }
 
         /* Ekor Balon Dialog (Tanpa Buntut) */
-        .speech-bubble.has-balloon.tail-none .comic-text-box::after,
-        .speech-bubble.has-balloon.tail-none .comic-text-box::before {
+        .speech-bubble.has-balloon.tail-none::after,
+        .speech-bubble.has-balloon.tail-none::before {
             display: none !important;
         }
 
