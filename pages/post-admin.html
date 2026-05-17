@@ -30,22 +30,59 @@
         }
 
         .comic-text-box {
-            background-color: transparent;
-            border: 1px dashed transparent;
-            border-radius: 8px;
+            position: relative !important;
+            background-color: #ffffff !important;
+            border: 2.5px solid #000000 !important;
+            border-radius: 30px !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+            color: #000000 !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 8px 16px !important;
+            min-height: 40px !important;
             transition: all 0.2s;
         }
 
+        /* Ekor Balon Dialog (Tail Outline) */
+        .speech-bubble .comic-text-box::after {
+            content: '' !important;
+            position: absolute !important;
+            bottom: -12px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 12px 10px 0 10px !important;
+            border-style: solid !important;
+            border-color: #000000 transparent transparent transparent !important;
+        }
+
+        /* Ekor Balon Dialog (Tail Fill) */
+        .speech-bubble .comic-text-box::before {
+            content: '' !important;
+            position: absolute !important;
+            bottom: -9px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 10px 8px 0 8px !important;
+            border-style: solid !important;
+            border-color: #ffffff transparent transparent transparent !important;
+            z-index: 100 !important;
+        }
+
         .speech-bubble:hover .comic-text-box {
-            border-color: rgba(0, 0, 0, 0.3);
-            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.01);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important;
         }
 
         .comic-text-box:focus {
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 1px dashed #3b82f6;
-            outline: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            outline: none !important;
+            border-color: #3b82f6 !important; /* Beri warna biru penunjuk fokus saat mengedit */
         }
 
         #classic-editor-body {
