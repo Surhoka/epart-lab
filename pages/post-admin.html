@@ -29,14 +29,35 @@
             z-index: 1000;
         }
 
+        /* Default: Kotak teks transparan untuk komik yang sudah punya balon kosong di gambar */
         .comic-text-box {
+            background-color: transparent;
+            border: 1px dashed transparent;
+            border-radius: 8px;
+            box-sizing: border-box !important;
+            transition: all 0.2s;
+        }
+
+        .speech-bubble:not(.has-balloon):hover .comic-text-box {
+            border-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .speech-bubble:not(.has-balloon) .comic-text-box:focus {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px dashed #3b82f6;
+            outline: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Mode Balon Dialog Premium (Hanya jika parent memiliki class .has-balloon) */
+        .speech-bubble.has-balloon .comic-text-box {
             position: relative !important;
             background-color: #ffffff !important;
             border: 2.5px solid #000000 !important;
             border-radius: 30px !important;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
             color: #000000 !important;
-            box-sizing: border-box !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -46,8 +67,9 @@
             transition: all 0.2s;
         }
 
-        /* Ekor Balon Dialog (Tail Outline) */
-        .speech-bubble .comic-text-box::after {
+        /* Ekor Balon Dialog (Default / Pointing Down) */
+        .speech-bubble.has-balloon.tail-down .comic-text-box::after,
+        .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none) .comic-text-box::after {
             content: '' !important;
             position: absolute !important;
             bottom: -12px !important;
@@ -59,9 +81,8 @@
             border-style: solid !important;
             border-color: #000000 transparent transparent transparent !important;
         }
-
-        /* Ekor Balon Dialog (Tail Fill) */
-        .speech-bubble .comic-text-box::before {
+        .speech-bubble.has-balloon.tail-down .comic-text-box::before,
+        .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none) .comic-text-box::before {
             content: '' !important;
             position: absolute !important;
             bottom: -9px !important;
@@ -75,12 +96,99 @@
             z-index: 100 !important;
         }
 
-        .speech-bubble:hover .comic-text-box {
+        /* Ekor Balon Dialog (Pointing Left) */
+        .speech-bubble.has-balloon.tail-left .comic-text-box::after {
+            content: '' !important;
+            position: absolute !important;
+            left: -12px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 10px 12px 10px 0 !important;
+            border-style: solid !important;
+            border-color: transparent #000000 transparent transparent !important;
+        }
+        .speech-bubble.has-balloon.tail-left .comic-text-box::before {
+            content: '' !important;
+            position: absolute !important;
+            left: -9px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 8px 10px 8px 0 !important;
+            border-style: solid !important;
+            border-color: transparent #ffffff transparent transparent !important;
+            z-index: 100 !important;
+        }
+
+        /* Ekor Balon Dialog (Pointing Right) */
+        .speech-bubble.has-balloon.tail-right .comic-text-box::after {
+            content: '' !important;
+            position: absolute !important;
+            right: -12px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 10px 0 10px 12px !important;
+            border-style: solid !important;
+            border-color: transparent transparent transparent #000000 !important;
+        }
+        .speech-bubble.has-balloon.tail-right .comic-text-box::before {
+            content: '' !important;
+            position: absolute !important;
+            right: -9px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 8px 0 8px 10px !important;
+            border-style: solid !important;
+            border-color: transparent transparent transparent #ffffff !important;
+            z-index: 100 !important;
+        }
+
+        /* Ekor Balon Dialog (Pointing Up) */
+        .speech-bubble.has-balloon.tail-up .comic-text-box::after {
+            content: '' !important;
+            position: absolute !important;
+            top: -12px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 0 10px 12px 10px !important;
+            border-style: solid !important;
+            border-color: transparent transparent #000000 transparent !important;
+        }
+        .speech-bubble.has-balloon.tail-up .comic-text-box::before {
+            content: '' !important;
+            position: absolute !important;
+            top: -9px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 0 !important;
+            height: 0 !important;
+            border-width: 0 8px 10px 8px !important;
+            border-style: solid !important;
+            border-color: transparent transparent #ffffff transparent !important;
+            z-index: 100 !important;
+        }
+
+        /* Ekor Balon Dialog (Tanpa Buntut) */
+        .speech-bubble.has-balloon.tail-none .comic-text-box::after,
+        .speech-bubble.has-balloon.tail-none .comic-text-box::before {
+            display: none !important;
+        }
+
+        .speech-bubble.has-balloon:hover .comic-text-box {
             transform: scale(1.01);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important;
         }
 
-        .comic-text-box:focus {
+        .speech-bubble.has-balloon .comic-text-box:focus {
             outline: none !important;
             border-color: #3b82f6 !important; /* Beri warna biru penunjuk fokus saat mengedit */
         }
@@ -951,6 +1059,86 @@
                         <span class="block w-4 h-4" x-icon="'refresh'"></span>
                         Muat Naskah
                     </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Speech Bubble Modal (Balon Dialog Custom Configuration) -->
+    <div x-show="showBubbleModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
+        <div x-show="showBubbleModal" x-transition.opacity class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+            @click="showBubbleModal = false"></div>
+
+        <div x-show="showBubbleModal" x-transition.scale.origin.bottom
+            class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span class="block w-5 h-5 text-brand-500" x-icon="'type'"></span>
+                    Tambah Balon / Teks Dialog
+                </h3>
+                <button type="button" @click="showBubbleModal = false"
+                    class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <span class="block w-5 h-5" x-icon="'close'"></span>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <!-- Input Panel ID -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wider">Panel ID (Optional)</label>
+                    <input type="text" x-model="bubbleModalData.panelId" placeholder="contoh: H1-P1 (kosongkan untuk manual)"
+                        class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Gunakan Panel ID jika ingin teks dialog otomatis di-populate dari Master Script.</p>
+                </div>
+
+                <!-- Tipe Balon Selection -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">Tipe Balon Dialog</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" @click="bubbleModalData.type = 'balloon'"
+                            :class="bubbleModalData.type === 'balloon' ? 'border-brand-500 bg-brand-50/50 text-brand-700 dark:bg-brand-900/15 dark:text-brand-400' : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/5'"
+                            class="flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <span class="text-xs font-bold">Balon Komik</span>
+                            <span class="text-[9px] text-gray-400">Putih solid + Ekor penunjuk</span>
+                        </button>
+                        <button type="button" @click="bubbleModalData.type = 'transparent'"
+                            :class="bubbleModalData.type === 'transparent' ? 'border-brand-500 bg-brand-50/50 text-brand-700 dark:bg-brand-900/15 dark:text-brand-400' : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/5'"
+                            class="flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                            <span class="text-xs font-bold">Teks Transparan</span>
+                            <span class="text-[9px] text-gray-400">Untuk komik dengan balon di gambar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arah Buntut (Tail Direction) - Hanya jika Balon Komik dipilih -->
+                <div x-show="bubbleModalData.type === 'balloon'" x-transition class="space-y-2">
+                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Arah Buntut Balon (Tail Pointer)</label>
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <button type="button" @click="bubbleModalData.tailDir = 'down'"
+                            :class="bubbleModalData.tailDir === 'down' ? 'bg-slate-900 text-white dark:bg-brand-500' : 'bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300'"
+                            class="py-2 text-[10px] font-bold rounded-lg transition-all text-center">Bawah</button>
+                        <button type="button" @click="bubbleModalData.tailDir = 'left'"
+                            :class="bubbleModalData.tailDir === 'left' ? 'bg-slate-900 text-white dark:bg-brand-500' : 'bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300'"
+                            class="py-2 text-[10px] font-bold rounded-lg transition-all text-center">Kiri</button>
+                        <button type="button" @click="bubbleModalData.tailDir = 'right'"
+                            :class="bubbleModalData.tailDir === 'right' ? 'bg-slate-900 text-white dark:bg-brand-500' : 'bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300'"
+                            class="py-2 text-[10px] font-bold rounded-lg transition-all text-center">Kanan</button>
+                        <button type="button" @click="bubbleModalData.tailDir = 'up'"
+                            :class="bubbleModalData.tailDir === 'up' ? 'bg-slate-900 text-white dark:bg-brand-500' : 'bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300'"
+                            class="py-2 text-[10px] font-bold rounded-lg transition-all text-center">Atas</button>
+                        <button type="button" @click="bubbleModalData.tailDir = 'none'"
+                            :class="bubbleModalData.tailDir === 'none' ? 'bg-slate-900 text-white dark:bg-brand-500' : 'bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300'"
+                            class="py-2 text-[10px] font-bold rounded-lg transition-all text-center">Polos</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex items-center justify-end gap-2">
+                <button type="button" @click="showBubbleModal = false"
+                    class="rounded-lg border border-gray-200 bg-white px-5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-700 dark:bg-black/50 dark:text-gray-300 dark:hover:bg-white/5">Batal</button>
+                <button type="button" @click="confirmInsertComicText()"
+                    class="rounded-lg bg-brand-500 px-6 py-2 text-xs font-bold text-white hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20">
+                    Tambahkan
                 </button>
             </div>
         </div>
