@@ -1084,6 +1084,8 @@
                 selectedImageWidth: '',
                 selectedImageUrl: '',
                 dialogScripts: {}, // Master mapping untuk auto-populate
+                showBubbleModal: false,
+                bubbleModalData: { panelId: '', type: 'balloon', tailDir: 'down' },
 
                 get totalPages() {
                     return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
@@ -1257,11 +1259,15 @@
                 },
 
                 insertComicText() {
+                    this.bubbleModalData = { panelId: '', type: 'balloon', tailDir: 'down' };
+                    this.showBubbleModal = true;
+                },
+
+                confirmInsertComicText() {
                     const editor = document.getElementById('classic-editor-body');
                     if (!editor) return;
 
-                    // Tanya Panel ID untuk auto-populate
-                    const panelId = prompt("Masukkan Panel ID (misal: H1-P4) atau kosongkan untuk teks manual:");
+                    const panelId = this.bubbleModalData.panelId || '';
                     let textId = "Ketik teks Indonesia...";
                     let textEn = "Type English text...";
 
@@ -1269,6 +1275,12 @@
                         textId = this.dialogScripts[panelId].id || textId;
                         textEn = this.dialogScripts[panelId].en || textEn;
                     }
+
+                    const isBalloon = this.bubbleModalData.type === 'balloon';
+                    const balloonClass = isBalloon ? 'has-balloon' : '';
+                    
+                    // tail-left, tail-right, tail-up, tail-none, tail-down
+                    const tailClass = isBalloon ? `tail-${this.bubbleModalData.tailDir || 'down'}` : '';
 
                     const editorWidth = editor.getBoundingClientRect().width || 800;
                     const id = 'comic-text-' + Date.now();
@@ -1281,7 +1293,7 @@
                     const padCqi = (5 / editorWidth * 100).toFixed(2);
 
                     const html = `
-                        <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId || ''}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
+                        <div class="speech-bubble group/text ${balloonClass} ${tailClass}" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
                                 ✥ Drag ${panelId ? '('+panelId+')' : ''}
                             </div>
@@ -1295,6 +1307,7 @@
                         </div>
                     `;
                     editor.insertAdjacentHTML('beforeend', html);
+                    this.showBubbleModal = false;
                     showToast(panelId ? `Teks ${panelId} berhasil dimuat!` : 'Teks manual ditambahkan.', 'info');
                 },
 
