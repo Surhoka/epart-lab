@@ -1613,10 +1613,11 @@
                     if (editorBody) {
                         let contentHtml = editorBody.innerHTML;
 
-                        // Jika Mode Comic, bersihkan JSON-LD lama dan buat yang baru secara otomatis
+                        // Jika Mode Comic, bersihkan JSON-LD lama, naskah lama, dan buat yang baru secara otomatis
                         if (this.post.postMode === 'comic') {
-                            // Hapus script JSON-LD lama agar tidak terjadi duplikasi data di konten
+                            // Hapus script lama agar tidak terjadi duplikasi data di konten
                             contentHtml = contentHtml.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '').trim();
+                            contentHtml = contentHtml.replace(/<script type="application\/json" id="ezy-dialog-script">[\s\S]*?<\/script>/gi, '').trim();
 
                             // Ekstrak URL gambar terbaru dari apa yang ada di dalam editor saat ini
                             const parser = new DOMParser();
@@ -1624,10 +1625,16 @@
                             const images = Array.from(doc.querySelectorAll('img')).map(img => img.src).filter(src => src && !src.startsWith('data:'));
 
                             if (images.length > 0) {
-                                contentHtml += `\n<script type="application/ld+json">${JSON.stringify(this._generateComicJsonLd(images))}</script>`;
+                                contentHtml += `<script type="application/ld+json">${JSON.stringify(this._generateComicJsonLd(images))}</script>`;
+                            }
+
+                            // Masukkan Master Script (JSON Mapping) langsung ke dalam HTML konten tanpa newline
+                            if (Object.keys(this.dialogScripts).length > 0) {
+                                contentHtml += `<script type="application/json" id="ezy-dialog-script">${JSON.stringify(this.dialogScripts)}</script>`;
                             }
                         }
-                        this.post.content = contentHtml;
+                        // Hilangkan newline (\r, \n) agar baris di spreadsheet tetap rapat (horizontal/single-line)
+                        this.post.content = contentHtml.replace(/[\r\n]+/g, ' ').trim();
                     }
 
                     if (!this.post.id) this.post.dateCreated = new Date().toISOString();
@@ -1758,8 +1765,22 @@
                     if (normalizedPost.postMode === 'comic') {
                         const extractedUrls = this.extractImageUrls(normalizedPost.content);
                         this.comicPageUrls = extractedUrls.length > 0 ? extractedUrls : [''];
+
+                        // Ekstrak Master Script (JSON Mapping) dari tag script di HTML
+                        this.dialogScripts = {};
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(normalizedPost.content, 'text/html');
+                        const scriptEl = doc.getElementById('ezy-dialog-script');
+                        if (scriptEl) {
+                            try {
+                                this.dialogScripts = JSON.parse(scriptEl.textContent);
+                            } catch (e) {
+                                console.error("Gagal parse ezy-dialog-script:", e);
+                            }
+                        }
                     } else {
                         this.comicPageUrls = [''];
+                        this.dialogScripts = {};
                     }
 
                     this._switchToEditor(normalizedPost);
@@ -1769,6 +1790,7 @@
                     this.activeTab = 'list';
                     this.post = JSON.parse(JSON.stringify(this.defaultPost));
                     this.comicPageUrls = [''];
+                    this.dialogScripts = {};
                     setTimeout(() => {
                         const editorBody = document.getElementById('classic-editor-body');
                         if (editorBody) editorBody.innerHTML = '';
@@ -1777,6 +1799,7 @@
 
                 newPost() {
                     this.comicPageUrls = [''];
+                    this.dialogScripts = {};
                     this._switchToEditor(JSON.parse(JSON.stringify(this.defaultPost)));
                 },
 
