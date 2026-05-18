@@ -441,6 +441,16 @@
         return !!extractYoutubeId(url);
     }
 
+    function slugify_(text) {
+        if (!text) return '';
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '-')           // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+            .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+            .replace(/^-+/, '')             // Trim - from start of text
+            .replace(/-+$/, '');            // Trim - from end of text
+    }
+
     const registerAlbumManager = () => {
         if (window.Alpine?.data && !window.Alpine.data('albumManager')) {
             window.Alpine.data('albumManager', () => ({
@@ -669,7 +679,7 @@
                             dbId: this.dbId,
                             blogId: getBlogId(), // Tambahkan blogId
                             parent_id: this.editingAlbum.parent_id || '', // Pastikan parent_id tetap dikirim
-                            slug: '' // Kirim slug kosong agar backend meng-generate otomatis dari nama
+                            slug: slugify_(this.editingAlbum.name) // Generate slug di frontend agar tidak menyebabkan ReferenceError di backend
                         };
                         const res = await new Promise((resolve, reject) => {
                             window.sendDataToGoogle('saveAlbum', payload, resolve, reject);
