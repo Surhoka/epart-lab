@@ -187,7 +187,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                                <template x-for="file in filteredAlbumFiles" :key="file.id">
+                                <template x-for="file in paginatedAlbumFiles" :key="file.id">
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
                                         <!-- Preview Cell -->
                                         <td class="px-6 py-4">
@@ -277,7 +277,7 @@
 
                     <!-- Mobile Card View -->
                     <div class="md:hidden space-y-4">
-                        <template x-for="file in filteredAlbumFiles" :key="file.id">
+                        <template x-for="file in paginatedAlbumFiles" :key="file.id">
                             <div
                                 class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
                                 <div class="flex gap-4">
@@ -344,6 +344,34 @@
                                 </div>
                             </div>
                         </template>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-gray-100 dark:border-gray-800 pt-4" x-show="totalPages > 1">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Menampilkan <span class="font-medium text-gray-900 dark:text-white" x-text="(currentPage - 1) * itemsPerPage + 1"></span> - 
+                            <span class="font-medium text-gray-900 dark:text-white" x-text="Math.min(currentPage * itemsPerPage, filteredAlbumFiles.length)"></span> 
+                            dari <span class="font-medium text-gray-900 dark:text-white" x-text="filteredAlbumFiles.length"></span> data
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" 
+                                class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                                <svg class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                </svg>
+                                Prev
+                            </button>
+                            <span class="text-sm text-gray-600 dark:text-gray-300">
+                                Halaman <span class="font-semibold" x-text="currentPage"></span> dari <span class="font-semibold" x-text="totalPages"></span>
+                            </span>
+                            <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages" 
+                                class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                                Next
+                                <svg class="w-4 h-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </template>
