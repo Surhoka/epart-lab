@@ -59,6 +59,13 @@
             word-wrap: break-word !important;
         }
 
+        /* Reset margin dan padding untuk elemen baru (div, p, br) yang dibuat otomatis oleh browser saat mengetik/Enter */
+        .speech-bubble .comic-text-box * {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.2 !important;
+        }
+
         /* Mode Balon Dialog Premium (Hanya jika parent memiliki class .has-balloon) */
         .speech-bubble.has-balloon .comic-text-box {
             position: relative !important;
@@ -274,7 +281,7 @@
         <div class="space-y-4">
             <!-- Desktop Table View -->
             <div
-                class="hidden md:block rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+                class="block max-md:hidden rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr
