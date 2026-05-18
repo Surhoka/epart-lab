@@ -467,6 +467,18 @@
                 isEditing: false,
                 editingAlbum: {},
                 youtubeInput: { url: '', title: '', isSaving: false },
+                currentPage: 1,
+                itemsPerPage: 10,
+
+                get paginatedAlbumFiles() {
+                    const start = (this.currentPage - 1) * this.itemsPerPage;
+                    const end = start + this.itemsPerPage;
+                    return this.filteredAlbumFiles.slice(start, end);
+                },
+
+                get totalPages() {
+                    return Math.max(1, Math.ceil(this.filteredAlbumFiles.length / this.itemsPerPage));
+                },
 
                 async provisionDatabase() {
                     if (!confirm('Buat Spreadsheet terpisah untuk Public Content? Seluruh data Hero, Kategori, dan Album akan dipindahkan ke file baru.')) return;
@@ -514,6 +526,10 @@
                 },
 
                 async init() {
+                    if (this.$watch) {
+                        this.$watch('fileSearchQuery', () => { this.currentPage = 1; });
+                        this.$watch('selectedAlbumId', () => { this.currentPage = 1; });
+                    }
                     const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
                     this.dbId = getDbId();
 
