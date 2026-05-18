@@ -164,7 +164,7 @@
           opacity: Math.random() * 0.5 + 0.1
       }))
   }"
-    class="flex w-full lg:w-1/2 max-lg:hidden items-center justify-center p-8 bg-brand-950 dark:bg-black relative overflow-hidden">
+    class="flex max-lg:hidden w-full lg:w-1/2 items-center justify-center p-8 bg-brand-950 dark:bg-black relative overflow-hidden">
 
     <!-- Particles -->
     <template x-for="particle in particles" :key="particle.id">
@@ -206,7 +206,7 @@
 
 
 <!-- Toggler -->
-<div class="fixed z-50 flex items-center gap-3 top-6 right-6 max-sm:hidden">
+<div class="fixed z-50 flex items-center gap-3 max-sm:hidden top-6 right-6">
   <!-- Language Toggle -->
   <button
     class="inline-flex items-center justify-center size-10 text-xs font-bold text-white transition-colors rounded-full bg-brand-500 hover:bg-brand-600"
