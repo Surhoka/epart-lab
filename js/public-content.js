@@ -1319,15 +1319,17 @@
                     const padCqi = (5 / editorWidth * 100).toFixed(2);
 
                     const html = `
-                        <div class="speech-bubble group/text ${balloonClass} ${tailClass} comic-text-box" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px; padding: ${padCqi}cqi; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: ${fontCqi}cqi; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: max-content; box-sizing: border-box;" contenteditable="false">
+                        <div class="speech-bubble group/text ${balloonClass} ${tailClass}" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
                                 ✥ Drag ${panelId ? '('+panelId+')' : ''}
                             </div>
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="lang-id" contenteditable="true" style="display: block;">${textId}</div>
-                            <div class="lang-en" contenteditable="true" style="display: none;">${textEn}</div>
+                            <div class="bubble-content comic-text-box" style="padding: ${padCqi}cqi; color: black; font-family: 'Outfit', sans-serif; font-weight: bold; font-size: ${fontCqi}cqi; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: max-content; box-sizing: border-box;">
+                                <div class="lang-id" contenteditable="true" style="display: block;">${textId}</div>
+                                <div class="lang-en" contenteditable="true" style="display: none;">${textEn}</div>
+                            </div>
                         </div>
                     `;
                     editor.insertAdjacentHTML('beforeend', html);
@@ -1400,7 +1402,7 @@
 
                     // Convert any pixel width/height (from native resize) to cqi so it remains responsive
                     editor.querySelectorAll('.speech-bubble').forEach(bubble => {
-                        const box = bubble.classList.contains('comic-text-box') ? bubble : bubble.querySelector('.comic-text-box');
+                        const box = bubble.querySelector('.comic-text-box');
                         if (box) {
                             if (box.style.width && box.style.width.endsWith('px')) {
                                 const px = parseFloat(box.style.width);
