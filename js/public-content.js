@@ -28,41 +28,6 @@
         }
     }
 
-    function showLoadingToast(message = 'Loading...') {
-        if (typeof window.showToast === 'function') {
-            return window.showToast(message, 'info', 0);
-        }
-
-        setTimeout(() => {
-            if (typeof window.showToast === 'function') {
-                window.showToast(message, 'info', 0);
-            }
-        }, 500);
-        return null;
-    }
-
-    function hideToast(id) {
-        if (!id || typeof window.hideToast !== 'function') return;
-        window.hideToast(id);
-    }
-
-    function watchLoadingToast(component, field = 'isLoading', message = 'Loading...') {
-        component.loadingToastId = null;
-        if (typeof component.$watch !== 'function') return;
-
-        component.$watch(field, (value) => {
-            if (value) {
-                if (component.loadingToastId) {
-                    hideToast(component.loadingToastId);
-                }
-                component.loadingToastId = showLoadingToast(message);
-            } else {
-                hideToast(component.loadingToastId);
-                component.loadingToastId = null;
-            }
-        });
-    }
-
     // Shared DB ID Utility
     function getDbId() {
         try {
@@ -107,7 +72,6 @@
                 async init() {
                     this.dbId = getDbId();
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
-                    watchLoadingToast(this, 'isLoading', 'Memuat hero slides...');
                     await this.fetchSlides();
                 },
 
@@ -220,7 +184,6 @@
                 async init() {
                     this.dbId = getDbId();
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
-                    watchLoadingToast(this, 'isLoading', 'Memuat kategori...');
                     await this.fetchCategories();
                 },
 
@@ -334,7 +297,6 @@
                 async init() {
                     this.dbId = getDbId();
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
-                    watchLoadingToast(this, 'isLoading', 'Memuat produk unggulan...');
                     await Promise.all([
                         this.fetchProducts(),
                         this.fetchCategories()
@@ -568,7 +530,6 @@
                         this.$watch('fileSearchQuery', () => { this.currentPage = 1; });
                         this.$watch('selectedAlbumId', () => { this.currentPage = 1; });
                     }
-                    watchLoadingToast(this, 'isLoading', 'Memuat album...');
                     const cache = JSON.parse(localStorage.getItem('EzypartsConfig') || '{}');
                     this.dbId = getDbId();
 
@@ -1217,7 +1178,6 @@
 
                 async init() {
                     console.log('[POST.JS] Komponen postEditor diinisialisasi.');
-                    watchLoadingToast(this, 'isLoading', 'Memuat postingan...');
                     this.post = JSON.parse(JSON.stringify(this.defaultPost));
                     this.$watch('post.title', value => {
                         if (value && this.post.permalinkMode === 'auto') {
@@ -1489,6 +1449,11 @@
                                     postData.category.split(',').forEach(cat => allCategories.add(cat.trim()));
                                 }
                                 return postData;
+                            });
+                            this.posts = this.posts.sort((a, b) => {
+                                const aDate = new Date(a.lastModified || a.dateCreated).getTime() || 0;
+                                const bDate = new Date(b.lastModified || b.dateCreated).getTime() || 0;
+                                return bDate - aDate;
                             });
                             this.categories = Array.from(allCategories).sort();
                             this.currentPage = 1;
@@ -2172,7 +2137,6 @@
                 async init() {
                     this.dbId = getDbId();
                     if (!this.dbId) showToast('Database ID tidak ditemukan.', 'error');
-                    watchLoadingToast(this, 'isLoading', 'Memuat data branding...');
                     await this.fetchBrandingData();
                 },
 
