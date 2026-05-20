@@ -38,13 +38,12 @@
             transition: all 0.2s;
         }
 
-        .speech-bubble:not(.has-balloon):hover {
+        .speech-bubble:not(.has-balloon):hover .comic-text-box {
             border-color: rgba(0, 0, 0, 0.3);
             background-color: rgba(255, 255, 255, 0.5);
         }
 
-        .speech-bubble:not(.has-balloon) .lang-id:focus,
-        .speech-bubble:not(.has-balloon) .lang-en:focus {
+        .speech-bubble:not(.has-balloon) .comic-text-box:focus {
             background-color: rgba(255, 255, 255, 0.95);
             border: 1px dashed #3b82f6;
             outline: none;
@@ -52,8 +51,8 @@
         }
 
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
-        .speech-bubble .lang-id,
-        .speech-bubble .lang-en {
+        .speech-bubble .comic-text-box .lang-id,
+        .speech-bubble .comic-text-box .lang-en {
             font-size: 11cqi !important; /* Mengikuti lebar container balon dialog */
             line-height: 1.2 !important;
             width: 100% !important;
@@ -61,17 +60,14 @@
         }
 
         /* Reset margin dan padding untuk elemen baru (div, p, br) yang dibuat otomatis oleh browser saat mengetik/Enter */
-        .speech-bubble .lang-id,
-        .speech-bubble .lang-en,
-        .speech-bubble .lang-id *,
-        .speech-bubble .lang-en * {
+        .speech-bubble .comic-text-box * {
             margin: 0 !important;
             padding: 0 !important;
             line-height: 1.2 !important;
         }
 
         /* Mode Balon Dialog Premium (Hanya jika parent memiliki class .has-balloon) */
-        .speech-bubble.has-balloon.comic-text-box {
+        .speech-bubble.has-balloon .comic-text-box {
             position: relative !important;
             background-color: #ffffff !important;
             border: 2.5px solid #000000 !important;
@@ -209,13 +205,12 @@
             display: none !important;
         }
 
-        .speech-bubble.has-balloon:hover {
+        .speech-bubble.has-balloon:hover .comic-text-box {
             transform: scale(1.01);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important;
         }
 
-        .speech-bubble.has-balloon .lang-id:focus,
-        .speech-bubble.has-balloon .lang-en:focus {
+        .speech-bubble.has-balloon .comic-text-box:focus {
             outline: none !important;
             border-color: #3b82f6 !important; /* Beri warna biru penunjuk fokus saat mengedit */
         }
