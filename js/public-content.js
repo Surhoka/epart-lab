@@ -1541,7 +1541,7 @@
                 insertImageAtCursor(url) {
                     this.restoreSelection();
                     // Menambahkan atribut draggable dan cursor pointer agar user tahu ini bisa berinteraksi
-                    const imgHtml = `<img src="${url}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Image" />`;
+                    const imgHtml = `<img src="${url}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0;" alt="Image" />`;
                     document.execCommand('insertHTML', false, imgHtml);
                 },
 
@@ -1561,7 +1561,7 @@
                     this.restoreSelection();
                     let html = '';
                     validUrls.forEach(url => {
-                        html += `<img src="${url.trim()}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Comic Page" />`;
+                        html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0;" alt="Comic Page" />`;
                     });
                     document.execCommand('insertHTML', false, html);
                     showToast(`${validUrls.length} halaman ditambahkan`, 'success');
@@ -1579,7 +1579,7 @@
                     this.restoreSelection();
                     let html = '';
                     urls.forEach(url => {
-                        html += `<img src="${url}" draggable="true" class="max-w-full h-auto rounded-lg my-4 cursor-pointer" alt="Comic Page" />`;
+                        html += `<img src="${url}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0;" alt="Comic Page" />`;
                     });
 
                     document.execCommand('insertHTML', false, html);
