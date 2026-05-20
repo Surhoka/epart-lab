@@ -300,11 +300,6 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        <template x-if="isLoading">
-                            <tr>
-                                <td colspan="7" class="px-6 py-10 text-center text-gray-400">Loading posts...</td>
-                            </tr>
-                        </template>
                         <template x-if="!isLoading && posts.length === 0">
                             <tr>
                                 <td colspan="7" class="px-6 py-10 text-center text-gray-400">No posts found. Create your
@@ -375,9 +370,6 @@
 
             <!-- Mobile Card View -->
             <div class="md:hidden space-y-3">
-                <template x-if="isLoading">
-                    <div class="py-10 text-center text-gray-400">Loading posts...</div>
-                </template>
                 <template x-if="!isLoading && posts.length === 0">
                     <div class="py-10 text-center text-gray-400">No posts found.</div>
                 </template>
