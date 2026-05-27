@@ -43,7 +43,6 @@
             border-radius: 8px;
             box-sizing: border-box !important;
             transition: all 0.2s;
-            container-type: inline-size !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -66,8 +65,7 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            font-size: 11cqi !important;
-            /* Mengikuti lebar container balon dialog */
+            font-size: 2.2cqi !important;
             line-height: inherit !important;
             font-weight: inherit !important;
             font-style: inherit !important;
@@ -98,12 +96,15 @@
             border-radius: 30px !important;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
             color: #000000 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            text-align: center !important;
             padding: 8px 16px !important;
             min-height: 40px !important;
             transition: all 0.2s;
             overflow: hidden !important;
-            /* Diaktifkan kembali agar fungsi resize: both browser berjalan */
-            container-type: inline-size !important;
         }
 
         /* Ekor Balon Dialog (Default / Pointing Down) */
