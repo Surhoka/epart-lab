@@ -1308,6 +1308,7 @@
 
                     const topCqi = (topPos / editorWidth * 100).toFixed(2);
                     const widthCqi = (150 / editorWidth * 100).toFixed(2);
+                    const heightCqi = (widthCqi * 0.6).toFixed(2); // Inisialisasi tinggi proporsional
 
                     const html = `
                         <div class="speech-bubble group/text ${balloonClass} ${tailClass}" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
@@ -1317,7 +1318,7 @@
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: visible; width: ${widthCqi}cqi; height: auto; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.2; text-align: center; min-height: 40px; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: ${heightCqi}cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                                 <div class="lang-id" contenteditable="true" style="display: block;">${textId}</div>
                                 <div class="lang-en" contenteditable="true" style="display: none;">${textEn}</div>
                             </div>
