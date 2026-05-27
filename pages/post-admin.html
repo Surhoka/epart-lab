@@ -67,20 +67,21 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            font-size: calc(10cqi + 0.1px) !important;
-            line-height: calc(1.1 + 0.1) !important;
+            font-size: calc(11cqi + 0.1px) !important;
+            line-height: calc(1.15 + 0.05) !important;
             font-weight: inherit !important;
             font-style: inherit !important;
             text-decoration: inherit !important;
             text-align: inherit !important;
             color: inherit !important;
             width: 100% !important;
+            min-width: 100% !important;
             word-wrap: break-word !important;
             overflow-wrap: anywhere !important;
-            word-break: normal !important;
+            word-break: break-word !important;
             outline: none !important;
             hyphens: auto;
-            text-wrap: pretty;
+            text-wrap: balance !important;
         }
 
         /* Reset margin dan padding untuk elemen baru (div, p, br) yang dibuat otomatis oleh browser saat mengetik/Enter */
