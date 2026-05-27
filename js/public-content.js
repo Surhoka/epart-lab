@@ -1312,8 +1312,8 @@
                                 &times;
                             </button>
                             <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: calc(1.1 + 0.1); text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: auto; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                <div class="lang-id" contenteditable="true" style="display: block; width: 100%; outline: none;">${textId}</div>
-                                <div class="lang-en" contenteditable="true" style="display: none; width: 100%; outline: none;">${textEn}</div>
+                                <div class="lang-id" contenteditable="true" style="display: block; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere;">${textId}</div>
+                                <div class="lang-en" contenteditable="true" style="display: none; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere;">${textEn}</div>
                             </div>
                         </div>
                     `;
