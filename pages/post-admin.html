@@ -67,21 +67,23 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            font-size: calc(11cqi + 0.1px) !important;
-            line-height: calc(1.15 + 0.1) !important;
+            /* Base 12px + 4% lebar container. Teks akan reflow karena lebar kotak bertambah lebih cepat dari font */
+            font-size: calc(12px + 4cqi) !important;
+            line-height: 1.2 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
             text-decoration: inherit !important;
             text-align: inherit !important;
             color: inherit !important;
             width: 100% !important;
-            min-width: 0 !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
             word-wrap: break-word !important;
             overflow-wrap: anywhere !important;
             word-break: break-word !important;
             outline: none !important;
             hyphens: auto;
-            text-wrap: balance !important;
+            text-wrap: pretty !important;
             white-space: normal !important;
             display: block;
         }
