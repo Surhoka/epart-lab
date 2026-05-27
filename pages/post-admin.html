@@ -3,6 +3,13 @@
         #classic-editor-body img {
             transition: all 0.2s;
             outline: 2px solid transparent;
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
         }
 
         #classic-editor-body img:hover {
@@ -53,8 +60,14 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            font-size: 11cqi !important; /* Mengikuti lebar container balon dialog */
-            line-height: 1.2 !important;
+            font-size: 11cqi !important;
+            /* Mengikuti lebar container balon dialog */
+            line-height: inherit !important;
+            font-weight: inherit !important;
+            font-style: inherit !important;
+            text-decoration: inherit !important;
+            text-align: inherit !important;
+            color: inherit !important;
             width: 100% !important;
             word-wrap: break-word !important;
             outline: none !important;
@@ -82,7 +95,8 @@
             padding: 8px 16px !important;
             min-height: 40px !important;
             transition: all 0.2s;
-            overflow: hidden !important; /* Diaktifkan kembali agar fungsi resize: both browser berjalan */
+            overflow: hidden !important;
+            /* Diaktifkan kembali agar fungsi resize: both browser berjalan */
             container-type: inline-size !important;
         }
 
@@ -101,6 +115,7 @@
             border-color: #000000 transparent transparent transparent !important;
             z-index: 99 !important;
         }
+
         .speech-bubble.has-balloon.tail-down::before,
         .speech-bubble.has-balloon:not(.tail-left):not(.tail-right):not(.tail-up):not(.tail-none)::before {
             content: '' !important;
@@ -130,6 +145,7 @@
             border-color: transparent #000000 transparent transparent !important;
             z-index: 99 !important;
         }
+
         .speech-bubble.has-balloon.tail-left::before {
             content: '' !important;
             position: absolute !important;
@@ -158,6 +174,7 @@
             border-color: transparent transparent transparent #000000 !important;
             z-index: 99 !important;
         }
+
         .speech-bubble.has-balloon.tail-right::before {
             content: '' !important;
             position: absolute !important;
@@ -186,6 +203,7 @@
             border-color: transparent transparent #000000 transparent !important;
             z-index: 99 !important;
         }
+
         .speech-bubble.has-balloon.tail-up::before {
             content: '' !important;
             position: absolute !important;
@@ -213,11 +231,13 @@
 
         .speech-bubble.has-balloon .comic-text-box:focus-within {
             outline: none !important;
-            border-color: #3b82f6 !important; /* Beri warna biru penunjuk fokus saat mengedit */
+            border-color: #3b82f6 !important;
+            /* Beri warna biru penunjuk fokus saat mengedit */
         }
 
         #classic-editor-body {
             position: relative;
+            padding: 0 !important;
         }
     </style>
 
@@ -634,7 +654,7 @@
 
                     </div>
 
-                    <div class="p-4 sm:p-10">
+                    <div :class="post.postMode === 'comic' ? 'p-0' : 'p-4 sm:p-10'">
                         <div id="classic-editor-body" x-ref="editor" contenteditable="true"
                             class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none h-[500px] overflow-y-auto custom-scrollbar focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
                             style="container-type: inline-size;" placeholder="Start telling your story...">
@@ -1057,9 +1077,12 @@
                 </button>
             </div>
             <div class="p-6 space-y-4">
-                <p class="text-xs text-gray-500 dark:text-gray-400">Tempelkan JSON Mapping Dialog Anda di bawah ini untuk mengaktifkan fitur Auto-Populate pada balon teks komik.</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Tempelkan JSON Mapping Dialog Anda di bawah ini
+                    untuk mengaktifkan fitur Auto-Populate pada balon teks komik.</p>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-widest">JSON Mapping</label>
+                    <label
+                        class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-widest">JSON
+                        Mapping</label>
                     <textarea x-model="masterScriptInput" rows="12"
                         class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 text-[11px] font-mono focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50 dark:text-brand-300 custom-scrollbar"
                         placeholder='{ "H1-P1": { "id": "Teks Indonesia", "en": "English Text" } }'></textarea>
@@ -1099,27 +1122,42 @@
             <div class="p-6 space-y-5">
                 <!-- Input Panel ID -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wider">Panel ID (Optional)</label>
-                    <input type="text" x-model="bubbleModalData.panelId" placeholder="contoh: H1-P1 (kosongkan untuk manual)"
+                    <label
+                        class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wider">Panel
+                        ID (Optional)</label>
+                    <input type="text" x-model="bubbleModalData.panelId"
+                        placeholder="contoh: H1-P1 (kosongkan untuk manual)"
                         class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
-                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Gunakan Panel ID jika ingin teks dialog otomatis di-populate dari Master Script.</p>
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Gunakan Panel ID jika ingin teks dialog
+                        otomatis di-populate dari Master Script.</p>
                 </div>
 
                 <!-- Tipe Balon Selection -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">Tipe Balon Dialog</label>
+                    <label
+                        class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">Tipe
+                        Balon Dialog</label>
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" @click="bubbleModalData.type = 'balloon'"
                             :class="bubbleModalData.type === 'balloon' ? 'border-brand-500 bg-brand-50/50 text-brand-700 dark:bg-brand-900/15 dark:text-brand-400' : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/5'"
                             class="flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                </path>
+                            </svg>
                             <span class="text-xs font-bold">Balon Komik</span>
                             <span class="text-[9px] text-gray-400">Putih solid + Ekor penunjuk</span>
                         </button>
                         <button type="button" @click="bubbleModalData.type = 'transparent'"
                             :class="bubbleModalData.type === 'transparent' ? 'border-brand-500 bg-brand-50/50 text-brand-700 dark:bg-brand-900/15 dark:text-brand-400' : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/5'"
                             class="flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h7"></path>
+                            </svg>
                             <span class="text-xs font-bold">Teks Transparan</span>
                             <span class="text-[9px] text-gray-400">Untuk komik dengan balon di gambar</span>
                         </button>
@@ -1128,7 +1166,9 @@
 
                 <!-- Arah Buntut (Tail Direction) - Hanya jika Balon Komik dipilih -->
                 <div x-show="bubbleModalData.type === 'balloon'" x-transition class="space-y-2">
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Arah Buntut Balon (Tail Pointer)</label>
+                    <label
+                        class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Arah
+                        Buntut Balon (Tail Pointer)</label>
                     <div class="grid grid-cols-5 gap-1.5">
                         <button type="button" @click="bubbleModalData.tailDir = 'down'"
                             :class="bubbleModalData.tailDir === 'down' ? 'bg-slate-900 text-white dark:bg-brand-500' : 'bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300'"
