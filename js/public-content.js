@@ -441,7 +441,7 @@
         return !!extractYoutubeId(url);
     }
 
-    window.slugify_ = function(text) {
+    window.slugify_ = function (text) {
         if (!text) return '';
         return text.toString().toLowerCase()
             .replace(/\s+/g, '-')           // Replace spaces with -
@@ -1126,8 +1126,8 @@
                 // Fungsi untuk membuka modal naskah dialog
                 loadDialogScript() {
                     // Pre-fill dengan data yang sudah ada jika tersedia
-                    this.masterScriptInput = Object.keys(this.dialogScripts).length > 0 
-                        ? JSON.stringify(this.dialogScripts, null, 2) 
+                    this.masterScriptInput = Object.keys(this.dialogScripts).length > 0
+                        ? JSON.stringify(this.dialogScripts, null, 2)
                         : '';
                     this.masterScriptModal = true;
                 },
@@ -1152,7 +1152,7 @@
                 toggleEditorLanguage(lang) {
                     const editor = document.getElementById('classic-editor-body');
                     if (!editor) return;
-                    
+
                     editor.querySelectorAll('.lang-id').forEach(el => el.style.display = lang === 'id' ? 'block' : 'none');
                     editor.querySelectorAll('.lang-en').forEach(el => el.style.display = lang === 'en' ? 'block' : 'none');
                     showToast(`Preview Bahasa: ${lang.toUpperCase()}`, 'info');
@@ -1304,7 +1304,7 @@
 
                     const isBalloon = this.bubbleModalData.type === 'balloon';
                     const balloonClass = isBalloon ? 'has-balloon' : '';
-                    
+
                     // tail-left, tail-right, tail-up, tail-none, tail-down
                     const tailClass = isBalloon ? `tail-${this.bubbleModalData.tailDir || 'down'}` : '';
 
@@ -1321,7 +1321,7 @@
                     const html = `
                         <div class="speech-bubble group/text ${balloonClass} ${tailClass}" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
-                                ✥ Drag ${panelId ? '('+panelId+')' : ''}
+                                ✥ Drag ${panelId ? '(' + panelId + ')' : ''}
                             </div>
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
@@ -1503,11 +1503,39 @@
                 },
 
                 execCommand(command, value = null) {
-                    if (command.startsWith('formatBlock:')) {
-                        const tag = command.split(':')[1];
-                        document.execCommand('formatBlock', false, tag);
+                    const sel = window.getSelection();
+                    let contentBox = null;
+                    if (sel.rangeCount > 0) {
+                        const node = sel.getRangeAt(0).commonAncestorContainer;
+                        const bubble = node.nodeType === 1 ? node.closest('.speech-bubble') : node.parentElement.closest('.speech-bubble');
+                        if (bubble) contentBox = bubble.querySelector('.comic-text-box');
+                    }
+
+                    // SINKRONISASI: Jika di dalam balon, angkat gaya ke parent agar ID & EN seragam
+                    const hoistMap = {
+                        'bold': 'fontWeight',
+                        'italic': 'fontStyle',
+                        'underline': 'textDecoration',
+                        'justifyLeft': 'textAlign',
+                        'justifyCenter': 'textAlign',
+                        'justifyRight': 'textAlign',
+                        'foreColor': 'color'
+                    };
+
+                    if (contentBox && hoistMap[command]) {
+                        const prop = hoistMap[command];
+                        if (command === 'bold') contentBox.style[prop] = contentBox.style[prop] === 'bold' ? '500' : 'bold';
+                        else if (command === 'italic') contentBox.style[prop] = contentBox.style[prop] === 'italic' ? 'normal' : 'italic';
+                        else if (command === 'underline') contentBox.style[prop] = contentBox.style[prop] === 'underline' ? 'none' : 'underline';
+                        else if (command.startsWith('justify')) contentBox.style[prop] = command.replace('justify', '').toLowerCase();
+                        else if (command === 'foreColor') contentBox.style[prop] = value;
                     } else {
-                        document.execCommand(command, false, value);
+                        if (command.startsWith('formatBlock:')) {
+                            const tag = command.split(':')[1];
+                            document.execCommand('formatBlock', false, tag);
+                        } else {
+                            document.execCommand(command, false, value);
+                        }
                     }
                     document.getElementById('classic-editor-body').focus();
                 },
