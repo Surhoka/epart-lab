@@ -65,8 +65,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            font-size: 2.2cqi !important;
-            line-height: inherit !important;
+            font-size: 2.5cqi !important;
+            line-height: 1.2 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
             text-decoration: inherit !important;
@@ -664,7 +664,8 @@
                     <div :class="post.postMode === 'comic' ? 'p-0' : 'p-4 sm:p-10'">
                         <div id="classic-editor-body" x-ref="editor" contenteditable="true"
                             class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none h-[500px] overflow-y-auto custom-scrollbar focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
-                            style="container-type: inline-size;" placeholder="Start telling your story...">
+                            style="container-type: inline-size !important; position: relative;"
+                            placeholder="Start telling your story...">
                         </div>
 
                         <!-- Info Overlay -->
