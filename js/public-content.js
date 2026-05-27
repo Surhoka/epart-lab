@@ -1287,12 +1287,16 @@
                     if (!editor) return;
 
                     const panelId = this.bubbleModalData.panelId || '';
-                    let textId = "Ketik teks Indonesia...";
-                    let textEn = "Type English text...";
+                    let textId = "Ketik teks\nIndonesia...";
+                    let textEn = "Type English\ntext...";
 
                     if (panelId && this.dialogScripts[panelId]) {
-                        textId = this.dialogScripts[panelId].id || textId;
-                        textEn = this.dialogScripts[panelId].en || textEn;
+                        // Ubah newline dari JSON mapping menjadi break HTML agar paragraf tersusun otomatis
+                        textId = (this.dialogScripts[panelId].id || textId).trim().replace(/\n/g, '<br>');
+                        textEn = (this.dialogScripts[panelId].en || textEn).trim().replace(/\n/g, '<br>');
+                    } else {
+                        textId = textId.replace(/\n/g, '<br>');
+                        textEn = textEn.replace(/\n/g, '<br>');
                     }
 
                     const editorWidth = editor.getBoundingClientRect().width || 800;
@@ -1300,20 +1304,23 @@
                     const scrollTop = editor.scrollTop || 0;
                     const topPos = Math.max(100, scrollTop + 100);
 
+                    // Mulai dengan lebar yang lebih rapat untuk memaksa teks melakukan reflow vertikal sejak awal
+                    const baseWidth = 140;
+
                     const topCqi = (topPos / editorWidth * 100).toFixed(2);
-                    const widthCqi = (150 / editorWidth * 100).toFixed(2);
+                    const widthCqi = (baseWidth / editorWidth * 100).toFixed(2);
 
                     const html = `
-                        <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 80px;" contenteditable="false">
+                        <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 50px;" contenteditable="false">
                             <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
                                 ✥ Drag ${panelId ? '(' + panelId + ')' : ''}
                             </div>
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: calc(1.1 + 0.1); text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: auto; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                <div class="lang-id" contenteditable="true" style="display: block; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word;">${textId}</div>
-                                <div class="lang-en" contenteditable="true" style="display: none; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word;">${textEn}</div>
+                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: calc(1.1 + 0.1); text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: auto; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word;">
+                                <div class="lang-id" contenteditable="true" style="display: block; width: 100%; min-width: 0; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textId}</div>
+                                <div class="lang-en" contenteditable="true" style="display: none; width: 100%; min-width: 0; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textEn}</div>
                             </div>
                         </div>
                     `;
