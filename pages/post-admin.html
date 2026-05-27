@@ -67,8 +67,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            /* Menggunakan clamp agar ada batas bawah (10px) sehingga tidak hilang saat kotak sangat kecil */
-            font-size: clamp(10px, 4.5cqi + 7px, 80px) !important;
+            /* Tanpa batas bawah 10px, font akan terus mengecil secara proporsional namun tetap memicu baris baru saat kontainer menyempit */
+            font-size: calc(4.5cqi + 7px) !important;
             line-height: 1.1 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
