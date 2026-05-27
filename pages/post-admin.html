@@ -67,8 +67,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            font-size: 10cqi !important;
-            line-height: 1.2 !important;
+            font-size: calc(10cqi + 0.1px) !important;
+            line-height: calc(1.1 + 0.1) !important;
             font-weight: inherit !important;
             font-style: inherit !important;
             text-decoration: inherit !important;
@@ -76,7 +76,7 @@
             color: inherit !important;
             width: 100% !important;
             word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
+            overflow-wrap: anywhere !important;
             word-break: normal !important;
             outline: none !important;
             hyphens: auto;
