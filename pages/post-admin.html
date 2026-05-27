@@ -43,6 +43,12 @@
             border-radius: 8px;
             box-sizing: border-box !important;
             transition: all 0.2s;
+            container-type: inline-size !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            text-align: center !important;
         }
 
         .speech-bubble:not(.has-balloon):hover .comic-text-box {
@@ -70,8 +76,11 @@
             color: inherit !important;
             width: 100% !important;
             word-wrap: break-word !important;
-            overflow-wrap: anywhere !important;
+            overflow-wrap: break-word !important;
+            word-break: normal !important;
             outline: none !important;
+            hyphens: auto;
+            text-wrap: pretty;
         }
 
         /* Reset margin dan padding untuk elemen baru (div, p, br) yang dibuat otomatis oleh browser saat mengetik/Enter */
@@ -89,10 +98,6 @@
             border-radius: 30px !important;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
             color: #000000 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            align-items: center !important;
             padding: 8px 16px !important;
             min-height: 40px !important;
             transition: all 0.2s;
