@@ -68,7 +68,7 @@
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
             /* Tanpa batas bawah 10px, font akan terus mengecil secara proporsional namun tetap memicu baris baru saat kontainer menyempit */
-            font-size: calc(3.5cqi + 6px) !important;
+            font-size: clamp(10px, calc(3.5cqi + 6px), 42px) !important;
             line-height: 1.1 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
