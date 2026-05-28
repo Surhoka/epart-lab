@@ -1304,11 +1304,13 @@
                     const scrollTop = editor.scrollTop || 0;
                     const topPos = Math.max(100, scrollTop + 100);
 
-                    // Mulai dengan lebar sangat rapat (110px) untuk memaksa font terkecil/paragraf rapat
+                    // Mulai dengan dimensi awal yang pasti agar unit cqmin bekerja
                     const baseWidth = 110;
+                    const baseHeight = 60;
 
                     const topCqi = (topPos / editorWidth * 100).toFixed(2);
                     const widthCqi = (baseWidth / editorWidth * 100).toFixed(2);
+                    const heightCqi = (baseHeight / editorWidth * 100).toFixed(2);
 
                     const html = `
                         <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 50px;" contenteditable="false">
@@ -1318,7 +1320,7 @@
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.1; text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: auto; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word;">
+                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.2; text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: ${heightCqi}cqi; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word;">
                                 <div class="lang-id" contenteditable="true" style="display: block; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textId}</div>
                                 <div class="lang-en" contenteditable="true" style="display: none; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textEn}</div>
                             </div>
