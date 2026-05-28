@@ -1212,6 +1212,17 @@
 
                                 for (let entry of entries) {
                                     if (entry.target.classList.contains('comic-text-box')) {
+                                        const box = entry.target;
+                                        // Konversi hasil resize manual (px) ke unit cqi agar tetap responsif
+                                        // Ini memicu container query (cqmin) untuk memperbarui font-size secara real-time
+                                        if (box.style.width && box.style.width.endsWith('px')) {
+                                            const pxWidth = parseFloat(box.style.width);
+                                            box.style.width = ((pxWidth / editorWidth) * 100).toFixed(2) + 'cqi';
+                                        }
+                                        if (box.style.height && box.style.height.endsWith('px')) {
+                                            const pxHeight = parseFloat(box.style.height);
+                                            box.style.height = ((pxHeight / editorWidth) * 100).toFixed(2) + 'cqi';
+                                        }
                                     }
                                 }
                             });
