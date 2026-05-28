@@ -51,7 +51,6 @@
             text-align: center !important;
             overflow: hidden !important;
             padding: 8px !important;
-            height: auto !important;
         }
 
         .speech-bubble:not(.has-balloon):hover .comic-text-box {
@@ -69,8 +68,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            /* Menggunakan kombinasi cqi (lebar) dan cqb (tinggi) agar teks merespons kedua dimensi secara proporsional */
-            font-size: clamp(8px, calc(4.5cqi + 4.5cqb + 2px), 120px) !important;
+            /* Menggunakan kombinasi cqi (lebar) dan cqb (tinggi) dengan bobot tinggi yang lebih kecil agar tidak terlalu sensitif saat ditarik */
+            font-size: clamp(8px, calc(6cqi + 3cqb + 2px), 120px) !important;
             line-height: 1.2 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
