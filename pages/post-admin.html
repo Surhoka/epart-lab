@@ -43,7 +43,7 @@
             border-radius: 8px;
             box-sizing: border-box !important;
             transition: all 0.2s;
-            container-type: inline-size !important;
+            container-type: size !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -67,8 +67,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            /* Tanpa batas bawah 10px, font akan terus mengecil secara proporsional namun tetap memicu baris baru saat kontainer menyempit */
-            font-size: clamp(10px, calc(3.5cqi + 6px), 42px) !important;
+            /* Menggunakan cqmin agar teks merespons dimensi terkecil (lebar/tinggi) saat resize manual */
+            font-size: clamp(10px, calc(3.5cqmin + 6px), 42px) !important;
             line-height: 1.1 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
