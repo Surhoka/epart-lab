@@ -68,8 +68,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            /* Menggunakan cqmin agar teks merespons dimensi terkecil (lebar/tinggi) saat resize manual */
-            font-size: clamp(8px, calc(9cqmin + 2px), 120px) !important;
+            /* Menggunakan kombinasi cqi (lebar) dan cqb (tinggi) agar teks merespons kedua dimensi secara proporsional */
+            font-size: clamp(8px, calc(4.5cqi + 4.5cqb + 2px), 120px) !important;
             line-height: 1.2 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
