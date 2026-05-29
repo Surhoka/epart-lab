@@ -1213,8 +1213,7 @@
                                 for (let entry of entries) {
                                     if (entry.target.classList.contains('comic-text-box')) {
                                         const box = entry.target;
-                                        // Konversi hasil resize manual (px) ke unit cqi agar tetap responsif terhadap lebar editor
-                                        // Hal ini memicu Container Query (cqi & cqb) untuk memperbarui font-size secara real-time
+                                        // Konversi px ke cqi agar responsif terhadap lebar editor
                                         if (box.style.width && box.style.width.endsWith('px')) {
                                             const pxWidth = parseFloat(box.style.width);
                                             box.style.width = ((pxWidth / editorWidth) * 100).toFixed(2) + 'cqi';
@@ -1223,30 +1222,64 @@
                                             const pxHeight = parseFloat(box.style.height);
                                             box.style.height = ((pxHeight / editorWidth) * 100).toFixed(2) + 'cqi';
                                         }
+                                        // Fit font-size via JS binary search
+                                        this.fitComicTextFont(box);
                                     }
                                 }
                             });
 
-                            // Watch for newly added comic text boxes
+                            // Watch for newly added comic text boxes + text content changes
                             const mutationObserver = new MutationObserver(mutations => {
                                 mutations.forEach(mutation => {
+                                    // Newly added nodes → start observing
                                     mutation.addedNodes.forEach(node => {
                                         if (node.nodeType === 1) {
                                             if (node.classList.contains('comic-text-box')) {
                                                 this.comicTextObserver.observe(node);
+                                                this.fitComicTextFont(node);
                                             }
                                             if (node.querySelectorAll) {
-                                                node.querySelectorAll('.comic-text-box').forEach(box => this.comicTextObserver.observe(box));
+                                                node.querySelectorAll('.comic-text-box').forEach(box => {
+                                                    this.comicTextObserver.observe(box);
+                                                    this.fitComicTextFont(box);
+                                                });
                                             }
                                         }
                                     });
+                                    // Text changes inside lang-id / lang-en → refit with debounce
+                                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                        const target = mutation.target;
+                                        const langEl = (target.nodeType === 1)
+                                            ? target.closest?.('.lang-id, .lang-en')
+                                            : target.parentElement?.closest?.('.lang-id, .lang-en');
+                                        if (langEl) {
+                                            const box = langEl.closest('.comic-text-box');
+                                            if (box) {
+                                                clearTimeout(box._fitTimer);
+                                                box._fitTimer = setTimeout(() => this.fitComicTextFont(box), 120);
+                                            }
+                                        }
+                                    }
                                 });
                             });
-                            mutationObserver.observe(editor, { childList: true, subtree: true });
+                            mutationObserver.observe(editor, { childList: true, subtree: true, characterData: true });
+
+                            // Real-time fitting while the user types
+                            editor.addEventListener('input', (e) => {
+                                const langEl = e.target.closest?.('.lang-id, .lang-en');
+                                if (langEl) {
+                                    const box = langEl.closest('.comic-text-box');
+                                    if (box) {
+                                        clearTimeout(box._fitTimer);
+                                        box._fitTimer = setTimeout(() => this.fitComicTextFont(box), 120);
+                                    }
+                                }
+                            });
 
                             // Observe existing ones
                             editor.querySelectorAll('.comic-text-box').forEach(box => {
                                 this.comicTextObserver.observe(box);
+                                this.fitComicTextFont(box);
                             });
                         }
                     });
@@ -1331,7 +1364,7 @@
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.2; text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: ${heightCqi}cqi; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word; padding: 8px !important;">
+                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.2; text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: ${heightCqi}cqi; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word; padding: 8px;">
                                 <div class="lang-id" contenteditable="true" style="display: block; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textId}</div>
                                 <div class="lang-en" contenteditable="true" style="display: none; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textEn}</div>
                             </div>
@@ -1417,8 +1450,55 @@
                                 const px = parseFloat(box.style.height);
                                 box.style.height = (px / editorWidth * 100).toFixed(2) + 'cqi';
                             }
+                            // Re-fit font after normalization
+                            this.fitComicTextFont(box);
                         }
                     });
+                },
+
+                /**
+                 * Menggunakan binary search untuk mencari ukuran font terbesar yang masih muat
+                 * di dalam kontainer (.comic-text-box) baik secara lebar maupun tinggi.
+                 * Dipanggil saat resize kontainer, penambahan teks, atau pergantian bahasa.
+                 */
+                fitComicTextFont(box) {
+                    if (!box) return;
+                    const w = box.offsetWidth;
+                    const h = box.offsetHeight;
+                    if (w === 0 || h === 0) return;
+
+                    const langId = box.querySelector('.lang-id');
+                    const langEn = box.querySelector('.lang-en');
+                    const targets = [langId, langEn].filter(Boolean);
+                    if (!targets.length) return;
+
+                    // Elemen yang sedang aktif ditampilkan digunakan untuk pengukuran
+                    const activeEl = (langId && langId.style.display !== 'none') ? langId : (langEn || langId);
+                    if (!activeEl) return;
+
+                    const padding = 16; // 8px tiap sisi
+                    const maxW = w - padding;
+                    const maxH = h - padding;
+                    if (maxW <= 0 || maxH <= 0) return;
+
+                    // Sementara hapus inline font-size agar pengukuran bersih
+                    targets.forEach(el => el.style.removeProperty('font-size'));
+
+                    // Binary search: cari font-size terbesar di mana teks masih muat
+                    let lo = 8, hi = 120;
+                    while (hi - lo > 1) {
+                        const mid = Math.floor((lo + hi) / 2);
+                        targets.forEach(el => el.style.setProperty('font-size', mid + 'px', 'important'));
+                        if (activeEl.scrollHeight <= maxH && activeEl.scrollWidth <= maxW) {
+                            lo = mid;
+                        } else {
+                            hi = mid;
+                        }
+                    }
+
+                    // Terapkan ukuran final yang ditemukan
+                    const finalSize = Math.max(8, lo);
+                    targets.forEach(el => el.style.setProperty('font-size', finalSize + 'px', 'important'));
                 },
 
                 async fetchPosts() {
