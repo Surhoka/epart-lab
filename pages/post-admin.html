@@ -374,8 +374,8 @@
                 <div id="sticky-sentinel" class="h-px w-full"></div>
 
                 <!-- Sticky Formatting Toolbar (Dipindahkan keluar dari editor-wrapper) -->
-                <div :class="isToolbarSticky ? 'shadow-xl border-b border-brand-500/10 bg-white dark:bg-gray-900 !rounded-none' : 'bg-gray-50/70 dark:bg-gray-900/50 rounded-t-2xl border-x border-t border-b border-gray-200 dark:border-gray-800'"
-                    class="sticky top-0 lg:top-[70px] z-40 flex flex-wrap items-center gap-1 p-2 backdrop-blur-2xl transition-all duration-300">
+                <div :class="isToolbarSticky ? 'shadow-xl border-b border-brand-500/10 bg-white dark:bg-gray-900 !rounded-none !border-t-0' : 'bg-gray-50/70 dark:bg-gray-900/50 rounded-t-2xl border-x border-t border-b border-gray-200 dark:border-gray-800'"
+                    class="sticky top-0 lg:top-[69px] z-40 flex flex-wrap items-center gap-1 p-2 backdrop-blur-2xl transition-all duration-300">
 
                     <!-- Group: Undo/Redo (Moved to Start) -->
                     <div class="flex items-center gap-1 mr-1">
@@ -543,9 +543,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> <!-- END Left Column -->
 
-        <!-- Right: Sidebar Settings -->
+        <!-- Right: Sidebar Settings (Inside Main Workspace Row) -->
         <div class="w-full lg:w-72 flex-shrink-0 space-y-4">
             <!-- Setelan postingan -->
 
@@ -880,9 +880,9 @@
                 </div>
 
             </div>
-        </div>
-    </div>
-</div>
+        </div> <!-- END Right Sidebar -->
+    </div> <!-- END Main Workspace -->
+</div> <!-- END Editor Tab Content -->
 
 <!-- Image Settings Modal -->
 <div x-show="imageSettingsModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
