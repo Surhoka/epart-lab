@@ -329,12 +329,9 @@
 
     <!-- Tab 2: Editor -->
     <div x-show="activeTab === 'editor'" x-transition x-cloak>
-        <!-- Editor Header (Legacy) -->
-        <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div class="flex-1">
-                <input type="text" x-model="post.title" placeholder="Enter post title here..."
-                    class="w-full border-none bg-transparent p-0 text-3xl font-extrabold tracking-tight text-gray-900 placeholder:text-gray-200 focus:ring-0 dark:text-white dark:placeholder:text-gray-800 lg:text-4xl" />
-            </div>
+
+        <!-- Editor Actions Header -->
+        <div class="mb-4 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-end">
 
             <div class="flex items-center gap-3">
                 <div class="relative flex items-center rounded-2xl border border-gray-200 bg-white transition-all hover:border-gray-300 dark:border-gray-800 dark:bg-white/5 dark:hover:border-gray-700"
@@ -375,7 +372,7 @@
                     class="group relative min-h-[600px] rounded-2xl border border-gray-200 bg-white shadow-sm transition-all focus-within:border-brand-500/30 focus-within:shadow-2xl focus-within:shadow-brand-500/5 dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden">
 
                     <!-- Sentinel untuk deteksi sticky -->
-                    <div id="sticky-sentinel" class="h-0 w-full"></div>
+                    <div id="sticky-sentinel" class="absolute top-0 h-0 w-full"></div>
 
                     <!-- Sticky Formatting Toolbar -->
                     <div :class="isToolbarSticky ? 'shadow-lg border-brand-500/20 bg-white/90 dark:bg-gray-900/90' : 'bg-gray-50/70 dark:bg-gray-900/50'"
@@ -524,6 +521,12 @@
                     </div>
 
                     <div :class="post.postMode === 'comic' ? 'p-0' : 'p-4 sm:p-10'">
+                        <!-- Integrated Post Title -->
+                        <div class="mb-6" :class="post.postMode === 'comic' ? 'px-6 pt-8' : ''">
+                            <input type="text" x-model="post.title" placeholder="Enter post title here..."
+                                class="w-full border-none bg-transparent p-0 text-3xl font-extrabold tracking-tight text-gray-900 placeholder:text-gray-200 focus:ring-0 dark:text-white dark:placeholder:text-gray-800 lg:text-4xl" />
+                        </div>
+
                         <div id="classic-editor-body" x-ref="editor" contenteditable="true"
                             class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none h-[500px] overflow-y-auto custom-scrollbar focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
                             style="container-type: inline-size !important; position: relative;"
