@@ -43,7 +43,6 @@
             border-radius: 8px;
             box-sizing: border-box !important;
             transition: all 0.2s;
-            container-type: size !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
@@ -68,8 +67,8 @@
         /* Teks bahasa di dalam balon dialog akan otomatis membesar/mengecil mengikuti ukuran balon */
         .speech-bubble .comic-text-box .lang-id,
         .speech-bubble .comic-text-box .lang-en {
-            /* Menggunakan kombinasi cqi (lebar) dan cqb (tinggi) dengan bobot tinggi yang lebih kecil agar tidak terlalu sensitif saat ditarik */
-            font-size: clamp(8px, calc(6cqi + 3cqb + 2px), 120px) !important;
+            /* Font-size diatur oleh fitComicTextFont() di JS (binary search). Ini hanya fallback CSS. */
+            font-size: clamp(8px, 5cqi, 48px);
             line-height: 1.2 !important;
             font-weight: inherit !important;
             font-style: inherit !important;
