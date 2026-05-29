@@ -1183,8 +1183,8 @@
                     // Sinkronisasi status sticky toolbar
                     window.addEventListener('scroll', () => {
                         const editorTop = document.getElementById('editor-wrapper')?.getBoundingClientRect().top || 0;
-                        // Gunakan toleransi 71px untuk mengantisipasi ketebalan border
-                        this.isToolbarSticky = editorTop <= 71;
+                        // Gunakan toleransi 70px (tinggi header) agar transisi gaya tepat waktu
+                        this.isToolbarSticky = editorTop <= 70;
                     });
 
                     // Alternatif: Gunakan IntersectionObserver untuk performa lebih baik
@@ -1195,7 +1195,7 @@
                                 this.isToolbarSticky = !entry.isIntersecting;
                             }, {
                                 threshold: [0],
-                                rootMargin: '-70px 0px 0px 0px' // Offset sinkron dengan tinggi header fixed
+                                rootMargin: '-70px 0px 0px 0px' // Memicu sticky tepat saat menyentuh batas header
                             });
                             observer.observe(sentinel);
                         }
