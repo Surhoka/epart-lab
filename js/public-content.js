@@ -1182,9 +1182,11 @@
 
                     // Sinkronisasi status sticky toolbar
                     window.addEventListener('scroll', () => {
-                        const editorTop = document.getElementById('editor-wrapper')?.getBoundingClientRect().top || 0;
-                        // Gunakan toleransi 70px (tinggi header) agar transisi gaya tepat waktu
-                        this.isToolbarSticky = editorTop <= 70;
+                        const sentinel = document.getElementById('sticky-sentinel');
+                        if (sentinel) {
+                            const top = sentinel.getBoundingClientRect().top;
+                            this.isToolbarSticky = top <= 70;
+                        }
                     });
 
                     // Alternatif: Gunakan IntersectionObserver untuk performa lebih baik
