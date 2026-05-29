@@ -1185,7 +1185,7 @@
                         const sentinel = document.getElementById('sticky-sentinel');
                         if (sentinel) {
                             const top = sentinel.getBoundingClientRect().top;
-                            this.isToolbarSticky = top <= 70;
+                            this.isToolbarSticky = top <= 70.5; // Toleransi sub-pixel agar transisi mulus
                         }
                     });
 
