@@ -525,7 +525,7 @@
 
                     <div :class="post.postMode === 'comic' ? 'p-0' : 'p-4 sm:p-10'">
                         <div id="classic-editor-body" x-ref="editor" contenteditable="true"
-                            class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none h-[500px] overflow-y-auto custom-scrollbar focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
+                            class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none min-h-[500px] focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:rounded-xl"
                             style="container-type: inline-size !important; position: relative;"
                             placeholder="Start telling your story...">
                         </div>
@@ -545,7 +545,8 @@
             </div>
 
             <!-- Right: Sidebar Settings -->
-            <div class="w-full lg:w-72 flex-shrink-0 space-y-4">
+            <div
+                class="w-full lg:w-72 flex-shrink-0 space-y-4 lg:sticky lg:top-[70px] lg:self-start lg:max-h-[calc(100vh-100px)] lg:overflow-y-auto lg:custom-scrollbar lg:pr-1">
                 <!-- Setelan postingan -->
 
                 <div
