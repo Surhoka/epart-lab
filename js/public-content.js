@@ -1180,13 +1180,6 @@
                 async init() {
                     console.log('[POST.JS] Komponen postEditor diinisialisasi.');
 
-                    // Sinkronisasi status sticky toolbar
-                    window.addEventListener('scroll', () => {
-                        const editorTop = document.getElementById('editor-wrapper')?.getBoundingClientRect().top || 0;
-                        // Jika posisi atas wrapper sudah melewati batas header (asumsi 70px)
-                        this.isToolbarSticky = editorTop < 70;
-                    });
-
                     // Alternatif: Gunakan IntersectionObserver untuk performa lebih baik
                     this.$nextTick(() => {
                         const sentinel = document.getElementById('sticky-sentinel');
