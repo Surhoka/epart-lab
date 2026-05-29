@@ -1096,6 +1096,7 @@
                 post: {},
                 posts: [],
                 isLoading: false,
+                isToolbarSticky: false,
                 isSyncing: false,
                 currentPage: 1,
                 isDraggingBubble: false,
@@ -1178,6 +1179,25 @@
 
                 async init() {
                     console.log('[POST.JS] Komponen postEditor diinisialisasi.');
+
+                    // Sinkronisasi status sticky toolbar
+                    window.addEventListener('scroll', () => {
+                        const editorTop = document.getElementById('editor-wrapper')?.getBoundingClientRect().top || 0;
+                        // Jika posisi atas wrapper sudah melewati batas header (asumsi 70px)
+                        this.isToolbarSticky = editorTop < 70;
+                    });
+
+                    // Alternatif: Gunakan IntersectionObserver untuk performa lebih baik
+                    this.$nextTick(() => {
+                        const sentinel = document.getElementById('sticky-sentinel');
+                        if (sentinel) {
+                            const observer = new IntersectionObserver(([entry]) => {
+                                this.isToolbarSticky = !entry.isIntersecting;
+                            }, { threshold: [1] });
+                            observer.observe(sentinel);
+                        }
+                    });
+
                     this.post = JSON.parse(JSON.stringify(this.defaultPost));
                     this.$watch('post.title', value => {
                         if (value && this.post.permalinkMode === 'auto') {
