@@ -1183,8 +1183,8 @@
                     // Sinkronisasi status sticky toolbar
                     window.addEventListener('scroll', () => {
                         const editorTop = document.getElementById('editor-wrapper')?.getBoundingClientRect().top || 0;
-                        // Jika posisi atas wrapper sudah melewati batas header (asumsi 70px)
-                        this.isToolbarSticky = editorTop < 70;
+                        // Aktifkan status sticky tepat saat menyentuh batas header (70px)
+                        this.isToolbarSticky = editorTop <= 70;
                     });
 
                     // Alternatif: Gunakan IntersectionObserver untuk performa lebih baik
@@ -1193,7 +1193,10 @@
                         if (sentinel) {
                             const observer = new IntersectionObserver(([entry]) => {
                                 this.isToolbarSticky = !entry.isIntersecting;
-                            }, { threshold: [1] });
+                            }, {
+                                threshold: [0],
+                                rootMargin: '-70px 0px 0px 0px' // Offset sinkron dengan tinggi header fixed
+                            });
                             observer.observe(sentinel);
                         }
                     });
