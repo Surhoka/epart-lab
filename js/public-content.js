@@ -1687,8 +1687,6 @@
                         editor.focus();
                         const sel = window.getSelection();
                         if (this.savedRange && editor.contains(this.savedRange.commonAncestorContainer)) {
-                            sel.removeAllRanges();
-                            sel.addRange(this.savedRange);
                         } else {
                             // Fallback: Jika kursor belum pernah diletakkan, taruh di paling bawah
                             const range = document.createRange();
@@ -1911,15 +1909,16 @@
                     }
 
                     // Prioritas 2: Fallback ke tag <img> standar (Jika JSON-LD tidak ditemukan)
-                    return Array.from(doc.querySelectorAll('img'))
+                    const urls = Array.from(doc.querySelectorAll('img'))
                         .map(img => img.src)
                         .filter(src => src && !src.startsWith('data:'));
+                    return [...new Set(urls)]; // Menghapus duplikasi
                 },
 
                 _switchToEditor(postData) {
                     this.post = postData;
                     this.activeTab = 'editor';
-                    this.savedRange = null; // Reset selection state agar fallback ke posisi akhir bekerja
+                    this.savedRange = null; // Reset selection agar fallback bekerja
                     this.$nextTick(() => {
                         if (this.post.dateMode === 'custom') this.initDatePicker();
                         else this.destroyDatePicker();
@@ -1935,23 +1934,26 @@
                 },
 
                 editPost(item) {
-                    const categories = item.category || item.Category || [];
+                    // Normalisasi properti agar aman meskipun casing di spreadsheet berbeda
+                    const getProp = (obj, key) => obj[key] || obj[key.toLowerCase()] || obj[key.charAt(0).toUpperCase() + key.slice(1)] || '';
+
+                    const rawCat = getProp(item, 'category');
                     const normalizedPost = {
-                        id: item.id || item.ID,
-                        title: item.title || item.Title || '',
-                        slug: item.slug || item.Slug || '',
-                        content: item.content || item.Content || '',
-                        status: item.status || item.Status || 'Draft',
-                        category: Array.isArray(categories) ? [...categories] : String(categories).split(',').map(c => c.trim()).filter(Boolean),
-                        tags: item.tags || item.Tags || '',
-                        image: item.image || item.Image || '',
-                        dateCreated: item.dateCreated || item.DateCreated,
-                        location: item.location || item.Location || '',
-                        commentOption: item.commentOption || item.CommentOption || 'allow',
-                        dateMode: (item.publishDate || item.PublishDate) ? 'custom' : 'auto',
-                        publishDate: item.publishDate || item.PublishDate || '',
-                        permalinkMode: item.permalinkMode || item.PermalinkMode || 'auto',
-                        postMode: item.postMode || item.PostMode || 'article'
+                        id: getProp(item, 'id'),
+                        title: getProp(item, 'title'),
+                        slug: getProp(item, 'slug'),
+                        content: getProp(item, 'content'),
+                        status: getProp(item, 'status') || 'Draft',
+                        category: Array.isArray(rawCat) ? [...rawCat] : String(rawCat).split(',').map(c => c.trim()).filter(Boolean),
+                        tags: getProp(item, 'tags'),
+                        image: getProp(item, 'image'),
+                        dateCreated: getProp(item, 'dateCreated'),
+                        location: getProp(item, 'location'),
+                        commentOption: getProp(item, 'commentOption') || 'allow',
+                        dateMode: getProp(item, 'publishDate') ? 'custom' : 'auto',
+                        publishDate: getProp(item, 'publishDate'),
+                        permalinkMode: getProp(item, 'permalinkMode') || 'auto',
+                        postMode: getProp(item, 'postMode') || 'article'
                     };
 
                     // Kembalikan URL gambar ke sidebar jika dalam mode komik
