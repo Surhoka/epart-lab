@@ -1738,19 +1738,25 @@
                         html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                     });
 
-                    // [FIX POSISI] Pindahkan kursor ke bagian paling bawah editor agar gambar baru selalu di akhir
+                    // [FIX] Gunakan insertAdjacentHTML untuk memastikan gambar ditambahkan ke bagian paling bawah DOM
+                    // Metode ini lebih handal daripada document.execCommand untuk penempatan di akhir kontainer
+                    editor.insertAdjacentHTML('beforeend', html);
+
+                    // Sinkronisasi fokus dan posisi kursor ke akhir konten
                     editor.focus();
                     const range = document.createRange();
                     range.selectNodeContents(editor);
-                    range.collapse(false); // false = pindah ke akhir konten
+                    range.collapse(false);
                     const sel = window.getSelection();
                     sel.removeAllRanges();
                     sel.addRange(range);
 
-                    document.execCommand('insertHTML', false, html);
-                    showToast(`${newUrls.length} Gambar baru berhasil ditambahkan`, 'success');
+                    this.saveSelection();
 
-                    this.saveSelection(); // Perbarui memori kursor ke posisi paling bawah
+                    // Scroll otomatis ke bawah agar gambar yang baru ditambahkan langsung terlihat
+                    editor.scrollTop = editor.scrollHeight;
+
+                    showToast(`${newUrls.length} Gambar baru ditambahkan ke bagian bawah`, 'success');
                 },
 
                 insertBulkImages(urlText) {
