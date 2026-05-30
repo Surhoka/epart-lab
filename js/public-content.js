@@ -1714,24 +1714,38 @@
                     if (this.comicPageUrls.length === 0) this.comicPageUrls.push('');
                 },
                 insertComicPages() {
+                    const editor = document.getElementById('classic-editor-body');
+                    if (!editor) return;
+
                     const validUrls = this.comicPageUrls.filter(u => u && u.trim() !== '');
                     if (validUrls.length === 0) {
                         showToast('Silakan masukkan minimal satu URL gambar', 'warning');
                         return;
                     }
 
-                    // Pastikan editor fokus dan kursor di posisi yang tepat sebelum insert
+                    // Pastikan editor fokus
                     this.restoreSelection();
 
+                    // [FIX DUPLIKAT] Ambil semua URL gambar yang sudah ada di editor saat ini
+                    const existingImages = Array.from(editor.querySelectorAll('img')).map(img => img.src);
+
+                    // Filter: Hanya ambil URL dari sidebar yang BELUM ada di editor
+                    const newUrls = validUrls.filter(url => !existingImages.includes(url.trim()));
+
+                    if (newUrls.length === 0) {
+                        showToast('Semua gambar sudah ada di dalam editor', 'info');
+                        return;
+                    }
                     let html = '';
-                    validUrls.forEach(url => {
+                    newUrls.forEach(url => {
                         html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                     });
 
                     document.execCommand('insertHTML', false, html);
-                    showToast(`${validUrls.length} halaman ditambahkan`, 'success');
-                    this.comicPageUrls = ['']; // Reset daftar hanya setelah sukses insert
-                    this.saveSelection(); // Perbarui memori kursor setelah insert
+                    showToast(`${newUrls.length} Gambar baru berhasil ditambahkan`, 'success');
+
+                    // [FIX MENGHILANG] Hapus baris reset di bawah agar daftar di sidebar tidak hilang
+                    // this.comicPageUrls = ['']; 
                 },
 
                 insertBulkImages(urlText) {
