@@ -1754,7 +1754,11 @@
                     this.saveSelection();
 
                     // Scroll otomatis ke bawah agar gambar yang baru ditambahkan langsung terlihat
-                    editor.scrollTop = editor.scrollHeight;
+                    // Kita menargetkan parent element karena div editor itu sendiri bersifat auto-height 
+                    // sedangkan parent-nya lah yang memiliki scrollbar (overflow-y-auto)
+                    if (editor.parentElement) {
+                        editor.parentElement.scrollTop = editor.parentElement.scrollHeight;
+                    }
 
                     showToast(`${newUrls.length} Gambar baru ditambahkan ke bagian bawah`, 'success');
                 },
