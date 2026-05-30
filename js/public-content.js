@@ -1687,6 +1687,8 @@
                         editor.focus();
                         const sel = window.getSelection();
                         if (this.savedRange && editor.contains(this.savedRange.commonAncestorContainer)) {
+                            sel.removeAllRanges();
+                            sel.addRange(this.savedRange);
                         } else {
                             // Fallback: Jika kursor belum pernah diletakkan, taruh di paling bawah
                             const range = document.createRange();
@@ -1717,14 +1719,19 @@
                         showToast('Silakan masukkan minimal satu URL gambar', 'warning');
                         return;
                     }
+
+                    // Pastikan editor fokus dan kursor di posisi yang tepat sebelum insert
                     this.restoreSelection();
+
                     let html = '';
                     validUrls.forEach(url => {
                         html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                     });
+
                     document.execCommand('insertHTML', false, html);
                     showToast(`${validUrls.length} halaman ditambahkan`, 'success');
-                    this.comicPageUrls = ['']; // Reset daftar
+                    this.comicPageUrls = ['']; // Reset daftar hanya setelah sukses insert
+                    this.saveSelection(); // Perbarui memori kursor setelah insert
                 },
 
                 insertBulkImages(urlText) {
