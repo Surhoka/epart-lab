@@ -1685,10 +1685,17 @@
                     const editor = document.getElementById('classic-editor-body');
                     if (editor) {
                         editor.focus();
-                        if (this.savedRange) {
-                            const sel = window.getSelection();
+                        const sel = window.getSelection();
+                        if (this.savedRange && editor.contains(this.savedRange.commonAncestorContainer)) {
                             sel.removeAllRanges();
                             sel.addRange(this.savedRange);
+                        } else {
+                            // Fallback: Jika kursor belum pernah diletakkan, taruh di paling bawah
+                            const range = document.createRange();
+                            range.selectNodeContents(editor);
+                            range.collapse(false);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
                         }
                     }
                 },
@@ -1715,11 +1722,11 @@
                     this.restoreSelection();
                     let html = '';
                     validUrls.forEach(url => {
-                        html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0;" alt="Comic Page" />`;
+                        html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                     });
                     document.execCommand('insertHTML', false, html);
                     showToast(`${validUrls.length} halaman ditambahkan`, 'success');
-                    this.comicPageUrls = [''];
+                    this.comicPageUrls = ['']; // Reset daftar
                 },
 
                 insertBulkImages(urlText) {
@@ -1733,7 +1740,7 @@
                     this.restoreSelection();
                     let html = '';
                     urls.forEach(url => {
-                        html += `<img src="${url}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0;" alt="Comic Page" />`;
+                        html += `<img src="${url}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                     });
 
                     document.execCommand('insertHTML', false, html);
@@ -1912,6 +1919,7 @@
                 _switchToEditor(postData) {
                     this.post = postData;
                     this.activeTab = 'editor';
+                    this.savedRange = null; // Reset selection state agar fallback ke posisi akhir bekerja
                     this.$nextTick(() => {
                         if (this.post.dateMode === 'custom') this.initDatePicker();
                         else this.destroyDatePicker();
