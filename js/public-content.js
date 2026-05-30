@@ -1723,9 +1723,6 @@
                         return;
                     }
 
-                    // Pastikan editor fokus
-                    this.restoreSelection();
-
                     // [FIX DUPLIKAT] Ambil semua URL gambar yang sudah ada di editor saat ini
                     const existingImages = Array.from(editor.querySelectorAll('img')).map(img => img.src);
 
@@ -1741,11 +1738,19 @@
                         html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                     });
 
+                    // [FIX POSISI] Pindahkan kursor ke bagian paling bawah editor agar gambar baru selalu di akhir
+                    editor.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false); // false = pindah ke akhir konten
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+
                     document.execCommand('insertHTML', false, html);
                     showToast(`${newUrls.length} Gambar baru berhasil ditambahkan`, 'success');
 
-                    // [FIX MENGHILANG] Hapus baris reset di bawah agar daftar di sidebar tidak hilang
-                    // this.comicPageUrls = ['']; 
+                    this.saveSelection(); // Perbarui memori kursor ke posisi paling bawah
                 },
 
                 insertBulkImages(urlText) {
