@@ -1,5 +1,7 @@
 <div x-data="postEditor" id="post-editor-page" class="w-full animate-fade-in">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Bangers&display=swap');
+
         #classic-editor-body img {
             transition: all 0.2s;
             outline: 2px solid transparent;
@@ -31,9 +33,11 @@
             transform: scale(1.02);
         }
 
-        .speech-bubble.dragging {
+        .speech-bubble.dragging,
+        .speech-bubble.rotating {
             opacity: 0.8;
             z-index: 1000;
+            transition: none !important;
         }
 
         /* Default: Kotak teks transparan untuk komik yang sudah punya balon kosong di gambar */
@@ -375,7 +379,7 @@
                     class="group relative min-h-[600px] rounded-2xl border border-gray-200 bg-white shadow-sm transition-all focus-within:border-brand-500/30 focus-within:shadow-2xl focus-within:shadow-brand-500/5 dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden">
                     <!-- Sticky Formatting Toolbar -->
                     <div
-                        class="sticky top-0 z-40 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50/70 p-2 backdrop-blur-2xl dark:border-gray-800 dark:bg-gray-900/50">
+                        class="sticky top-0 z-40 flex flex-wrap items-center gap-1 border-b border-gray-200/60 bg-white/70 p-2 backdrop-blur-xl dark:border-gray-800/60 dark:bg-slate-900/70 shadow-sm">
 
                         <!-- Group: Undo/Redo (Moved to Start) -->
                         <div class="flex items-center gap-1 mr-1">
@@ -410,6 +414,8 @@
                             <select @change="execCommand('fontName', $event.target.value)"
                                 class="h-9 w-24 rounded-xl border-none bg-transparent pr-8 text-xs font-bold text-gray-700 focus:ring-0 dark:text-gray-300 cursor-pointer">
                                 <option value="Outfit">Outfit</option>
+                                <option value="'Comic Neue', cursive">Comic Neue</option>
+                                <option value="Bangers">Bangers (Hero)</option>
                                 <option value="Arial">Arial</option>
                                 <option value="Verdana">Verdana</option>
                                 <option value="Times New Roman">Times</option>
