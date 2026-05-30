@@ -1361,10 +1361,10 @@
 
                     const html = `
                         <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 50px; rotate: 0deg;" contenteditable="false">
-                            <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-4 -left-4 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
+                            <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
                                 ✥ ${panelId ? '(' + panelId + ')' : ''}
                             </div>
-                            <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
+                            <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
                             <!-- Rotation Handle -->
