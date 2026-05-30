@@ -1099,6 +1099,9 @@
                 isSyncing: false,
                 currentPage: 1,
                 isDraggingBubble: false,
+                isRotatingBubble: false,
+                initialRotation: 0,
+                bubbleCenter: { x: 0, y: 0 },
                 draggedBubble: null,
                 dragOffset: { x: 0, y: 0 },
                 itemsPerPage: 10,
@@ -1357,14 +1360,18 @@
                     const heightCqi = (baseHeight / editorWidth * 100).toFixed(2);
 
                     const html = `
-                        <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 50px;" contenteditable="false">
-                            <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
-                                ✥ Drag ${panelId ? '(' + panelId + ')' : ''}
+                        <div class="speech-bubble group/text" data-id="${id}" data-panel-id="${panelId}" style="position: absolute; top: ${topCqi}cqi; left: calc(50% - ${widthCqi / 2}cqi); z-index: 20; min-width: 50px; rotate: 0deg;" contenteditable="false">
+                            <div class="drag-handle opacity-0 group-hover/text:opacity-100 absolute -top-2 -left-2 -translate-x-1/2 bg-white border border-gray-200 rounded shadow-sm px-2 py-0.5 cursor-move text-[10px] text-gray-500 font-bold flex items-center gap-1 z-10 transition-opacity whitespace-nowrap select-none">
+                                ✥ ${panelId ? '(' + panelId + ')' : ''}
                             </div>
                             <button type="button" onclick="this.closest('.speech-bubble').remove()" class="opacity-0 group-hover/text:opacity-100 absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow-sm z-10 transition-opacity text-xs font-bold leading-none">
                                 &times;
                             </button>
-                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Comic Neue', cursive; font-weight: 700; line-height: 1.2; text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: ${heightCqi}cqi; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word; padding: 8px;">
+                            <!-- Rotation Handle -->
+                            <div class="rotate-handle opacity-0 group-hover/text:opacity-100 absolute -bottom-8 left-1/2 -translate-x-1/2 bg-brand-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-crosshair shadow-md z-10 transition-opacity select-none hover:bg-brand-600 active:scale-95" title="Putar (Tahan Shift untuk patahan 15°)">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            </div>
+                            <div class="bubble-content comic-text-box" style="color: black; font-family: 'Outfit', sans-serif; font-weight: 500; line-height: 1.2; text-align: center; cursor: text; resize: both; overflow: hidden; width: ${widthCqi}cqi; height: ${heightCqi}cqi; min-height: 2cqi; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; word-break: break-word; padding: 8px;">
                                 <div class="lang-id" contenteditable="true" style="display: block; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textId}</div>
                                 <div class="lang-en" contenteditable="true" style="display: none; width: 100%; min-width: 100%; outline: none; word-wrap: break-word; overflow-wrap: anywhere; word-break: break-word; text-wrap: balance;">${textEn}</div>
                             </div>
@@ -1376,25 +1383,56 @@
                 },
 
                 handleBubbleMouseDown(e) {
+                    const rotateHandle = e.target.closest('.rotate-handle');
                     const dragHandle = e.target.closest('.drag-handle');
-                    if (!dragHandle) return; // Hanya bisa di-drag lewat handle
 
-                    const bubble = dragHandle.closest('.speech-bubble');
+                    if (!dragHandle && !rotateHandle) return;
+
+                    const bubble = (dragHandle || rotateHandle).closest('.speech-bubble');
                     if (!bubble) return;
 
                     e.preventDefault();
-                    this.isDraggingBubble = true;
                     this.draggedBubble = bubble;
-                    bubble.classList.add('dragging');
 
-                    const rect = bubble.getBoundingClientRect();
-                    this.dragOffset = {
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top
-                    };
+                    if (rotateHandle) {
+                        this.isRotatingBubble = true;
+                        bubble.classList.add('rotating');
+
+                        const rect = bubble.getBoundingClientRect();
+                        this.bubbleCenter = {
+                            x: rect.left + rect.width / 2,
+                            y: rect.top + rect.height / 2
+                        };
+
+                        const currentRotation = parseFloat(bubble.style.rotate) || 0;
+                        const startAngle = Math.atan2(e.clientY - this.bubbleCenter.y, e.clientX - this.bubbleCenter.x) * (180 / Math.PI);
+                        this.initialRotation = currentRotation - startAngle;
+                    } else {
+                        this.isDraggingBubble = true;
+                        bubble.classList.add('dragging');
+
+                        const rect = bubble.getBoundingClientRect();
+                        this.dragOffset = {
+                            x: e.clientX - rect.left,
+                            y: e.clientY - rect.top
+                        };
+                    }
                 },
 
                 handleBubbleMouseMove(e) {
+                    if (this.isRotatingBubble && this.draggedBubble) {
+                        const angle = Math.atan2(e.clientY - this.bubbleCenter.y, e.clientX - this.bubbleCenter.x) * (180 / Math.PI);
+                        let finalAngle = angle + this.initialRotation;
+
+                        // Snap ke setiap 15 derajat jika menahan tombol Shift
+                        if (e.shiftKey) {
+                            finalAngle = Math.round(finalAngle / 15) * 15;
+                        }
+
+                        this.draggedBubble.style.rotate = `${finalAngle}deg`;
+                        return;
+                    }
+
                     if (!this.isDraggingBubble || !this.draggedBubble) return;
 
                     const editor = document.getElementById('classic-editor-body');
@@ -1426,8 +1464,10 @@
                 handleBubbleMouseUp() {
                     if (this.draggedBubble) {
                         this.draggedBubble.classList.remove('dragging');
+                        this.draggedBubble.classList.remove('rotating');
                     }
                     this.isDraggingBubble = false;
+                    this.isRotatingBubble = false;
                     this.draggedBubble = null;
                     this.normalizeComicTextSizes();
                 },
@@ -1476,7 +1516,7 @@
                     const activeEl = (langId && langId.style.display !== 'none') ? langId : (langEn || langId);
                     if (!activeEl) return;
 
-                    const padding = 24; // Ditingkatkan ke 12px tiap sisi sebagai safety margin
+                    const padding = 16; // 8px tiap sisi
                     const maxW = w - padding;
                     const maxH = h - padding;
                     if (maxW <= 0 || maxH <= 0) return;
@@ -1485,7 +1525,7 @@
                     targets.forEach(el => el.style.removeProperty('font-size'));
 
                     // Binary search: cari font-size terbesar di mana teks masih muat
-                    let lo = 6, hi = 120; // Lower bound diturunkan ke 6px
+                    let lo = 8, hi = 120;
                     while (hi - lo > 1) {
                         const mid = Math.floor((lo + hi) / 2);
                         targets.forEach(el => el.style.setProperty('font-size', mid + 'px', 'important'));
@@ -1497,7 +1537,7 @@
                     }
 
                     // Terapkan ukuran final yang ditemukan
-                    const finalSize = Math.max(6, lo);
+                    const finalSize = Math.max(8, lo);
                     targets.forEach(el => el.style.setProperty('font-size', finalSize + 'px', 'important'));
                 },
 
