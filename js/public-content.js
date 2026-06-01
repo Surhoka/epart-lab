@@ -1348,8 +1348,11 @@
 
                     const editorWidth = editor.getBoundingClientRect().width || 800;
                     const id = 'comic-text-' + Date.now();
-                    const scrollTop = editor.scrollTop || 0;
-                    const topPos = Math.max(100, scrollTop + 100);
+
+                    // [FIX] Ambil scroll dari parent container karena editor itu sendiri auto-height
+                    const scrollContainer = editor.parentElement;
+                    const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+                    const topPos = Math.max(50, scrollTop + 150); // Posisikan di area yang sedang dilihat (viewport)
 
                     // Mulai dengan dimensi awal yang pasti agar unit cqmin bekerja
                     const baseWidth = 110;
@@ -1452,7 +1455,8 @@
                     const centerOffset = bubbleLeftScreen - editorCenterScreen;
 
                     // Calculate top position normally (fixed px from top of editor content)
-                    let newTop = e.clientY - editorRect.top - this.dragOffset.y + editor.scrollTop;
+                    // Note: getBoundingClientRect().top sudah memperhitungkan scroll relatif terhadap viewport
+                    let newTop = e.clientY - editorRect.top - this.dragOffset.y;
 
                     // Apply the position using calc(50% + offset cqi) so it stays centered and responsive when editor width changes
                     const centerOffsetCqi = (centerOffset / editorRect.width * 100).toFixed(2);
