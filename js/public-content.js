@@ -1104,6 +1104,7 @@
                 bubbleCenter: { x: 0, y: 0 },
                 draggedBubble: null,
                 dragOffset: { x: 0, y: 0 },
+                isToolbarPinned: true,
                 itemsPerPage: 10,
                 comicPageUrls: [''],
                 imageSettingsModal: false,
