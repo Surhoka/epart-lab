@@ -182,11 +182,11 @@
                                         <!-- Preview Cell -->
                                         <td class="px-6 py-4">
                                             <div class="h-14 w-14 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 relative cursor-pointer group"
-                                                @click="isYoutube(file) ? window.open(file.originalfilename || file.fileurl, '_blank') : window.open(file.fileurl, '_blank')">
+                                                @click="isVideo(file) ? window.open(file.originalfilename || file.fileurl, '_blank') : window.open(file.fileurl, '_blank')">
                                                 <img :src="getThumbUrl(file)" alt=""
                                                     class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110">
                                                 <!-- Play overlay untuk YouTube -->
-                                                <template x-if="isYoutube(file)">
+                                                <template x-if="isVideo(file)">
                                                     <div
                                                         class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
                                                         <svg class="w-5 h-5 text-white drop-shadow" viewBox="0 0 24 24"
@@ -204,7 +204,7 @@
                                                     x-text="file.filename || 'Tanpa Judul'"></div>
                                                 <!-- Badge tipe konten -->
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <template x-if="!isYoutube(file)">
+                                                    <template x-if="!isVideo(file)">
                                                         <span
                                                             class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
                                                             <span class="w-2.5 h-2.5" x-icon="'image'"></span>
@@ -220,6 +220,12 @@
                                                                     d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                                             </svg>
                                                             YouTube
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="isBloggerVideo(file)">
+                                                        <span
+                                                            class="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
+                                                            Blogger Video
                                                         </span>
                                                     </template>
                                                     <!-- Badge Source Blogger -->
@@ -254,7 +260,7 @@
                                                     <span class="block w-4 h-4" x-icon="'pencil'"></span></button>
                                                 <button @click="deleteFile(file.id)"
                                                     class="text-red-500 hover:text-red-700 transition-colors p-2"
-                                                    :title="isYoutube(file) ? 'Hapus Video' : 'Hapus Gambar'">
+                                                    :title="isVideo(file) ? 'Hapus Video' : 'Hapus Gambar'">
                                                     <span class="block w-4 h-4" x-icon="'trash'"></span>
                                                 </button>
                                             </div>
@@ -273,10 +279,10 @@
                                 <div class="flex gap-4">
                                     <!-- Preview (Image / YouTube Thumbnail) -->
                                     <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-50 dark:border-gray-700 relative cursor-pointer group"
-                                        @click="isYoutube(file) ? window.open(file.originalfilename || file.fileurl, '_blank') : window.open(file.fileurl, '_blank')">
+                                        @click="isVideo(file) ? window.open(file.originalfilename || file.fileurl, '_blank') : window.open(file.fileurl, '_blank')">
                                         <img :src="getThumbUrl(file)" alt=""
                                             class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110">
-                                        <template x-if="isYoutube(file)">
+                                        <template x-if="isVideo(file)">
                                             <div class="absolute inset-0 flex items-center justify-center bg-black/30">
                                                 <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M8 5v14l11-7z" />
@@ -289,13 +295,18 @@
                                         <div class="flex items-center gap-1.5 flex-wrap">
                                             <div class="font-bold text-gray-900 dark:text-white truncate"
                                                 x-text="file.filename || 'Tanpa Judul'"></div>
-                                            <template x-if="!isYoutube(file)">
+                                            <template x-if="!isVideo(file)">
                                                 <span
                                                     class="rounded-md bg-blue-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">Gambar</span>
                                             </template>
                                             <template x-if="isYoutube(file)">
                                                 <span
                                                     class="rounded-md bg-red-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-red-600 dark:bg-red-500/10 dark:text-red-400">YouTube</span>
+                                            </template>
+                                            <template x-if="isBloggerVideo(file)">
+                                                <span
+                                                    class="rounded-md bg-orange-50 px-1.5 py-0.5 text-[8px] font-black uppercase text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">Blogger
+                                                    Video</span>
                                             </template>
                                             <template
                                                 x-if="file.fileurl && (file.fileurl.includes('blogspot.com') || file.fileurl.includes('googleusercontent.com'))">
@@ -337,28 +348,38 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-gray-100 dark:border-gray-800 pt-4" x-show="totalPages > 1">
+                    <div class="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-gray-100 dark:border-gray-800 pt-4"
+                        x-show="totalPages > 1">
                         <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan <span class="font-medium text-gray-900 dark:text-white" x-text="(currentPage - 1) * itemsPerPage + 1"></span> - 
-                            <span class="font-medium text-gray-900 dark:text-white" x-text="Math.min(currentPage * itemsPerPage, filteredAlbumFiles.length)"></span> 
-                            dari <span class="font-medium text-gray-900 dark:text-white" x-text="filteredAlbumFiles.length"></span> data
+                            Menampilkan <span class="font-medium text-gray-900 dark:text-white"
+                                x-text="(currentPage - 1) * itemsPerPage + 1"></span> -
+                            <span class="font-medium text-gray-900 dark:text-white"
+                                x-text="Math.min(currentPage * itemsPerPage, filteredAlbumFiles.length)"></span>
+                            dari <span class="font-medium text-gray-900 dark:text-white"
+                                x-text="filteredAlbumFiles.length"></span> data
                         </div>
                         <div class="flex items-center gap-2">
-                            <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" 
+                            <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1"
                                 class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
                                 <svg class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd"
+                                        d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                                        clip-rule="evenodd" />
                                 </svg>
                                 Prev
                             </button>
                             <span class="text-sm text-gray-600 dark:text-gray-300">
-                                Halaman <span class="font-semibold" x-text="currentPage"></span> dari <span class="font-semibold" x-text="totalPages"></span>
+                                Halaman <span class="font-semibold" x-text="currentPage"></span> dari <span
+                                    class="font-semibold" x-text="totalPages"></span>
                             </span>
-                            <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages" 
+                            <button @click="currentPage < totalPages ? currentPage++ : null"
+                                :disabled="currentPage === totalPages"
                                 class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
                                 Next
                                 <svg class="w-4 h-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd"
+                                        d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                        clip-rule="evenodd" />
                                 </svg>
                             </button>
                         </div>
@@ -375,7 +396,8 @@
             <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="showYoutubeModal = false"></div>
             <div class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="flex flex-col max-h-[90vh]">
-                    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
+                    <div
+                        class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
                         <div class="flex items-center gap-3">
                             <!-- YouTube Icon -->
                             <div
@@ -387,7 +409,8 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tambah Video YouTube</h3>
                         </div>
-                        <button @click="showYoutubeModal = false" class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
+                        <button @click="showYoutubeModal = false"
+                            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
                             <span class="block w-6 h-6" x-icon="'close'"></span>
                         </button>
                     </div>
@@ -409,21 +432,25 @@
                             </div>
                         </template>
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">URL Video YouTube <span class="text-red-500">*</span></label>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">URL Video
+                                YouTube <span class="text-red-500">*</span></label>
                             <input type="url" x-model="youtubeInput.url"
-                                placeholder="https://www.youtube.com/watch?v=..." class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500 font-mono" />
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500 font-mono" />
                             <p class="mt-1 text-[11px] text-gray-500">Mendukung format: youtube.com/watch?v=, youtu.be/,
                                 youtube.com/shorts/</p>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Judul / Caption</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Judul /
+                                Caption</label>
                             <input type="text" x-model="youtubeInput.title" placeholder="Contoh: Demo Produk - EzyStore"
                                 class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500" />
                             <p class="mt-1 text-[11px] text-gray-500">Opsional. Jika kosong, akan menggunakan Video ID
                                 sebagai judul.</p>
                         </div>
                         <div class="flex items-center justify-end gap-3 pt-2">
-                            <button type="button" @click="showYoutubeModal = false" class="inline-flex items-center justify-center gap-2 rounded-brand border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900">
+                            <button type="button" @click="showYoutubeModal = false"
+                                class="inline-flex items-center justify-center gap-2 rounded-brand border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900">
                                 Batal
                             </button>
                             <button id="save-youtube-btn" type="button" @click="addYoutubeVideo()"
@@ -456,29 +483,39 @@
             <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="showAlbumModal = false"></div>
             <div class="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="flex flex-col max-h-[90vh]">
-                    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white" x-text="isEditing ? 'Edit Album' : 'Buat Album Baru'"></h3>
-                        <button @click="showAlbumModal = false" class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"><span class="block w-6 h-6"
-                                x-icon="'close'"></span></button>
+                    <div
+                        class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white"
+                            x-text="isEditing ? 'Edit Album' : 'Buat Album Baru'"></h3>
+                        <button @click="showAlbumModal = false"
+                            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"><span
+                                class="block w-6 h-6" x-icon="'close'"></span></button>
                     </div>
                     <div class="space-y-4 p-6 overflow-y-auto flex-1 custom-scrollbar">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Album</label>
-                                <input type="text" x-model="editingAlbum.name" @input="if(!isEditing) editingAlbum.slug = window.slugify_(editingAlbum.name)" placeholder="Contoh: Summer Product"
+                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nama
+                                    Album</label>
+                                <input type="text" x-model="editingAlbum.name"
+                                    @input="if(!isEditing) editingAlbum.slug = window.slugify_(editingAlbum.name)"
+                                    placeholder="Contoh: Summer Product"
                                     class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500" />
                             </div>
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Slug URL</label>
+                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Slug
+                                    URL</label>
                                 <input type="text" x-model="editingAlbum.slug" placeholder="summer-product"
                                     class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500 font-mono" />
-                                <p class="mt-1 text-[11px] text-gray-500">Dibuat otomatis dari nama. Biarkan kosong jika ragu.</p>
+                                <p class="mt-1 text-[11px] text-gray-500">Dibuat otomatis dari nama. Biarkan kosong jika
+                                    ragu.</p>
                             </div>
                         </div>
                         <div x-show="albums.length > 0">
                             <!-- Hanya tampilkan jika ada album lain untuk dipilih sebagai induk -->
-                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Induk Album</label>
-                            <select x-model="editingAlbum.parent_id" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500">
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Induk
+                                Album</label>
+                            <select x-model="editingAlbum.parent_id"
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500">
                                 <option value="">Tanpa Induk</option>
                                 <!-- Menampilkan daftar album yang sudah ada sebagai pilihan induk -->
                                 <template x-for="alb in albums.filter(a => a.id !== editingAlbum.id && a.active)"
@@ -490,11 +527,14 @@
                                 sub-folder.</p>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi</label>
-                            <textarea x-model="editingAlbum.description" rows="3" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500"></textarea>
+                            <label
+                                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi</label>
+                            <textarea x-model="editingAlbum.description" rows="3"
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500"></textarea>
                         </div>
                     </div>
-                    <div class="sticky bottom-0 z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
+                    <div
+                        class="sticky bottom-0 z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
                         <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                             <input type="checkbox" x-model="editingAlbum.active"
                                 class="h-4 w-4 rounded border-gray-300 text-brand-500" />
