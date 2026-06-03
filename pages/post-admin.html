@@ -374,10 +374,16 @@
 
             <!-- Left: Editor Body -->
             <div class="flex-1 min-w-0">
-                <!-- Editor Content Area -->
                 <div
                     class="group relative h-[600px] flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-all focus-within:border-brand-500/30 focus-within:shadow-2xl focus-within:shadow-brand-500/5 dark:border-gray-800 dark:bg-white/[0.01] overflow-hidden">
-                    <div class="flex-1 overflow-y-auto custom-scrollbar relative">
+                    
+                    <!-- Page Indicator -->
+                    <div x-show="post.postMode === 'comic' && editorTotalPages > 0" x-cloak
+                         class="absolute top-14 right-4 z-50 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow-lg pointer-events-none uppercase tracking-widest">
+                        Halaman <span x-text="editorCurrentPage"></span> / <span x-text="editorTotalPages"></span>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto custom-scrollbar relative" @scroll.debounce.10ms="calculateCurrentPage()">
                         <!-- Sticky Formatting Toolbar -->
                         <div :class="isToolbarPinned ? 'sticky top-0 z-40 shadow-sm border-brand-500/20' : 'relative z-10'"
                             class="flex flex-wrap items-center gap-1 border-b border-gray-200/60 bg-white/40 p-2 backdrop-blur-xl dark:border-gray-800/60 dark:bg-brand-950/40 transition-all duration-300">
@@ -538,7 +544,7 @@
                         </div>
 
                         <div id="classic-editor-body" x-ref="editor" contenteditable="true" @mouseup="saveSelection()"
-                            @keyup="saveSelection()" @focus="saveSelection()" @input="saveSelection()"
+                            @keyup="saveSelection()" @focus="saveSelection()" @input="saveSelection(); calculateCurrentPage()"
                             :class="post.postMode === 'comic' ? 'p-0' : 'p-4 sm:p-10'"
                             class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none min-h-full focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-brand-900 [&_pre]:p-4 [&_pre]:rounded-xl"
                             style="container-type: inline-size !important; position: relative;"
