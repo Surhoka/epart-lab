@@ -932,6 +932,9 @@
                         const embedMatch = String(file.fileurl || '').match(/embed\/([a-zA-Z0-9_-]{11})/);
                         if (embedMatch) return `https://img.youtube.com/vi/${embedMatch[1]}/hqdefault.jpg`;
                     }
+                    if (file.contenttype === 'blogger_video') {
+                        return 'https://www.gstatic.com/images/icons/material/system/2x/movie_black_48dp.png';
+                    }
                     return file.fileurl || '';
                 },
 
@@ -940,6 +943,14 @@
                     return file.contenttype === 'youtube' || file.mimetype === 'video/youtube';
                 },
 
+                isBloggerVideo(file) {
+                    return file.contenttype === 'blogger_video';
+                },
+
+                isVideo(file) {
+                    return this.isYoutube(file) || this.isBloggerVideo(file) || (file.contenttype && file.contenttype.includes('video'));
+                },
+                
                 formatDate(value) {
                     if (!value) return '-';
                     try {
@@ -1119,15 +1130,6 @@
                 showBubbleModal: false,
                 bubbleModalData: { panelId: '' },
 
-                cutsceneNodes: [],
-                selectedNodeId: null,
-                cutsceneSettings: { autoPlay: true, transitionEffect: 'fade', defaultTransitionMs: 800, bgmUrl: '' },
-                previewCurrentIndex: 0,
-                showAlbumPickerModal: false,
-                albumPickerType: 'image',
-                albumPickerTargetField: null,
-                albumFiles: [],
-
                 get totalPages() {
                     return Math.ceil(this.posts.length / this.itemsPerPage) || 1;
                 },
@@ -1145,7 +1147,7 @@
                     const container = editor.parentElement;
                     const images = editor.querySelectorAll('img');
                     this.editorTotalPages = images.length;
-                    
+
                     if (this.editorTotalPages === 0) {
                         this.editorCurrentPage = 0;
                         return;
@@ -1584,83 +1586,6 @@
                     targets.forEach(el => el.style.setProperty('font-size', finalSize + 'px', 'important'));
                 },
 
-                // --- CUTSCENE METHODS ---
-                activeNode() {
-                    return this.cutsceneNodes.find(n => n.id === this.selectedNodeId) || null;
-                },
-                addCutsceneNode(type) {
-                    const id = 'node-' + Math.random().toString(36).substr(2, 9);
-                    const node = { id, type, transition: '' };
-                    if (type === 'panel') {
-                        node.imageUrl = '';
-                        node.speaker = '';
-                        node.speakerPosition = 'left';
-                        node.dialogText = { id: '', en: '' };
-                    } else if (type === 'video') {
-                        node.videoBloggerId = '';
-                        node.autoPlay = true;
-                    } else if (type === 'narration') {
-                        node.text = { id: '', en: '' };
-                        node.style = 'typewriter';
-                    } else if (type === 'choice') {
-                        node.prompt = { id: '', en: '' };
-                        node.options = [];
-                    }
-                    this.cutsceneNodes.push(node);
-                    this.selectedNodeId = id;
-                },
-                removeCutsceneNode(id) {
-                    this.cutsceneNodes = this.cutsceneNodes.filter(n => n.id !== id);
-                    if (this.selectedNodeId === id) this.selectedNodeId = null;
-                },
-                addChoiceOption(nodeId) {
-                    const node = this.cutsceneNodes.find(n => n.id === nodeId);
-                    if (node && node.type === 'choice') {
-                        node.options.push({ label: { id: '', en: '' }, nextNodeId: '' });
-                    }
-                },
-                removeChoiceOption(nodeId, idx) {
-                    const node = this.cutsceneNodes.find(n => n.id === nodeId);
-                    if (node && node.type === 'choice') {
-                        node.options.splice(idx, 1);
-                    }
-                },
-                openAlbumPicker(targetField, type) {
-                    this.albumPickerType = type;
-                    this.albumPickerTargetField = targetField;
-                    this.showAlbumPickerModal = true;
-                    if (this.albumFiles.length === 0) {
-                        this.fetchAlbumFiles();
-                    }
-                },
-                selectAlbumFile(file) {
-                    const node = this.activeNode();
-                    if (node && this.albumPickerTargetField) {
-                        if (this.albumPickerType === 'video' && file.bloggerId) {
-                            node[this.albumPickerTargetField] = file.bloggerId;
-                        } else {
-                            node[this.albumPickerTargetField] = file.url;
-                        }
-                    }
-                    this.showAlbumPickerModal = false;
-                },
-                filteredAlbumFiles() {
-                    return this.albumFiles.filter(f => f.type === this.albumPickerType);
-                },
-                async fetchAlbumFiles() {
-                    try {
-                        const res = await new Promise((resolve, reject) => {
-                            window.sendDataToGoogle('get_album_files', { dbId: getDbId() }, resolve, reject);
-                        });
-                        if (res.status === 'success') {
-                            this.albumFiles = res.data || [];
-                        }
-                    } catch (e) {
-                        console.error('fetchAlbumFiles error', e);
-                    }
-                },
-                // --- END CUTSCENE METHODS ---
-
                 async fetchPosts() {
                     this.isLoading = true;
                     // Note: Use getDbId() for multi-tenant support if needed, but the original used direct sendDataToGoogle
@@ -1880,7 +1805,7 @@
                     }
 
                     showToast(`${newUrls.length} Gambar baru ditambahkan ke bagian bawah`, 'success');
-                    
+
                     setTimeout(() => {
                         this.calculateCurrentPage();
                     }, 100);
@@ -1981,17 +1906,7 @@
                             if (Object.keys(this.dialogScripts).length > 0) {
                                 contentHtml += `<script type="application/json" id="ezy-dialog-script">${JSON.stringify(this.dialogScripts)}</script>`;
                             }
-                        } else if (this.post.postMode === 'cutscene') {
-                            // Serialize cutscene state
-                            this.post.cutsceneData = JSON.stringify({
-                                version: 1,
-                                settings: this.cutsceneSettings,
-                                nodes: this.cutsceneNodes
-                            });
-                            // Placeholder content since reader script handles the rendering
-                            contentHtml = '<div class="ezy-cutscene-container" data-cutscene="true"></div>';
                         }
-                        
                         // Hilangkan newline (\r, \n) agar baris di spreadsheet tetap rapat (horizontal/single-line)
                         this.post.content = contentHtml.replace(/[\r\n]+/g, ' ').trim();
                     }
@@ -2142,21 +2057,8 @@
                                 console.error("Gagal parse ezy-dialog-script:", e);
                             }
                         }
-                    } else if (normalizedPost.postMode === 'cutscene') {
-                        this.comicPageUrls = [''];
-                        try {
-                            const csData = typeof item.cutscenedata === 'string' ? JSON.parse(item.cutscenedata) : (item.cutscenedata || {});
-                            this.cutsceneSettings = csData.settings || { autoPlay: true, transitionEffect: 'fade', defaultTransitionMs: 800, bgmUrl: '' };
-                            this.cutsceneNodes = csData.nodes || [];
-                        } catch (e) {
-                            console.warn("Gagal parse cutsceneData", e);
-                            this.cutsceneSettings = { autoPlay: true, transitionEffect: 'fade', defaultTransitionMs: 800, bgmUrl: '' };
-                            this.cutsceneNodes = [];
-                        }
                     } else {
                         this.comicPageUrls = [''];
-                        this.cutsceneNodes = [];
-                        this.cutsceneSettings = { autoPlay: true, transitionEffect: 'fade', defaultTransitionMs: 800, bgmUrl: '' };
                         this.dialogScripts = {};
                     }
 
