@@ -543,12 +543,114 @@
 
                         </div>
 
-                        <div id="classic-editor-body" x-ref="editor" contenteditable="true" @mouseup="saveSelection()"
+                        <div x-show="post.postMode !== 'cutscene'" id="classic-editor-body" x-ref="editor" contenteditable="true" @mouseup="saveSelection()"
                             @keyup="saveSelection()" @focus="saveSelection()" @input="saveSelection(); calculateCurrentPage()"
                             :class="post.postMode === 'comic' ? 'p-0' : 'p-4 sm:p-10'"
                             class="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none min-h-full focus:outline-none [&_p]:mb-4 [&_h1]:text-2xl sm:text-4xl [&_h2]:text-xl sm:text-3xl [&_h3]:text-lg sm:text-2xl [&_ul]:list-disc [&_ol]:list-decimal [&_blockquote]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-brand-500/50 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:bg-brand-500/5 [&_pre]:bg-brand-900 [&_pre]:p-4 [&_pre]:rounded-xl"
                             style="container-type: inline-size !important; position: relative;"
                             placeholder="Start telling your story...">
+                        </div>
+
+                        <!-- Cutscene Editor Workspace Placeholder -->
+                        <div x-show="post.postMode === 'cutscene'" class="w-full min-h-full flex flex-col p-4 bg-gray-50/50 dark:bg-black/20" x-cloak>
+                            <div class="relative w-full max-w-2xl mx-auto aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800 flex flex-col items-center justify-center mb-6">
+                                <template x-if="!activeNode()">
+                                    <div class="flex flex-col items-center justify-center text-gray-600">
+                                        <span class="block w-12 h-12 mb-2" x-icon="'monitor'"></span>
+                                        <span class="font-bold tracking-widest text-xs uppercase">Pilih Node di Timeline</span>
+                                    </div>
+                                </template>
+                                <template x-if="activeNode()">
+                                    <div class="w-full h-full relative">
+                                        <!-- Panel Preview -->
+                                        <template x-if="activeNode().type === 'panel'">
+                                            <div class="w-full h-full relative bg-gray-900 flex items-center justify-center">
+                                                <template x-if="activeNode().imageUrl">
+                                                    <img :src="activeNode().imageUrl" class="absolute inset-0 w-full h-full object-cover opacity-80" />
+                                                </template>
+                                                <!-- Speaker / Dialog overlay -->
+                                                <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur rounded-xl p-4 border border-white/10" x-show="activeNode().dialogText?.id || activeNode().speaker">
+                                                    <div x-show="activeNode().speaker" class="text-brand-400 font-bold text-sm mb-1 uppercase tracking-wider" x-text="activeNode().speaker"></div>
+                                                    <div class="text-white text-base font-serif" x-text="activeNode().dialogText?.id || '...'"></div>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Video Preview -->
+                                        <template x-if="activeNode().type === 'video'">
+                                            <div class="w-full h-full relative bg-gray-950 flex flex-col items-center justify-center">
+                                                <span class="w-16 h-16 text-red-500/50 block mb-2" x-icon="'video'"></span>
+                                                <div class="text-white text-sm font-mono" x-text="'Blogger Video ID: ' + (activeNode().videoBloggerId || 'Kosong')"></div>
+                                                <div class="text-red-400 text-[10px] mt-2 uppercase font-bold tracking-widest">Preview Video tidak dapat diputar di Editor</div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Narration Preview -->
+                                        <template x-if="activeNode().type === 'narration'">
+                                            <div class="w-full h-full relative bg-black flex items-center justify-center p-8">
+                                                <div class="text-white text-xl font-serif text-center" x-text="activeNode().text?.id || '...'"></div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Choice Preview -->
+                                        <template x-if="activeNode().type === 'choice'">
+                                            <div class="w-full h-full relative bg-gray-900 flex flex-col items-center justify-center p-8">
+                                                <div class="text-white text-lg font-bold mb-6 text-center" x-text="activeNode().prompt?.id || 'Pertanyaan?'"></div>
+                                                <div class="w-full max-w-sm space-y-2">
+                                                    <template x-for="(opt, i) in activeNode().options" :key="i">
+                                                        <div class="w-full py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-center text-sm cursor-pointer transition-colors" x-text="opt.label?.id || 'Opsi'"></div>
+                                                    </template>
+                                                    <template x-if="!activeNode().options || !activeNode().options.length">
+                                                        <div class="text-gray-500 text-sm italic text-center">Belum ada opsi</div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="mt-auto w-full bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+                                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Timeline Strip</h3>
+                                <div class="flex items-center gap-3 overflow-x-auto custom-scrollbar pb-2">
+                                    <template x-for="(node, index) in cutsceneNodes" :key="node.id">
+                                        <div @click="selectedNodeId = node.id" 
+                                             :class="selectedNodeId === node.id ? 'ring-2 ring-brand-500 bg-brand-50 dark:bg-brand-900/20' : 'border border-gray-200 dark:border-gray-700 hover:border-brand-300'"
+                                             class="shrink-0 w-24 h-24 rounded-xl flex flex-col cursor-pointer transition-all overflow-hidden bg-white dark:bg-gray-800 relative">
+                                             <div class="h-14 bg-gray-100 dark:bg-gray-900 w-full relative">
+                                                <template x-if="node.type === 'panel' && node.imageUrl">
+                                                    <img :src="node.imageUrl" class="w-full h-full object-cover">
+                                                </template>
+                                                <template x-if="node.type === 'video' && node.videoBloggerId">
+                                                    <div class="w-full h-full flex items-center justify-center bg-red-950 text-red-500"><span class="w-6 h-6" x-icon="'video'"></span></div>
+                                                </template>
+                                                <template x-if="node.type === 'choice'">
+                                                    <div class="w-full h-full flex items-center justify-center bg-purple-950 text-purple-500"><span class="w-6 h-6" x-icon="'git-branch'"></span></div>
+                                                </template>
+                                                <template x-if="node.type === 'narration'">
+                                                    <div class="w-full h-full flex items-center justify-center bg-blue-950 text-blue-500"><span class="w-6 h-6" x-icon="'file-text'"></span></div>
+                                                </template>
+                                             </div>
+                                             <div class="flex-1 flex items-center justify-center p-1">
+                                                 <span class="text-[9px] font-bold truncate text-gray-700 dark:text-gray-300" x-text="node.type.toUpperCase()"></span>
+                                             </div>
+                                             <div class="absolute top-1 left-1 bg-black/60 text-white text-[8px] font-bold px-1 rounded" x-text="index + 1"></div>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- Add Buttons -->
+                                    <div class="flex flex-col gap-1 shrink-0 ml-2">
+                                        <div class="flex gap-1">
+                                            <button @click="addCutsceneNode('panel')" class="flex items-center justify-center w-11 h-11 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-gray-400 hover:text-blue-500 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="+ Panel"><span class="w-4 h-4" x-icon="'image'"></span></button>
+                                            <button @click="addCutsceneNode('video')" class="flex items-center justify-center w-11 h-11 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-gray-400 hover:text-red-500 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="+ Video"><span class="w-4 h-4" x-icon="'video'"></span></button>
+                                        </div>
+                                        <div class="flex gap-1">
+                                            <button @click="addCutsceneNode('narration')" class="flex items-center justify-center w-11 h-11 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-gray-400 hover:text-green-500 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20" title="+ Narration"><span class="w-4 h-4" x-icon="'file-text'"></span></button>
+                                            <button @click="addCutsceneNode('choice')" class="flex items-center justify-center w-11 h-11 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-gray-400 hover:text-purple-500 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20" title="+ Choice"><span class="w-4 h-4" x-icon="'git-branch'"></span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Info Overlay -->
@@ -592,6 +694,11 @@
                                     :class="post.postMode === 'comic' ? 'bg-white dark:bg-gray-700 shadow-sm text-brand-600' : 'text-gray-500'"
                                     class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all">
                                     Comic
+                                </button>
+                                <button @click="post.postMode = 'cutscene'"
+                                    :class="post.postMode === 'cutscene' ? 'bg-white dark:bg-gray-700 shadow-sm text-brand-600' : 'text-gray-500'"
+                                    class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all">
+                                    ⚔️ Cutscene
                                 </button>
                             </div>
                         </div>
@@ -684,6 +791,184 @@
                                     <span class="block w-4 h-4" x-icon="'plus'"></span>
                                     Masukkan ke Editor
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cutscene Node Inspector -->
+                    <div x-data="{ open: true }" x-show="post.postMode === 'cutscene' && selectedNodeId" x-transition class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-brand-700 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/10 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <span class="block w-4 h-4" x-icon="'settings'"></span>
+                                <span>Properti Node</span>
+                            </span>
+                            <span class="block w-4 h-4 text-brand-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-4 border-t border-gray-50 dark:border-gray-800/50 bg-brand-50/20 dark:bg-brand-900/5 space-y-4">
+                            
+                            <template x-if="activeNode()">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest" x-text="'Tipe: ' + activeNode().type"></span>
+                                        <button @click="removeCutsceneNode(activeNode().id)" class="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 p-1 rounded transition-colors"><span class="w-3.5 h-3.5 block" x-icon="'trash'"></span></button>
+                                    </div>
+                                    
+                                    <!-- Panel Fields -->
+                                    <template x-if="activeNode().type === 'panel'">
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Image URL <span class="text-red-500">*</span></label>
+                                                <div class="flex gap-2">
+                                                    <input type="text" x-model="activeNode().imageUrl" class="flex-1 rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+                                                    <button @click="openAlbumPicker('imageUrl', 'image')" class="shrink-0 p-2 bg-brand-100 text-brand-600 rounded-lg hover:bg-brand-200 dark:bg-brand-900/30 dark:text-brand-400" title="Pilih dari Album"><span class="w-4 h-4 block" x-icon="'image'"></span></button>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <div>
+                                                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Speaker</label>
+                                                    <input type="text" x-model="activeNode().speaker" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Posisi</label>
+                                                    <select x-model="activeNode().speakerPosition" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900">
+                                                        <option value="left">Kiri</option><option value="center">Tengah</option><option value="right">Kanan</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Dialog (ID)</label>
+                                                <textarea x-model="activeNode().dialogText.id" rows="2" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900"></textarea>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Dialog (EN)</label>
+                                                <textarea x-model="activeNode().dialogText.en" rows="2" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900"></textarea>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Video Fields -->
+                                    <template x-if="activeNode().type === 'video'">
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Video Blogger ID <span class="text-red-500">*</span></label>
+                                                <div class="flex gap-2">
+                                                    <input type="text" x-model="activeNode().videoBloggerId" placeholder="cth: c577140910d6389d" class="flex-1 rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 font-mono" />
+                                                    <button @click="openAlbumPicker('videoBloggerId', 'video')" class="shrink-0 p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400" title="Pilih Video dari Album"><span class="w-4 h-4 block" x-icon="'video'"></span></button>
+                                                </div>
+                                                <p class="text-[9px] text-gray-400 mt-1">ID contentid Blogger (Otomatis diekstrak jika pilih dari album)</p>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <input type="checkbox" x-model="activeNode().autoPlay" class="rounded border-gray-300 text-brand-500" />
+                                                <label class="text-[10px] font-bold text-gray-500 uppercase">Autoplay Video</label>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Narration Fields -->
+                                    <template x-if="activeNode().type === 'narration'">
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Teks Narasi (ID)</label>
+                                                <textarea x-model="activeNode().text.id" rows="3" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900"></textarea>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Teks Narasi (EN)</label>
+                                                <textarea x-model="activeNode().text.en" rows="3" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900"></textarea>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Style</label>
+                                                <select x-model="activeNode().style" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900">
+                                                    <option value="typewriter">Typewriter</option><option value="fade">Fade In</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Choice Fields -->
+                                    <template x-if="activeNode().type === 'choice'">
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pertanyaan (ID)</label>
+                                                <input type="text" x-model="activeNode().prompt.id" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pertanyaan (EN)</label>
+                                                <input type="text" x-model="activeNode().prompt.en" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900" />
+                                            </div>
+                                            
+                                            <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Opsi Pilihan</label>
+                                                <div class="space-y-2">
+                                                    <template x-for="(opt, idx) in activeNode().options" :key="idx">
+                                                        <div class="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-black/20 relative group">
+                                                            <button @click="removeChoiceOption(activeNode().id, idx)" class="absolute top-1 right-1 p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><span class="w-3 h-3 block" x-icon="'trash'"></span></button>
+                                                            <input type="text" x-model="opt.label.id" placeholder="Teks opsi (ID)" class="w-full bg-transparent border-b border-gray-200 dark:border-gray-700 px-1 py-1 text-[11px] mb-1 outline-none focus:border-brand-500" />
+                                                            <input type="text" x-model="opt.label.en" placeholder="Teks opsi (EN)" class="w-full bg-transparent border-b border-gray-200 dark:border-gray-700 px-1 py-1 text-[11px] mb-1 outline-none focus:border-brand-500" />
+                                                            <div class="flex items-center gap-2 mt-1">
+                                                                <span class="text-[9px] text-gray-500 font-bold uppercase">Lompat Ke:</span>
+                                                                <select x-model="opt.nextNodeId" class="flex-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded px-1 py-0.5 text-[10px]">
+                                                                    <option value="">Lanjut Otomatis</option>
+                                                                    <template x-for="n in cutsceneNodes.filter(nn => nn.id !== activeNode().id)" :key="n.id">
+                                                                        <option :value="n.id" x-text="n.type.toUpperCase() + ' (' + n.id + ')'"></option>
+                                                                    </template>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                    <button @click="addChoiceOption(activeNode().id)" class="w-full py-1.5 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-[10px] font-bold text-gray-500 hover:text-brand-500 hover:border-brand-500 transition-colors">+ Tambah Opsi</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    
+                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Efek Transisi</label>
+                                        <select x-model="activeNode().transition" class="w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900">
+                                            <option value="">Default (Settings)</option>
+                                            <option value="fade">Fade</option>
+                                            <option value="slide-left">Slide Left</option>
+                                            <option value="slide-right">Slide Right</option>
+                                            <option value="cinematic-fade">Cinematic Fade</option>
+                                            <option value="none">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Cutscene Global Settings -->
+                    <div x-data="{ open: false }" x-show="post.postMode === 'cutscene'" x-transition class="group">
+                        <button @click="open = !open"
+                            class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <span class="block w-4 h-4 text-brand-500" x-icon="'sliders'"></span>
+                                <span>Pengaturan Cutscene</span>
+                            </span>
+                            <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" x-icon="'chevron-down'"></span>
+                        </button>
+                        <div x-show="open" x-transition
+                            class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="checkbox" x-model="cutsceneSettings.autoPlay" class="rounded border-gray-300 text-brand-500" />
+                                    <label class="text-[11px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Auto-Play Cutscene</label>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Transisi Default</label>
+                                    <select x-model="cutsceneSettings.transitionEffect" class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-black/50">
+                                        <option value="fade">Fade</option><option value="slide-left">Slide Left</option><option value="cinematic-fade">Cinematic Fade</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Background Music URL</label>
+                                    <input type="text" x-model="cutsceneSettings.bgmUrl" placeholder="https://.../bgm.mp3"
+                                        class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 dark:border-gray-700 dark:bg-black/50" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1031,6 +1316,64 @@
                     class="rounded-lg bg-brand-500 px-6 py-2 text-xs font-bold text-white hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20">
                     Tambahkan
                 </button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Album Picker Modal -->
+    <div x-show="showAlbumPickerModal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6" x-cloak>
+        <div x-show="showAlbumPickerModal" x-transition.opacity class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+            @click="showAlbumPickerModal = false"></div>
+
+        <div x-show="showAlbumPickerModal" x-transition.scale.origin.bottom
+            class="relative w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4 shrink-0">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span class="block w-5 h-5 text-brand-500" x-icon="'folder'"></span>
+                    <span x-text="'Pilih ' + (albumPickerType === 'video' ? 'Video' : 'Gambar') + ' dari Album'"></span>
+                </h3>
+                <button type="button" @click="showAlbumPickerModal = false"
+                    class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <span class="block w-5 h-5" x-icon="'close'"></span>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 bg-gray-50/50 dark:bg-black/20">
+                <div x-show="albumFiles.length === 0" class="flex flex-col items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500 mb-4"></div>
+                    <span class="text-sm text-gray-500">Memuat album...</span>
+                </div>
+                
+                <div x-show="albumFiles.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <template x-for="file in filteredAlbumFiles()" :key="file.id">
+                        <div @click="selectAlbumFile(file)" class="group relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden cursor-pointer hover:border-brand-500 hover:shadow-lg transition-all aspect-square flex flex-col">
+                            <div class="flex-1 bg-gray-100 dark:bg-gray-900 relative overflow-hidden">
+                                <img :src="file.thumbnailUrl || file.url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span class="bg-brand-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg">Pilih</span>
+                                </div>
+                                <template x-if="file.type === 'video'">
+                                    <div class="absolute top-2 right-2 bg-red-500/90 backdrop-blur text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                        <span class="w-3 h-3 block" x-icon="'video'"></span>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="p-2 border-t border-gray-100 dark:border-gray-700">
+                                <h4 class="text-[10px] font-bold text-gray-700 dark:text-gray-300 truncate" x-text="file.name"></h4>
+                                <p class="text-[9px] text-gray-400 mt-0.5 font-mono truncate" x-text="file.type === 'video' ? 'ID: ' + file.bloggerId : 'Image'"></p>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="filteredAlbumFiles().length === 0" class="col-span-full py-12 text-center text-sm text-gray-500">
+                        Tidak ada file yang sesuai.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex items-center justify-end gap-2 shrink-0 border-t border-gray-100 dark:border-gray-800">
+                <button type="button" @click="showAlbumPickerModal = false"
+                    class="rounded-lg border border-gray-200 bg-white px-5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-700 dark:bg-black/50 dark:text-gray-300 dark:hover:bg-white/5">Tutup</button>
             </div>
         </div>
     </div>
