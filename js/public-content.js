@@ -1106,6 +1106,8 @@
                 dragOffset: { x: 0, y: 0 },
                 isToolbarPinned: true,
                 itemsPerPage: 10,
+                editorCurrentPage: 1,
+                editorTotalPages: 0,
                 comicPageUrls: [''],
                 imageSettingsModal: false,
                 masterScriptModal: false, // UI Toggle untuk Modal Master Script
@@ -1125,6 +1127,32 @@
                     const start = (this.currentPage - 1) * this.itemsPerPage;
                     const end = start + this.itemsPerPage;
                     return this.posts.slice(start, end);
+                },
+
+                calculateCurrentPage() {
+                    if (this.post.postMode !== 'comic') return;
+                    const editor = document.getElementById('classic-editor-body');
+                    if (!editor) return;
+                    const container = editor.parentElement;
+                    const images = editor.querySelectorAll('img');
+                    this.editorTotalPages = images.length;
+                    
+                    if (this.editorTotalPages === 0) {
+                        this.editorCurrentPage = 0;
+                        return;
+                    }
+
+                    let foundPage = 1;
+                    const containerRect = container.getBoundingClientRect();
+                    const centerLine = containerRect.top + (containerRect.height / 2);
+
+                    images.forEach((img, index) => {
+                        const rect = img.getBoundingClientRect();
+                        if (rect.top <= centerLine && rect.bottom >= centerLine) {
+                            foundPage = index + 1;
+                        }
+                    });
+                    this.editorCurrentPage = foundPage;
                 },
 
                 // Fungsi untuk membuka modal naskah dialog
@@ -1766,6 +1794,10 @@
                     }
 
                     showToast(`${newUrls.length} Gambar baru ditambahkan ke bagian bawah`, 'success');
+                    
+                    setTimeout(() => {
+                        this.calculateCurrentPage();
+                    }, 100);
                 },
 
                 insertBulkImages(urlText) {
