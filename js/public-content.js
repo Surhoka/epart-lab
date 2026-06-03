@@ -950,7 +950,7 @@
                 isVideo(file) {
                     return this.isYoutube(file) || this.isBloggerVideo(file) || (file.contenttype && file.contenttype.includes('video'));
                 },
-                
+
                 formatDate(value) {
                     if (!value) return '-';
                     try {
@@ -1767,11 +1767,11 @@
                         return;
                     }
 
-                    // [FIX DUPLIKAT] Ambil semua URL gambar yang sudah ada di editor saat ini
-                    const existingImages = Array.from(editor.querySelectorAll('img')).map(img => img.src);
+                    // [FIX DUPLIKAT] Ambil semua URL yang sudah ada di editor (img maupun iframe)
+                    const existingNodes = Array.from(editor.querySelectorAll('img, iframe'));
+                    const existingUrls = existingNodes.map(node => node.src || node.getAttribute('src'));
 
-                    // Filter: Hanya ambil URL dari sidebar yang BELUM ada di editor
-                    const newUrls = validUrls.filter(url => !existingImages.includes(url.trim()));
+                    const newUrls = validUrls.filter(url => !existingUrls.includes(url.trim()));
 
                     if (newUrls.length === 0) {
                         showToast('Semua gambar sudah ada di dalam editor', 'info');
@@ -1779,7 +1779,17 @@
                     }
                     let html = '';
                     newUrls.forEach(url => {
-                        html += `<img src="${url.trim()}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
+                        const trimmedUrl = url.trim();
+                        const ytId = extractYoutubeId(trimmedUrl);
+                        const bloggerVideoMatch = trimmedUrl.match(/id=([a-f0-9]{16})/);
+
+                        if (ytId) {
+                            html += `<iframe src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen class="w-full aspect-video block" style="width:100%; aspect-ratio:16/9; margin:0; display:block;"></iframe>`;
+                        } else if (trimmedUrl.includes('blogger.com/video') && bloggerVideoMatch) {
+                            html += `<iframe src="https://www.blogger.com/video-embed.g?id=${bloggerVideoMatch[1]}" frameborder="0" allowfullscreen class="w-full aspect-video block" style="width:100%; aspect-ratio:16/9; margin:0; display:block;"></iframe>`;
+                        } else {
+                            html += `<img src="${trimmedUrl}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
+                        }
                     });
 
                     // [FIX] Gunakan insertAdjacentHTML untuk memastikan gambar ditambahkan ke bagian paling bawah DOM
