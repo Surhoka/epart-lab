@@ -1244,9 +1244,9 @@
 
                 // Helper untuk membuat placeholder visual video agar tidak kena "refused to connect" di editor
                 _createVideoPlaceholder(url, type, previewUrl = null) {
-                    const label = type === 'youtube' ? 'YouTube Video' : (type === 'drive' ? 'Google Drive Video (Direct)' : 'Blogger Video');
-                    const icon = type === 'youtube' ? '🎬' : (type === 'drive' ? '📁' : '🎥');
-                    const color = type === 'drive' ? '#10b981' : (type === 'youtube' ? '#ef4444' : '#3b82f6');
+                    const label = type === 'youtube' ? 'YouTube Video' : 'Google Drive Video (Direct)';
+                    const icon = type === 'youtube' ? '🎬' : '📁';
+                    const color = type === 'youtube' ? '#ef4444' : '#10b981';
                     const targetUrl = previewUrl || url;
                     return `
                         <div class="ezy-video-placeholder w-full aspect-video flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl my-4 cursor-default select-none" 
@@ -1943,14 +1943,10 @@
                         const trimmedUrl = url.trim();
                         const ytId = extractYoutubeId(trimmedUrl);
                         const driveId = this._extractDriveId(trimmedUrl);
-                        const bloggerVideoMatch = trimmedUrl.match(/id=([a-f0-9]{16})/);
 
                         if (ytId) {
                             const videoUrl = `https://www.youtube.com/embed/${ytId}`;
                             html += this._createVideoPlaceholder(videoUrl, 'youtube');
-                        } else if (trimmedUrl.includes('blogger.com/video') && bloggerVideoMatch) {
-                            const videoUrl = `https://www.blogger.com/video-embed.g?id=${bloggerVideoMatch[1]}`;
-                            html += this._createVideoPlaceholder(videoUrl, 'blogger');
                         } else if (driveId) {
                             const videoUrl = `https://drive.google.com/uc?id=${driveId}`;
                             html += this._createVideoPlaceholder(videoUrl, 'drive', trimmedUrl);
@@ -2078,14 +2074,14 @@
                                 newNode.setAttribute('controls', '');
                                 newNode.setAttribute('playsinline', '');
                             } else {
-                                // Gunakan iframe untuk YouTube/Blogger
+                                // Gunakan iframe untuk YouTube
                                 newNode = tempDoc.createElement('iframe');
                                 newNode.src = p.dataset.src;
                             }
 
                             newNode.className = p.className.replace('ezy-video-placeholder', '').trim();
                             newNode.style.cssText = p.style.cssText;
-                            p.parentNode.replaceChild(iframe, p);
+                            p.parentNode.replaceChild(newNode, p);
                         });
                         contentHtml = tempDoc.body.innerHTML;
 
@@ -2209,7 +2205,7 @@
                         doc.querySelectorAll('iframe, video').forEach(node => {
                             const src = node.src || node.getAttribute('src');
                             const type = src.includes('youtube') ? 'youtube' :
-                                (src.includes('drive.google.com') ? 'drive' : 'blogger');
+                                'drive';
 
                             const placeholderHtml = this._createVideoPlaceholder(src, type);
                             const tempDiv = document.createElement('div');
