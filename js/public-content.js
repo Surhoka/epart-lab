@@ -920,7 +920,7 @@
                                 blogId: getBlogId(),
                                 fileName: title,
                                 originalFileName: url,  // URL asli Drive
-                                fileUrl: directUrl,       // Link direct streaming
+                                fileurl: directUrl,       // Link direct streaming
                                 thumbnailUrl: '',
                                 contentType: 'drive',
                                 mimeType: 'video/mp4',
