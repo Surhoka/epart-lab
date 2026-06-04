@@ -909,7 +909,7 @@
                     if (!driveId) { showToast('URL Google Drive tidak valid.', 'error'); return; }
 
                     this.driveInput.isSaving = true;
-                    const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+                    const directUrl = `https://drive.google.com/uc?id=${driveId}`;
                     const title = (this.driveInput.title || '').trim() || `Drive Video ${driveId.slice(-4)}`;
 
                     try {
@@ -1243,10 +1243,11 @@
                 },
 
                 // Helper untuk membuat placeholder visual video agar tidak kena "refused to connect" di editor
-                _createVideoPlaceholder(url, type) {
+                _createVideoPlaceholder(url, type, previewUrl = null) {
                     const label = type === 'youtube' ? 'YouTube Video' : (type === 'drive' ? 'Google Drive Video (Direct)' : 'Blogger Video');
                     const icon = type === 'youtube' ? '🎬' : (type === 'drive' ? '📁' : '🎥');
                     const color = type === 'drive' ? '#10b981' : (type === 'youtube' ? '#ef4444' : '#3b82f6');
+                    const targetUrl = previewUrl || url;
                     return `
                         <div class="ezy-video-placeholder w-full aspect-video flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl my-4 cursor-default select-none" 
                              data-src="${url}" 
@@ -1257,7 +1258,7 @@
                             <span style="font-size:14px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">${label}</span>
                             <span style="font-size:11px; color:#94a3b8; margin-top:6px; max-width:80%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:monospace;">${url}</span>
                             <div style="margin-top:20px; display:flex; gap:10px;">
-                                <a href="${url}" target="_blank" style="padding:6px 16px; background:${color}; color:white; border-radius:99px; font-size:10px; font-weight:bold; text-decoration:none; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">BUKA PRATINJAU VIDEO ↗</a>
+                                <a href="${targetUrl}" target="_blank" style="padding:6px 16px; background:${color}; color:white; border-radius:99px; font-size:10px; font-weight:bold; text-decoration:none; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">BUKA PRATINJAU VIDEO ↗</a>
                             </div>
                         </div>
                     `.replace(/[\r\n]+/g, ' ').trim();
@@ -1951,8 +1952,8 @@
                             const videoUrl = `https://www.blogger.com/video-embed.g?id=${bloggerVideoMatch[1]}`;
                             html += this._createVideoPlaceholder(videoUrl, 'blogger');
                         } else if (driveId) {
-                            const videoUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
-                            html += this._createVideoPlaceholder(videoUrl, 'drive');
+                            const videoUrl = `https://drive.google.com/uc?id=${driveId}`;
+                            html += this._createVideoPlaceholder(videoUrl, 'drive', trimmedUrl);
                         } else {
                             html += `<img src="${trimmedUrl}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                         }
