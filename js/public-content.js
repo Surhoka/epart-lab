@@ -1166,6 +1166,87 @@
                     this.editorCurrentPage = foundPage;
                 },
 
+                // Helper untuk membuat placeholder visual video agar tidak kena "refused to connect" di editor
+                _createVideoPlaceholder(url, type) {
+                    const label = type === 'youtube' ? 'YouTube Video' : 'Blogger Video';
+                    const icon = type === 'youtube' ? '🎬' : '🎥';
+                    return `
+                        <div class="ezy-video-placeholder w-full aspect-video flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl my-4 cursor-default select-none" 
+                             data-src="${url}" 
+                             data-video-type="${type}"
+                             contenteditable="false"
+                             style="width:100%; aspect-ratio:16/9; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border:2px dashed #e2e8f0; margin:20px 0; border-radius:12px; position:relative; overflow:hidden;">
+                            <span style="font-size:48px; margin-bottom:12px; filter:grayscale(0.5); opacity:0.6;">${icon}</span>
+                            <span style="font-size:14px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">${label}</span>
+                            <span style="font-size:11px; color:#94a3b8; margin-top:6px; max-width:80%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:monospace;">${url}</span>
+                            <div style="margin-top:20px; padding:6px 16px; background:#3b82f6; color:white; border-radius:99px; font-size:10px; font-weight:bold; box-shadow:0 4px 6px -1px rgba(59,130,246,0.2);">PRATINJAU DINONAKTIFKAN DI EDITOR</div>
+                        </div>
+                    `.replace(/[\r\n]+/g, ' ').trim();
+                },
+
+                // Fungsi untuk memasukkan menu pilihan interaktif (Branching Story)
+                insertChoiceNode() {
+                    const editor = document.getElementById('classic-editor-body');
+                    if (!editor) return;
+
+                    const id = 'choice-' + Date.now();
+                    const editorWidth = editor.getBoundingClientRect().width || 800;
+
+                    const scrollContainer = editor.parentElement;
+                    const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+                    const topPos = Math.max(50, scrollTop + 100);
+                    const topCqi = (topPos / editorWidth * 100).toFixed(2);
+
+                    const html = `
+                        <div class="speech-bubble interactive-choice-container group/choice" 
+                             data-id="${id}" 
+                             data-type="choice" 
+                             data-trigger-time="0"
+                             style="position: absolute; top: ${topCqi}cqi; left: 10%; width: 80%; z-index: 50; rotate: 0deg;" 
+                             contenteditable="false">
+                            <div class="drag-handle opacity-0 group-hover/choice:opacity-100 absolute -top-8 left-0 bg-brand-600 text-white px-3 py-1 rounded-t-lg text-[10px] font-black tracking-widest cursor-move select-none shadow-lg">
+                                ⚡ INTERACTIVE BRANCH
+                            </div>
+                            <div class="flex flex-col gap-3 p-6 bg-slate-900/90 backdrop-blur-xl rounded-2xl rounded-tl-none border-2 border-white/20 shadow-2xl">
+                                <!-- Timing Control -->
+                                <div class="flex items-center justify-between mb-1 pb-2 border-b border-white/10">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Appear at (sec)</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" value="0" min="0" step="0.5" 
+                                               class="w-16 bg-white/5 border border-white/10 rounded px-2 py-0.5 text-[10px] text-brand-400 text-center focus:ring-1 focus:ring-brand-500 outline-none"
+                                               oninput="this.closest('.interactive-choice-container').dataset.triggerTime = this.value"
+                                               title="Waktu video (detik) saat tombol ini muncul">
+                                        <span class="text-[10px] text-slate-500 font-bold">s</span>
+                                    </div>
+                                </div>
+
+                                <div class="choice-option group/opt relative" data-target="">
+                                    <div class="bg-white/10 hover:bg-brand-500/40 border border-white/20 rounded-xl p-3 text-white text-center font-bold text-sm cursor-text transition-all focus:ring-2 focus:ring-brand-400 outline-none" 
+                                         contenteditable="true" 
+                                         title="Ketik teks tombol A di sini"
+                                         oninput="this.closest('.choice-option').dataset.label = this.innerText">Pilihan Alur A</div>
+                                    <input type="text" placeholder="Target (Slug/URL)" 
+                                           class="w-full mt-1 bg-black/40 border-none text-[9px] text-brand-300 text-center rounded py-0.5 focus:ring-1 focus:ring-brand-500" 
+                                           oninput="this.closest('.choice-option').dataset.target = this.value">
+                                </div>
+                                <div class="choice-option group/opt relative" data-target="">
+                                    <div class="bg-white/10 hover:bg-brand-500/40 border border-white/20 rounded-xl p-3 text-white text-center font-bold text-sm cursor-text transition-all focus:ring-2 focus:ring-brand-400 outline-none" 
+                                         contenteditable="true" 
+                                         title="Ketik teks tombol B di sini"
+                                         oninput="this.closest('.choice-option').dataset.label = this.innerText">Pilihan Alur B</div>
+                                    <input type="text" placeholder="Target (Slug/URL)" 
+                                           class="w-full mt-1 bg-black/40 border-none text-[9px] text-brand-300 text-center rounded py-0.5 focus:ring-1 focus:ring-brand-500" 
+                                           oninput="this.closest('.choice-option').dataset.target = this.value">
+                                </div>
+                            </div>
+                            <button type="button" onclick="this.closest('.interactive-choice-container').remove()" class="opacity-0 group-hover/choice:opacity-100 absolute -top-4 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer shadow-lg z-10 transition-all hover:scale-110 font-bold">×</button>
+                        </div>
+                    `.replace(/[\r\n]+/g, ' ').trim();
+
+                    editor.insertAdjacentHTML('beforeend', html);
+                    showToast('Menu pilihan ditambahkan. Tentukan waktu munculnya!', 'success');
+                },
+
                 // Fungsi untuk membuka modal naskah dialog
                 loadDialogScript() {
                     // Pre-fill dengan data yang sudah ada jika tersedia
@@ -1767,9 +1848,9 @@
                         return;
                     }
 
-                    // [FIX DUPLIKAT] Ambil semua URL yang sudah ada di editor (img maupun iframe)
-                    const existingNodes = Array.from(editor.querySelectorAll('img, iframe'));
-                    const existingUrls = existingNodes.map(node => node.src || node.getAttribute('src'));
+                    // [FIX DUPLIKAT] Ambil semua URL yang sudah ada di editor (img, iframe, maupun placeholder)
+                    const existingNodes = Array.from(editor.querySelectorAll('img, iframe, .ezy-video-placeholder'));
+                    const existingUrls = existingNodes.map(node => node.src || node.getAttribute('src') || node.dataset.src);
 
                     const newUrls = validUrls.filter(url => !existingUrls.includes(url.trim()));
 
@@ -1784,9 +1865,11 @@
                         const bloggerVideoMatch = trimmedUrl.match(/id=([a-f0-9]{16})/);
 
                         if (ytId) {
-                            html += `<iframe src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen class="w-full aspect-video block" style="width:100%; aspect-ratio:16/9; margin:0; display:block;"></iframe>`;
+                            const videoUrl = `https://www.youtube.com/embed/${ytId}`;
+                            html += this._createVideoPlaceholder(videoUrl, 'youtube');
                         } else if (trimmedUrl.includes('blogger.com/video') && bloggerVideoMatch) {
-                            html += `<iframe src="https://www.blogger.com/video-embed.g?id=${bloggerVideoMatch[1]}" frameborder="0" allowfullscreen class="w-full aspect-video block" style="width:100%; aspect-ratio:16/9; margin:0; display:block;"></iframe>`;
+                            const videoUrl = `https://www.blogger.com/video-embed.g?id=${bloggerVideoMatch[1]}`;
+                            html += this._createVideoPlaceholder(videoUrl, 'blogger');
                         } else {
                             html += `<img src="${trimmedUrl}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                         }
@@ -1897,6 +1980,18 @@
                     if (editorBody) {
                         let contentHtml = editorBody.innerHTML;
 
+                        // Transform placeholders to iframes for saving
+                        const tempParser = new DOMParser();
+                        const tempDoc = tempParser.parseFromString(contentHtml, 'text/html');
+                        tempDoc.querySelectorAll('.ezy-video-placeholder').forEach(p => {
+                            const iframe = tempDoc.createElement('iframe');
+                            iframe.src = p.dataset.src;
+                            iframe.className = p.className.replace('ezy-video-placeholder', '').trim();
+                            iframe.style.cssText = p.style.cssText;
+                            p.parentNode.replaceChild(iframe, p);
+                        });
+                        contentHtml = tempDoc.body.innerHTML;
+
                         // Jika Mode Comic, bersihkan JSON-LD lama, naskah lama, dan buat yang baru secara otomatis
                         if (this.post.postMode === 'comic') {
                             // Hapus script lama agar tidak terjadi duplikasi data di konten
@@ -1906,7 +2001,7 @@
                             // Ekstrak URL gambar terbaru dari apa yang ada di dalam editor saat ini
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(contentHtml, 'text/html');
-                            const images = Array.from(doc.querySelectorAll('img')).map(img => img.src).filter(src => src && !src.startsWith('data:'));
+                            const images = Array.from(doc.querySelectorAll('img, iframe')).map(node => node.src || node.getAttribute('src') || node.dataset.src).filter(src => src && !src.startsWith('data:'));
 
                             if (images.length > 0) {
                                 contentHtml += `<script type="application/ld+json">${JSON.stringify(this._generateComicJsonLd(images))}</script>`;
@@ -2003,13 +2098,28 @@
                     }
 
                     // Prioritas 2: Fallback ke tag <img> standar (Jika JSON-LD tidak ditemukan)
-                    const urls = Array.from(doc.querySelectorAll('img'))
-                        .map(img => img.src)
+                    const urls = Array.from(doc.querySelectorAll('img, iframe, .ezy-video-placeholder'))
+                        .map(node => node.src || node.getAttribute('src') || node.dataset.src)
                         .filter(src => src && !src.startsWith('data:'));
                     return [...new Set(urls)]; // Menghapus duplikasi
                 },
 
                 _switchToEditor(postData) {
+                    // Transform iframes to placeholders for editor display
+                    if (postData.content && postData.content.includes('<iframe')) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(postData.content, 'text/html');
+                        doc.querySelectorAll('iframe').forEach(iframe => {
+                            const type = iframe.src.includes('youtube') ? 'youtube' : 'blogger';
+                            const placeholderHtml = this._createVideoPlaceholder(iframe.src, type);
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = placeholderHtml;
+                            const newNode = tempDiv.firstElementChild;
+                            iframe.parentNode.replaceChild(newNode, iframe);
+                        });
+                        postData.content = doc.body.innerHTML;
+                    }
+
                     this.post = postData;
                     this.activeTab = 'editor';
                     this.savedRange = null; // Reset selection agar fallback bekerja
@@ -2021,6 +2131,11 @@
                         const editorBody = document.getElementById('classic-editor-body');
                         if (editorBody) {
                             editorBody.innerHTML = this.post.content || '';
+                            // RESTORE INPUT VALUES for choice nodes
+                            editorBody.querySelectorAll('.interactive-choice-container').forEach(container => {
+                                const input = container.querySelector('input[type="number"]');
+                                if (input) input.value = container.dataset.triggerTime || 0;
+                            });
                             editorBody.focus();
                         }
                         window.scrollTo({ top: 0, behavior: 'instant' });
