@@ -131,8 +131,7 @@
                         </svg>
                         Tambah Video YouTube
                     </button>
-                    <button type="button" @click.prevent.stop="openBloggerEditor()" <button type="button"
-                        @click.prevent.stop="openDriveModal()"
+                    <button type="button" @click.prevent.stop="openDriveModal()"
                         class="inline-flex items-center justify-center gap-2 rounded-brand border border-emerald-200 bg-white px-4 py-2.5 text-sm font-medium text-emerald-600 shadow-sm transition-all hover:border-emerald-300 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-800 dark:bg-gray-900 dark:text-emerald-400 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/20 dark:focus:ring-offset-gray-900 w-full sm:w-auto h-10">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
@@ -503,7 +502,7 @@
             <div class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="flex flex-col max-h-[90vh]">
                     <div
-                        class="sticky top-0 z-10 flex items-center justify-between border-b border-emerald-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-emerald-900/30 dark:bg-gray-900/80">
+                        class="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
                         <div class="flex items-center gap-3">
                             <div
                                 class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
@@ -515,38 +514,62 @@
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tambah Video Google Drive</h3>
                         </div>
                         <button @click="showDriveModal = false"
-                            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"><span
-                                class="block w-6 h-6" x-icon="'close'"></span></button>
+                            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
+                            <span class="block w-6 h-6" x-icon="'close'"></span>
+                        </button>
                     </div>
                     <div class="space-y-4 p-6">
-                        <div
-                            class="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
-                            <p class="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                                <strong>Info:</strong> Pastikan pengaturan file di Drive sudah diatur ke <strong>"Siapa
-                                    saja yang memiliki link"</strong> agar video dapat diputar oleh pengunjung.
-                            </p>
-                        </div>
+                        <!-- Preview dinamis (Video Player) -->
+                        <template x-if="driveInput.url && _extractDriveId(driveInput.url)">
+                            <div
+                                class="relative overflow-hidden rounded-2xl bg-black aspect-video flex items-center justify-center shadow-inner">
+                                <div class="absolute inset-0 flex items-center justify-center bg-emerald-900/10">
+                                    <svg class="w-12 h-12 text-emerald-500 opacity-30" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="1">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                                <video
+                                    :src="`https://drive.google.com/uc?export=download&id=${_extractDriveId(driveInput.url)}`"
+                                    class="w-full h-full object-contain relative z-10" controls playsinline></video>
+                            </div>
+                        </template>
+
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">URL File
                                 Google Drive <span class="text-red-500">*</span></label>
                             <input type="url" x-model="driveInput.url" placeholder="https://drive.google.com/file/d/..."
-                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white font-mono" />
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500 font-mono" />
+                            <p class="mt-1 text-[11px] text-gray-500">Mendukung format: drive.google.com/file/d/ID.
+                                Pastikan sharing publik aktif.</p>
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Judul /
                                 Caption</label>
                             <input type="text" x-model="driveInput.title" placeholder="Contoh: Cinematic Intro"
-                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-brand-500" />
+                            <p class="mt-1 text-[11px] text-gray-500">Opsional. Jika kosong, akan menggunakan ID file
+                                sebagai judul.</p>
                         </div>
                         <div class="flex items-center justify-end gap-3 pt-2">
-                            <button type="button" @click="showDriveModal = false" class="btn btn-outline">Batal</button>
-                            <button type="button" @click="addDriveVideo()" :disabled="driveInput.isSaving"
-                                class="inline-flex items-center justify-center gap-2 rounded-brand bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50">
+                            <button type="button" @click="showDriveModal = false"
+                                class="inline-flex items-center justify-center gap-2 rounded-brand border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900">
+                                Batal
+                            </button>
+                            <button id="save-drive-btn" type="button" @click="addDriveVideo()"
+                                :disabled="driveInput.isSaving"
+                                class="inline-flex items-center justify-center gap-2 rounded-brand bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-900">
+                                <template x-if="!driveInput.isSaving">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </template>
                                 <template x-if="driveInput.isSaving">
                                     <span
-                                        class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                        class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                                 </template>
-                                <span x-text="driveInput.isSaving ? 'Menyimpan...' : 'Simpan ke Album'"></span>
+                                <span x-text="driveInput.isSaving ? 'Menyimpan...' : 'Simpan Video'"></span>
                             </button>
                         </div>
                     </div>
