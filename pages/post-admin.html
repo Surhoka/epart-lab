@@ -2,7 +2,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Bangers&display=swap');
 
-        #classic-editor-body img {
+        #classic-editor-body img,
+        #classic-editor-body iframe,
+        #classic-editor-body .ezy-video-placeholder {
             transition: all 0.2s;
             outline: 2px solid transparent;
             display: block !important;
@@ -25,7 +27,6 @@
 
         .speech-bubble {
             cursor: move;
-            user-select: none;
             transition: transform 0.1s;
         }
 
@@ -472,6 +473,11 @@
                                     class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"><span
                                         class="block w-4 h-4" x-icon="'type'"></span>
                                     <div class="tooltip">Insert Text</div>
+                                </button>
+                                <button @click="insertChoiceNode()"
+                                    class="group relative flex h-9 w-9 items-center justify-center rounded-xl text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20"><span
+                                        class="block w-4 h-4" x-icon="'zap'"></span>
+                                    <div class="tooltip">Insert Choice (Branching)</div>
                                 </button>
                             </div>
 
