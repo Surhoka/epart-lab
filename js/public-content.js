@@ -464,9 +464,11 @@
                 isSyncing: false,
                 showAlbumModal: false,
                 showYoutubeModal: false,
+                showDriveModal: false,
                 isEditing: false,
                 editingAlbum: {},
                 youtubeInput: { url: '', title: '', isSaving: false },
+                driveInput: { url: '', title: '', isSaving: false },
                 currentPage: 1,
                 itemsPerPage: 10,
 
@@ -882,6 +884,64 @@
                     this.showYoutubeModal = true;
                 },
 
+                // Helper untuk mengekstrak ID dari URL Google Drive di Album Manager
+                _extractDriveId(url) {
+                    if (!url) return null;
+                    const regex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]+)/;
+                    const match = String(url).match(regex);
+                    return match ? match[1] : null;
+                },
+
+                openDriveModal() {
+                    if (!this.selectedAlbumId) {
+                        showToast('Pilih album terlebih dahulu!', 'warning');
+                        return;
+                    }
+                    this.driveInput = { url: '', title: '', isSaving: false };
+                    this.showDriveModal = true;
+                },
+
+                async addDriveVideo() {
+                    const url = (this.driveInput.url || '').trim();
+                    if (!url) { showToast('URL Google Drive harus diisi', 'warning'); return; }
+
+                    const driveId = this._extractDriveId(url);
+                    if (!driveId) { showToast('URL Google Drive tidak valid.', 'error'); return; }
+
+                    this.driveInput.isSaving = true;
+                    const directUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+                    const title = (this.driveInput.title || '').trim() || `Drive Video ${driveId.slice(-4)}`;
+
+                    try {
+                        const res = await new Promise((resolve, reject) => {
+                            window.sendDataToGoogle('saveAlbumImage', {
+                                albumId: this.selectedAlbumId,
+                                dbId: this.dbId,
+                                blogId: getBlogId(),
+                                fileName: title,
+                                originalFileName: url,  // URL asli Drive
+                                fileUrl: directUrl,       // Link direct streaming
+                                thumbnailUrl: '',
+                                contentType: 'drive',
+                                mimeType: 'video/mp4',
+                                size: 0
+                            }, resolve, reject);
+                        });
+
+                        if (res?.status === 'success') {
+                            showToast('✅ Video Drive berhasil ditambahkan!', 'success');
+                            this.showDriveModal = false;
+                            await this.fetchAlbumFiles(this.selectedAlbumId);
+                        } else {
+                            showToast(res?.message || 'Gagal menyimpan video', 'error');
+                        }
+                    } catch (e) {
+                        showToast('Terjadi kesalahan: ' + e, 'error');
+                    } finally {
+                        this.driveInput.isSaving = false;
+                    }
+                },
+
                 async addYoutubeVideo() {
                     const url = (this.youtubeInput.url || '').trim();
                     if (!url) { showToast('URL YouTube harus diisi', 'warning'); return; }
@@ -932,6 +992,9 @@
                         const embedMatch = String(file.fileurl || '').match(/embed\/([a-zA-Z0-9_-]{11})/);
                         if (embedMatch) return `https://img.youtube.com/vi/${embedMatch[1]}/hqdefault.jpg`;
                     }
+                    if (file.contenttype === 'drive') {
+                        return 'https://www.gstatic.com/images/branding/product/2x/drive_48dp.png';
+                    }
                     if (file.contenttype === 'blogger_video') {
                         return 'https://www.gstatic.com/images/icons/material/system/2x/movie_black_48dp.png';
                     }
@@ -943,12 +1006,16 @@
                     return file.contenttype === 'youtube' || file.mimetype === 'video/youtube';
                 },
 
+                isDriveVideo(file) {
+                    return file.contenttype === 'drive';
+                },
+
                 isBloggerVideo(file) {
                     return file.contenttype === 'blogger_video';
                 },
 
                 isVideo(file) {
-                    return this.isYoutube(file) || this.isBloggerVideo(file) || (file.contenttype && file.contenttype.includes('video'));
+                    return this.isYoutube(file) || this.isDriveVideo(file) || this.isBloggerVideo(file) || (file.contenttype && file.contenttype.includes('video'));
                 },
 
                 formatDate(value) {
