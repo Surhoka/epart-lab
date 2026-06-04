@@ -670,7 +670,7 @@
                         <button @click="open = !open"
                             class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                             <span class="flex items-center gap-2">
-                                <span class="block w-4 h-4 text-brand-500" x-icon="'image'"></span>
+                                <span class="block w-4 h-4 text-brand-500" x-icon="'layers'"></span>
                                 <span>Susun Halaman Komik</span>
                             </span>
                             <span class="block w-4 h-4 text-gray-400 transition-transform duration-200"
@@ -680,7 +680,8 @@
                             class="px-4 pb-4 pt-2 border-t border-gray-50 dark:border-gray-800/50">
                             <div class="space-y-3">
                                 <p class="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed italic">
-                                    Masukkan URL gambar untuk setiap halaman komik secara berurutan.
+                                    Masukkan URL gambar atau video (Drive/YouTube) untuk setiap halaman secara
+                                    berurutan.
                                 </p>
                                 <div class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                                     <template x-for="(url, index) in comicPageUrls" :key="index">
@@ -689,7 +690,7 @@
                                                 x-text="index + 1"></div>
                                             <div class="flex-1">
                                                 <input type="text" x-model="comicPageUrls[index]"
-                                                    :placeholder="'Halaman ' + (index + 1)"
+                                                    :placeholder="'URL Halaman ' + (index + 1)"
                                                     class="w-full rounded-lg border-gray-200 bg-gray-50 px-3 py-2 text-[11px] font-mono focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-black/50" />
                                             </div>
                                             <button type="button" @click="removeComicPageField(index)"
