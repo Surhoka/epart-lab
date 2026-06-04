@@ -1924,7 +1924,7 @@
 
                     const validUrls = this.comicPageUrls.filter(u => u && u.trim() !== '');
                     if (validUrls.length === 0) {
-                        showToast('Silakan masukkan minimal satu URL gambar', 'warning');
+                        showToast('Silakan masukkan minimal satu URL halaman (gambar/video)', 'warning');
                         return;
                     }
 
@@ -1935,7 +1935,7 @@
                     const newUrls = validUrls.filter(url => !existingUrls.includes(url.trim()));
 
                     if (newUrls.length === 0) {
-                        showToast('Semua gambar sudah ada di dalam editor', 'info');
+                        showToast('Semua media sudah ada di dalam editor', 'info');
                         return;
                     }
                     let html = '';
@@ -1977,7 +1977,7 @@
                         editor.parentElement.scrollTop = editor.parentElement.scrollHeight;
                     }
 
-                    showToast(`${newUrls.length} Gambar baru ditambahkan ke bagian bawah`, 'success');
+                    showToast(`${newUrls.length} Halaman baru ditambahkan ke bagian bawah`, 'success');
 
                     setTimeout(() => {
                         this.calculateCurrentPage();
@@ -2094,7 +2094,7 @@
                             // Ekstrak URL gambar terbaru dari apa yang ada di dalam editor saat ini
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(contentHtml, 'text/html');
-                            const images = Array.from(doc.querySelectorAll('img, iframe')).map(node => node.src || node.getAttribute('src') || node.dataset.src).filter(src => src && !src.startsWith('data:'));
+                            const images = Array.from(doc.querySelectorAll('img, iframe, video')).map(node => node.src || node.getAttribute('src') || node.dataset.src).filter(src => src && !src.startsWith('data:'));
 
                             if (images.length > 0) {
                                 contentHtml += `<script type="application/ld+json">${JSON.stringify(this._generateComicJsonLd(images))}</script>`;
@@ -2191,7 +2191,7 @@
                     }
 
                     // Prioritas 2: Fallback ke tag <img> standar (Jika JSON-LD tidak ditemukan)
-                    const urls = Array.from(doc.querySelectorAll('img, iframe, .ezy-video-placeholder'))
+                    const urls = Array.from(doc.querySelectorAll('img, iframe, video, .ezy-video-placeholder'))
                         .map(node => node.src || node.getAttribute('src') || node.dataset.src)
                         .filter(src => src && !src.startsWith('data:'));
                     return [...new Set(urls)]; // Menghapus duplikasi
