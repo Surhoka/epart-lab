@@ -1096,6 +1096,7 @@
                     category: [],
                     tags: '',
                     image: '',
+                    video: '',
                     location: '',
                     commentOption: 'allow',
                     dateMode: 'auto',
@@ -1166,10 +1167,19 @@
                     this.editorCurrentPage = foundPage;
                 },
 
+                // Helper untuk mengekstrak ID dari URL Google Drive
+                _extractDriveId(url) {
+                    if (!url) return null;
+                    const regex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]+)/;
+                    const match = String(url).match(regex);
+                    return match ? match[1] : null;
+                },
+
                 // Helper untuk membuat placeholder visual video agar tidak kena "refused to connect" di editor
                 _createVideoPlaceholder(url, type) {
-                    const label = type === 'youtube' ? 'YouTube Video' : 'Blogger Video';
-                    const icon = type === 'youtube' ? '🎬' : '🎥';
+                    const label = type === 'youtube' ? 'YouTube Video' : (type === 'drive' ? 'Google Drive Video (Direct)' : 'Blogger Video');
+                    const icon = type === 'youtube' ? '🎬' : (type === 'drive' ? '📁' : '🎥');
+                    const color = type === 'drive' ? '#10b981' : (type === 'youtube' ? '#ef4444' : '#3b82f6');
                     return `
                         <div class="ezy-video-placeholder w-full aspect-video flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl my-4 cursor-default select-none" 
                              data-src="${url}" 
@@ -1179,7 +1189,9 @@
                             <span style="font-size:48px; margin-bottom:12px; filter:grayscale(0.5); opacity:0.6;">${icon}</span>
                             <span style="font-size:14px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">${label}</span>
                             <span style="font-size:11px; color:#94a3b8; margin-top:6px; max-width:80%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:monospace;">${url}</span>
-                            <div style="margin-top:20px; padding:6px 16px; background:#3b82f6; color:white; border-radius:99px; font-size:10px; font-weight:bold; box-shadow:0 4px 6px -1px rgba(59,130,246,0.2);">PRATINJAU DINONAKTIFKAN DI EDITOR</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;">
+                                <a href="${url}" target="_blank" style="padding:6px 16px; background:${color}; color:white; border-radius:99px; font-size:10px; font-weight:bold; text-decoration:none; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">BUKA PRATINJAU VIDEO ↗</a>
+                            </div>
                         </div>
                     `.replace(/[\r\n]+/g, ' ').trim();
                 },
@@ -1862,6 +1874,7 @@
                     newUrls.forEach(url => {
                         const trimmedUrl = url.trim();
                         const ytId = extractYoutubeId(trimmedUrl);
+                        const driveId = this._extractDriveId(trimmedUrl);
                         const bloggerVideoMatch = trimmedUrl.match(/id=([a-f0-9]{16})/);
 
                         if (ytId) {
@@ -1870,6 +1883,9 @@
                         } else if (trimmedUrl.includes('blogger.com/video') && bloggerVideoMatch) {
                             const videoUrl = `https://www.blogger.com/video-embed.g?id=${bloggerVideoMatch[1]}`;
                             html += this._createVideoPlaceholder(videoUrl, 'blogger');
+                        } else if (driveId) {
+                            const videoUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+                            html += this._createVideoPlaceholder(videoUrl, 'drive');
                         } else {
                             html += `<img src="${trimmedUrl}" draggable="true" class="w-full h-auto block m-0 p-0 cursor-pointer" style="width:100%; height:auto; margin:0; display:block;" alt="Comic Page" />`;
                         }
@@ -1984,10 +2000,23 @@
                         const tempParser = new DOMParser();
                         const tempDoc = tempParser.parseFromString(contentHtml, 'text/html');
                         tempDoc.querySelectorAll('.ezy-video-placeholder').forEach(p => {
-                            const iframe = tempDoc.createElement('iframe');
-                            iframe.src = p.dataset.src;
-                            iframe.className = p.className.replace('ezy-video-placeholder', '').trim();
-                            iframe.style.cssText = p.style.cssText;
+                            const type = p.dataset.videoType;
+                            let newNode;
+
+                            if (type === 'drive') {
+                                // Gunakan tag video untuk Drive (Raw URL)
+                                newNode = tempDoc.createElement('video');
+                                newNode.src = p.dataset.src;
+                                newNode.setAttribute('controls', '');
+                                newNode.setAttribute('playsinline', '');
+                            } else {
+                                // Gunakan iframe untuk YouTube/Blogger
+                                newNode = tempDoc.createElement('iframe');
+                                newNode.src = p.dataset.src;
+                            }
+
+                            newNode.className = p.className.replace('ezy-video-placeholder', '').trim();
+                            newNode.style.cssText = p.style.cssText;
                             p.parentNode.replaceChild(iframe, p);
                         });
                         contentHtml = tempDoc.body.innerHTML;
@@ -2105,17 +2134,20 @@
                 },
 
                 _switchToEditor(postData) {
-                    // Transform iframes to placeholders for editor display
-                    if (postData.content && postData.content.includes('<iframe')) {
+                    // Transform videos/iframes to placeholders for editor display
+                    if (postData.content && (postData.content.includes('<iframe') || postData.content.includes('<video'))) {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(postData.content, 'text/html');
-                        doc.querySelectorAll('iframe').forEach(iframe => {
-                            const type = iframe.src.includes('youtube') ? 'youtube' : 'blogger';
-                            const placeholderHtml = this._createVideoPlaceholder(iframe.src, type);
+                        doc.querySelectorAll('iframe, video').forEach(node => {
+                            const src = node.src || node.getAttribute('src');
+                            const type = src.includes('youtube') ? 'youtube' :
+                                (src.includes('drive.google.com') ? 'drive' : 'blogger');
+
+                            const placeholderHtml = this._createVideoPlaceholder(src, type);
                             const tempDiv = document.createElement('div');
                             tempDiv.innerHTML = placeholderHtml;
                             const newNode = tempDiv.firstElementChild;
-                            iframe.parentNode.replaceChild(newNode, iframe);
+                            node.parentNode.replaceChild(newNode, node);
                         });
                         postData.content = doc.body.innerHTML;
                     }
@@ -2156,6 +2188,7 @@
                         category: Array.isArray(rawCat) ? [...rawCat] : String(rawCat).split(',').map(c => c.trim()).filter(Boolean),
                         tags: getProp(item, 'tags'),
                         image: getProp(item, 'image'),
+                        video: getProp(item, 'video'),
                         dateCreated: getProp(item, 'dateCreated'),
                         location: getProp(item, 'location'),
                         commentOption: getProp(item, 'commentOption') || 'allow',
